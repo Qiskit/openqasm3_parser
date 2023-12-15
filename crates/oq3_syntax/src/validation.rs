@@ -3,11 +3,11 @@
 //! A failed validation emits a diagnostic.
 
 mod block;
-//mod oq3_lexer;
-pub use oq3_parser::{SyntaxKind, T};
+//mod lexer;
+pub use parser::{SyntaxKind, T};
 
 //use rowan::Direction;
-use oq3_lexer::unescape::{self, unescape_literal, Mode};
+use lexer::unescape::{self, unescape_literal, Mode};
 
 use crate::{
     ast::{self, IsString},

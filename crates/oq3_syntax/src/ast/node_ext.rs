@@ -5,7 +5,7 @@
 
 use std::{borrow::Cow};
 
-//use oq3_parser::SyntaxKind;
+//use parser::SyntaxKind;
 use rowan::{GreenNodeData, GreenTokenData};
 
 use crate::{

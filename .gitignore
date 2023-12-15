@@ -1,4 +1,4 @@
-/target
+target/
 /Cargo.lock
 dev_docs/diagrams
 crates/oq3_syntax/examples/oq3_source
@@ -7,6 +7,11 @@ organization.md
 parser_design.md
 restorenodes.sh
 restorgenerated.sh
-crates/oq3_parser/src/syntax_kind/_syntax_kind_enum.rs
+crates/parser/src/syntax_kind/_syntax_kind_enum.rs
 crates/oq3_syntax/src/ast/generated/_new_nodes.rs
 crates/oq3_syntax/src/ast/generated/_new_tokens.rs        
+.venv/
+.venvs/
+.env/
+.envs/
+.ackrc

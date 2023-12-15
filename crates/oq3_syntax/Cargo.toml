@@ -27,8 +27,8 @@ triomphe.workspace = true
 # local crates
 
 # rustc_lexer.workspace = true
-oq3_lexer.workspace = true
-oq3_parser.workspace = true
+lexer.workspace = true
+parser.workspace = true
 # profile.workspace = true
 stdx.workspace = true
 # text-edit.workspace = true

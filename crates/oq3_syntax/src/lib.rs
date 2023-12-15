@@ -58,7 +58,7 @@ pub use crate::{
     },
     token_text::TokenText,
 };
-pub use oq3_parser::{SyntaxKind, T};
+pub use parser::{SyntaxKind, T};
 pub use rowan::{
     api::Preorder, Direction, GreenNode, NodeOrToken, SyntaxText, TextRange, TextSize,
     TokenAtOffset, WalkEvent,

@@ -70,7 +70,8 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "delay", "reset", "measure",
         "pragma",  "end",
         "let",  "box", "extern",
-         "const", "barrier",
+        "const", "barrier",
+        "gphase", // This is a slight hack because a `gphase` call has unique syntax.
 
         // Flow control
         "if", "else", "for", "in", "while", "continue", "return", "break",
@@ -127,6 +128,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "CALL_EXPR",
         "CAST_EXPRESSION",
         "GATE_CALL_STMT",
+        "G_PHASE_CALL_STMT",
         "INDEX_EXPR",
         // unary
         "PREFIX_EXPR",

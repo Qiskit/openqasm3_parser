@@ -40,7 +40,7 @@ int[64] x = 142;
     parse_print_items(code);
 }
 
-//use oq3_parser::syntax_kind::SyntaxKind;
+//use parser::syntax_kind::SyntaxKind;
 fn main () {
     //    parts_testing();
     try_int_def();

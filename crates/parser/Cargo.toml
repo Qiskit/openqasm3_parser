@@ -1,0 +1,18 @@
+[package]
+name = "parser"
+version = "0.1.0"
+edition = "2021"
+
+# Added this explicit target just so I could disable the doc tests (GJL Sept 2023)
+[lib]
+name = "parser"
+doctest = false
+
+[dependencies]
+lexer.workspace = true
+drop_bomb = "0.1.5"
+
+limit.workspace = true
+
+[dev-dependencies]
+expect-test = "1.4.0"

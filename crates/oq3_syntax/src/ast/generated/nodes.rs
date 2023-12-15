@@ -79,6 +79,9 @@ impl Gate {
     pub fn gate_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![gate])
     }
+    pub fn qubit_args(&self) -> Option<ParamList> {
+        support::child(&self.syntax)
+    }
     pub fn body(&self) -> Option<BlockExpr> {
         support::child(&self.syntax)
     }
@@ -206,6 +209,18 @@ impl ast::HasName for GateCallStmt {}
 impl ast::HasArgList for GateCallStmt {}
 impl GateCallStmt {
     pub fn qubit_list(&self) -> Option<QubitList> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct GPhaseCallStmt {
+    pub(crate) syntax: SyntaxNode,
+}
+impl GPhaseCallStmt {
+    pub fn gphase_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![gphase])
+    }
+    pub fn arg(&self) -> Option<Expr> {
         support::child(&self.syntax)
     }
 }
@@ -959,6 +974,7 @@ pub enum Item {
     ClassicalDeclarationStatement(ClassicalDeclarationStatement),
     QuantumDeclarationStatement(QuantumDeclarationStatement),
     GateCallStmt(GateCallStmt),
+    GPhaseCallStmt(GPhaseCallStmt),
     LetStmt(LetStmt),
     AssignmentStmt(AssignmentStmt),
     Include(Include),
@@ -1221,6 +1237,21 @@ impl AstNode for QuantumDeclarationStatement {
 impl AstNode for GateCallStmt {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == GATE_CALL_STMT
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for GPhaseCallStmt {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == G_PHASE_CALL_STMT
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2088,6 +2119,11 @@ impl From<GateCallStmt> for Item {
         Item::GateCallStmt(node)
     }
 }
+impl From<GPhaseCallStmt> for Item {
+    fn from(node: GPhaseCallStmt) -> Item {
+        Item::GPhaseCallStmt(node)
+    }
+}
 impl From<LetStmt> for Item {
     fn from(node: LetStmt) -> Item {
         Item::LetStmt(node)
@@ -2165,6 +2201,7 @@ impl AstNode for Item {
                 | CLASSICAL_DECLARATION_STATEMENT
                 | QUANTUM_DECLARATION_STATEMENT
                 | GATE_CALL_STMT
+                | G_PHASE_CALL_STMT
                 | LET_STMT
                 | ASSIGNMENT_STMT
                 | INCLUDE
@@ -2195,6 +2232,7 @@ impl AstNode for Item {
                 Item::QuantumDeclarationStatement(QuantumDeclarationStatement { syntax })
             }
             GATE_CALL_STMT => Item::GateCallStmt(GateCallStmt { syntax }),
+            G_PHASE_CALL_STMT => Item::GPhaseCallStmt(GPhaseCallStmt { syntax }),
             LET_STMT => Item::LetStmt(LetStmt { syntax }),
             ASSIGNMENT_STMT => Item::AssignmentStmt(AssignmentStmt { syntax }),
             INCLUDE => Item::Include(Include { syntax }),
@@ -2223,6 +2261,7 @@ impl AstNode for Item {
             Item::ClassicalDeclarationStatement(it) => &it.syntax,
             Item::QuantumDeclarationStatement(it) => &it.syntax,
             Item::GateCallStmt(it) => &it.syntax,
+            Item::GPhaseCallStmt(it) => &it.syntax,
             Item::LetStmt(it) => &it.syntax,
             Item::AssignmentStmt(it) => &it.syntax,
             Item::Include(it) => &it.syntax,
@@ -2620,6 +2659,11 @@ impl std::fmt::Display for QuantumDeclarationStatement {
     }
 }
 impl std::fmt::Display for GateCallStmt {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for GPhaseCallStmt {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

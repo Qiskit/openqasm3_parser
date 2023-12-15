@@ -1,0 +1,7 @@
+# See https://rust-lang.github.io/rustfmt/?version=v1.6.0&search=
+
+# Use this when it becomes stable
+# reorder_impl_items = true
+
+# When use_small_heuristics is set to Max, then each granular width setting is set to the same value as max_width.
+# use_small_heuristics = "Max"

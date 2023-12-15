@@ -24,9 +24,9 @@
 //  1. Map it to an identifer in `fn method_name` in sourcegen_ast.rs. For example:
 //   `"++" => "double_plus"`
 //  2. Add ++ to KINDS_SRC in ast_src.rs
-//  3. Add T![++] to `fn eat` in oq3_parser/parser.rs 
-//  4. Add T![++] to `fn nth_at` in oq3_parser/parser.rs
-//  5. Add ++ to current_op in oq3_parser/src/grammar/expressions.rs.
+//  3. Add T![++] to `fn eat` in parser/parser.rs 
+//  4. Add T![++] to `fn nth_at` in parser/parser.rs
+//  5. Add ++ to current_op in parser/src/grammar/expressions.rs.
 //     Specify binding power and associtivity.
 //  6. Add ++ to BinExpr below if it's a binary op.
 //
@@ -86,6 +86,7 @@ Item =
 | ClassicalDeclarationStatement
 | QuantumDeclarationStatement
 | GateCallStmt
+| GPhaseCallStmt
 | LetStmt
 | AssignmentStmt
 | Include
@@ -298,6 +299,9 @@ CastExpression =
 
 GateCallStmt =
   Name ArgList? QubitList
+
+GPhaseCallStmt =
+ 'gphase' arg:Expr
 
 // label 'then_branch' is handled manually in expr_ext.rs
 IfStmt =

@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use clap::{Parser, Subcommand};
 
 use rowan::NodeOrToken; // TODO: this can be accessed from a higher level
-use oq3_lexer::{tokenize, Token};
-use oq3_parser::SyntaxKind;
+use lexer::{tokenize, Token};
+use parser::SyntaxKind;
 use oq3_syntax::{ast, parse_text, SourceFile, GreenNode};
 
 #[derive(Parser)]

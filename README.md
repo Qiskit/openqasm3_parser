@@ -1,32 +1,46 @@
 # OpenQASM 3 Parser
 
-This is a parser for the OpenQASM 3 language (OQ3) written in Rust.
+This project provides a compiler front end for OpenQASM 3 language (OQ3).
+
 In this document, this parser is referred to as `openqasm3_parser`.
+
+Differences with the [OpenQASM reference parser](https://github.com/openqasm/openqasm) are
+
+* The parser in `openqasm3_parser` is much more performant.
+  A crude test with large source files showed parse time reduced by a factor of 80.
+* `openqasm3_parser` performs semantic analysis.
+
+<details>
+  <summary>What is a rust "crate"</summary>
 
 We talk about rust ["crates"](https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html).
 A rust library crate is more or less the source for a rust library that is developed, built, and installed with the rust package manager [cargo](https://doc.rust-lang.org/cargo/).
 This single repository contains more than one separately installable crates. In the future, this repository may also be used to generate other artifacts.
 
-The code does not yet perfectly do everything promised below.
+</details>
+
+### Status
+
+There have been no releases of any kind. I'll try to keep something more or less meaningful in this spot.
+For instance, I hope to soon replace "I" with "we".
 
 ### Crates (roughly one installable library per crate)
 
-* [oq3_lexer](./crates/oq3_lexer) -- This is a lightly modified version of the `rustc` (the rust compiler) lexer.
-* [oq3_parser](./crates/oq3_parser) -- This parses OQ3 source as lexed by `oq3_lexer` into a nested sequence of tagged sections of text
-according the OQ3 grammar. This is based on the rust-analyzer parser crate. All nodes are represented by an instance
-of a single Rust `struct` (with some support `structs`).
-* [oq3_syntax](./crates/oq3_syntax) -- This crate transforms the AST produced by `oq3_parser` into an AST implemented
-as standard rust data structures: `enum` and `struct` and provides an interface for working with the AST.
-The types of these data structures reflect the syntactic elements of OQ3. The rust-analyzer
-documentation sometimes refers to this AST by something like "typed AST". This can be confusing. It does not mean that semantic
-analysis has been performed and OQ3 types have been assigned to all expressions. Rather it is meant to highlight the distinction:
-The AST produced by `oq3_syntax` represents syntactic elements using the rust type system. The lower AST produced by
-`oq3_parser` represents syntactic elements via tags.
-* [semantic_ast](./crates/semantic_ast) -- Generates an AST for OQ3 with the types of all typed OQ3 elements resolved and
-the referent of all identifiers resolved.
-* [source_file](./crates/source_file) -- A higher-level interface to the syntactic AST. This sits beetween the syntactic and
-semantic ASTs. This crate manages source files, and incuded source files, and diagnostic messages.
-* [ast_pyo3](./crates/source_file) A Python interface. This is a bit exploratory. But fixing the approach is a development priority.
+The first three crates are based on tools for `rust` and `rust-analyzer`.
+
+* [lexer](./crates/lexer) -- A lightly modified version of the `rustc` (the rust compiler) lexer.
+* [parser](./crates/parser) -- Ingests output of `lexer` and outputs a concrete syntax tree.
+* [oq3_syntax](./crates/oq3_syntax) -- Ingests output of `parser` and outputs an abstract syntax tree (AST).
+The rust-analyzer [documentation](#design) sometimes refers to this AST by something like "typed AST".
+This can be confusing. It does not mean that semantic
+analysis has been performed and OQ3 types have been assigned to all expressions. It means that the rust type system is
+used to encode syntactic elements, in contrast to some lower representations in the same crate.
+* [semantics](./crates/semantics) -- Performs [semantic analysis](https://en.wikipedia.org/wiki/Compiler#Front_end)
+and outputs an [abstract semantic graph (ASG)](https://en.wikipedia.org/wiki/Abstract_semantic_graph)
+There are other names for this structure. But "ASG" is convenient.
+* [source_file](./crates/source_file) -- A higher-level interface to the syntactic AST. This sits beetween the syntactic AST and
+semantic ASG. This crate manages the main source file and incuded source files.
+* [ast_pyo3](./crates/source_file) Experimental code. It will not be used in it's current form.
 
 #### Supporting crates
 
@@ -38,10 +52,27 @@ crate has a bug.
 Do not run `cargo test`. Rather use `./run_tests.sh` or commands found therein. This is because codegen is implemented via
 the test system (you read correctly). If possible, we plan to change this to a more conventional approach.
 
+### Using this front end
+
+A reminder: A front end is not of much use unless you have a back end. Examples showing the entry points and how to use them,
+can be found in [./crates/semantics/examples/semdemo.rs](./crates/semantics/examples/semdemo.rs).
+
+```shell
+shell> export QASM3_PATH=./crates/semantics/examples/qasm/
+shell> cargo run --example semdemo -- semantic scratch1.qasm
+```
+
+Replace `scratch1.qasm` with some file found in [./crates/semantics/examples/qasm/](./crates/semantics/examples/qasm/).
+
+#### Search path
+
+The environment variable `QASM_PATH` is a colon separated list of paths. Note that the name follows the venerable unix tradition of
+ending in `PATH` rather than `PATHS`. The code that retrives the paths uses routines `std::path` which may actually handle
+path specifications on other platforms.
+
 ### Design
 
 Code from rust-analyzer has been borrowed and modified for the lower levels of parsing.
-
 The [developer documents for rust-analyzer](https://github.com/rust-lang/rust-analyzer/tree/master/docs/dev) are very relevant as the
 structure has not been changed in adapting to OQ3.
 
@@ -52,10 +83,9 @@ structure has not been changed in adapting to OQ3.
     * [From Pratt to Dijkstra](https://matklad.github.io/2020/04/15/from-pratt-to-dijkstra.html)
     * [Resilient parsing](https://matklad.github.io/2023/05/21/resilient-ll-parsing-tutorial.html)
 
-
 ## Notes
 
-Some of this code is modified from code in [rust-analyzer](https://github.com/rust-lang/rust-analyzer).
+Some of this code is modified from code found in [rust-analyzer](https://github.com/rust-lang/rust-analyzer).
 It was taken at [this commit](https://github.com/rust-lang/rust-analyzer/pull/15380):
 
     commit d398ad3326780598bbf1480014f4c59fbf6461a7

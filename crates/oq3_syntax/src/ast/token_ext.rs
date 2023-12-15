@@ -3,7 +3,7 @@
 
 use std::borrow::Cow;
 
-use oq3_lexer::unescape::{
+use lexer::unescape::{
     unescape_byte, unescape_char, unescape_literal,  Mode,
 };
 
@@ -132,7 +132,7 @@ pub trait IsString: AstToken {
     }
     fn escaped_char_ranges(
         &self,
-        cb: &mut dyn FnMut(TextRange, Result<char, oq3_lexer::unescape::EscapeError>),
+        cb: &mut dyn FnMut(TextRange, Result<char, lexer::unescape::EscapeError>),
     ) {
         let text_range_no_quotes = match self.text_range_between_quotes() {
             Some(it) => it,

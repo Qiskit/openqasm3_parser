@@ -9,6 +9,7 @@ use crate::{TextRange, TextSize};
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SyntaxError(String, TextRange);
 
+// FIXME: The fixme comment below is retained from the original r-a code.
 // FIXME: there was an unused SyntaxErrorKind previously (before this enum was removed)
 // It was introduced in this PR: https://github.com/rust-lang/rust-analyzer/pull/846/files#diff-827da9b03b8f9faa1bade5cdd44d5dafR95
 // but it was not removed by a mistake.
@@ -23,6 +24,8 @@ impl SyntaxError {
     pub fn new(message: impl Into<String>, range: TextRange) -> Self {
         Self(message.into(), range)
     }
+
+    // Note that this is meant to convert from `TextSize` to `TextRange`, whatever these mean.
     pub fn new_at_offset(message: impl Into<String>, offset: TextSize) -> Self {
         Self(message.into(), TextRange::empty(offset))
     }
