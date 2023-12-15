@@ -1,0 +1,20 @@
+[package]
+name = "source_file"
+version = "0.0.0"
+description = "Manage parsing OQ3 source files, included files, and reporting diagnotics"
+
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+doctest = false
+
+[dependencies]
+ariadne = { version = "0.3.0", features = ["auto-color"] }
+oq3_syntax.workspace = true
+
+source-span = { version = "2.7.0" }
+
+[dev-dependencies]

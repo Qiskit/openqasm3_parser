@@ -1,0 +1,2 @@
+# Presence of this file is checked in sourcegen::project_root in ra_ap_sourcegen
+# If this file is not found, codegen is aborted.
