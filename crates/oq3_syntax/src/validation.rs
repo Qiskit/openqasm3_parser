@@ -4,7 +4,7 @@
 
 mod block;
 //mod lexer;
-pub use parser::{SyntaxKind, T};
+pub use parser::{T};
 
 //use rowan::Direction;
 use lexer::unescape::{self, unescape_literal, Mode};

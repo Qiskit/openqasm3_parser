@@ -7,7 +7,7 @@
 
 use std;
 use std::mem::replace;
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 
 use crate::asg;
 use crate::types;
@@ -54,7 +54,7 @@ impl<T: SourceTrait> ParseResult<T> {
     }
 
     pub fn symbol_table(&self) -> &SymbolTable {
-        &self.context.symbol_table()
+        self.context.symbol_table()
     }
 
     pub fn syntax_result(&self) -> &T {
@@ -88,7 +88,6 @@ pub fn parse_source_string<T: ToString>(
     source: T,
     fake_file_path: Option<&str>,
 ) -> ParseResult<SourceString> {
-    let file_path = PathBuf::from(fake_file_path.unwrap_or("no file"));
     let parsed_source = source_file::parse_source_string(source, fake_file_path);
     analyze_source(parsed_source)
 }
@@ -96,7 +95,6 @@ pub fn parse_source_string<T: ToString>(
 /// Parse source file to semantic ASG
 pub fn parse_source_file(file_path: &PathBuf) -> ParseResult<SourceFile> {
     let parsed_source = source_file::parse_source_file(file_path);
-    let full_path = parsed_source.file_path().clone();
     analyze_source(parsed_source)
 }
 

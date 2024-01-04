@@ -92,7 +92,8 @@ fn main() {
 
         Some(Commands::Semantic { file_name }) => {
             let result = syntax_to_semantics::parse_source_file(&file_name);
-            if let have_errors = result.any_errors() {
+            let have_errors = result.any_errors();
+            if have_errors {
                 println!("Found errors: {}", have_errors);
                 result.print_errors();
             }

@@ -4,7 +4,7 @@ use oq3_syntax::SyntaxNode;
 use source_file;
 use source_file::ErrorTrait;
 use std::fmt;
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 
 // re-exported in lib.rs from rowan
 use crate::TextRange;
@@ -99,7 +99,7 @@ impl SemanticErrorList {
 
     /// Print errors for the case that the top-level code is not associated
     /// with a file. For example it came from a literal string.
-    pub fn print_errors_no_file(&self, fake_file_path: &PathBuf, source: &str) {
+    pub fn print_errors_no_file(&self, fake_file_path: &Path, source: &str) {
         // print errors from top level.
         source_file::inner_print_compiler_errors(self, fake_file_path, source);
         // print (with recursion) errors from included files.

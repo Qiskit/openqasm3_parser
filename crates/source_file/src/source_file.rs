@@ -4,14 +4,13 @@ use oq3_syntax::TextRange;
 use std::env;
 use std::ffi::OsStr;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 
 // traits
 use oq3_syntax::ast::HasModuleItem;
 
 use crate::api::{
-    inner_print_compiler_errors, parse_source_file, parse_source_string, print_compiler_errors,
-    report_error,
+    inner_print_compiler_errors, parse_source_file, print_compiler_errors,
 };
 
 pub(crate) fn parse_source_and_includes(source: &str) -> (ParsedSource, Vec<SourceFile>) {
@@ -164,10 +163,7 @@ impl SourceFile {
 }
 
 pub fn search_paths() -> Option<Vec<PathBuf>> {
-    match env::var_os("QASM3_PATH") {
-        Some(paths) => Some(env::split_paths(&paths).collect::<Vec<_>>()),
-        None => None,
-    }
+    env::var_os("QASM3_PATH").map(|paths| env::split_paths(&paths).collect::<Vec<_>>())
 }
 
 // Expand path with search paths. Return input if expansion fails.
@@ -176,24 +172,21 @@ pub(crate) fn expand_path(file_path: &PathBuf) -> PathBuf {
         return file_path.clone();
     }
     let mut maybe_full_path = file_path.clone();
-    match search_paths() {
-        Some(paths) => {
-            for path in paths {
-                let fqpn = path.join(file_path);
-                if fqpn.is_file() {
-                    maybe_full_path = fqpn.clone();
-                    break;
-                }
+    if let Some(paths) = search_paths() {
+        for path in paths {
+            let fqpn = path.join(file_path);
+            if fqpn.is_file() {
+                maybe_full_path = fqpn.clone();
+                break;
             }
         }
-        None => (),
     }
     maybe_full_path
 }
 
 /// Read QASM3 source file, respecting env variable `QASM3_PATH` if set.
-pub(crate) fn read_source_file(file_path: &PathBuf) -> String {
-    match fs::read_to_string(file_path.clone()) {
+pub(crate) fn read_source_file(file_path: &Path) -> String {
+    match fs::read_to_string(file_path) {
         Ok(source) => source,
         Err(err) => panic!(
             "Unable to read OpenQASM source file '{}': {}",

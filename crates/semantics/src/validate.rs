@@ -1,7 +1,7 @@
 use crate::asg::{Expr, Program, Stmt, TExpr};
 use crate::symbols::{SymbolIdResult, SymbolTable};
 
-use crate::asg::DeclareClassical;
+
 
 // Thus far, everything below is meant to apply any function
 // FnMut(&SymbolIdResult) to all possible places in the ASG.
@@ -42,7 +42,7 @@ where
     V: WalkSymbols<T>,
 {
     fn walk_symbols(&self, context: &mut SymContext<T>) {
-        self.iter().map(|s| s.walk_symbols(context));
+        self.iter().for_each(|s| s.walk_symbols(context));
     }
 }
 
@@ -51,7 +51,7 @@ where
     V: WalkSymbols<T>,
 {
     fn walk_symbols(&self, context: &mut SymContext<T>) {
-        if let Some(item) = self {
+        if self.is_some() {
             self.as_ref().unwrap().walk_symbols(context);
         }
     }
@@ -94,9 +94,8 @@ impl<T: SymTrait> WalkSymbols<T> for Stmt {
 
 impl<T: SymTrait> WalkSymbols<T> for Expr {
     fn walk_symbols(&self, context: &mut SymContext<T>) {
-        match self {
-            Expr::Identifier(ident) => (context.func)(ident.symbol()),
-            _ => (),
+        if let Expr::Identifier(ident) = self {
+            (context.func)(ident.symbol())
         }
     }
 }

@@ -2,7 +2,7 @@
 
 use crate::types::Type;
 use hashbrown::HashMap;
-use oq3_syntax::SyntaxNode;
+
 
 // OQ3
 // * "The lifetime of each identifier begins when it is declared, and ends

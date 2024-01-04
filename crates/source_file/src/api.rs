@@ -4,13 +4,13 @@
 use ariadne::Config;
 use ariadne::{ColorGenerator, Label, Report, ReportKind, Source};
 use std::ops::Range;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
-use oq3_syntax::ast as synast; // Syntactic AST
+ // Syntactic AST
 
 use crate::source_file::{
-    expand_path, parse_included_files, parse_source_and_includes, range_to_span, read_source_file,
-    ErrorTrait, Normalizeable, ParsedSource, SourceFile, SourceString,
+    expand_path, parse_source_and_includes, range_to_span, read_source_file,
+    ErrorTrait, Normalizeable, SourceFile, SourceString,
 };
 
 /// Read source from `file_path` and parse to the syntactic AST.
@@ -36,7 +36,7 @@ pub fn parse_source_string<T: ToString>(source: T, fake_file_path: Option<&str>)
 /// the source file, then `source` is read before calling this function.
 pub fn inner_print_compiler_errors<T: ErrorTrait>(
     errors: &[T],
-    info_file_path: &PathBuf,
+    info_file_path: &Path,
     source: &str,
 ) {
     let file_path_str = info_file_path.as_os_str().to_str().unwrap();
@@ -48,7 +48,7 @@ pub fn inner_print_compiler_errors<T: ErrorTrait>(
     }
 }
 
-pub fn print_compiler_errors<T: ErrorTrait>(errors: &[T], file_path: &PathBuf) {
+pub fn print_compiler_errors<T: ErrorTrait>(errors: &[T], file_path: &Path) {
     // ariadne seems to want path only as &str, not PathBuf.
     let source = &read_source_file(file_path);
     inner_print_compiler_errors(errors, file_path, source);
