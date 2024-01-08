@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! This module contains free-standing functions for creating AST fragments out
 //! of smaller pieces.
 //!

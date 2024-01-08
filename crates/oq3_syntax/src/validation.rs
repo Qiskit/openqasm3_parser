@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! This module implements syntax validation that the parser doesn't handle.
 //!
 //! A failed validation emits a diagnostic.

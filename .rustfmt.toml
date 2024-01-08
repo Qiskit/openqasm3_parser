@@ -1,5 +1,7 @@
 # See https://rust-lang.github.io/rustfmt/?version=v1.6.0&search=
 
+# Copyright contributors to the openqasm-parser project
+
 # Use this when it becomes stable
 # reorder_impl_items = true
 

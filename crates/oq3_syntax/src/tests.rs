@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 #[cfg(not(feature = "in-rust-tree"))]
 mod ast_src;
 #[cfg(not(feature = "in-rust-tree"))]

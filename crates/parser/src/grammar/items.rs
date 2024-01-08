@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 use crate::grammar::expressions::expr_block_contents;
 use super::*;
 

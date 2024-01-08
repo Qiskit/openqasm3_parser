@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Primitive tree editor, ed for trees.
 //!
 //! The `_raw`-suffixed functions insert elements as is, unsuffixed versions fix

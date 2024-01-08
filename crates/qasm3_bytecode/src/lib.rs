@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Python wrappers for semantic AST for the OpenQASM3 language
 //! By semantic AST, we mean that all symbols are resolved and all expressions have been
 //! assigned types.

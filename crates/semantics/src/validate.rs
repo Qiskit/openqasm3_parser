@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 use crate::asg::{Expr, Program, Stmt, TExpr};
 use crate::symbols::{SymbolIdResult, SymbolTable};
 

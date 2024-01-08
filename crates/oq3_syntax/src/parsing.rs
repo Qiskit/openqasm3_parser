@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Lexing, bridging to parser (which does the actual parsing) and
 //! incremental reparsing.
 

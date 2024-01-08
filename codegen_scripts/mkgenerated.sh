@@ -1,5 +1,7 @@
 #!/bin/env sh
 
+# Copyright contributors to the openqasm-parser project
+
 # This is not how r-a does generation.
 # But I find a boot strapping problem.
 # So we write generated code to a temporary file (GJL Aug 2023)

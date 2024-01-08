@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 use oq3_syntax::ast as synast; // Syntactic AST
 use oq3_syntax::Parse;
 use oq3_syntax::TextRange;

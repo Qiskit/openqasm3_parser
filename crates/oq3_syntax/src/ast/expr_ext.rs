@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Various extension methods to ast Expr Nodes, which are hard to code-generate.
 //!
 //! These methods should only do simple, shallow tasks related to the syntax of the node itself.

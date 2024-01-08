@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! This is the actual "grammar" of the OpenQASM 3 language.
 //!
 //! Each function in this module and its children corresponds

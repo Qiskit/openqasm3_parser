@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Yet another version of owned string, backed by a syntax tree token.
 
 use std::{cmp::Ordering, fmt, ops};

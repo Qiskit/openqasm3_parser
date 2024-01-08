@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Defines input for code generation process.
 
 pub(crate) struct KindsSrc<'a> {

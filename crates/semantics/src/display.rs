@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 // Unused at the moment.
 // This intent here is to print something like source code.
 // But this involves a ton of boiler plate.

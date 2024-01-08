@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! See [`Output`]
 
 use crate::SyntaxKind;

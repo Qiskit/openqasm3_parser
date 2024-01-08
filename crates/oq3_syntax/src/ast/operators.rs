@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Defines a bunch of data-less enums for unary and binary operators.
 //!
 //! Types here don't know about AST, this allows re-using them for both AST and

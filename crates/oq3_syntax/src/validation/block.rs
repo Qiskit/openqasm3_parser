@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Logic for validating block expressions i.e. `ast::BlockExpr`.
 
 // use crate::{

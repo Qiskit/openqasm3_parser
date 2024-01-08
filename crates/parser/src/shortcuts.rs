@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Shortcuts that span lexer/parser abstraction.
 //!
 //! The way Rust works, parser doesn't necessary parse text, and you might

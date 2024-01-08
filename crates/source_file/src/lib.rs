@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Management of source files for OpenQASM 3 parsing and semantic analysis.  The main `struct` here
 //! is `SourceFile` which contains the path to a source file and the AST produced by the parser. It
 //! also contains a `Vec<SourceFile>` representing source files that are included via

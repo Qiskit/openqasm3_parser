@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! This module defines Concrete Syntax Tree (CST), used by rust-analyzer.
 //!
 //! The CST includes comments and whitespace, provides a single node type,

@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 // The definition of the abstract semantic graph (ASG) as well as the API for using it.
 // Construction of this typed ASG from syntactic AST is in string_to_semantic.rs.
 

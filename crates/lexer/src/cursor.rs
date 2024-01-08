@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 use std::str::Chars;
 
 /// Peekable iterator over a char sequence.

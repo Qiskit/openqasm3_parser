@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Abstract Syntax Tree, layered on top of untyped `SyntaxNode`s
 
 mod generated;

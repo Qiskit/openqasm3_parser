@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 // Test validating types of arguments to binary ops. That is test if they are legal.
 // And compute the common type that they must be promoted to.
 // You can run this with `cargo run --example promote`

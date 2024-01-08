@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! This module contains functions for editing syntax trees. As the trees are
 //! immutable, all function here return a fresh copy of the tree, instead of
 //! doing an in-place modification.

@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Parser for OpenQASM 3
 
 mod lexed_str;

@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Low-level OpenQASM3 lexer.
 //!
 //! This is largely copied from `rustc_lexer`, the lexer for the rust compiler.

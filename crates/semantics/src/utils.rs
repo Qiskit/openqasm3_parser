@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 /// Return the name of the type of a value.
 pub fn type_name_of<T>(_: T) -> &'static str {
     std::any::type_name::<T>()

@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! A bit-set of `SyntaxKind`s.
 
 use crate::SyntaxKind;

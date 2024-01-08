@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 // This is copied and modified from rust-analyzer syntax_error.rs
 use oq3_syntax::AstNode;
 use oq3_syntax::SyntaxNode;

@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! This module provides a way to construct a `File`.
 //! It is intended to be completely decoupled from the
 //! parser, so as to allow to evolve the tree representation

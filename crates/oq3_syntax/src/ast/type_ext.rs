@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 use crate::{ast, SyntaxToken, T};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
