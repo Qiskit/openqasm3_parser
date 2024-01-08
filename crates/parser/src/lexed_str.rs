@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Lexing `&str` into a sequence of OpenQASM 3 tokens.
 //!
 //! Note that `str` does *not* refer to a string in the target language.

@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! In rust-analyzer, syntax trees are transient objects.
 //!
 //! That means that we create trees when we need them, and tear them down to

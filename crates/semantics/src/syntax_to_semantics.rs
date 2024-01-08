@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 // Build the ASG defined in asg.rs from the syntactic AST
 // constructed in the crate oq3_syntax.
 //

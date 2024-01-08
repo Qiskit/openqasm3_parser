@@ -1,5 +1,7 @@
 #!/bin/env sh
 
+# Copyright contributors to the openqasm-parser project
+
 # See mkgenerated.sh
 
 echo

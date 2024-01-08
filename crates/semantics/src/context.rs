@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 use crate::asg;
 use crate::semantic_error::SemanticErrorKind::*;
 use crate::semantic_error::{SemanticErrorKind, SemanticErrorList};

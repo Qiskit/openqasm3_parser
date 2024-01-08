@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! This module generates AST datatype used by rust-analyzer. FIXME
 //!
 //! Specifically, it generates the `SyntaxKind` enum and a number of newtype

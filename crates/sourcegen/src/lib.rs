@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! This was copied from an external crate. It would be better to use the
 //! external crate. But it has a bug-- a hard coded path that requires the
 //! source to be at this path.

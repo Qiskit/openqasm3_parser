@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! See docs for `SyntaxError`.
 
 use std::fmt;

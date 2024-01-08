@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 use oq3_syntax::SourceFile;
 use oq3_syntax::ast;
 use ast::{HasModuleItem, HasName};

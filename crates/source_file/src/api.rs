@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 // It might be nice to put these functions in lib.rs.
 // But they are also used in this crate, so we put them here.
 

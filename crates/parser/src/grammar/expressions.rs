@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 pub mod atom;
 
 use super::*;

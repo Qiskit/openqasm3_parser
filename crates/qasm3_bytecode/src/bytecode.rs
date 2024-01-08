@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 // use semantics::asg;
 use semantics::asg::{
     TExpr, GateModifier

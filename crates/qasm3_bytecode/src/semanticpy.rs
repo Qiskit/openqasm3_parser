@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 use pyo3::prelude::*;
 use pyo3::Python;
 use pyo3::types::PyList;

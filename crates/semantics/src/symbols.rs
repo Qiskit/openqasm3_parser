@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 // Defines data structures and api for symbols, scope, and symbol tables.
 
 use crate::types::Type;

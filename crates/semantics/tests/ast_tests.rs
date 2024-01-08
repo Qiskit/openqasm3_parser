@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 use semantics;
 use semantics::asg;
 use semantics::symbols;

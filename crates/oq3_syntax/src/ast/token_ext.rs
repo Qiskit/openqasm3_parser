@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! There are many AstNodes, but only a few tokens, so we hand-write them here.
 //! I assume "them" refers to tokens (GJL AUG 2023)
 

@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 // Defines the data structures representing the types used to annotate types of expressions in
 // the typed ASG.
 // This file should include all code that manipulates the types. In particular type promotion

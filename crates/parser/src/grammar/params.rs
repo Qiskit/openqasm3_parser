@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 use super::*;
 
 // use self::SyntaxKind::{INT_KW, BIT_KW, QUBIT_KW};

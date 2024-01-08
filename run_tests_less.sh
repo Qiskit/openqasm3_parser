@@ -1,5 +1,7 @@
 #!/bin/env sh
 
+# Copyright contributors to the openqasm-parser project
+
 # Same as run_tests.sh, but pipe stderr to less
 
 # Run the tests, but skip the tests that do codegen. They currently

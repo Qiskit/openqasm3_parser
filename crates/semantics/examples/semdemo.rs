@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 use clap::{Parser, Subcommand};
 use std::fs;
 use std::path::PathBuf;

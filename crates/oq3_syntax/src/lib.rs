@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Syntax Tree library used throughout the rust-analyzer.
 //!
 //! Properties:

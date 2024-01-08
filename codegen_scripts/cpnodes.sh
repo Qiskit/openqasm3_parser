@@ -1,5 +1,7 @@
 #!/bin/env sh
 
+# Copyright contributors to the openqasm-parser project
+
 # For nodes.rs
 # Copy the generated code from the temporary files to which it is written
 # to its final location where it will be compiled into the library.

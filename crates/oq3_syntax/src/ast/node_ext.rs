@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Various extension methods to ast Nodes, which are hard to code-generate.
 //! Extensions for various expressions live in a sibling `expr_extensions` module.
 //!

@@ -1,3 +1,5 @@
+// Copyright contributors to the openqasm-parser project
+
 //! Abstract Semantic Graph (ASG)
 //! This crate implements an abstract semantic graph (ASG) for the OpenQASM 3 language.
 //! Currently the semantic information encoded in this ASG includes:
