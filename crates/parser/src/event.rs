@@ -72,10 +72,7 @@ pub(crate) enum Event {
     /// `n_raw_tokens` is used to glue complex contextual tokens.
     /// For example, lexer tokenizes `>>` as `>`, `>`, and
     /// `n_raw_tokens = 2` is used to produced a single `>>`.
-    Token {
-        kind: SyntaxKind,
-        n_raw_tokens: u8,
-    },
+    Token { kind: SyntaxKind, n_raw_tokens: u8 },
     /// When we parse `foo.0.0` or `foo. 0. 0` the lexer will hand us a float literal
     /// instead of an integer literal followed by a dot as the lexer has no contextual knowledge.
     /// This event instructs whatever consumes the events to split the float literal into
@@ -83,14 +80,15 @@ pub(crate) enum Event {
     // FloatSplitHack {
     //     ends_in_dot: bool,
     // },
-    Error {
-        msg: String,
-    },
+    Error { msg: String },
 }
 
 impl Event {
     pub(crate) fn tombstone() -> Self {
-        Event::Start { kind: TOMBSTONE, forward_parent: None }
+        Event::Start {
+            kind: TOMBSTONE,
+            forward_parent: None,
+        }
     }
 }
 
@@ -101,7 +99,10 @@ pub(super) fn process(mut events: Vec<Event>) -> Output {
 
     for i in 0..events.len() {
         match mem::replace(&mut events[i], Event::tombstone()) {
-            Event::Start { kind, forward_parent } => {
+            Event::Start {
+                kind,
+                forward_parent,
+            } => {
                 // For events[A, B, C], B is A's forward_parent, C is B's forward_parent,
                 // in the normal control flow, the parent-child relation: `A -> B -> C`,
                 // while with the magic forward_parent, it writes: `C <- B <- A`.
@@ -114,7 +115,10 @@ pub(super) fn process(mut events: Vec<Event>) -> Output {
                     idx += fwd as usize;
                     // append `A`'s forward_parent `B`
                     fp = match mem::replace(&mut events[idx], Event::tombstone()) {
-                        Event::Start { kind, forward_parent } => {
+                        Event::Start {
+                            kind,
+                            forward_parent,
+                        } => {
                             forward_parents.push(kind);
                             forward_parent
                         }

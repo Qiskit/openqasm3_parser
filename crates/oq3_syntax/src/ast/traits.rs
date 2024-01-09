@@ -9,9 +9,7 @@
 
 use either::Either;
 
-use crate::{
-    ast::{self, support, AstChildren, AstNode},
-};
+use crate::ast::{self, support, AstChildren, AstNode};
 
 pub trait HasName: AstNode {
     fn name(&self) -> Option<ast::Name> {
@@ -47,7 +45,6 @@ pub trait HasModuleItem: AstNode {
         support::children(self.syntax())
     }
 }
-
 
 // pub trait HasAttrs: AstNode {
 //     fn attrs(&self) -> AstChildren<ast::Attr> {

@@ -9,7 +9,7 @@
 
 use std;
 use std::mem::replace;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 
 use crate::asg;
 use crate::types;

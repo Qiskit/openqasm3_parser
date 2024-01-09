@@ -90,12 +90,10 @@ where
         }
         // FIXME. Makes no sense for bit string
         Mode::Str | Mode::ByteStr | Mode::BitStr => unescape_str_common(src, mode, callback),
- //       Mode::Str | Mode::ByteStr => unescape_str_common(src, mode, callback),
-
+        //       Mode::Str | Mode::ByteStr => unescape_str_common(src, mode, callback),
         Mode::RawStr | Mode::RawByteStr => {
             unescape_raw_str_or_raw_byte_str(src, mode == Mode::RawByteStr, callback)
-        }
-       //  Mode::CStr | Mode::RawCStr => unreachable!(),
+        } //  Mode::CStr | Mode::RawCStr => unreachable!(),
     }
 }
 
@@ -161,13 +159,9 @@ pub enum Mode {
 impl Mode {
     pub fn in_double_quotes(self) -> bool {
         match self {
-            Mode::Str
-            | Mode::BitStr
-            | Mode::ByteStr
-            | Mode::RawStr
-            | Mode::RawByteStr => true,
-//            | Mode::CStr
-//            | Mode::RawCStr => true,
+            Mode::Str | Mode::BitStr | Mode::ByteStr | Mode::RawStr | Mode::RawByteStr => true,
+            //            | Mode::CStr
+            //            | Mode::RawCStr => true,
             Mode::Char | Mode::Byte => false,
         }
     }
@@ -186,23 +180,23 @@ impl Mode {
         match self {
             Mode::Byte | Mode::ByteStr | Mode::RawByteStr | Mode::BitStr => true,
             Mode::Char | Mode::Str | Mode::RawStr => false,
-//                | Mode::CStr | Mode::RawCStr
+            //                | Mode::CStr | Mode::RawCStr
         }
     }
 
     /// Byte literals do not allow unicode escape.
     pub fn is_unicode_escape_disallowed(self) -> bool {
         match self {
-            Mode::Byte | Mode::ByteStr | Mode::RawByteStr | Mode::BitStr  => true,
+            Mode::Byte | Mode::ByteStr | Mode::RawByteStr | Mode::BitStr => true,
             Mode::Char | Mode::Str | Mode::RawStr => false,
-//            Mode::CStr | Mode::RawCStr => false,
+            //            Mode::CStr | Mode::RawCStr => false,
         }
     }
 
     pub fn prefix_noraw(self) -> &'static str {
         match self {
             Mode::Byte | Mode::ByteStr | Mode::RawByteStr => "b",
-//            Mode::CStr | Mode::RawCStr => "c",
+            //            Mode::CStr | Mode::RawCStr => "c",
             Mode::Char | Mode::Str | Mode::RawStr | Mode::BitStr => "",
         }
     }
@@ -261,7 +255,9 @@ fn scan_unicode(
     let mut value: u32 = match chars.next().ok_or(EscapeError::UnclosedUnicodeEscape)? {
         '_' => return Err(EscapeError::LeadingUnderscoreUnicodeEscape),
         '}' => return Err(EscapeError::EmptyUnicodeEscape),
-        c => c.to_digit(16).ok_or(EscapeError::InvalidCharInUnicodeEscape)?,
+        c => c
+            .to_digit(16)
+            .ok_or(EscapeError::InvalidCharInUnicodeEscape)?,
     };
 
     // First character is valid, now parse the rest of the number
@@ -282,15 +278,17 @@ fn scan_unicode(
                 }
 
                 break std::char::from_u32(value).ok_or({
-                     if value > 0x10FFFF {
-                         EscapeError::OutOfRangeUnicodeEscape
-                     } else {
-                         EscapeError::LoneSurrogateUnicodeEscape
-                     }
-                 });
+                    if value > 0x10FFFF {
+                        EscapeError::OutOfRangeUnicodeEscape
+                    } else {
+                        EscapeError::LoneSurrogateUnicodeEscape
+                    }
+                });
             }
             Some(c) => {
-                let digit: u32 = c.to_digit(16).ok_or(EscapeError::InvalidCharInUnicodeEscape)?;
+                let digit: u32 = c
+                    .to_digit(16)
+                    .ok_or(EscapeError::InvalidCharInUnicodeEscape)?;
                 n_digits += 1;
                 if n_digits > 6 {
                     // Stop updating value since we're sure that it's incorrect already.

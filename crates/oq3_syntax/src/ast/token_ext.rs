@@ -5,9 +5,7 @@
 
 use std::borrow::Cow;
 
-use lexer::unescape::{
-    unescape_byte, unescape_char, unescape_literal,  Mode,
-};
+use lexer::unescape::{unescape_byte, unescape_char, unescape_literal, Mode};
 
 use crate::{
     ast::{self, AstToken},
@@ -51,11 +49,36 @@ impl CommentShape {
 
 impl CommentKind {
     const BY_PREFIX: [(&'static str, CommentKind); 5] = [
-        ("/**/", CommentKind { shape: CommentShape::Block}),
-        ("/***", CommentKind { shape: CommentShape::Block}),
-        ("////", CommentKind { shape: CommentShape::Line}),
-        ("//", CommentKind { shape: CommentShape::Line}),
-        ("/*", CommentKind { shape: CommentShape::Block}),
+        (
+            "/**/",
+            CommentKind {
+                shape: CommentShape::Block,
+            },
+        ),
+        (
+            "/***",
+            CommentKind {
+                shape: CommentShape::Block,
+            },
+        ),
+        (
+            "////",
+            CommentKind {
+                shape: CommentShape::Line,
+            },
+        ),
+        (
+            "//",
+            CommentKind {
+                shape: CommentShape::Line,
+            },
+        ),
+        (
+            "/*",
+            CommentKind {
+                shape: CommentShape::Block,
+            },
+        ),
     ];
 
     pub(crate) fn from_text(text: &str) -> CommentKind {
@@ -67,8 +90,11 @@ impl CommentKind {
     }
 
     pub fn prefix(&self) -> &'static str {
-        let &(prefix, _) =
-            CommentKind::BY_PREFIX.iter().rev().find(|(_, kind)| kind == self).unwrap();
+        let &(prefix, _) = CommentKind::BY_PREFIX
+            .iter()
+            .rev()
+            .find(|(_, kind)| kind == self)
+            .unwrap();
         prefix
     }
 }
@@ -76,7 +102,8 @@ impl CommentKind {
 impl ast::Whitespace {
     pub fn spans_multiple_lines(&self) -> bool {
         let text = self.text();
-        text.find('\n').map_or(false, |idx| text[idx + 1..].contains('\n'))
+        text.find('\n')
+            .map_or(false, |idx| text[idx + 1..].contains('\n'))
     }
 }
 
@@ -100,7 +127,10 @@ impl QuoteOffsets {
         let end = TextSize::of(literal);
 
         let res = QuoteOffsets {
-            quotes: (TextRange::new(start, left_quote), TextRange::new(right_quote, end)),
+            quotes: (
+                TextRange::new(start, left_quote),
+                TextRange::new(right_quote, end),
+            ),
             contents: TextRange::new(left_quote, right_quote),
         };
         Some(res)
@@ -146,8 +176,10 @@ pub trait IsString: AstToken {
         let offset = text_range_no_quotes.start() - start;
 
         unescape_literal(text, Self::MODE, &mut |range, unescaped_char| {
-            let text_range =
-                TextRange::new(range.start.try_into().unwrap(), range.end.try_into().unwrap());
+            let text_range = TextRange::new(
+                range.start.try_into().unwrap(),
+                range.end.try_into().unwrap(),
+            );
             cb(text_range + offset, unescaped_char);
         });
     }
@@ -202,7 +234,6 @@ impl ast::String {
     }
 }
 
-
 // FIXME: RAW_PREFIX is a crufty artifact. It's not used in OQ3.
 impl IsString for ast::BitString {
     const RAW_PREFIX: &'static str = "br";
@@ -210,12 +241,10 @@ impl IsString for ast::BitString {
 }
 
 impl ast::BitString {
-
     // The bitstring has only '0' and '1'
     pub fn value(&self) -> Option<Cow<'_, str>> {
         let text = self.text();
-        let text =
-            &text[self.text_range_between_quotes()? - self.syntax().text_range().start()];
+        let text = &text[self.text_range_between_quotes()? - self.syntax().text_range().start()];
         return Some(Cow::Borrowed(text));
     }
 
@@ -308,7 +337,10 @@ impl ast::FloatNumber {
 
     /// Return `true` if the float literal contains no characters that are not digits or '.'
     pub fn is_simple(&self) -> bool {
-        self.text().char_indices().by_ref().all(|(_, c)| c.is_ascii_digit() || c == '.')
+        self.text()
+            .char_indices()
+            .by_ref()
+            .all(|(_, c)| c.is_ascii_digit() || c == '.')
     }
 
     // FIXME: this is not working currently
@@ -386,8 +418,12 @@ pub enum Radix {
 }
 
 impl Radix {
-    pub const ALL: &'static [Radix] =
-        &[Radix::Binary, Radix::Octal, Radix::Decimal, Radix::Hexadecimal];
+    pub const ALL: &'static [Radix] = &[
+        Radix::Binary,
+        Radix::Octal,
+        Radix::Decimal,
+        Radix::Hexadecimal,
+    ];
 
     const fn prefix_len(self) -> usize {
         match self {
@@ -402,25 +438,55 @@ mod tests {
     use crate::ast::{self, make, FloatNumber, IntNumber};
 
     fn check_float_suffix<'a>(lit: &str, expected: impl Into<Option<&'a str>>) {
-        assert_eq!(FloatNumber { syntax: make::tokens::literal(lit) }.suffix(), expected.into());
+        assert_eq!(
+            FloatNumber {
+                syntax: make::tokens::literal(lit)
+            }
+            .suffix(),
+            expected.into()
+        );
     }
 
     fn check_int_suffix<'a>(lit: &str, expected: impl Into<Option<&'a str>>) {
-        assert_eq!(IntNumber { syntax: make::tokens::literal(lit) }.suffix(), expected.into());
+        assert_eq!(
+            IntNumber {
+                syntax: make::tokens::literal(lit)
+            }
+            .suffix(),
+            expected.into()
+        );
     }
 
     fn check_float_value(lit: &str, expected: impl Into<Option<f64>> + Copy) {
-        assert_eq!(FloatNumber { syntax: make::tokens::literal(lit) }.value(), expected.into());
-        assert_eq!(IntNumber { syntax: make::tokens::literal(lit) }.float_value(), expected.into());
+        assert_eq!(
+            FloatNumber {
+                syntax: make::tokens::literal(lit)
+            }
+            .value(),
+            expected.into()
+        );
+        assert_eq!(
+            IntNumber {
+                syntax: make::tokens::literal(lit)
+            }
+            .float_value(),
+            expected.into()
+        );
     }
 
     fn check_int_value(lit: &str, expected: impl Into<Option<u128>>) {
-        assert_eq!(IntNumber { syntax: make::tokens::literal(lit) }.value(), expected.into());
+        assert_eq!(
+            IntNumber {
+                syntax: make::tokens::literal(lit)
+            }
+            .value(),
+            expected.into()
+        );
     }
 
     #[test]
     fn test_float_number_suffix() {
-         check_float_suffix("123.0", None);
+        check_float_suffix("123.0", None);
         check_float_suffix("123f32", "f32");
         check_float_suffix("123.0e", None);
         check_float_suffix("123.0e4", None);
@@ -444,7 +510,11 @@ mod tests {
 
     fn check_string_value<'a>(lit: &str, expected: impl Into<Option<&'a str>>) {
         assert_eq!(
-            ast::String { syntax: make::tokens::literal(&format!("\"{lit}\"")) }.value().as_deref(),
+            ast::String {
+                syntax: make::tokens::literal(&format!("\"{lit}\""))
+            }
+            .value()
+            .as_deref(),
             expected.into()
         );
     }
@@ -462,38 +532,38 @@ bcde", "abcde",
         );
     }
 
-//     fn check_byte_string_value<'a, const N: usize>(
-//         lit: &str,
-//         expected: impl Into<Option<&'a [u8; N]>>,
-//     ) {
-//         assert_eq!(
-//             ast::ByteString { syntax: make::tokens::literal(&format!("b\"{lit}\"")) }
-//                 .value()
-//                 .as_deref(),
-//             expected.into().map(|value| &value[..])
-//         );
-//     }
+    //     fn check_byte_string_value<'a, const N: usize>(
+    //         lit: &str,
+    //         expected: impl Into<Option<&'a [u8; N]>>,
+    //     ) {
+    //         assert_eq!(
+    //             ast::ByteString { syntax: make::tokens::literal(&format!("b\"{lit}\"")) }
+    //                 .value()
+    //                 .as_deref(),
+    //             expected.into().map(|value| &value[..])
+    //         );
+    //     }
 
-//     #[test]
-//     fn test_byte_string_escape() {
-//         check_byte_string_value(r"foobar", b"foobar");
-//         check_byte_string_value(r"\foobar", None::<&[u8; 0]>);
-//         check_byte_string_value(r"\nfoobar", b"\nfoobar");
-//         check_byte_string_value(r"C:\\Windows\\System32\\", b"C:\\Windows\\System32\\");
-//         check_byte_string_value(r"\x61bcde", b"abcde");
-//         check_byte_string_value(
-//             r"a\
-// bcde", b"abcde",
-//         );
-//     }
+    //     #[test]
+    //     fn test_byte_string_escape() {
+    //         check_byte_string_value(r"foobar", b"foobar");
+    //         check_byte_string_value(r"\foobar", None::<&[u8; 0]>);
+    //         check_byte_string_value(r"\nfoobar", b"\nfoobar");
+    //         check_byte_string_value(r"C:\\Windows\\System32\\", b"C:\\Windows\\System32\\");
+    //         check_byte_string_value(r"\x61bcde", b"abcde");
+    //         check_byte_string_value(
+    //             r"a\
+    // bcde", b"abcde",
+    //         );
+    //     }
 
     #[test]
     fn test_value_underscores() {
         check_float_value("1.234567891011121_f64", 1.234567891011121_f64);
         // FIXME GJL. Introducing SimpleFloat broke this.
-       check_float_value("1__0.__0__f32", 10.0);
-       check_int_value("0b__1_0_", 2);
-       check_int_value("1_1_1_1_1_1", 111111);
+        check_float_value("1__0.__0__f32", 10.0);
+        check_int_value("0b__1_0_", 2);
+        check_int_value("1_1_1_1_1_1", 111111);
     }
 }
 

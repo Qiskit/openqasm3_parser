@@ -1,7 +1,7 @@
 // Copyright contributors to the openqasm-parser project
 
-use pyo3::Python;
 use pyo3::prelude::*;
+use pyo3::Python;
 
 #[pyclass(frozen)]
 #[derive(Clone)]
@@ -20,5 +20,5 @@ pub enum OpCode {
     DeclareQreg,
     BlockStart,
     BlockEnd,
-//    DeclareQubit,
+    //    DeclareQubit,
 }

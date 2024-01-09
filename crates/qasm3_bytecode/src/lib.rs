@@ -13,13 +13,13 @@
 //! a bug in the the upstream code, but is not a bug in these wrappers.
 
 use pyo3::prelude::*;
-use pyo3::Python;
 use pyo3::wrap_pymodule;
+use pyo3::Python;
 
-mod semanticpy;
-mod parse;
 mod bytecode;
+mod parse;
 mod pybytecode;
+mod semanticpy;
 mod to_pybytecode;
 
 #[pymodule]

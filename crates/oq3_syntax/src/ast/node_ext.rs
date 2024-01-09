@@ -5,7 +5,7 @@
 //!
 //! These methods should only do simple, shallow tasks related to the syntax of the node itself.
 
-use std::{borrow::Cow};
+use std::borrow::Cow;
 
 //use parser::SyntaxKind;
 use rowan::{GreenNodeData, GreenTokenData};
@@ -64,7 +64,11 @@ impl HasTextName for ast::Identifier {}
 
 fn text_of_first_token(node: &SyntaxNode) -> TokenText<'_> {
     fn first_token(green_ref: &GreenNodeData) -> &GreenTokenData {
-        green_ref.children().next().and_then(NodeOrToken::into_token).unwrap()
+        green_ref
+            .children()
+            .next()
+            .and_then(NodeOrToken::into_token)
+            .unwrap()
     }
 
     match node.green() {
@@ -80,10 +84,10 @@ fn text_of_first_token(node: &SyntaxNode) -> TokenText<'_> {
 //         self.statements().into_iter().flat_map(|it| it.statements())
 //        self.statements().into_iter().flat_map(|it| it.statements())
 //    }
-    // only in rust
-    // pub fn tail_expr(&self) -> Option<ast::Expr> {
-    //     self.stmt_list()?.tail_expr()
-    // }
+// only in rust
+// pub fn tail_expr(&self) -> Option<ast::Expr> {
+//     self.stmt_list()?.tail_expr()
+// }
 // }
 
 // impl ast::HasModuleItem for ast::BlockExpr {}

@@ -6,7 +6,7 @@ use oq3_syntax::SyntaxNode;
 use source_file;
 use source_file::ErrorTrait;
 use std::fmt;
-use std::path::{PathBuf, Path};
+use std::path::{Path, PathBuf};
 
 // re-exported in lib.rs from rowan
 use crate::TextRange;

@@ -34,7 +34,7 @@ fn our_project_root() -> PathBuf {
 /// The generated file _syntax_kind_enum.rs must be copied to syntax_kind_enum.rs.
 #[test]
 fn write_syntax_kinds_enum() {
-    let  syntax_kinds = generate_syntax_kinds(KINDS_SRC);
+    let syntax_kinds = generate_syntax_kinds(KINDS_SRC);
     let syntax_kinds_file =
         our_project_root().join("crates/parser/src/syntax_kind/_syntax_kind_enum.rs");
     sourcegen::ensure_file_contents(syntax_kinds_file.as_path(), &syntax_kinds);
@@ -42,8 +42,9 @@ fn write_syntax_kinds_enum() {
 
 /// Read the ungrammar from openqasm3.ungram, lower to the AST, and return the result.
 fn _generate_ast() -> AstSrc {
-    let grammar =
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/openqasm3.ungram")).parse().unwrap();
+    let grammar = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/openqasm3.ungram"))
+        .parse()
+        .unwrap();
     let ast = lower(&grammar);
     println!("AST: {:?}", ast);
     return ast;
@@ -69,7 +70,8 @@ fn sourcegen_ast_nodes() {
     let ast = _generate_ast();
 
     let ast_nodes = generate_nodes(KINDS_SRC, &ast);
-    let ast_nodes_file = our_project_root().join("crates/oq3_syntax/src/ast/generated/_new_nodes.rs");
+    let ast_nodes_file =
+        our_project_root().join("crates/oq3_syntax/src/ast/generated/_new_nodes.rs");
     sourcegen::ensure_file_contents(ast_nodes_file.as_path(), &ast_nodes);
 }
 
@@ -192,7 +194,11 @@ fn generate_nodes(kinds: KindsSrc<'_>, grammar: &AstSrc) -> String {
         .enums
         .iter()
         .map(|en| {
-            let variants: Vec<_> = en.variants.iter().map(|var| format_ident!("{}", var)).collect();
+            let variants: Vec<_> = en
+                .variants
+                .iter()
+                .map(|var| format_ident!("{}", var))
+                .collect();
             let name = format_ident!("{}", en.name);
             let kinds: Vec<_> = variants
                 .iter()
@@ -307,8 +313,10 @@ fn generate_nodes(kinds: KindsSrc<'_>, grammar: &AstSrc) -> String {
     let enum_names = grammar.enums.iter().map(|it| &it.name);
     let node_names = grammar.nodes.iter().map(|it| &it.name);
 
-    let display_impls =
-        enum_names.chain(node_names.clone()).map(|it| format_ident!("{}", it)).map(|name| {
+    let display_impls = enum_names
+        .chain(node_names.clone())
+        .map(|it| format_ident!("{}", it))
+        .map(|name| {
             quote! {
                 impl std::fmt::Display for #name {
                     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -352,8 +360,11 @@ fn generate_nodes(kinds: KindsSrc<'_>, grammar: &AstSrc) -> String {
 
     let mut res = String::with_capacity(ast.len() * 2);
 
-    let mut docs =
-        grammar.nodes.iter().map(|it| &it.doc).chain(grammar.enums.iter().map(|it| &it.doc));
+    let mut docs = grammar
+        .nodes
+        .iter()
+        .map(|it| &it.doc)
+        .chain(grammar.enums.iter().map(|it| &it.doc));
 
     for chunk in ast.split("# [pretty_doc_comment_placeholder_workaround] ") {
         res.push_str(chunk);
@@ -362,7 +373,7 @@ fn generate_nodes(kinds: KindsSrc<'_>, grammar: &AstSrc) -> String {
         }
     }
 
-//    let res = sourcegen::add_preamble("sourcegen_ast", sourcegen::reformat(res)); FIXME
+    //    let res = sourcegen::add_preamble("sourcegen_ast", sourcegen::reformat(res)); FIXME
     let res = sourcegen::add_preamble("sourcegen_ast", res);
     res.replace("#[derive", "\n#[derive")
 }
@@ -390,8 +401,11 @@ fn generate_syntax_kinds(grammar: KindsSrc<'_>) -> String {
             quote! { #(#cs)* }
         }
     });
-    let punctuation =
-        grammar.punct.iter().map(|(_token, name)| format_ident!("{}", name)).collect::<Vec<_>>();
+    let punctuation = grammar
+        .punct
+        .iter()
+        .map(|(_token, name)| format_ident!("{}", name))
+        .collect::<Vec<_>>();
 
     let upper_snake = |&name| match name {
         "Self" => format_ident!("SELF_TYPE_KW"),
@@ -406,24 +420,40 @@ fn generate_syntax_kinds(grammar: KindsSrc<'_>) -> String {
     let all_keywords_values = grammar
         .keywords
         .iter()
-//        .chain(grammar.contextual_keywords.iter())
+        //        .chain(grammar.contextual_keywords.iter())
         .copied()
         .collect::<Vec<_>>();
     let all_keywords_idents = all_keywords_values.iter().map(|kw| format_ident!("{}", kw));
-    let all_keywords = all_keywords_values.iter().map(upper_snake).collect::<Vec<_>>();
+    let all_keywords = all_keywords_values
+        .iter()
+        .map(upper_snake)
+        .collect::<Vec<_>>();
 
     let scalar_types_values = grammar.scalar_types.iter().collect::<Vec<_>>();
     let scalar_types_idents = scalar_types_values.iter().map(|ty| format_ident!("{}", ty));
-    let scalar_types =
-        scalar_types_values.iter().map(|ty| format_ident!("{}_TY", to_upper_snake_case(ty))).collect::<Vec<_>>();
-//        grammar.scalar_types.iter().map(|name| format_ident!("{}", name)).collect::<Vec<_>>();
+    let scalar_types = scalar_types_values
+        .iter()
+        .map(|ty| format_ident!("{}_TY", to_upper_snake_case(ty)))
+        .collect::<Vec<_>>();
+    //        grammar.scalar_types.iter().map(|name| format_ident!("{}", name)).collect::<Vec<_>>();
 
-    let literals =
-        grammar.literals.iter().map(|name| format_ident!("{}", name)).collect::<Vec<_>>();
+    let literals = grammar
+        .literals
+        .iter()
+        .map(|name| format_ident!("{}", name))
+        .collect::<Vec<_>>();
 
-    let tokens = grammar.tokens.iter().map(|name| format_ident!("{}", name)).collect::<Vec<_>>();
+    let tokens = grammar
+        .tokens
+        .iter()
+        .map(|name| format_ident!("{}", name))
+        .collect::<Vec<_>>();
 
-    let nodes = grammar.nodes.iter().map(|name| format_ident!("{}", name)).collect::<Vec<_>>();
+    let nodes = grammar
+        .nodes
+        .iter()
+        .map(|name| format_ident!("{}", name))
+        .collect::<Vec<_>>();
 
     // FIXME: find out how to insert a plain old comment in the quoted thing.
     // Usual double slash quotes are ommited. trip slash quotes are converted to some kind of doc macro.
@@ -510,7 +540,7 @@ fn generate_syntax_kinds(grammar: KindsSrc<'_>) -> String {
         pub use T;
     };
 
-//    sourcegen::add_preamble("sourcegen_ast", sourcegen::reformat(ast.to_string())) // FIXME
+    //    sourcegen::add_preamble("sourcegen_ast", sourcegen::reformat(ast.to_string())) // FIXME
     sourcegen::add_preamble("sourcegen_ast", ast.to_string())
 }
 
@@ -564,7 +594,13 @@ fn pluralize(s: &str) -> String {
 
 impl Field {
     fn is_many(&self) -> bool {
-        matches!(self, Field::Node { cardinality: Cardinality::Many, .. })
+        matches!(
+            self,
+            Field::Node {
+                cardinality: Cardinality::Many,
+                ..
+            }
+        )
     }
     fn token_kind(&self) -> Option<proc_macro2::TokenStream> {
         match self {
@@ -642,20 +678,30 @@ fn lower(grammar: &Grammar) -> AstSrc {
 
     let nodes = grammar.iter().collect::<Vec<_>>();
 
-//    println!("lower:    let nodes = grammar.iter().collect::<Vec<_>>();");
+    //    println!("lower:    let nodes = grammar.iter().collect::<Vec<_>>();");
     for &node in &nodes {
         let name = grammar[node].name.clone();
         let rule = &grammar[node].rule;
-//        println!("lower: name rule");
+        //        println!("lower: name rule");
         match lower_enum(grammar, rule) {
             Some(variants) => {
-                let enum_src = AstEnumSrc { doc: Vec::new(), name, traits: Vec::new(), variants };
+                let enum_src = AstEnumSrc {
+                    doc: Vec::new(),
+                    name,
+                    traits: Vec::new(),
+                    variants,
+                };
                 res.enums.push(enum_src);
             }
             None => {
                 let mut fields = Vec::new();
                 lower_rule(&mut fields, grammar, None, rule);
-                res.nodes.push(AstNodeSrc { doc: Vec::new(), name, traits: Vec::new(), fields });
+                res.nodes.push(AstNodeSrc {
+                    doc: Vec::new(),
+                    name,
+                    traits: Vec::new(),
+                    fields,
+                });
             }
         }
     }
@@ -699,8 +745,12 @@ fn lower_rule(acc: &mut Vec<Field>, grammar: &Grammar, label: Option<&String>, r
         Rule::Node(node) => {
             let ty = grammar[*node].name.clone();
             let name = label.cloned().unwrap_or_else(|| to_lower_snake_case(&ty));
-//            println!("Node name {:?}", name);
-            let field = Field::Node { name, ty, cardinality: Cardinality::Optional };
+            //            println!("Node name {:?}", name);
+            let field = Field::Node {
+                name,
+                ty,
+                cardinality: Cardinality::Optional,
+            };
             acc.push(field);
         }
         // Token(Token), A token, like `'struct'`.
@@ -723,8 +773,14 @@ fn lower_rule(acc: &mut Vec<Field>, grammar: &Grammar, label: Option<&String>, r
         Rule::Rep(inner) => {
             if let Rule::Node(node) = &**inner {
                 let ty = grammar[*node].name.clone();
-                let name = label.cloned().unwrap_or_else(|| pluralize(&to_lower_snake_case(&ty)));
-                let field = Field::Node { name, ty, cardinality: Cardinality::Many };
+                let name = label
+                    .cloned()
+                    .unwrap_or_else(|| pluralize(&to_lower_snake_case(&ty)));
+                let field = Field::Node {
+                    name,
+                    ty,
+                    cardinality: Cardinality::Many,
+                };
                 acc.push(field);
                 return;
             }
@@ -741,9 +797,12 @@ fn lower_rule(acc: &mut Vec<Field>, grammar: &Grammar, label: Option<&String>, r
             }
             // FIXME: This desperately needs better diagnostics.
             // There is no clue about which rule is causing the error.
-            panic!("unhandled Rule::Rep (repeated with '*'): {:?}\nInner: {:?}", rule, inner)
+            panic!(
+                "unhandled Rule::Rep (repeated with '*'): {:?}\nInner: {:?}",
+                rule, inner
+            )
         }
-         // Labeled { label: String, rule: Box<Rule>}
+        // Labeled { label: String, rule: Box<Rule>}
         //     A labeled rule, like `a:B` (`"a"` is the label, `B` is the rule).
         Rule::Labeled { label: l, rule } => {
             assert!(label.is_none());
@@ -822,8 +881,14 @@ fn lower_comma_list(
         _ => return false,
     }
     let ty = grammar[*node].name.clone();
-    let name = label.cloned().unwrap_or_else(|| pluralize(&to_lower_snake_case(&ty)));
-    let field = Field::Node { name, ty, cardinality: Cardinality::Many };
+    let name = label
+        .cloned()
+        .unwrap_or_else(|| pluralize(&to_lower_snake_case(&ty)));
+    let field = Field::Node {
+        name,
+        ty,
+        cardinality: Cardinality::Many,
+    };
     acc.push(field);
     true
 }
@@ -859,7 +924,11 @@ fn extract_enums(ast: &mut AstSrc) {
                 node.remove_field(to_remove);
                 let ty = enm.name.clone();
                 let name = to_lower_snake_case(&ty);
-                node.fields.push(Field::Node { name, ty, cardinality: Cardinality::Optional });
+                node.fields.push(Field::Node {
+                    name,
+                    ty,
+                    cardinality: Cardinality::Optional,
+                });
             }
         }
     }
@@ -869,11 +938,11 @@ fn extract_struct_traits(ast: &mut AstSrc) {
     let traits: &[(&str, &[&str])] = &[
         ("HasAttrs", &["attrs"]),
         ("HasName", &["name"]),
-//        ("HasTypeBounds", &["type_bound_list", "colon_token"]),
+        //        ("HasTypeBounds", &["type_bound_list", "colon_token"]),
         ("HasModuleItem", &["items"]),
         ("HasLoopBody", &["label", "loop_body"]),
         ("HasArgList", &["arg_list"]),
-//        ("HasGateArgList", &["gate_arg_list"]),
+        //        ("HasGateArgList", &["gate_arg_list"]),
     ];
 
     for node in &mut ast.nodes {

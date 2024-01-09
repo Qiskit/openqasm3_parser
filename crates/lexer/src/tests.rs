@@ -5,7 +5,9 @@ use super::*;
 use expect_test::{expect, Expect};
 
 fn check_lexing(src: &str, expect: Expect) {
-    let actual: String = tokenize(src).map(|token| format!("{:?}\n", token)).collect();
+    let actual: String = tokenize(src)
+        .map(|token| format!("{:?}\n", token))
+        .collect();
     expect.assert_eq(&actual)
 }
 
@@ -100,7 +102,6 @@ fn nested_block_comments() {
 //         "#]],
 //     );
 // }
-
 
 #[test]
 fn literal_suffixes() {

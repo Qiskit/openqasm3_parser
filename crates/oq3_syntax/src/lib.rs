@@ -21,21 +21,25 @@
 //! [RFC]: <https://github.com/rust-lang/rfcs/pull/2256>
 //! [Swift]: <https://github.com/apple/swift/blob/13d593df6f359d0cb2fc81cfaac273297c539455/lib/Syntax/README.md>
 
-#![warn(rust_2018_idioms, unused_lifetimes, semicolon_in_expressions_from_macros)]
+#![warn(
+    rust_2018_idioms,
+    unused_lifetimes,
+    semicolon_in_expressions_from_macros
+)]
 
 #[allow(unused)]
 macro_rules! eprintln {
     ($($tt:tt)*) => { stdx::eprintln!($($tt)*) };
 }
 
-pub mod syntax_node;
-mod syntax_error;
 mod parsing;
-mod validation;
 mod ptr;
-mod token_text;
+mod syntax_error;
+pub mod syntax_node;
 #[cfg(test)]
 mod tests;
+mod token_text;
+mod validation;
 
 pub mod ast;
 pub mod ted;
@@ -47,16 +51,12 @@ use triomphe::Arc;
 
 pub use crate::{
     ast::{AstNode, AstToken, HasTextName},
+    parsing::parse_text,
     ptr::{AstPtr, SyntaxNodePtr},
     syntax_error::SyntaxError,
-    parsing::parse_text,
     syntax_node::{
-        SyntaxNode,
-        SyntaxElement,
-        SyntaxToken,
+        OpenQASM3Language, PreorderWithTokens, SyntaxElement, SyntaxNode, SyntaxToken,
         SyntaxTreeBuilder,
-        PreorderWithTokens,
-        OpenQASM3Language,
     },
     token_text::TokenText,
 };
@@ -90,13 +90,21 @@ pub struct Parse<T> {
 
 impl<T> Clone for Parse<T> {
     fn clone(&self) -> Parse<T> {
-        Parse { green: self.green.clone(), errors: self.errors.clone(), _ty: PhantomData }
+        Parse {
+            green: self.green.clone(),
+            errors: self.errors.clone(),
+            _ty: PhantomData,
+        }
     }
 }
 
 impl<T> Parse<T> {
     fn new(green: GreenNode, errors: Vec<SyntaxError>) -> Parse<T> {
-        Parse { green, errors: Arc::new(errors), _ty: PhantomData }
+        Parse {
+            green,
+            errors: Arc::new(errors),
+            _ty: PhantomData,
+        }
     }
 
     pub fn syntax_node(&self) -> SyntaxNode {
@@ -109,7 +117,11 @@ impl<T> Parse<T> {
 
 impl<T: AstNode> Parse<T> {
     pub fn to_syntax(self) -> Parse<SyntaxNode> {
-        Parse { green: self.green, errors: self.errors, _ty: PhantomData }
+        Parse {
+            green: self.green,
+            errors: self.errors,
+            _ty: PhantomData,
+        }
     }
 
     pub fn tree(&self) -> T {
@@ -128,7 +140,11 @@ impl<T: AstNode> Parse<T> {
 impl Parse<SyntaxNode> {
     pub fn cast<N: AstNode>(self) -> Option<Parse<N>> {
         if N::cast(self.syntax_node()).is_some() {
-            Some(Parse { green: self.green, errors: self.errors, _ty: PhantomData })
+            Some(Parse {
+                green: self.green,
+                errors: self.errors,
+                _ty: PhantomData,
+            })
         } else {
             None
         }
@@ -145,7 +161,6 @@ impl Parse<SourceFile> {
     }
 }
 
-
 /// `SourceFile` represents a parse tree for a single Rust file.
 pub use crate::ast::SourceFile;
 
@@ -156,7 +171,11 @@ impl SourceFile {
         let root = SyntaxNode::new_root(green.clone());
         errors.extend(validation::validate(&root));
         assert_eq!(root.kind(), SyntaxKind::SOURCE_FILE);
-        Parse { green, errors: Arc::new(errors), _ty: PhantomData }
+        Parse {
+            green,
+            errors: Arc::new(errors),
+            _ty: PhantomData,
+        }
     }
 }
 
@@ -231,7 +250,10 @@ fn api_walkthrough() {
 
     // Let's get the `1 + 1` expression!
     let body: ast::BlockExpr = func.body().unwrap();
-    assert_eq!(body.syntax().first_child_or_token().map(|it| it.kind()), Some(T!['{']));
+    assert_eq!(
+        body.syntax().first_child_or_token().map(|it| it.kind()),
+        Some(T!['{'])
+    );
     let mut stmt_list = body.statements();
     let expr0 = stmt_list.next().unwrap();
     let expr = match expr0 {
@@ -263,7 +285,10 @@ fn api_walkthrough() {
     assert_eq!(expr_syntax.kind(), SyntaxKind::BIN_EXPR);
 
     // And text range:
-    assert_eq!(expr_syntax.text_range(), TextRange::new(33.into(), 38.into()));
+    assert_eq!(
+        expr_syntax.text_range(),
+        TextRange::new(33.into(), 38.into())
+    );
 
     // You can get node's text as a `SyntaxText` object, which will traverse the
     // tree collecting token's text:
@@ -273,11 +298,14 @@ fn api_walkthrough() {
     // There's a bunch of traversal methods on `SyntaxNode`:
     // Following line broken because for OQ3 we simplified BlockExpr
     // assert_eq!(expr_syntax.parent().as_ref(), Some(stmt_list.syntax()));
-    assert_eq!(body.syntax().first_child_or_token().map(|it| it.kind()), Some(T!['{']));
+    assert_eq!(
+        body.syntax().first_child_or_token().map(|it| it.kind()),
+        Some(T!['{'])
+    );
     assert_eq!(
         expr_syntax.next_sibling_or_token().map(|it| it.kind()),
         Some(SyntaxKind::SEMICOLON) // OQ3 requires semicolon on every, including last, statement in block
-//        Some(SyntaxKind::WHITESPACE)
+                                    //        Some(SyntaxKind::WHITESPACE)
     );
 
     // As well as some iterator helpers:
@@ -302,7 +330,14 @@ fn api_walkthrough() {
                     NodeOrToken::Node(it) => it.text().to_string(),
                     NodeOrToken::Token(it) => it.text().to_string(),
                 };
-                format_to!(buf, "{:indent$}{:?} {:?}\n", " ", text, node.kind(), indent = indent);
+                format_to!(
+                    buf,
+                    "{:indent$}{:?} {:?}\n",
+                    " ",
+                    text,
+                    node.kind(),
+                    indent = indent
+                );
                 indent += 2;
             }
             WalkEvent::Leave(_) => indent -= 2,

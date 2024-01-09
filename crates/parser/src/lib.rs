@@ -6,13 +6,13 @@ mod lexed_str;
 mod token_set;
 
 // Temp make pub for debugging
-pub mod syntax_kind;
 mod event;
-mod parser;
 mod grammar;
 mod input;
 mod output;
+mod parser;
 mod shortcuts;
+pub mod syntax_kind;
 
 // FIXME
 // #[cfg(test)]
@@ -36,7 +36,7 @@ pub use crate::{
 #[derive(Debug)]
 pub enum TopEntryPoint {
     SourceFile,
-//    Type,
+    //    Type,
     Expr,
 }
 
@@ -44,7 +44,7 @@ impl TopEntryPoint {
     pub fn parse(&self, input: &Input) -> Output {
         let entry_point: fn(&'_ mut parser::Parser<'_>) = match self {
             TopEntryPoint::SourceFile => grammar::entry::top::source_file,
-//            TopEntryPoint::Type => grammar::entry::top::type_,
+            //            TopEntryPoint::Type => grammar::entry::top::type_,
             TopEntryPoint::Expr => grammar::entry::top::expr,
         };
         let mut p = parser::Parser::new(input);
@@ -61,9 +61,9 @@ impl TopEntryPoint {
                 match step {
                     Step::Enter { .. } => depth += 1,
                     Step::Exit => depth -= 1,
-                    Step::FloatSplit { ends_in_dot: has_pseudo_dot } => {
-                        depth -= 1 + !has_pseudo_dot as usize
-                    }
+                    Step::FloatSplit {
+                        ends_in_dot: has_pseudo_dot,
+                    } => depth -= 1 + !has_pseudo_dot as usize,
                     Step::Token { .. } | Step::Error { .. } => (),
                 }
             }

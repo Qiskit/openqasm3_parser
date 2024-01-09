@@ -50,13 +50,14 @@ pub enum TokenKind {
     ///
     /// Block comments can be recursive, so a sequence like `/* /* */`
     /// will not be considered terminated and will result in a parsing error.
-    BlockComment { terminated: bool },
+    BlockComment {
+        terminated: bool,
+    },
 
     /// Any whitespace character sequence.
     Whitespace,
 
-//    ClassicalTypeName,
-
+    //    ClassicalTypeName,
     /// "ident" or "continue"
     ///
     /// At this step, keywords are also considered identifiers.
@@ -84,7 +85,10 @@ pub enum TokenKind {
     /// this type will need to check for and reject that case.
     ///
     /// See [LiteralKind] for more details.
-    Literal { kind: LiteralKind, suffix_start: u32 },
+    Literal {
+        kind: LiteralKind,
+        suffix_start: u32,
+    },
 
     // One-char tokens:
     /// ";"
@@ -161,19 +165,38 @@ pub enum TokenKind {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum LiteralKind {
     /// "12_u8", "0o100", "0b120i99", "1f32".
-    Int { base: Base, empty_int: bool },
+    Int {
+        base: Base,
+        empty_int: bool,
+    },
     /// "12.34f32", "1e3", but not "1f32".
-    Float { base: Base, empty_exponent: bool },
+    Float {
+        base: Base,
+        empty_exponent: bool,
+    },
     /// "b'a'", "b'\\'", "b'''", "b';"
-    Byte { terminated: bool },
+    Byte {
+        terminated: bool,
+    },
     /// ""abc"", ""abc"
-    Str { terminated: bool },
+    Str {
+        terminated: bool,
+    },
     /// "10011" "100_11"
-    BitStr {terminated: bool, consecutive_underscores: bool },
+    BitStr {
+        terminated: bool,
+        consecutive_underscores: bool,
+    },
     /// Int Timing literal
-    TimingInt { base: Base, empty_int: bool },
+    TimingInt {
+        base: Base,
+        empty_int: bool,
+    },
     /// Float Timing literal
-    TimingFloat { base: Base, empty_exponent: bool },
+    TimingFloat {
+        base: Base,
+        empty_exponent: bool,
+    },
     SimpleFloat,
 }
 
@@ -190,13 +213,16 @@ pub enum Base {
     Hexadecimal = 16,
 }
 
-
 /// Creates an iterator that produces tokens from the input string.
 pub fn tokenize(input: &str) -> impl Iterator<Item = Token> + '_ {
     let mut cursor = Cursor::new(input);
     std::iter::from_fn(move || {
         let token = cursor.advance_token();
-        if token.kind != TokenKind::Eof { Some(token) } else { None }
+        if token.kind != TokenKind::Eof {
+            Some(token)
+        } else {
+            None
+        }
     })
 }
 
@@ -237,7 +263,7 @@ pub fn is_whitespace(c: char) -> bool {
 /// a formal definition of valid identifier name.
 pub fn is_id_start(c: char) -> bool {
     // This is XID_Start OR '_' (which formally is not a XID_Start).
-//    c == '_' || c == '$' || unicode_xid::UnicodeXID::is_xid_start(c)
+    //    c == '_' || c == '$' || unicode_xid::UnicodeXID::is_xid_start(c)
     c == '_' || unicode_xid::UnicodeXID::is_xid_start(c)
 }
 
@@ -295,19 +321,39 @@ impl Cursor<'_> {
                 // Eat suffix, and return true if it is a timing suffix.
                 if self.timing_suffix() {
                     match literal_kind {
-                        Float {base: baseval, empty_exponent: emptyval} => {
-                            TokenKind::Literal {kind: TimingFloat {base: baseval, empty_exponent: emptyval}, suffix_start}
+                        Float {
+                            base: baseval,
+                            empty_exponent: emptyval,
+                        } => TokenKind::Literal {
+                            kind: TimingFloat {
+                                base: baseval,
+                                empty_exponent: emptyval,
+                            },
+                            suffix_start,
                         },
-                        Int {base: baseval, empty_int: emptyval } => {
-                            TokenKind::Literal {kind: TimingInt {base: baseval, empty_int: emptyval}, suffix_start}
+                        Int {
+                            base: baseval,
+                            empty_int: emptyval,
+                        } => TokenKind::Literal {
+                            kind: TimingInt {
+                                base: baseval,
+                                empty_int: emptyval,
+                            },
+                            suffix_start,
                         },
                         _ => {
                             // This is unreachable
-                            TokenKind::Literal { kind: literal_kind, suffix_start }
+                            TokenKind::Literal {
+                                kind: literal_kind,
+                                suffix_start,
+                            }
                         }
                     }
                 } else {
-                    TokenKind::Literal { kind: literal_kind, suffix_start }
+                    TokenKind::Literal {
+                        kind: literal_kind,
+                        suffix_start,
+                    }
                 }
             }
 
@@ -327,8 +373,8 @@ impl Cursor<'_> {
             '~' => Tilde,
             '?' => Question,
             ':' => Colon,
-// FIXME! GJL disabled this ?
-//            '$' => Dollar,
+            // FIXME! GJL disabled this ?
+            //            '$' => Dollar,
             '=' => Eq,
             '!' => Bang,
             '<' => Lt,
@@ -347,13 +393,17 @@ impl Cursor<'_> {
 
             // String literal.
             '"' => {
-                let (terminated, only_ones_and_zeros, consecutive_underscores) = self.double_quoted_string();
+                let (terminated, only_ones_and_zeros, consecutive_underscores) =
+                    self.double_quoted_string();
                 let suffix_start = self.pos_within_token();
                 if terminated {
                     self.eat_literal_suffix();
                 }
                 let kind = match only_ones_and_zeros {
-                    true => BitStr { terminated, consecutive_underscores },
+                    true => BitStr {
+                        terminated,
+                        consecutive_underscores,
+                    },
                     false => Str { terminated },
                 };
                 Literal { kind, suffix_start }
@@ -401,7 +451,9 @@ impl Cursor<'_> {
             }
         }
 
-        BlockComment { terminated: depth == 0 }
+        BlockComment {
+            terminated: depth == 0,
+        }
     }
 
     fn whitespace(&mut self) -> TokenKind {
@@ -418,7 +470,7 @@ impl Cursor<'_> {
         // we see a prefix here, it is definitely an unknown prefix.
 
         match self.first() {
-           // '#' | '"' | '\'' => UnknownPrefix,
+            // '#' | '"' | '\'' => UnknownPrefix,
             c if !c.is_ascii() && c.is_emoji_char() => self.fake_ident_or_unknown_prefix(),
             _ => Ident,
         }
@@ -432,13 +484,13 @@ impl Cursor<'_> {
                 self.eat_while(is_id_continue);
                 self.fake_ident_or_unknown_prefix()
             }
-            _ => { if !self.eat_decimal_digits() {
-                Dollar
+            _ => {
+                if !self.eat_decimal_digits() {
+                    Dollar
+                } else {
+                    HardwareIdent
+                }
             }
-                   else {
-                       HardwareIdent
-                   }
-            },
         }
     }
 
@@ -479,21 +531,30 @@ impl Cursor<'_> {
                     base = Base::Binary;
                     self.bump();
                     if !self.eat_decimal_digits() {
-                        return Int { base, empty_int: true };
+                        return Int {
+                            base,
+                            empty_int: true,
+                        };
                     }
                 }
                 'o' => {
                     base = Base::Octal;
                     self.bump();
                     if !self.eat_decimal_digits() {
-                        return Int { base, empty_int: true };
+                        return Int {
+                            base,
+                            empty_int: true,
+                        };
                     }
                 }
                 'x' => {
                     base = Base::Hexadecimal;
                     self.bump();
                     if !self.eat_hexadecimal_digits() {
-                        return Int { base, empty_int: true };
+                        return Int {
+                            base,
+                            empty_int: true,
+                        };
                     }
                 }
                 // Not a base prefix; consume additional digits.
@@ -505,7 +566,12 @@ impl Cursor<'_> {
                 '.' | 'e' | 'E' => {}
 
                 // Just a 0.
-                _ => return Int { base, empty_int: false },
+                _ => {
+                    return Int {
+                        base,
+                        empty_int: false,
+                    }
+                }
             }
         } else {
             // No base prefix, parse number in the usual way.
@@ -535,14 +601,23 @@ impl Cursor<'_> {
                         _ => (),
                     }
                 }
-                Float { base, empty_exponent }
+                Float {
+                    base,
+                    empty_exponent,
+                }
             }
             'e' | 'E' => {
                 self.bump();
                 let empty_exponent = !self.eat_float_exponent();
-                Float { base, empty_exponent }
+                Float {
+                    base,
+                    empty_exponent,
+                }
             }
-            _ => Int { base, empty_int: false },
+            _ => Int {
+                base,
+                empty_int: false,
+            },
         }
     }
 
@@ -699,9 +774,9 @@ impl Cursor<'_> {
             self.bump();
             timing = true;
         } else {
-        // TODO: greek mu is encoded in more than one way. We only get one here.
+            // TODO: greek mu is encoded in more than one way. We only get one here.
             for (f, s) in [('d', 't'), ('n', 's'), ('u', 's'), ('m', 's'), ('µ', 's')] {
-                if self.first() == f &&  self.second() == s {
+                if self.first() == f && self.second() == s {
                     self.bump();
                     self.bump();
                     timing = true;
@@ -711,9 +786,9 @@ impl Cursor<'_> {
         if timing {
             if is_id_continue(self.first()) {
                 self.eat_while(is_id_continue);
-                return false
+                return false;
             }
-            return true
+            return true;
         }
         self.eat_literal_suffix();
         false

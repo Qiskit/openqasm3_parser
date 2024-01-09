@@ -3,8 +3,6 @@
 use crate::asg::{Expr, Program, Stmt, TExpr};
 use crate::symbols::{SymbolIdResult, SymbolTable};
 
-
-
 // Thus far, everything below is meant to apply any function
 // FnMut(&SymbolIdResult) to all possible places in the ASG.
 

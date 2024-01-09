@@ -155,7 +155,7 @@ fn ws_before(position: &Position, new: &SyntaxElement) -> Option<SyntaxToken> {
         PositionRepr::After(it) => it,
     };
     if prev.kind() == T!['{'] && ast::Stmt::can_cast(new.kind()) {
-//        if let Some(stmt_list) = prev.parent().and_then(ast::StmtList::cast) {
+        //        if let Some(stmt_list) = prev.parent().and_then(ast::StmtList::cast) {
         if let Some(stmt_list) = prev.parent().and_then(ast::BlockExpr::cast) {
             let mut indent = IndentLevel::from_element(&stmt_list.syntax().clone().into());
             indent.0 += 1;

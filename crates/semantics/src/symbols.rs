@@ -5,7 +5,6 @@
 use crate::types::Type;
 use hashbrown::HashMap;
 
-
 // OQ3
 // * "The lifetime of each identifier begins when it is declared, and ends
 //    at the completion of the scope it was declared in."

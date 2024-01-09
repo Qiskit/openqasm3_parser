@@ -8,11 +8,11 @@ use ariadne::{ColorGenerator, Label, Report, ReportKind, Source};
 use std::ops::Range;
 use std::path::{Path, PathBuf};
 
- // Syntactic AST
+// Syntactic AST
 
 use crate::source_file::{
-    expand_path, parse_source_and_includes, range_to_span, read_source_file,
-    ErrorTrait, Normalizeable, SourceFile, SourceString,
+    expand_path, parse_source_and_includes, range_to_span, read_source_file, ErrorTrait,
+    Normalizeable, SourceFile, SourceString,
 };
 
 /// Read source from `file_path` and parse to the syntactic AST.

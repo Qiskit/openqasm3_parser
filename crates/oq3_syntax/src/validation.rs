@@ -6,15 +6,14 @@
 
 mod block;
 //mod lexer;
-pub use parser::{T};
+pub use parser::T;
 
 //use rowan::Direction;
 use lexer::unescape::{self, unescape_literal, Mode};
 
 use crate::{
     ast::{self, IsString},
-    match_ast, AstNode, SyntaxError,
-    SyntaxNode, TextSize
+    match_ast, AstNode, SyntaxError, SyntaxNode, TextSize,
 };
 
 // FIXME: GJL, I think I disabled many of these. Some should be used.
@@ -116,7 +115,8 @@ fn oq3_unescape_error_to_string(err: unescape::EscapeError) -> (&'static str, bo
 fn validate_literal(literal: ast::Literal, acc: &mut Vec<SyntaxError>) {
     // FIXME: move this function to outer scope (https://github.com/rust-lang/rust-analyzer/pull/2834#discussion_r366196658)
     fn unquote(text: &str, prefix_len: usize, end_delimiter: char) -> Option<&str> {
-        text.rfind(end_delimiter).and_then(|end| text.get(prefix_len..end))
+        text.rfind(end_delimiter)
+            .and_then(|end| text.get(prefix_len..end))
     }
 
     let token = literal.token();
@@ -172,10 +172,10 @@ fn validate_literal(literal: ast::Literal, acc: &mut Vec<SyntaxError>) {
             }
         }
         ast::LiteralKind::IntNumber(_)
-            | ast::LiteralKind::FloatNumber(_)
-            | ast::LiteralKind::TimingFloatNumber(_)
-            | ast::LiteralKind::SimpleFloatNumber(_)
-            | ast::LiteralKind::Bool(_) => {}
+        | ast::LiteralKind::FloatNumber(_)
+        | ast::LiteralKind::TimingFloatNumber(_)
+        | ast::LiteralKind::SimpleFloatNumber(_)
+        | ast::LiteralKind::Bool(_) => {}
     }
 }
 
@@ -208,5 +208,3 @@ fn _validate_block_structure(root: &SyntaxNode) {
         }
     }
 }
-
-

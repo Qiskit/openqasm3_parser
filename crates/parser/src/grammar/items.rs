@@ -1,8 +1,7 @@
 // Copyright contributors to the openqasm-parser project
 
-use crate::grammar::expressions::expr_block_contents;
 use super::*;
-
+use crate::grammar::expressions::expr_block_contents;
 
 // This is more or less the entry point for the parser crate.
 // Entry point `fn parse` in lib.rs calls grammar::entry::top::source_file.
@@ -21,7 +20,7 @@ pub(super) const ITEM_RECOVERY_SET: TokenSet = TokenSet::new(&[
     T![include],
     T![cal],
     T![reset],
-//    T![measure],
+    //    T![measure],
     T![barrier],
     T![const],
     T![let],
@@ -48,10 +47,8 @@ pub(super) fn item(p: &mut Parser<'_>, stop_on_r_curly: bool) {
                 );
             }
             return;
-        },
-        Err(m) => {
-            m
         }
+        Err(m) => m,
     };
     match p.current() {
         T!['}'] if !stop_on_r_curly => {
@@ -61,7 +58,10 @@ pub(super) fn item(p: &mut Parser<'_>, stop_on_r_curly: bool) {
             p.bump(T!['}']);
             e.complete(p, ERROR);
         }
-        EOF | T!['}'] => {m.abandon(p); p.error("expected an item GJL 2")},
+        EOF | T!['}'] => {
+            m.abandon(p);
+            p.error("expected an item GJL 2")
+        }
         // Parse (semicolon terminated) statements until EOF or '}'.
         // I'm pretty sure there is no open '{' at this point, so this means stop at EOF only.
         // FIXME: for this reason, perhaps recursively call `fn item` instead.
@@ -70,7 +70,7 @@ pub(super) fn item(p: &mut Parser<'_>, stop_on_r_curly: bool) {
             expr_block_contents(p);
         }
     }
-//    }
+    //    }
 }
 
 /// Try to parse an item, completing `m` in case of success.
@@ -81,7 +81,7 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
     let la = p.nth(1);
     if p.current().is_classical_type() && la != T!['('] {
         expressions::classical_declaration_stmt(p, m);
-        return Ok(())
+        return Ok(());
     };
     // if p.at(HARDWAREIDENT) {
     //     p.bump(HARDWAREIDENT);
@@ -97,41 +97,41 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
     //     }
     // } else {
 
-        match p.current() {
-            T![qubit] => qubit_declaration_stmt(p, m),
-            T![const] => expressions::classical_declaration_stmt(p, m),
-            IDENT if (la == IDENT || la == HARDWAREIDENT) => gate_call_stmt(p, m),
-            IDENT if (la == T![=] && p.nth(2) != T![=]) => assignment_statement_with_marker(p, m),
-            T![gate] => gate_definition(p, m),
-            T![break] => break_(p, m),
-            T![continue] => continue_(p, m),
-            T![end] => end_(p, m),
-            T![if] => if_stmt(p, m),
-            T![while] => while_stmt(p, m),
-            T![def] => def_(p, m),
-            T![defcal] => defcal_(p, m),
-            T![cal] => cal_(p, m),
-            T![defcalgrammar] => defcalgrammar_(p, m),
-            T![reset] => reset_(p, m),
-            // measure is not a statement, does not belong here.
-//            T![measure] => measure_(p, m),
-            T![barrier] => barrier_(p, m),
-            T![OPENQASM] => version_string(p, m),
-            T![include] => include(p, m),
-            T![gphase] =>  gphase_call(p, m),
-            // This is already done elsewhere
-            //            T![let] => let_stmt(p, m),
-            _ => return Err(m),
-        }
+    match p.current() {
+        T![qubit] => qubit_declaration_stmt(p, m),
+        T![const] => expressions::classical_declaration_stmt(p, m),
+        IDENT if (la == IDENT || la == HARDWAREIDENT) => gate_call_stmt(p, m),
+        IDENT if (la == T![=] && p.nth(2) != T![=]) => assignment_statement_with_marker(p, m),
+        T![gate] => gate_definition(p, m),
+        T![break] => break_(p, m),
+        T![continue] => continue_(p, m),
+        T![end] => end_(p, m),
+        T![if] => if_stmt(p, m),
+        T![while] => while_stmt(p, m),
+        T![def] => def_(p, m),
+        T![defcal] => defcal_(p, m),
+        T![cal] => cal_(p, m),
+        T![defcalgrammar] => defcalgrammar_(p, m),
+        T![reset] => reset_(p, m),
+        // measure is not a statement, does not belong here.
+        //            T![measure] => measure_(p, m),
+        T![barrier] => barrier_(p, m),
+        T![OPENQASM] => version_string(p, m),
+        T![include] => include(p, m),
+        T![gphase] => gphase_call(p, m),
+        // This is already done elsewhere
+        //            T![let] => let_stmt(p, m),
+        _ => return Err(m),
+    }
     Ok(())
 }
 
 // expressions::call_expr also handles some occurences of gate calls
 // FIXME: params in parens are likely always caught in expressions::call_expr
 fn gate_call_stmt(p: &mut Parser<'_>, m: Marker) {
-//    expressions::var_name(p);
+    //    expressions::var_name(p);
     expressions::atom::identifier(p); // name of gate
-    assert!(! p.at(T!['(']));
+    assert!(!p.at(T!['(']));
     // This is never true, I hope
     if p.at(T!['(']) {
         expressions::call_arg_list(p);
@@ -151,7 +151,7 @@ fn gphase_call(p: &mut Parser<'_>, m: Marker) {
 
 fn if_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![if]));
-//    let m = p.start();
+    //    let m = p.start();
     p.bump(T![if]);
     expressions::expr_no_struct(p);
     expressions::block_expr(p);
@@ -239,11 +239,11 @@ pub(crate) fn ident_or_index_expr(p: &mut Parser<'_>) {
                     m.complete(p, IDENT);
                 }
             }
-        },
+        }
         HARDWAREIDENT => {
             p.bump(HARDWAREIDENT);
             m.complete(p, HARDWARE_QUBIT);
-        },
+        }
         _ => panic!(),
     }
 }
@@ -401,8 +401,8 @@ fn version_string(p: &mut Parser<'_>, m: Marker) {
 
 fn version_(p: &mut Parser<'_>) -> bool {
     let m = p.start();
-//    if ! p.expect(SIMPLE_FLOAT_NUMBER) && ! p.at(SEMICOLON) {
-    if ! p.expect(FLOAT_NUMBER) && ! p.at(SEMICOLON) {
+    //    if ! p.expect(SIMPLE_FLOAT_NUMBER) && ! p.at(SEMICOLON) {
+    if !p.expect(FLOAT_NUMBER) && !p.at(SEMICOLON) {
         p.bump_any(); // FIXME eat til semicolon
     }
     p.expect(SEMICOLON);

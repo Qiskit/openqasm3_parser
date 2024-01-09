@@ -1,12 +1,8 @@
 // Copyright contributors to the openqasm-parser project
 
 // use semantics::asg;
-use semantics::asg::{
-    TExpr, GateModifier
-};
-use semantics::symbols::{
-    SymbolId,
-};
+use semantics::asg::{GateModifier, TExpr};
+use semantics::symbols::SymbolId;
 
 #[derive(Clone)]
 pub enum ByteCode {
@@ -26,5 +22,5 @@ pub struct GateCall {
 
 #[derive(Clone)]
 pub struct DeclareQuantum {
-    name: SymbolId
+    name: SymbolId,
 }

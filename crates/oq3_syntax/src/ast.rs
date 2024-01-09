@@ -2,16 +2,16 @@
 
 //! Abstract Syntax Tree, layered on top of untyped `SyntaxNode`s
 
-mod generated;
-mod traits;
-mod token_ext;
-mod node_ext;
-mod expr_ext;
-mod type_ext;
-mod operators;
 pub mod edit;
+mod expr_ext;
+mod generated;
 pub mod make;
+mod node_ext;
+mod operators;
 pub mod prec;
+mod token_ext;
+mod traits;
+mod type_ext;
 
 use std::marker::PhantomData;
 
@@ -25,16 +25,11 @@ use crate::{
 pub use self::{
     expr_ext::{ArrayExprKind, ElseBranch, LiteralKind},
     generated::{nodes::*, tokens::*},
-    node_ext::{
-        HasTextName,
-    },
+    node_ext::HasTextName,
     operators::{ArithOp, BinaryOp, CmpOp, LogicOp, Ordering, RangeOp, UnaryOp},
     token_ext::{CommentKind, CommentShape, IsString, QuoteOffsets, Radix},
-    traits::{
-        HasArgList,
-        HasLoopBody, HasModuleItem, HasName,
-    },
-    type_ext::{ScalarTypeKind}, // need a better name, one that does not clash
+    traits::{HasArgList, HasLoopBody, HasModuleItem, HasName},
+    type_ext::ScalarTypeKind, // need a better name, one that does not clash
 };
 
 // NOTE! "typed ast" here does not mean annotated with types in the target language.
@@ -101,7 +96,10 @@ pub struct AstChildren<N> {
 
 impl<N> AstChildren<N> {
     fn new(parent: &SyntaxNode) -> Self {
-        AstChildren { inner: parent.children(), ph: PhantomData }
+        AstChildren {
+            inner: parent.children(),
+            ph: PhantomData,
+        }
     }
 }
 
@@ -152,7 +150,10 @@ mod support {
     }
 
     pub(super) fn token(parent: &SyntaxNode, kind: SyntaxKind) -> Option<SyntaxToken> {
-        parent.children_with_tokens().filter_map(|it| it.into_token()).find(|it| it.kind() == kind)
+        parent
+            .children_with_tokens()
+            .filter_map(|it| it.into_token())
+            .find(|it| it.kind() == kind)
     }
 }
 

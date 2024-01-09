@@ -34,7 +34,6 @@ const fn mask(kind: SyntaxKind) -> u128 {
     1u128 << (kind as usize)
 }
 
-
 #[test]
 fn token_set_works_for_tokens() {
     use crate::SyntaxKind::*;
