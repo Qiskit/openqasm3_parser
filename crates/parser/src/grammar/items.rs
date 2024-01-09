@@ -89,7 +89,8 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
     //     return Ok(())
     // }
     // if p.current().is_classical_type() {
-    //     if la == T!['('] { // we should not be handling expressions here, only statements.
+    //     // we should not be handling expressions here, only statements.
+    //     if la == T!['('] {
     //         expressions::cast_expr(p, m);
     //     } else {
     //         expressions::classical_declaration_stmt(p, m);
@@ -131,7 +132,8 @@ fn gate_call_stmt(p: &mut Parser<'_>, m: Marker) {
 //    expressions::var_name(p);
     expressions::atom::identifier(p); // name of gate
     assert!(! p.at(T!['(']));
-    if p.at(T!['(']) { // This is never true, I hope
+    // This is never true, I hope
+    if p.at(T!['(']) {
         expressions::call_arg_list(p);
     }
     params::arg_list_gate_call_qubits(p);
@@ -147,7 +149,7 @@ fn gphase_call(p: &mut Parser<'_>, m: Marker) {
     m.complete(p, G_PHASE_CALL_STMT);
 }
 
-fn if_stmt(p: &mut Parser<'_>, m: Marker) { // -> CompletedMarker {
+fn if_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![if]));
 //    let m = p.start();
     p.bump(T![if]);
@@ -262,7 +264,7 @@ fn reset_(p: &mut Parser<'_>, m: Marker) {
 }
 
 // FIXME: this has underscore, so should be private.
-// We shoudld be able to refactor to keep this private.
+// We should be able to refactor to keep this private.
 pub(crate) fn measure_(p: &mut Parser<'_>, m: Marker) {
     p.bump(T![measure]);
     match p.current() {

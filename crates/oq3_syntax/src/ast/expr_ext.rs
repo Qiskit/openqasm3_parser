@@ -236,9 +236,11 @@ impl ast::RangeExpr {
         let first = children.next();
         let second = children.next();
         let third = children.next();
-        if third.is_none() { // start:stop
+        if third.is_none() {
+             // start:stop
             (first, third, second)
-        } else { // start:step:stop
+        } else {
+            // start:step:stop
             (first, second, third)
         }
     }

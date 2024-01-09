@@ -86,7 +86,7 @@ pub(crate) fn stmt(p: &mut Parser<'_>, semicolon: Semicolon) {
             return;
         };
     if let Some((cm, blocklike)) = expr_stmt(p, Some(m)) {
-        if !p.at(T!['}']) { //  && ( semicolon == Semicolon::Required || ! p.at(EOF)) {
+        if !p.at(T!['}']) {
             let cm_kind = cm.kind();
             let m = cm.precede(p);
             if blocklike.is_block() {
@@ -287,8 +287,9 @@ const LHS_FIRST: TokenSet =
 // Handles only prefix and postfix expressions?? Not binary infix?
 fn lhs(p: &mut Parser<'_>, r: Restrictions) -> Option<(CompletedMarker, BlockLike, bool)> {
     let m;
-    let kind = match p.current() { // Unary operators. In OQ3 should be ~ ! -
-        T![~] | T![!] | T![-] => {  // In r-a this is * ! -
+    // Unary operators. In OQ3 should be ~ ! -, In r-a this is * ! -
+    let kind = match p.current() {
+        T![~] | T![!] | T![-] => {
             m = p.start();
             p.bump_any();
             PREFIX_EXPR

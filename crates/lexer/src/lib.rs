@@ -524,7 +524,8 @@ impl Cursor<'_> {
                 self.bump();
                 // n.b. example of `empty_exponent` : 3.4e; This is a syntax error
                 let mut empty_exponent = false;
-                if self.first().is_ascii_digit() { // preferred to is_digit(10), in rust lexer
+                // preferred to is_digit(10), in rust lexer
+                if self.first().is_ascii_digit() {
                     self.eat_decimal_digits();
                     match self.first() {
                         'e' | 'E' => {
