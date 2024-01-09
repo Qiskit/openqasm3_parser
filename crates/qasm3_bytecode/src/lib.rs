@@ -20,7 +20,6 @@ mod bytecode;
 mod parse;
 mod pybytecode;
 mod semanticpy;
-mod to_pybytecode;
 
 #[pymodule]
 fn _qasm3_bytecode(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
