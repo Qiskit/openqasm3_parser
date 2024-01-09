@@ -77,7 +77,8 @@ fn main() {
                 println!("{:?}", tok);
             }
         }
-        None => { // TODO shoul pring usage here.
+        None => {
+            // FIXME should print usage here.
             println!("Commands are parse, parse-green, and lex")
         }
     }

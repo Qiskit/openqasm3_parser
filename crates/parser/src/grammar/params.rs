@@ -92,8 +92,9 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         // DefCalQubits => {TokenSet::new(&[T!['{'], T![->]])},
         ExpressionList => [T![']'], T![']']],
         GateParams | DefParams | DefCalParams => [T![')'], T![')']],
-        GateQubits => [T!['{'], T!['{']], // When no parens are present `{` terminates the list of parameters.
-        GateCallQubits => [SEMICOLON, SEMICOLON], // ugh.
+        // When no parens are present `{` terminates the list of parameters.
+        GateQubits => [T!['{'], T!['{']],
+        GateCallQubits => [SEMICOLON, SEMICOLON],
         DefCalQubits => [T!['{'], T![->]],
 //        SetExpression => [T!['}'], T!['}']],
     };
@@ -104,7 +105,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
     //  while !p.at(EOF) && !p.at_ts(list_end_tokens) {
     while !p.at(EOF) && !list_end_tokens.iter().any(|x| p.at(*x)) {
         let m = param_marker.take().unwrap_or_else(|| p.start());
-        if !(p.current().is_type_name() || p.at_ts(PARAM_FIRST)) { //
+        if !(p.current().is_type_name() || p.at_ts(PARAM_FIRST)) {
             p.error("expected value parameter");
             println!("!!!! Got {:?}", p.current());
             m.abandon(p);
@@ -126,17 +127,20 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         num_params += 1;
         // FIXME: This is only needed to support `->` as terminating tokens.
         // Not for `{`. But I don't know why. prbly because `->` is compound.
-        if list_end_tokens.iter().any(|x| p.at(*x)) { // FIXME: use at_ts()
+        // FIXME: use at_ts()
+        if list_end_tokens.iter().any(|x| p.at(*x)) {
 //        if p.at_ts(list_end_tokens) {
             break;
         }
-        if !p.at(T![,]) { // Params must be separated by commas.
+        // Params must be separated by commas.
+        if !p.at(T![,]) {
             if p.at_ts(PARAM_FIRST) {
                 p.error("Expected `,`");
             } else {
                 break;
             }
-        } else { // We found the expected comma, so consume it.
+        } else {
+            // We found the expected comma, so consume it.
             p.bump(T![,]);
         }
     }
@@ -150,7 +154,8 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         m.abandon(p);
     }
     // FIXME: rewrite followig as match statement.
-    if want_parens { // Error if we don't find closing paren.
+    // Error if we don't find closing paren.
+    if want_parens {
         p.expect(T![')']);
     }
     // if matches!(flavor, SetExpression) {
@@ -197,7 +202,7 @@ const PARAM_FIRST: TokenSet = PATTERN_FIRST.union(TYPE_FIRST);
 // TODO: Look again at the r-a code to copy the idioms there.
 // We have removed all of the code that can serve as an example.
 // In OQ 3, parameters in gate defs don't have type annotations.
-fn param_untyped(p: &mut Parser<'_>, m: Marker) -> bool { // GJL
+fn param_untyped(p: &mut Parser<'_>, m: Marker) -> bool {
     if !p.at(IDENT) {
         p.error("Expected parameter name");
         m.abandon(p);
@@ -208,7 +213,7 @@ fn param_untyped(p: &mut Parser<'_>, m: Marker) -> bool { // GJL
     true
 }
 
-fn param_typed(p: &mut Parser<'_>, m: Marker) -> bool { // GJL
+fn param_typed(p: &mut Parser<'_>, m: Marker) -> bool {
     let mut success = true;
     if p.current().is_type_name() {
         p.bump_any();
@@ -226,7 +231,7 @@ fn param_typed(p: &mut Parser<'_>, m: Marker) -> bool { // GJL
     success
 }
 
-fn arg_gate_call_qubit(p: &mut Parser<'_>, m: Marker) -> bool { // GJL
+fn arg_gate_call_qubit(p: &mut Parser<'_>, m: Marker) -> bool {
     if p.at(HARDWAREIDENT) {
         p.bump(HARDWAREIDENT);
         m.complete(p, HARDWARE_QUBIT);
