@@ -5,8 +5,7 @@ use super::*;
 use crate::grammar;
 use crate::grammar::expressions;
 
-pub(crate) const PATH_FIRST: TokenSet =
-    TokenSet::new(&[IDENT, HARDWAREIDENT, T![:], T![<]]);
+pub(crate) const PATH_FIRST: TokenSet = TokenSet::new(&[IDENT, HARDWAREIDENT, T![:], T![<]]);
 
 pub(crate) const LITERAL_FIRST: TokenSet = TokenSet::new(&[
     T![true],
@@ -70,7 +69,7 @@ pub(super) fn atom_expr(
         // Ugh. this is needed for `int[32]` for example. But it prevents array indexing `v[1:3]` from working
         // Need to distinguish these
         T!['['] => array_expr(p),
-//        T![if] => if_expr(p),
+        //        T![if] => if_expr(p),
         T![box] => box_expr(p, None),
         //        T![while] => while_expr(p, None),
         T![measure] => measure_expression(p),
@@ -79,8 +78,8 @@ pub(super) fn atom_expr(
         T![for] => for_expr(p, None),
         // FIXME: This is the simplest gate call. Need to cover
         // `mygate(myparam) q1, q2;` as well.
-//        IDENT if la == IDENT => gate_call_expr(p),
-        IDENT if (la == T![=] && p.nth(2) != T![=])  => grammar::items::assignment_statement(p),
+        //        IDENT if la == IDENT => gate_call_expr(p),
+        IDENT if (la == T![=] && p.nth(2) != T![=]) => grammar::items::assignment_statement(p),
         // FIXME: An identifer bound by the user in the program.
         // Need to handle more than identifier.
         // Also `NAME` is probably not correct.
@@ -90,8 +89,11 @@ pub(super) fn atom_expr(
             return None;
         }
     };
-    let blocklike =
-        if BlockLike::is_blocklike(done.kind()) { BlockLike::Block } else { BlockLike::NotBlock };
+    let blocklike = if BlockLike::is_blocklike(done.kind()) {
+        BlockLike::Block
+    } else {
+        BlockLike::NotBlock
+    };
     Some((done, blocklike))
 }
 
@@ -110,7 +112,6 @@ fn measure_expression(p: &mut Parser<'_>) -> CompletedMarker {
     }
     m.complete(p, MEASURE_EXPRESSION)
 }
-
 
 // FIXME: changed the kind to `NAME`
 // FIXME: changed it back to IDENTIFIER
@@ -152,7 +153,14 @@ fn tuple_expr(p: &mut Parser<'_>) -> CompletedMarker {
         }
     }
     p.expect(T![')']);
-    m.complete(p, if saw_expr && !saw_comma { PAREN_EXPR } else { TUPLE_EXPR })
+    m.complete(
+        p,
+        if saw_expr && !saw_comma {
+            PAREN_EXPR
+        } else {
+            TUPLE_EXPR
+        },
+    )
 }
 
 fn array_expr(p: &mut Parser<'_>) -> CompletedMarker {

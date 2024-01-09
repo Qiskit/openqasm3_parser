@@ -71,7 +71,6 @@ pub(crate) mod entry {
             }
             m.complete(p, ERROR);
         }
-
     }
 }
 
@@ -89,8 +88,8 @@ impl BlockLike {
     }
 
     fn is_blocklike(kind: SyntaxKind) -> bool {
-        matches!(kind, BLOCK_EXPR )
-//        matches!(kind, BLOCK_EXPR | IF_EXPR | WHILE_EXPR | FOR_EXPR)
+        matches!(kind, BLOCK_EXPR)
+        //        matches!(kind, BLOCK_EXPR | IF_EXPR | WHILE_EXPR | FOR_EXPR)
     }
 }
 
@@ -125,7 +124,6 @@ fn opt_ret_type(p: &mut Parser<'_>) -> bool {
 /// Parse an identifer signifying a name. Attempt recovery
 /// on failure.
 fn name_r(p: &mut Parser<'_>, recovery: TokenSet) {
-
     // FIXME: testing. dont know if this belongs
     if p.at(HARDWAREIDENT) {
         let m = p.start();

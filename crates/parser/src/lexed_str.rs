@@ -91,12 +91,17 @@ impl<'a> LexedStr<'a> {
 
     pub fn error(&self, i: usize) -> Option<&str> {
         assert!(i < self.len());
-        let err = self.error.binary_search_by_key(&(i as u32), |i| i.token).ok()?;
+        let err = self
+            .error
+            .binary_search_by_key(&(i as u32), |i| i.token)
+            .ok()?;
         Some(self.error[err].msg.as_str())
     }
 
     pub fn errors(&self) -> impl Iterator<Item = (usize, &str)> + '_ {
-        self.error.iter().map(|it| (it.token as usize, it.msg.as_str()))
+        self.error
+            .iter()
+            .map(|it| (it.token as usize, it.msg.as_str()))
     }
 
     fn push(&mut self, kind: SyntaxKind, offset: usize) {
@@ -113,7 +118,12 @@ struct Converter<'a> {
 impl<'a> Converter<'a> {
     fn new(text: &'a str) -> Self {
         Self {
-            res: LexedStr { text, kind: Vec::new(), start: Vec::new(), error: Vec::new() },
+            res: LexedStr {
+                text,
+                kind: Vec::new(),
+                start: Vec::new(),
+                error: Vec::new(),
+            },
             offset: 0,
         }
     }
@@ -134,83 +144,87 @@ impl<'a> Converter<'a> {
         }
     }
 
-
     fn extend_token(&mut self, kind: &lexer::TokenKind, token_text: &str) {
         let (err, syntax_kind, text_len) = inner_extend_token(kind, token_text);
         let err = if err.is_empty() { None } else { Some(err) };
         self.push(syntax_kind, text_len, err);
     }
+}
 
-    }
+fn extend_literal_func(len: usize, kind: &lexer::LiteralKind) -> (&str, SyntaxKind, usize) {
+    let mut err = "";
+    let syntax_kind = match *kind {
+        lexer::LiteralKind::Int { empty_int, base: _ } => {
+            if empty_int {
+                err = "Missing digits after the integer base prefix";
+            }
+            INT_NUMBER
+        }
+        lexer::LiteralKind::Float {
+            empty_exponent,
+            base: _,
+        } => {
+            if empty_exponent {
+                err = "Missing digits after the exponent symbol";
+            }
+            FLOAT_NUMBER
+        }
+        lexer::LiteralKind::TimingInt { empty_int, base } => {
+            if empty_int {
+                err = "Missing digits after the integer base prefix";
+            }
+            if base != lexer::Base::Decimal {
+                err = "Base of timing integer literal is not decimal";
+            }
+            TIMING_INT_NUMBER
+        }
+        lexer::LiteralKind::TimingFloat {
+            empty_exponent,
+            base,
+        } => {
+            if empty_exponent {
+                err = "Missing digits after the exponent symbol";
+            }
+            if base != lexer::Base::Decimal {
+                err = "Base of timing integer literal is not decimal";
+            }
+            TIMING_FLOAT_NUMBER
+        }
+        lexer::LiteralKind::SimpleFloat => SIMPLE_FLOAT_NUMBER,
+        lexer::LiteralKind::Byte { terminated } => {
+            if !terminated {
+                err = "Missing trailing `'` symbol to terminate the byte literal";
+            }
+            BYTE
+        }
+        lexer::LiteralKind::Str { terminated } => {
+            if !terminated {
+                err = "Missing trailing `\"` symbol to terminate the string literal";
+            }
+            STRING
+        }
+        lexer::LiteralKind::BitStr {
+            terminated,
+            consecutive_underscores,
+        } => {
+            // FIXME. Both errors at once are possible but not handled.
+            if !terminated {
+                if !consecutive_underscores {
+                    err = "Missing trailing `\"` symbol to terminate the bitstring literal";
+                }
+            } else if consecutive_underscores {
+                err = "Consecutive underscores not allowed in bitstring literal";
+            }
+            BIT_STRING
+        }
+    };
+    (err, syntax_kind, len)
+}
 
-fn extend_literal_func(len: usize, kind: &lexer::LiteralKind) ->
-    (&str, SyntaxKind, usize) {
-        let mut err = "";
-        let syntax_kind = match *kind {
-            lexer::LiteralKind::Int { empty_int, base: _ } => {
-                if empty_int {
-                    err = "Missing digits after the integer base prefix";
-                }
-                INT_NUMBER
-            }
-            lexer::LiteralKind::Float { empty_exponent, base: _ } => {
-                if empty_exponent {
-                    err = "Missing digits after the exponent symbol";
-                }
-                FLOAT_NUMBER
-            }
-            lexer::LiteralKind::TimingInt{empty_int, base} => {
-                if empty_int {
-                    err = "Missing digits after the integer base prefix";
-                }
-                if base != lexer::Base::Decimal {
-                    err = "Base of timing integer literal is not decimal";
-                }
-                TIMING_INT_NUMBER
-            }
-            lexer::LiteralKind::TimingFloat{empty_exponent, base} => {
-                if empty_exponent {
-                    err = "Missing digits after the exponent symbol";
-                }
-                if base != lexer::Base::Decimal {
-                    err = "Base of timing integer literal is not decimal";
-                }
-                TIMING_FLOAT_NUMBER
-            }
-            lexer::LiteralKind::SimpleFloat => {
-                SIMPLE_FLOAT_NUMBER
-            }
-            lexer::LiteralKind::Byte { terminated } => {
-                if !terminated {
-                    err = "Missing trailing `'` symbol to terminate the byte literal";
-                }
-                BYTE
-            }
-            lexer::LiteralKind::Str { terminated } => {
-                if !terminated {
-                    err = "Missing trailing `\"` symbol to terminate the string literal";
-                }
-                STRING
-            }
-            lexer::LiteralKind::BitStr { terminated, consecutive_underscores } => {
-                // FIXME. Both errors at once are possible but not handled.
-                if !terminated {
-                    if !consecutive_underscores {
-                        err = "Missing trailing `\"` symbol to terminate the bitstring literal";
-                    }
-                } else if consecutive_underscores {
-                    err = "Consecutive underscores not allowed in bitstring literal";
-
-                }
-                BIT_STRING
-            }
-        };
-        (err, syntax_kind, len)
-    }
-
-fn inner_extend_token<'a>(kind: &'a lexer::TokenKind, token_text: &str) ->
-    (&'a str, SyntaxKind, usize)
-{
+fn inner_extend_token<'a>(
+    kind: &'a lexer::TokenKind,
+    token_text: &str,
+) -> (&'a str, SyntaxKind, usize) {
     // A note on an intended tradeoff:
     // We drop some useful information here (see patterns with double dots `..`)
     // Storing that info in `SyntaxKind` is not possible due to its layout requirements of
@@ -231,9 +245,8 @@ fn inner_extend_token<'a>(kind: &'a lexer::TokenKind, token_text: &str) ->
             lexer::TokenKind::Ident if token_text == "_" => UNDERSCORE,
 
             // If it looks like an identifer, look first if it is a keyword.
-            lexer::TokenKind::Ident => {
-                SyntaxKind::from_keyword(token_text).unwrap_or(SyntaxKind::from_scalar_type(token_text).unwrap_or(IDENT))
-            }
+            lexer::TokenKind::Ident => SyntaxKind::from_keyword(token_text)
+                .unwrap_or(SyntaxKind::from_scalar_type(token_text).unwrap_or(IDENT)),
 
             // um, this does not look correct
             lexer::TokenKind::HardwareIdent => {
@@ -246,8 +259,8 @@ fn inner_extend_token<'a>(kind: &'a lexer::TokenKind, token_text: &str) ->
             }
 
             lexer::TokenKind::Literal { kind, .. } => {
-//                    self.extend_literal(token_text.len(), kind);
-                return extend_literal_func(token_text.len(), kind)
+                //                    self.extend_literal(token_text.len(), kind);
+                return extend_literal_func(token_text.len(), kind);
             }
 
             lexer::TokenKind::Semi => T![;],

@@ -1,12 +1,11 @@
 // Copyright contributors to the openqasm-parser project
 
 use pyo3::prelude::*;
-use pyo3::Python;
 use pyo3::types::PyList;
+use pyo3::Python;
 
-use semantics::{asg, types, symbols};
+use semantics::{asg, symbols, types};
 use symbols::SymbolType; // trait for getting symbol type
-
 
 #[derive(Clone)]
 #[pyclass]
@@ -32,7 +31,7 @@ pub enum TypeName {
     BoolArray,
     DurationArray,
     // Other
-    Gate, // <-- this type seems anomalous
+    Gate,  // <-- this type seems anomalous
     Range, // temporary placeholder, perhaps
     Void,
     Invalid,
@@ -62,7 +61,7 @@ impl Type {
             At::Angle(..) => Tn::Angle,
             At::Gate => Tn::Gate,
             At::QubitArray(..) => Tn::QubitArray,
-            _ => TypeName::NotImplemented // TODO: all other types
+            _ => TypeName::NotImplemented, // TODO: all other types
         }
     }
 
@@ -86,14 +85,13 @@ impl Type {
 //     }
 // }
 
-
 #[pyclass]
 #[derive(Clone)]
 pub struct TExpr(asg::TExpr);
 
 #[pymethods]
 impl TExpr {
-//impl TExpr<'_> {
+    //impl TExpr<'_> {
     pub fn get_type(&self) -> Type {
         Type(self.0.get_type().clone())
     }
@@ -120,10 +118,9 @@ impl DeclareClassical {
     pub fn initializer(&self, py: Python<'_>) -> PyObject {
         match self.0.initializer() {
             Some(expr) => Expr(expr.as_ref().expression()).into_py(py),
-            None => py.None()
+            None => py.None(),
         }
     }
-
 }
 
 #[pyclass]
@@ -164,10 +161,14 @@ impl GateCall {
     }
 
     pub fn qubits(&self, py: Python<'_>) -> Py<PyList> {
-        let elements: Vec<_> = self.0.qubits().iter().map(|x| TExpr(x.clone()).into_py(py)).collect();
+        let elements: Vec<_> = self
+            .0
+            .qubits()
+            .iter()
+            .map(|x| TExpr(x.clone()).into_py(py))
+            .collect();
         PyList::new(py, elements).into()
     }
-
 }
 // wrapper exists only allow `impl IntoPy for Stmt`
 #[derive(Clone)]
@@ -179,7 +180,7 @@ impl IntoPy<PyObject> for Stmt {
             asg::Stmt::DeclareQuantum(qdecl) => DeclareQuantum(qdecl).into_py(py),
             asg::Stmt::DeclareClassical(cdecl) => DeclareClassical(cdecl).into_py(py),
             asg::Stmt::GateCall(gate_call) => GateCall(gate_call).into_py(py),
-            _ => py.None()
+            _ => py.None(),
         }
     }
 }
@@ -196,7 +197,12 @@ impl Program {
     }
 
     pub fn statements(&self, py: Python<'_>) -> Py<PyList> {
-        let elements: Vec<_> = self.0.stmts.iter().map(|x| Stmt(x.clone()).into_py(py)).collect();
+        let elements: Vec<_> = self
+            .0
+            .stmts
+            .iter()
+            .map(|x| Stmt(x.clone()).into_py(py))
+            .collect();
         PyList::new(py, elements).into()
     }
 }
@@ -222,13 +228,13 @@ impl IntoPy<PyObject> for Expr<'_> {
         match self.0 {
             asg::Expr::Literal(asg::Literal::Bool(bool_literal)) => {
                 BoolLiteral(bool_literal.clone()).into_py(py)
-            },
-            asg::Expr::GateOperand(asg::GateOperand::Identifier(ident)) => {
-//                dbg!(ident.clone());
-                SymbolId(ident.clone().symbol().as_ref().unwrap().clone()).into_py(py)
-//                py.None()
             }
-            _ => py.None()
+            asg::Expr::GateOperand(asg::GateOperand::Identifier(ident)) => {
+                //                dbg!(ident.clone());
+                SymbolId(ident.clone().symbol().as_ref().unwrap().clone()).into_py(py)
+                //                py.None()
+            }
+            _ => py.None(),
         }
     }
 }
@@ -238,7 +244,7 @@ impl IntoPy<PyObject> for Expr<'_> {
 pub struct Symbol(pub symbols::Symbol);
 
 use pyo3::class::basic::CompareOp;
-use pyo3::exceptions::{PyTypeError};
+use pyo3::exceptions::PyTypeError;
 
 #[pymethods]
 impl SymbolId {
@@ -253,7 +259,9 @@ impl SymbolId {
         match op {
             CompareOp::Eq => Ok(self.0 == other.0),
             CompareOp::Ne => Ok(self.0 != other.0),
-            _ => Err(PyTypeError::new_err(format!("Operation {op:?} not supported")))
+            _ => Err(PyTypeError::new_err(format!(
+                "Operation {op:?} not supported"
+            ))),
         }
     }
 }
@@ -277,16 +285,14 @@ impl Symbol {
     }
 }
 
-
 #[pyclass]
 #[derive(Clone)]
 pub struct SymbolTable(pub symbols::SymbolTable);
 
-
 #[pymethods]
 impl SymbolTable {
-//    #[pyo3(name = "__item__")]
-    pub fn get_symbol(&self, symbol_id:SymbolId) -> Symbol {
+    //    #[pyo3(name = "__item__")]
+    pub fn get_symbol(&self, symbol_id: SymbolId) -> Symbol {
         Symbol(self.0[&symbol_id.0].clone())
     }
 }
@@ -315,9 +321,9 @@ pub fn check_enum(x: TypeName, py: Python<'_>) -> PyObject {
     match x {
         TypeName::Int => 1i32,
         _ => 0i32,
-    }.into_py(py)
+    }
+    .into_py(py)
 }
-
 
 // #[pyfunction]
 // pub fn cdeclaration(py: Python<'_>) -> (PyObject, SymbolTable) {

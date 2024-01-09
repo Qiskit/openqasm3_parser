@@ -14,7 +14,7 @@ use crate::{Parse, SyntaxError, SyntaxKind, TextSize};
 
 // FIXME: GJL Using this in demo program, so make it public.
 // actually rustc should warn if this is not used.
-pub use rowan::{GreenNode};
+pub use rowan::GreenNode;
 // pub(crate) use rowan::{GreenNode};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -37,7 +37,6 @@ pub type SyntaxElement = rowan::SyntaxElement<OpenQASM3Language>;
 pub type SyntaxNodeChildren = rowan::SyntaxNodeChildren<OpenQASM3Language>;
 pub type SyntaxElementChildren = rowan::SyntaxElementChildren<OpenQASM3Language>;
 pub type PreorderWithTokens = rowan::api::PreorderWithTokens<OpenQASM3Language>;
-
 
 #[derive(Default)]
 pub struct SyntaxTreeBuilder {
@@ -77,6 +76,7 @@ impl SyntaxTreeBuilder {
     }
 
     pub fn error(&mut self, error: String, text_pos: TextSize) {
-        self.errors.push(SyntaxError::new_at_offset(error, text_pos));
+        self.errors
+            .push(SyntaxError::new_at_offset(error, text_pos));
     }
 }

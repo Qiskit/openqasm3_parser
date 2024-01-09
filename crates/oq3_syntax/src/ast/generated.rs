@@ -18,14 +18,14 @@ pub(crate) use nodes::*;
 impl AstNode for Stmt {
     fn can_cast(kind: SyntaxKind) -> bool {
         match kind {
-//            LET_STMT | EXPR_STMT => true,
+            //            LET_STMT | EXPR_STMT => true,
             EXPR_STMT => true,
             _ => Item::can_cast(kind),
         }
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         let res = match syntax.kind() {
-//            LET_STMT => Stmt::LetStmt(LetStmt { syntax }),
+            //            LET_STMT => Stmt::LetStmt(LetStmt { syntax }),
             EXPR_STMT => Stmt::ExprStmt(ExprStmt { syntax }),
             _ => {
                 let item = Item::cast(syntax)?;
@@ -36,7 +36,7 @@ impl AstNode for Stmt {
     }
     fn syntax(&self) -> &SyntaxNode {
         match self {
-//            Stmt::LetStmt(it) => &it.syntax,
+            //            Stmt::LetStmt(it) => &it.syntax,
             Stmt::ExprStmt(it) => &it.syntax,
             Stmt::Item(it) => it.syntax(),
         }

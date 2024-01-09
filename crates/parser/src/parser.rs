@@ -25,7 +25,7 @@ use crate::{
 /// finish expression". See `Event` docs for more.
 pub(crate) struct Parser<'t> {
     inp: &'t Input,
-    pos: usize,  // Ordinal token number
+    pos: usize, // Ordinal token number
     events: Vec<Event>,
     steps: Cell<u32>,
 }
@@ -34,7 +34,12 @@ static PARSER_STEP_LIMIT: Limit = Limit::new(15_000_000);
 
 impl<'t> Parser<'t> {
     pub(super) fn new(inp: &'t Input) -> Parser<'t> {
-        Parser { inp, pos: 0, events: Vec::new(), steps: Cell::new(0) }
+        Parser {
+            inp,
+            pos: 0,
+            events: Vec::new(),
+            steps: Cell::new(0),
+        }
     }
 
     pub(crate) fn finish(self) -> Vec<Event> {
@@ -66,7 +71,10 @@ impl<'t> Parser<'t> {
         assert!(n <= 3);
 
         let steps = self.steps.get();
-        assert!(PARSER_STEP_LIMIT.check(steps as usize).is_ok(), "the parser seems stuck");
+        assert!(
+            PARSER_STEP_LIMIT.check(steps as usize).is_ok(),
+            "the parser seems stuck"
+        );
         self.steps.set(steps + 1);
 
         self.inp.kind(self.pos + n)
@@ -247,7 +255,7 @@ impl<'t> Parser<'t> {
         if self.eat(kind) {
             return true;
         }
-//        println!("------------ will error with 'expected {kind:?}"); // GJL debug
+        //        println!("------------ will error with 'expected {kind:?}"); // GJL debug
         self.error(format!("expected {kind:?}"));
         false
     }
@@ -304,7 +312,10 @@ pub(crate) struct Marker {
 
 impl Marker {
     fn new(pos: u32) -> Marker {
-        Marker { pos, bomb: DropBomb::new("Marker must be either completed or abandoned") }
+        Marker {
+            pos,
+            bomb: DropBomb::new("Marker must be either completed or abandoned"),
+        }
     }
 
     /// Finishes the syntax tree node and assigns `kind` to it,
@@ -330,7 +341,10 @@ impl Marker {
         let idx = self.pos as usize;
         if idx == p.events.len() - 1 {
             match p.events.pop() {
-                Some(Event::Start { kind: TOMBSTONE, forward_parent: None }) => (),
+                Some(Event::Start {
+                    kind: TOMBSTONE,
+                    forward_parent: None,
+                }) => (),
                 _ => unreachable!(),
             }
         }

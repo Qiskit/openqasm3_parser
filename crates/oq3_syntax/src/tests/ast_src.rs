@@ -68,29 +68,65 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         (">>=", "SHREQ"),
     ],
     keywords: &[
-        "OPENQASM", "include", "def", "defcalgrammar", "cal", "defcal", "gate",
-        "delay", "reset", "measure",
-        "pragma",  "end",
-        "let",  "box", "extern",
-        "const", "barrier",
+        "OPENQASM",
+        "include",
+        "def",
+        "defcalgrammar",
+        "cal",
+        "defcal",
+        "gate",
+        "delay",
+        "reset",
+        "measure",
+        "pragma",
+        "end",
+        "let",
+        "box",
+        "extern",
+        "const",
+        "barrier",
         "gphase", // This is a slight hack because a `gphase` call has unique syntax.
-
         // Flow control
-        "if", "else", "for", "in", "while", "continue", "return", "break",
-
+        "if",
+        "else",
+        "for",
+        "in",
+        "while",
+        "continue",
+        "return",
+        "break",
         // Types
-        "input", "output", "readonly", "mutable", "qreg", "creg",
-        "qubit", "void", "array",
-
+        "input",
+        "output",
+        "readonly",
+        "mutable",
+        "qreg",
+        "creg",
+        "qubit",
+        "void",
+        "array",
         // I suppose these are literals
-        "false", "true",
+        "false",
+        "true",
     ],
     // GJL: try introducing scalar_types to help parse var declarations. May not be useful
     // sourcegen_ast.rs can convert these to upper snake case.
-    scalar_types: &["float", "int", "uint", "complex", "bool", "bit", "duration", "stretch",  "angle"],
+    scalar_types: &[
+        "float", "int", "uint", "complex", "bool", "bit", "duration", "stretch", "angle",
+    ],
     // These are already upper snake case.
-    literals: &["INT_NUMBER", "FLOAT_NUMBER", "SIMPLE_FLOAT_NUMBER", "CHAR", "BYTE", "STRING", "BIT_STRING", "TIMING_FLOAT_NUMBER", "TIMING_INT_NUMBER"],
-    tokens: &["ERROR", "IDENT", "HARDWAREIDENT", "WHITESPACE", "COMMENT",], // FIXME, prob remove HARDWAREIDENT
+    literals: &[
+        "INT_NUMBER",
+        "FLOAT_NUMBER",
+        "SIMPLE_FLOAT_NUMBER",
+        "CHAR",
+        "BYTE",
+        "STRING",
+        "BIT_STRING",
+        "TIMING_FLOAT_NUMBER",
+        "TIMING_INT_NUMBER",
+    ],
+    tokens: &["ERROR", "IDENT", "HARDWAREIDENT", "WHITESPACE", "COMMENT"], // FIXME, prob remove HARDWAREIDENT
     nodes: &[
         "SOURCE_FILE",
         "GATE",
@@ -121,7 +157,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "BLOCK_EXPR",
         "STMT_LIST",
         "RETURN_EXPR",
-//        "LET_EXPR",
+        //        "LET_EXPR",
         "LET_STMT",
         "ALIAS_EXPR",
         "CONCATENATION_EXPR",
@@ -182,7 +218,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "INDEX_KIND",
         "INDEXED_IDENTIFIER",
         "IDENTIFIER",
-//        "EXPR_OR_RANGE", // Remove if we dont take this route
+        //        "EXPR_OR_RANGE", // Remove if we dont take this route
         "ARRAY_LITERAL",
         "HARDWARE_QUBIT",
         "CLASSICAL_DECLARATION_STATEMENT",
@@ -215,7 +251,11 @@ pub(crate) struct AstNodeSrc {
 #[derive(Debug, Eq, PartialEq)]
 pub(crate) enum Field {
     Token(String),
-    Node { name: String, ty: String, cardinality: Cardinality },
+    Node {
+        name: String,
+        ty: String,
+        cardinality: Cardinality,
+    },
 }
 
 #[derive(Debug, Eq, PartialEq)]

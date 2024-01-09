@@ -61,14 +61,14 @@ enum DefFlavor {
     // Same syntax for: gate def params, function call params, gate call params.
     // But for various reasons, we separate this into GateParams and CallOrGateCallParams
     // One reason: we can disallow here empty parens in gate def.
-    GateParams,   // parens,    no type
+    GateParams, // parens,    no type
     // For the moment, following is handled in expressions::arg_list instead.
-    GateQubits,   // no parens, no type, '{' terminates
-    GateCallQubits,   // no parens, no type, ';' terminates
-    DefParams,    // parens,    type
-    DefCalParams, // parens,    opt type
-    DefCalQubits, // no parens, no type, '{' or '->' terminates
-//    SetExpression,
+    GateQubits,     // no parens, no type, '{' terminates
+    GateCallQubits, // no parens, no type, ';' terminates
+    DefParams,      // parens,    type
+    DefCalParams,   // parens,    opt type
+    DefCalQubits,   // no parens, no type, '{' or '->' terminates
+    //    SetExpression,
     ExpressionList,
 }
 
@@ -80,7 +80,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
     let want_parens = matches!(flavor, GateParams | DefParams | DefCalParams);
     match flavor {
         GateParams | DefParams | DefCalParams => p.bump(T!['(']),
-//        SetExpression => p.bump(T!['{']),
+        //        SetExpression => p.bump(T!['{']),
         _ => (),
     }
     // FIXME: find implementation that does not require [T![')'], T![')']]
@@ -96,7 +96,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         GateQubits => [T!['{'], T!['{']],
         GateCallQubits => [SEMICOLON, SEMICOLON],
         DefCalQubits => [T!['{'], T![->]],
-//        SetExpression => [T!['}'], T!['}']],
+        //        SetExpression => [T!['}'], T!['}']],
     };
     let mut param_marker = m;
     // let mut param_marker = None;
@@ -114,14 +114,15 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         let found_param = match flavor {
             ExpressionList => {
                 m.abandon(p);
-                expressions::expr_or_range_expr(p); true
-            },
-//            SetExpression => { m.abandon(p); expressions::expr(p); true }
-            GateCallQubits => {arg_gate_call_qubit(p, m)}
-            DefParams | DefCalParams => {param_typed(p, m)}
-            _ => {param_untyped(p, m)}
+                expressions::expr_or_range_expr(p);
+                true
+            }
+            //            SetExpression => { m.abandon(p); expressions::expr(p); true }
+            GateCallQubits => arg_gate_call_qubit(p, m),
+            DefParams | DefCalParams => param_typed(p, m),
+            _ => param_untyped(p, m),
         };
-        if ! found_param {
+        if !found_param {
             break;
         }
         num_params += 1;
@@ -129,7 +130,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         // Not for `{`. But I don't know why. prbly because `->` is compound.
         // FIXME: use at_ts()
         if list_end_tokens.iter().any(|x| p.at(*x)) {
-//        if p.at_ts(list_end_tokens) {
+            //        if p.at_ts(list_end_tokens) {
             break;
         }
         // Params must be separated by commas.
@@ -162,7 +163,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
     //     p.expect(T!['}']);
     // }
     let kind = match flavor {
-//        SetExpression => SET_EXPRESSION,
+        //        SetExpression => SET_EXPRESSION,
         GateQubits => PARAM_LIST,
         DefCalQubits => QUBIT_LIST,
         GateCallQubits => QUBIT_LIST,
@@ -174,8 +175,9 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
     // list_marker.complete(p, if is_qubits {QUBIT_LIST} else {PARAM_LIST});
 }
 
-const PATTERN_FIRST: TokenSet =
-    expressions::LITERAL_FIRST.union(expressions::atom::PATH_FIRST).union(TokenSet::new(&[
+const PATTERN_FIRST: TokenSet = expressions::LITERAL_FIRST
+    .union(expressions::atom::PATH_FIRST)
+    .union(TokenSet::new(&[
         T![box],
         T![const],
         T!['('],
@@ -224,7 +226,7 @@ fn param_typed(p: &mut Parser<'_>, m: Marker) -> bool {
     if !p.at(IDENT) {
         p.error("expected parameter name");
         m.abandon(p);
-        return false
+        return false;
     }
     p.bump(IDENT);
     m.complete(p, PARAM);
@@ -235,7 +237,7 @@ fn arg_gate_call_qubit(p: &mut Parser<'_>, m: Marker) -> bool {
     if p.at(HARDWAREIDENT) {
         p.bump(HARDWAREIDENT);
         m.complete(p, HARDWARE_QUBIT);
-        return true
+        return true;
     }
 
     if !p.at(IDENT) {
@@ -243,11 +245,11 @@ fn arg_gate_call_qubit(p: &mut Parser<'_>, m: Marker) -> bool {
         m.abandon(p);
         return false;
     }
-//    let mcomp = expressions::atom::identifier(p);
+    //    let mcomp = expressions::atom::identifier(p);
     p.bump(IDENT);
     let mcomp = m.complete(p, IDENTIFIER);
     if p.at(T!['[']) {
-//        expressions::index_expr(p, mcomp);
+        //        expressions::index_expr(p, mcomp);
         expressions::indexed_identifer(p, mcomp);
         return true;
     }

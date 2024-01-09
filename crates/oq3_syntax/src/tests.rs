@@ -6,20 +6,20 @@ mod ast_src;
 mod sourcegen_ast;
 
 use crate::ast;
-use crate::ast::{HasModuleItem}; // for file.items()
-use crate::ast::{HasTextName}; // for methods: text(), string()
-//use oq3_syntax::ast;
-// use std::{
-//    fs,
-//    path::{Path, PathBuf},
-// };
-// use ast::HasName;
-//use expect_test::expect_file;
-// use rayon::prelude::*;
-// Adds complication from rust-analyzer
-// use test_utils::{bench, bench_fixture, project_root};
-//use crate::{ast, AstNode, SourceFile, SyntaxError};
-use crate::{SourceFile};
+use crate::ast::HasModuleItem; // for file.items()
+use crate::ast::HasTextName; // for methods: text(), string()
+                             //use oq3_syntax::ast;
+                             // use std::{
+                             //    fs,
+                             //    path::{Path, PathBuf},
+                             // };
+                             // use ast::HasName;
+                             //use expect_test::expect_file;
+                             // use rayon::prelude::*;
+                             // Adds complication from rust-analyzer
+                             // use test_utils::{bench, bench_fixture, project_root};
+                             //use crate::{ast, AstNode, SourceFile, SyntaxError};
+use crate::SourceFile;
 
 // fn collect_items(code: &str) -> (usize, Vec<ast::Item>){
 //     let parse = SourceFile::parse(code);
@@ -94,7 +94,6 @@ h q; ()
     let parse = SourceFile::parse(code);
     assert_eq!(parse.errors.len(), 1);
 }
-
 
 #[test]
 fn parse_let_test() {
@@ -188,7 +187,6 @@ defcal xmeasure(int a, int b) q, p -> {
     assert_eq!(parse.errors.len(), 1);
 }
 
-
 #[test]
 fn parse_qasm_defcal_test() {
     let code = r##"
@@ -226,7 +224,7 @@ def xmeasure(q) -> bit {
 
 #[test]
 fn with_details_test() {
-    use crate::{ast};
+    use crate::ast;
     use ast::{HasModuleItem, HasName};
 
     let code = r##"
@@ -262,7 +260,7 @@ int x;
    "##;
     let parse = SourceFile::parse(code);
     assert!(parse.errors().is_empty());
-//    let file: SourceFile = parse.tree();
+    //    let file: SourceFile = parse.tree();
     let mut items = parse.tree().items();
     let decl = match items.next() {
         Some(ast::Item::ClassicalDeclarationStatement(s)) => s,
@@ -278,16 +276,16 @@ int x;
     // println!(" token {}", scalar_type.token());
     // println!(" token {:?}", scalar_type.token());
 
-//        Some(ast::Item::ClassicalDeclarationStatement(s)) => Some(s),
-//    assert_eq!(0, 1);
+    //        Some(ast::Item::ClassicalDeclarationStatement(s)) => Some(s),
+    //    assert_eq!(0, 1);
     // for item in items {
     //     match item {
     //         ast::Item::ClassicalDeclarationStatement(s) => decl = Some(s),
     //         _ => unreachable!(),
     //     }
     // }
-//    return item
-//    let ast::Item::ClassicalDeclarationStatement(_)> =
+    //    return item
+    //    let ast::Item::ClassicalDeclarationStatement(_)> =
 }
 
 #[test]
@@ -353,4 +351,3 @@ z + int[32](x);
     let parse = SourceFile::parse(code);
     assert_eq!(parse.errors.len(), 2);
 }
-

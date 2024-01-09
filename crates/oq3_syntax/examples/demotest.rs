@@ -1,13 +1,13 @@
 // Copyright contributors to the openqasm-parser project
 
+use clap::{Parser, Subcommand};
 use std::fs;
 use std::path::PathBuf;
-use clap::{Parser, Subcommand};
 
-use rowan::NodeOrToken; // TODO: this can be accessed from a higher level
 use lexer::{tokenize, Token};
+use oq3_syntax::{ast, parse_text, GreenNode, SourceFile};
 use parser::SyntaxKind;
-use oq3_syntax::{ast, parse_text, SourceFile, GreenNode};
+use rowan::NodeOrToken; // TODO: this can be accessed from a higher level
 
 #[derive(Parser)]
 #[command(name = "demotest")]
@@ -57,9 +57,16 @@ fn main() {
         Some(Commands::Parse { filename }) => {
             let parsed_source = SourceFile::parse(&read_example_source(filename));
             let parse_tree: SourceFile = parsed_source.tree();
-            println!("Found {} items", parse_tree.items().collect::<Vec<_>>().len());
+            println!(
+                "Found {} items",
+                parse_tree.items().collect::<Vec<_>>().len()
+            );
             let syntax_errors = parsed_source.errors();
-            println!("Found {} parse errors:\n{:?}\n", syntax_errors.len(), syntax_errors);
+            println!(
+                "Found {} parse errors:\n{:?}\n",
+                syntax_errors.len(),
+                syntax_errors
+            );
             print_tree(parse_tree);
         }
 
@@ -68,7 +75,11 @@ fn main() {
             println!("{:?}", green_node);
             println!("{:?}", green_node.kind());
             print_node_or_token(green_node, 0);
-            println!("\nFound {} parse errors:\n{:?}", syntax_errors.len(), syntax_errors);
+            println!(
+                "\nFound {} parse errors:\n{:?}",
+                syntax_errors.len(),
+                syntax_errors
+            );
         }
 
         Some(Commands::Lex { filename }) => {
@@ -87,7 +98,8 @@ fn main() {
 /// Construct the fqpn of an example from a filename.
 fn example_path(example: &str) -> PathBuf {
     return ["crates", "oq3_syntax", "examples", "oq3_source", example]
-        .iter().collect();
+        .iter()
+        .collect();
 }
 
 fn read_example_source(file_name: &str) -> String {
@@ -98,7 +110,7 @@ fn read_example_source(file_name: &str) -> String {
 }
 
 fn print_tree(file: SourceFile) {
-    use ast::{AstNode};
+    use ast::AstNode;
     for item in file.syntax().descendants() {
         println!("{:?}", item);
     }
@@ -107,18 +119,17 @@ fn print_tree(file: SourceFile) {
 fn print_node_or_token(item: GreenNode, depth: usize) {
     let spcs = " ".repeat(depth);
     for (_i, child) in item.children().enumerate() {
-//        println!("{}{}: {} : {:?}", spcs, i, child, child);
+        //        println!("{}{}: {} : {:?}", spcs, i, child, child);
         match child {
             NodeOrToken::Node(node) => {
                 print_node_or_token(node.to_owned(), depth + 1);
-            },
+            }
             NodeOrToken::Token(token) => {
                 let sk = SyntaxKind::from(token.kind().0);
-//                let sk = token.kind().0;
+                //                let sk = token.kind().0;
                 println!("{}  {:?} {:?}", spcs, sk, token.text());
-            },
+            }
         };
     }
     println!("{}<", spcs);
 }
-

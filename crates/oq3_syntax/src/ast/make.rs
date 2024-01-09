@@ -118,19 +118,32 @@ pub mod tokens {
     pub fn whitespace(text: &str) -> SyntaxToken {
         assert!(text.trim().is_empty());
         let sf = SourceFile::parse(text).ok().unwrap();
-        sf.syntax().clone_for_update().first_child_or_token().unwrap().into_token().unwrap()
+        sf.syntax()
+            .clone_for_update()
+            .first_child_or_token()
+            .unwrap()
+            .into_token()
+            .unwrap()
     }
 
     pub fn doc_comment(text: &str) -> SyntaxToken {
         assert!(!text.trim().is_empty());
         let sf = SourceFile::parse(text).ok().unwrap();
-        sf.syntax().first_child_or_token().unwrap().into_token().unwrap()
+        sf.syntax()
+            .first_child_or_token()
+            .unwrap()
+            .into_token()
+            .unwrap()
     }
 
     pub fn literal(text: &str) -> SyntaxToken {
         assert_eq!(text.trim(), text);
         let lit: ast::Literal = super::ast_from_text(&format!("fn f() {{ let _ = {text}; }}"));
-        lit.syntax().first_child_or_token().unwrap().into_token().unwrap()
+        lit.syntax()
+            .first_child_or_token()
+            .unwrap()
+            .into_token()
+            .unwrap()
     }
 
     pub fn single_newline() -> SyntaxToken {
@@ -164,7 +177,12 @@ pub mod tokens {
             WsBuilder(SourceFile::parse(text).ok().unwrap())
         }
         pub fn ws(&self) -> SyntaxToken {
-            self.0.syntax().first_child_or_token().unwrap().into_token().unwrap()
+            self.0
+                .syntax()
+                .first_child_or_token()
+                .unwrap()
+                .into_token()
+                .unwrap()
         }
     }
 }

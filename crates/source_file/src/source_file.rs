@@ -6,14 +6,12 @@ use oq3_syntax::TextRange;
 use std::env;
 use std::ffi::OsStr;
 use std::fs;
-use std::path::{PathBuf, Path};
+use std::path::{Path, PathBuf};
 
 // traits
 use oq3_syntax::ast::HasModuleItem;
 
-use crate::api::{
-    inner_print_compiler_errors, parse_source_file, print_compiler_errors,
-};
+use crate::api::{inner_print_compiler_errors, parse_source_file, print_compiler_errors};
 
 pub(crate) fn parse_source_and_includes(source: &str) -> (ParsedSource, Vec<SourceFile>) {
     let syntax_ast: ParsedSource = synast::SourceFile::parse(source);

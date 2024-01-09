@@ -31,7 +31,7 @@ impl ast::Expr {
 
 // FIXME: I mysteriously had to make this public when changing flow control to Stmt
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub  enum ElseBranch {
+pub enum ElseBranch {
     Block(ast::BlockExpr),
     IfStmt(ast::IfStmt),
 }
@@ -85,9 +85,7 @@ impl ast::IfStmt {
             _ => None,
         }
     }
-
 }
-
 
 // FIXME: These tests broke now that IfExpr is a Stmt (Item really)
 // But they should be fixed.
@@ -226,7 +224,6 @@ impl ast::BinExpr {
     }
 }
 
-
 // FIXME: The r-a implementations always return nodes for the all tokens, eg COLONs.
 // Maybe include this later. For now, we only need expressions.
 impl ast::RangeExpr {
@@ -237,7 +234,7 @@ impl ast::RangeExpr {
         let second = children.next();
         let third = children.next();
         if third.is_none() {
-             // start:stop
+            // start:stop
             (first, third, second)
         } else {
             // start:step:stop
@@ -256,7 +253,10 @@ impl ast::IndexExpr {
 }
 
 pub enum ArrayExprKind {
-    Repeat { initializer: Option<ast::Expr>, repeat: Option<ast::Expr> },
+    Repeat {
+        initializer: Option<ast::Expr>,
+        repeat: Option<ast::Expr>,
+    },
     ElementList(AstChildren<ast::Expr>),
 }
 
@@ -402,7 +402,7 @@ impl ast::BlockExpr {
 impl ast::ArgList {
     pub fn altargs(&self) -> Option<ast::Name> {
         let mut children = support::children(self.syntax());
-//        children.next();
+        //        children.next();
         children.next()
     }
 }
@@ -429,12 +429,8 @@ impl ast::GateCallStmt {
     pub fn identifier(&self) -> Option<ast::Identifier> {
         let maybe_id = support::children(self.syntax()).next();
         match maybe_id {
-            Some(ast::Expr::Identifier(ident)) => {
-                Some(ident)
-            }
-            _ => {
-                None
-            }
+            Some(ast::Expr::Identifier(ident)) => Some(ident),
+            _ => None,
         }
     }
 }

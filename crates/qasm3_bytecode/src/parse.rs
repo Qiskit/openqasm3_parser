@@ -1,12 +1,12 @@
 // Copyright contributors to the openqasm-parser project
 
-use pyo3::Python;
 use pyo3::prelude::*;
+use pyo3::Python;
 
 //use std::fs; // for reading file
-use std::path::PathBuf;
 use semantics::asg;
 use semantics::symbols;
+use std::path::PathBuf;
 //use semantics::syntax_to_semantics as synsem;
 // use semantics::syntax_to_semantics::{
 //     string_to_semantic

@@ -34,10 +34,10 @@ impl Expr {
             match self {
                 // Cases like `if return {}` (need parens or else `{}` is returned, instead of being `if`'s body)
                 ReturnExpr(e) if e.expr().is_none() => return true,
-//                BreakExpr(e) if e.expr().is_none() => return true, oq3 has no expr after break
+                //                BreakExpr(e) if e.expr().is_none() => return true, oq3 has no expr after break
                 // Same but with `..{}`
                 // FIXME: Verify that branch for RangeExpr is un-needed for OQ3
-//                RangeExpr(e) if matches!(e.end(), Some(BlockExpr(..))) => return true,
+                //                RangeExpr(e) if matches!(e.end(), Some(BlockExpr(..))) => return true,
                 _ => {}
             }
         }
@@ -136,10 +136,10 @@ impl Expr {
             }
             ArrayLiteral(_) => (0, 0), // These need to be checked
             MeasureExpression(_) => (0, 0),
-            BoxExpr(_)  => (0, 27),
+            BoxExpr(_) => (0, 27),
             CallExpr(_) | CastExpression(_) | IndexExpr(_) | IndexedIdentifier(_) => (29, 0),
-            ArrayExpr(_) |  Literal(_) | ParenExpr(_) | Identifier(_) | HardwareQubit(_)
-                | BlockExpr(_) => (0, 0),
+            ArrayExpr(_) | Literal(_) | ParenExpr(_) | Identifier(_) | HardwareQubit(_)
+            | BlockExpr(_) => (0, 0),
         }
     }
 
@@ -158,12 +158,8 @@ impl Expr {
     /// Returns `true` if this expression can't be a standalone statement.
     fn requires_semi_to_be_stmt(&self) -> bool {
         use Expr::*;
-        !matches!(
-            self,
-             BlockExpr(..)
-        )
+        !matches!(self, BlockExpr(..))
     }
-
 
     /// Returns true if self is one of `return`, `break`, `continue` or `yield` with **no associated value**.
     fn is_ret_like_with_no_value(&self) -> bool {
@@ -197,9 +193,12 @@ impl Expr {
                 ArrayLiteral(_) => todo!(),
                 MeasureExpression(_) => todo!(),
                 ArrayExpr(_) | Literal(_) | ParenExpr(_) | Identifier(_) | HardwareQubit(_)
-                    | BlockExpr(_) => None,
+                | BlockExpr(_) => None,
             };
-            token.map(|t| t.text_range()).unwrap_or_else(|| this.syntax().text_range()).start()
+            token
+                .map(|t| t.text_range())
+                .unwrap_or_else(|| this.syntax().text_range())
+                .start()
         }
     }
 
@@ -207,14 +206,12 @@ impl Expr {
         use Expr::*;
 
         match self {
-            ArrayExpr(_) | BlockExpr(_) | CallExpr(_) | CastExpression(_)
-                | IndexExpr(_) | IndexedIdentifier(_) | Literal(_) | Identifier(_) | HardwareQubit(_)
-                | ParenExpr(_) => false,
+            ArrayExpr(_) | BlockExpr(_) | CallExpr(_) | CastExpression(_) | IndexExpr(_)
+            | IndexedIdentifier(_) | Literal(_) | Identifier(_) | HardwareQubit(_)
+            | ParenExpr(_) => false,
 
             // For BinExpr and RangeExpr this is technically wrong -- the child can be on the left...
-            BinExpr(_) | RangeExpr(_) | BoxExpr(_)
-            | ReturnExpr(_)
-                => self
+            BinExpr(_) | RangeExpr(_) | BoxExpr(_) | ReturnExpr(_) => self
                 .syntax()
                 .parent()
                 .and_then(Expr::cast)

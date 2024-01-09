@@ -4,8 +4,8 @@ pub mod atom;
 
 use super::*;
 
-pub(crate) use atom::{block_expr};
-pub(super) use atom::{LITERAL_FIRST};
+pub(crate) use atom::block_expr;
+pub(super) use atom::LITERAL_FIRST;
 // Pretty sure semicolon is always required in OQ3
 #[derive(PartialEq, Eq)]
 pub(crate) enum Semicolon {
@@ -71,20 +71,17 @@ pub(crate) fn stmt(p: &mut Parser<'_>, semicolon: Semicolon) {
     // }
     let m = p.start();
     let m = match items::opt_item(p, m) {
-        Ok(()) => {
-            return
-        },
-        Err(m) => {
-            m
-        }
+        Ok(()) => return,
+        Err(m) => m,
     };
     // FIXME: straighten out logic
-    if !( p.current().is_classical_type() && (p.nth(1) == T!['('] || p.nth(1) == T!['['])) &&
-        !p.at_ts(EXPR_FIRST) {
-            p.err_and_bump("stmt: expected expression, item, type declaration, or let statement");
-            m.abandon(p);
-            return;
-        };
+    if !(p.current().is_classical_type() && (p.nth(1) == T!['('] || p.nth(1) == T!['[']))
+        && !p.at_ts(EXPR_FIRST)
+    {
+        p.err_and_bump("stmt: expected expression, item, type declaration, or let statement");
+        m.abandon(p);
+        return;
+    };
     if let Some((cm, blocklike)) = expr_stmt(p, Some(m)) {
         if !p.at(T!['}']) {
             let cm_kind = cm.kind();
@@ -147,7 +144,7 @@ pub(super) fn expr_block_contents(p: &mut Parser<'_>) {
 
 #[derive(Clone, Copy)]
 struct Restrictions {
-//    forbid_structs: bool,
+    //    forbid_structs: bool,
     prefer_stmt: bool,
 }
 
@@ -219,17 +216,15 @@ fn expr_bp(
     r: Restrictions,
     bp: u8,
 ) -> Option<(CompletedMarker, BlockLike)> {
-    let m = m.unwrap_or_else(|| {
-        p.start()
-    });
+    let m = m.unwrap_or_else(|| p.start());
     #[allow(clippy::nonminimal_bool)]
-    if !p.at_ts(EXPR_FIRST) && !(p.current().is_classical_type() && p.nth(1) == T!['('])  {
+    if !p.at_ts(EXPR_FIRST) && !(p.current().is_classical_type() && p.nth(1) == T!['(']) {
         p.err_recover("expr_bp: expected expression", atom::EXPR_RECOVERY_SET); // FIXME, remove debug from string
         m.abandon(p);
         return None;
     }
     let lhs_result = lhs(p, r);
-//    dbg!(&lhs_result);
+    //    dbg!(&lhs_result);
     let mut lhs = match lhs_result {
         Some((lhs, blocklike, got_call)) => {
             if got_call {
@@ -259,16 +254,16 @@ fn expr_bp(
 
         // test binop_resets_statementness
         // fn f() { v = {1}&2; }
-//        r = Restrictions { prefer_stmt: false, ..r };
+        //        r = Restrictions { prefer_stmt: false, ..r };
 
         let op_bp = match associativity {
             Associativity::Left => op_bp + 1,
             Associativity::Right => op_bp,
         };
-//        expr_bp(p, None, Restrictions { prefer_stmt: false, ..r }, op_bp);
+        //        expr_bp(p, None, Restrictions { prefer_stmt: false, ..r }, op_bp);
         expr_bp(p, None, r, op_bp);
         if matches!(op, T![=]) {
-            if matches!(lhs_kind, IDENTIFIER | INDEXED_IDENTIFIER ) {
+            if matches!(lhs_kind, IDENTIFIER | INDEXED_IDENTIFIER) {
                 lhs = m.complete(p, ASSIGNMENT_STMT);
             } else {
                 p.error("Illegal LHS in assignment");
@@ -330,12 +325,10 @@ fn postfix_expr(
             T!['('] if allow_calls => {
                 got_call = true;
                 call_expr(p, lhs)
-            },
-            T!['['] if allow_calls => {
-                match lhs.kind() {
-                    IDENTIFIER => indexed_identifer(p, lhs),
-                    _ => index_expr(p, lhs),
-                }
+            }
+            T!['['] if allow_calls => match lhs.kind() {
+                IDENTIFIER => indexed_identifer(p, lhs),
+                _ => index_expr(p, lhs),
             },
             _ => break,
         };
@@ -357,7 +350,7 @@ fn call_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     // If there is no identifier, it is a function call.
     if matches!(p.current(), IDENT | HARDWAREIDENT) {
         params::arg_list_gate_call_qubits(p);
-        return m.complete(p, GATE_CALL_STMT)
+        return m.complete(p, GATE_CALL_STMT);
     }
     m.complete(p, CALL_EXPR)
 }
@@ -373,7 +366,7 @@ pub(crate) fn cast_expr(p: &mut Parser<'_>) -> CompletedMarker {
 }
 
 fn type_name(p: &mut Parser<'_>) {
-    if ! p.current().is_type_name() {
+    if !p.current().is_type_name() {
         p.error("Expected name of type");
     }
     p.bump(p.current());
@@ -452,14 +445,13 @@ pub(crate) fn classical_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
     _returns_bool_classical_declaration_stmt(p, m);
 }
 
-
 // This includes a previously parsed expression as the first argument of `INDEX_EXPR`.
 // ig `arg1[arg2]` is the expression and only `arg2` is parsed here.
 // test index_expr
 // fn foo() {
 //     x[1][2];
 // }
-pub (crate) fn index_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
+pub(crate) fn index_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     assert!(p.at(T!['[']));
     let m = lhs.precede(p);
     // while p.at(T!['[']) {
@@ -469,16 +461,16 @@ pub (crate) fn index_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> Completed
     m.complete(p, INDEX_EXPR)
 }
 
-pub (crate) fn indexed_identifer(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
+pub(crate) fn indexed_identifer(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     assert!(p.at(T!['[']));
     let m = lhs.precede(p);
-    while p.at(T!['[']) && ! p.at(EOF) {
+    while p.at(T!['[']) && !p.at(EOF) {
         index_operator(p);
     }
     m.complete(p, INDEXED_IDENTIFIER)
 }
 
-pub (crate) fn index_operator(p: &mut Parser<'_>) {
+pub(crate) fn index_operator(p: &mut Parser<'_>) {
     assert!(p.at(T!['[']));
     let m = p.start();
     p.expect(T!['[']);

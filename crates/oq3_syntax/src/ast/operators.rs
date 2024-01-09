@@ -97,10 +97,22 @@ impl fmt::Display for CmpOp {
         let res = match self {
             CmpOp::Eq { negated: false } => "==",
             CmpOp::Eq { negated: true } => "!=",
-            CmpOp::Ord { ordering: Ordering::Less, strict: false } => "<=",
-            CmpOp::Ord { ordering: Ordering::Less, strict: true } => "<",
-            CmpOp::Ord { ordering: Ordering::Greater, strict: false } => ">=",
-            CmpOp::Ord { ordering: Ordering::Greater, strict: true } => ">",
+            CmpOp::Ord {
+                ordering: Ordering::Less,
+                strict: false,
+            } => "<=",
+            CmpOp::Ord {
+                ordering: Ordering::Less,
+                strict: true,
+            } => "<",
+            CmpOp::Ord {
+                ordering: Ordering::Greater,
+                strict: false,
+            } => ">=",
+            CmpOp::Ord {
+                ordering: Ordering::Greater,
+                strict: true,
+            } => ">",
         };
         f.write_str(res)
     }
