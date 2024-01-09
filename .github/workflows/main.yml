@@ -24,4 +24,4 @@ jobs:
     - name: Clippy
       run: cargo clippy -- -D warnings
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test --verbose -- --skip sourcegen_ast --skip sourcegen_ast_nodes

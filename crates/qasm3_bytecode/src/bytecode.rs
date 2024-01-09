@@ -4,6 +4,7 @@
 use semantics::asg::{GateModifier, TExpr};
 use semantics::symbols::SymbolId;
 
+#[allow(unused)]
 #[derive(Clone)]
 pub enum ByteCode {
     GateCall(GateCall),
@@ -12,6 +13,7 @@ pub enum ByteCode {
 
 // Ugh, this is an exact copy of asg::GateCall except SymbolIdResult -> SymbolId
 // This is unavoidable in Rust without some fancy approach.
+#[allow(unused)]
 #[derive(Clone)]
 pub struct GateCall {
     name: SymbolId,
@@ -20,6 +22,7 @@ pub struct GateCall {
     modifier: Option<GateModifier>,
 }
 
+#[allow(unused)]
 #[derive(Clone)]
 pub struct DeclareQuantum {
     name: SymbolId,

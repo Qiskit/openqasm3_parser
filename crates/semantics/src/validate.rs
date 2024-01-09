@@ -15,6 +15,7 @@ use crate::symbols::{SymbolIdResult, SymbolTable};
 // We intend that T : FnMut(&SymbolIdResult), but the bound is not needed here.
 // We want the `FnMut` in the trait bound so that the compiler
 // knows the function at compile time and can optimize.
+#[allow(unused)]
 struct SymContext<'a, T> {
     // : FnMut(&SymbolIdResult)> {
     func: T,
