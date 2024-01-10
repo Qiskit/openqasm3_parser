@@ -304,7 +304,7 @@ impl ast::FilePath {
 
     // returns ast::String
     pub fn string(&self) -> Option<ast::String> {
-        ast::String::cast(self.token().clone())
+        ast::String::cast(self.token())
     }
 
     // FIXME: there is a better idiomatic way
@@ -324,7 +324,7 @@ impl ast::Version {
 
     pub fn version(&self) -> Option<ast::FloatNumber> {
         let token = self.token();
-        if let Some(t) = ast::FloatNumber::cast(token.clone()) {
+        if let Some(t) = ast::FloatNumber::cast(token) {
             return Some(t);
         }
         None

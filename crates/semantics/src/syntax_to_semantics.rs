@@ -102,16 +102,16 @@ pub fn parse_source_file(file_path: &PathBuf) -> ParseResult<SourceFile> {
 
 fn analyze_source<T: SourceTrait>(parsed_source: T) -> ParseResult<T> {
     let file_path = parsed_source.file_path();
-    let context = Context::new(file_path.to_path_buf());
+    let context = Context::new(file_path.clone());
     if parsed_source.any_parse_errors() {
         // on syntax errors, do not continue with semantic analysis.
         return ParseResult {
             syntax_result: parsed_source,
-            context: context.clone(),
+            context,
             have_syntax_errors: true,
         };
     }
-    let errors = SemanticErrorList::new(file_path.to_path_buf());
+    let errors = SemanticErrorList::new(file_path);
     let (mut context, errors) = syntax_to_semantic(&parsed_source, context, errors);
     let _ = replace(&mut context.semantic_errors, errors);
     ParseResult {
@@ -482,7 +482,7 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
 
         synast::Item::VersionString(version_string) => {
             let version = version_string.version().unwrap().version().unwrap();
-            dbg!(version.clone().is_simple());
+            dbg!(version.is_simple());
             dbg!(version.clone());
             let (p1, p2) = version.split_into_parts();
             dbg!((p1, p2));

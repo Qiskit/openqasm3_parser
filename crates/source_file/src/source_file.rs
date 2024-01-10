@@ -176,7 +176,7 @@ pub(crate) fn expand_path(file_path: &PathBuf) -> PathBuf {
         for path in paths {
             let fqpn = path.join(file_path);
             if fqpn.is_file() {
-                maybe_full_path = fqpn.clone();
+                maybe_full_path = fqpn;
                 break;
             }
         }
