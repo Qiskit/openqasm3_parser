@@ -1,9 +1,9 @@
 // Copyright contributors to the openqasm-parser project
 
-use semantics;
-use semantics::asg;
-use semantics::symbols;
-use semantics::types;
+use oq3_semantics;
+use oq3_semantics::asg;
+use oq3_semantics::symbols;
+use oq3_semantics::types;
 
 //
 // TExpr

@@ -1,10 +1,10 @@
 // Copyright contributors to the openqasm-parser project
 
-use semantics::asg;
-use semantics::semantic_error::SemanticErrorList;
-use semantics::symbols::{SymbolTable, SymbolType};
-use semantics::syntax_to_semantics::parse_source_string;
-use semantics::types::{IsConst, Type};
+use oq3_semantics::asg;
+use oq3_semantics::semantic_error::SemanticErrorList;
+use oq3_semantics::symbols::{SymbolTable, SymbolType};
+use oq3_semantics::syntax_to_semantics::parse_source_string;
+use oq3_semantics::types::{IsConst, Type};
 
 fn parse_string(code: &str) -> (asg::Program, SemanticErrorList, SymbolTable) {
     parse_source_string(code, None).take_context().as_tuple()

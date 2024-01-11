@@ -22,7 +22,7 @@ use crate::tests::ast_src::{
 use std::path::PathBuf;
 
 fn our_project_root() -> PathBuf {
-    sourcegen::project_root()
+    oq3_sourcegen::project_root()
 }
 
 // I split this into two (now three) tests because I find tests fail if I do the second and third
@@ -37,7 +37,7 @@ fn write_syntax_kinds_enum() {
     let syntax_kinds = generate_syntax_kinds(KINDS_SRC);
     let syntax_kinds_file =
         our_project_root().join("crates/parser/src/syntax_kind/_syntax_kind_enum.rs");
-    sourcegen::ensure_file_contents(syntax_kinds_file.as_path(), &syntax_kinds);
+    oq3_sourcegen::ensure_file_contents(syntax_kinds_file.as_path(), &syntax_kinds);
 }
 
 /// Read the ungrammar from openqasm3.ungram, lower to the AST, and return the result.
@@ -59,7 +59,7 @@ fn sourcegen_ast_tokens() {
     let ast_tokens = generate_tokens(&ast);
     let ast_tokens_file =
         our_project_root().join("crates/oq3_syntax/src/ast/generated/_new_tokens.rs");
-    sourcegen::ensure_file_contents(ast_tokens_file.as_path(), &ast_tokens);
+    oq3_sourcegen::ensure_file_contents(ast_tokens_file.as_path(), &ast_tokens);
 }
 
 /// Generate the code destined for nodes.rs, but write to temp file _new_nodes.rs.
@@ -72,7 +72,7 @@ fn sourcegen_ast_nodes() {
     let ast_nodes = generate_nodes(KINDS_SRC, &ast);
     let ast_nodes_file =
         our_project_root().join("crates/oq3_syntax/src/ast/generated/_new_nodes.rs");
-    sourcegen::ensure_file_contents(ast_nodes_file.as_path(), &ast_nodes);
+    oq3_sourcegen::ensure_file_contents(ast_nodes_file.as_path(), &ast_nodes);
 }
 
 fn generate_tokens(grammar: &AstSrc) -> String {
@@ -99,7 +99,7 @@ fn generate_tokens(grammar: &AstSrc) -> String {
         }
     });
 
-    sourcegen::add_preamble(
+    oq3_sourcegen::add_preamble(
         "sourcegen_ast",
         quote! {
             use crate::{SyntaxKind::{self, *}, SyntaxToken, ast::AstToken};
@@ -374,7 +374,7 @@ fn generate_nodes(kinds: KindsSrc<'_>, grammar: &AstSrc) -> String {
     }
 
     //    let res = sourcegen::add_preamble("sourcegen_ast", sourcegen::reformat(res)); FIXME
-    let res = sourcegen::add_preamble("sourcegen_ast", res);
+    let res = oq3_sourcegen::add_preamble("sourcegen_ast", res);
     res.replace("#[derive", "\n#[derive")
 }
 
@@ -541,7 +541,7 @@ fn generate_syntax_kinds(grammar: KindsSrc<'_>) -> String {
     };
 
     //    sourcegen::add_preamble("sourcegen_ast", sourcegen::reformat(ast.to_string())) // FIXME
-    sourcegen::add_preamble("sourcegen_ast", ast.to_string())
+    oq3_sourcegen::add_preamble("sourcegen_ast", ast.to_string())
 }
 
 fn to_upper_snake_case(s: &str) -> String {

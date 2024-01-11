@@ -4,9 +4,9 @@ use clap::{Parser, Subcommand};
 use std::fs;
 use std::path::PathBuf;
 
-use lexer::{tokenize, Token};
+use oq3_lexer::{tokenize, Token};
+use oq3_parser::SyntaxKind;
 use oq3_syntax::{ast, parse_text, GreenNode, SourceFile};
-use parser::SyntaxKind;
 use rowan::NodeOrToken; // TODO: this can be accessed from a higher level
 
 #[derive(Parser)]

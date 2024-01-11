@@ -1,6 +1,6 @@
 // Copyright contributors to the openqasm-parser project
 
-use semantics::types;
+use oq3_semantics::types;
 
 //
 // Types
