@@ -29,14 +29,13 @@ authors = ["OpenQASM3 parser team"]
 
 [workspace.dependencies]
 # local crates
-
 lexer = { path = "./crates/lexer", version = "0.0.0" }
 parser = { path = "./crates/parser", version = "0.1.0" }
 oq3_syntax = { path = "./crates/oq3_syntax", version = "0.0.0" }
 semantics = { path = "./crates/semantics", version = "0.0.0" }
-sourcegen = { path = "./crates/sourcegen", version = "0.0.0" }
-ast_pyo3 = { path = "./crates/ast_pyo3", version = "0.0.0" }
 source_file = { path = "./crates/source_file", version = "0.0.0" }
+sourcegen = { path = "./crates/sourcegen", version = "0.0.0" }
+#ast_pyo3 = { path = "./crates/ast_pyo3", version = "0.0.0" }
 
 # non-local crates
 # sourcegen has a hard-coded path. This is a bug, it cannot be used as a standalone crate
