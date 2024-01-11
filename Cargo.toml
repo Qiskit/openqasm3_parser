@@ -9,18 +9,18 @@ edition = "2021"
 license = "Apache-2.0"
 authors = ["OpenQASM3 parser team"]
 readme = "README.md"
-keywords = ["QASM", "OpenQASM3", "parser"]
+keywords = ["QASM", "openqasm3", "parser"]
 categories = ["parser-implementations"]
 repository = "https://github.com/Qiskit/openqasm3_parser"
 
 [workspace.dependencies]
 # local crates
-oq3_lexer = { path = "crates/lexer", version = "0.0.1" }
-oq3_parser = { path = "crates/parser", version = "0.0.1" }
+oq3_lexer = { path = "crates/oq3_lexer", version = "0.0.1" }
+oq3_parser = { path = "crates/oq3_parser", version = "0.0.1" }
 oq3_syntax = { path = "crates/oq3_syntax", version = "0.0.1" }
-oq3_semantics = { path = "crates/semantics", version = "0.0.1" }
-oq3_sourcegen = { path = "crates/sourcegen", version = "0.0.1" }
-oq3_source_file = { path = "crates/source_file", version = "0.0.1" }
+oq3_semantics = { path = "crates/oq3_semantics", version = "0.0.1" }
+oq3_sourcegen = { path = "crates/oq3_sourcegen", version = "0.0.1" }
+oq3_source_file = { path = "crates/oq3_source_file", version = "0.0.1" }
 
 # non-local crates
 limit = { version = "0.0.188", package = "ra_ap_limit" }

@@ -12,8 +12,8 @@
 # This should be enough for codegen.
 
 # But you still need to add the things to the parser grammar
-# 4 You might need to update crates/parser/src/grammar/expressions/atom.rs
-#   Or crates/parser/src/grammar/items.rs (eg. for `gate`)
+# 4 You might need to update crates/oq3_parser/src/grammar/expressions/atom.rs
+#   Or crates/oq3_parser/src/grammar/items.rs (eg. for `gate`)
 # Or other grammar files
 
 # Generated files are not given their final names in order not to clobber exisiting generated code
@@ -21,7 +21,7 @@
 # You have to copy them manually.
 # crates/oq3_syntax/src/ast/generated/_new_tokens.rs --> tokens.rs
 # crates/oq3_syntax/src/ast/generated/_new_nodes.rs --> nodes.rs
-# crates/parser/src/syntax_kind/_generated.rs --> generated.rs
+# crates/oq3_parser/src/syntax_kind/_generated.rs --> generated.rs
 
 # Update: Running this script now seems robust. Originally all codegen was done
 # by a single test. I split it into two tests and run each of them twice.
@@ -41,6 +41,6 @@
 # Don't know why, but code gen will fail otherwise.
 
 cd ..
-rustfmt crates/parser/src/syntax_kind/_syntax_kind_enum.rs
+rustfmt crates/oq3_parser/src/syntax_kind/_syntax_kind_enum.rs
 rustfmt crates/oq3_syntax/src/ast/generated/_new_nodes.rs
 rustfmt crates/oq3_syntax/src/ast/generated/_new_tokens.rs
