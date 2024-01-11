@@ -41,7 +41,7 @@ source_file = { path = "./crates/source_file", version = "0.0.0" }
 # non-local crates
 # sourcegen has a hard-coded path. This is a bug, it cannot be used as a standalone crate
 # sourcegen = { version = "0.0.187", package = "ra_ap_sourcegen" }
-limit = { version = "0.0.173", package = "ra_ap_limit" }
+limit = { version = "0.0.188", package = "ra_ap_limit" }
 stdx = { version = "0.0.188", package = "ra_ap_stdx"}
 triomphe = { version = "0.1.8", default-features = false, features = ["std"] }
 smallvec = { version = "1.10.0", features = [
