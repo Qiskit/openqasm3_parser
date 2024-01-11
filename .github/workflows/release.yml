@@ -1,0 +1,25 @@
+---
+name: Release openqasm3_parser
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish_lexer:
+    name: Publish oq3_lexer crate
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        crate: [lexer, parser, semantics, sourcegen, oq3_syntax, qasm3_bytecode, source_file]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run cargo publish
+        run: |
+          cd crates/${{ matrix.crate }}
+          cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
