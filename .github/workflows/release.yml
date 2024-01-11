@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        crate: [lexer, parser, semantics, sourcegen, oq3_syntax, qasm3_bytecode, source_file]
+        crate: [oq3_lexer, oq3_parser, oq3_semantics, oq3_sourcegen, oq3_syntax, oq3_source_file]
 
     steps:
       - uses: actions/checkout@v4
