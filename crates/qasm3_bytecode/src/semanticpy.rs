@@ -4,7 +4,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyList;
 use pyo3::Python;
 
-use semantics::{asg, symbols, types};
+use oq3_semantics::{asg, symbols, types};
 use symbols::SymbolType; // trait for getting symbol type
 
 #[derive(Clone)]

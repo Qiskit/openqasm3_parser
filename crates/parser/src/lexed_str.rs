@@ -5,8 +5,8 @@
 //! Note that `str` does *not* refer to a string in the target language.
 //! Note that strictly speaking the parser in this crate is not required to work
 //! on tokens which originated from text. Macros, eg, can synthesize tokens out
-//! of thin air. So, ideally, lexer should be an orthogonal crate. It is however
-//! convenient to include a text-based lexer here!
+//! of thin air. So, ideally, oq3_lexer should be an orthogonal crate. It is however
+//! convenient to include a text-based oq3_lexer here!
 //!
 //! Note that these tokens, unlike the tokens we feed into the parser, do
 //! include info about comments and whitespace.
@@ -34,7 +34,7 @@ impl<'a> LexedStr<'a> {
     pub fn new(text: &'a str) -> LexedStr<'a> {
         let mut conv = Converter::new(text);
 
-        for token in lexer::tokenize(&text[conv.offset..]) {
+        for token in oq3_lexer::tokenize(&text[conv.offset..]) {
             let token_text = &text[conv.offset..][..token.len as usize];
             conv.extend_token(&token.kind, token_text);
         }
@@ -144,23 +144,23 @@ impl<'a> Converter<'a> {
         }
     }
 
-    fn extend_token(&mut self, kind: &lexer::TokenKind, token_text: &str) {
+    fn extend_token(&mut self, kind: &oq3_lexer::TokenKind, token_text: &str) {
         let (err, syntax_kind, text_len) = inner_extend_token(kind, token_text);
         let err = if err.is_empty() { None } else { Some(err) };
         self.push(syntax_kind, text_len, err);
     }
 }
 
-fn extend_literal_func(len: usize, kind: &lexer::LiteralKind) -> (&str, SyntaxKind, usize) {
+fn extend_literal_func(len: usize, kind: &oq3_lexer::LiteralKind) -> (&str, SyntaxKind, usize) {
     let mut err = "";
     let syntax_kind = match *kind {
-        lexer::LiteralKind::Int { empty_int, base: _ } => {
+        oq3_lexer::LiteralKind::Int { empty_int, base: _ } => {
             if empty_int {
                 err = "Missing digits after the integer base prefix";
             }
             INT_NUMBER
         }
-        lexer::LiteralKind::Float {
+        oq3_lexer::LiteralKind::Float {
             empty_exponent,
             base: _,
         } => {
@@ -169,41 +169,41 @@ fn extend_literal_func(len: usize, kind: &lexer::LiteralKind) -> (&str, SyntaxKi
             }
             FLOAT_NUMBER
         }
-        lexer::LiteralKind::TimingInt { empty_int, base } => {
+        oq3_lexer::LiteralKind::TimingInt { empty_int, base } => {
             if empty_int {
                 err = "Missing digits after the integer base prefix";
             }
-            if base != lexer::Base::Decimal {
+            if base != oq3_lexer::Base::Decimal {
                 err = "Base of timing integer literal is not decimal";
             }
             TIMING_INT_NUMBER
         }
-        lexer::LiteralKind::TimingFloat {
+        oq3_lexer::LiteralKind::TimingFloat {
             empty_exponent,
             base,
         } => {
             if empty_exponent {
                 err = "Missing digits after the exponent symbol";
             }
-            if base != lexer::Base::Decimal {
+            if base != oq3_lexer::Base::Decimal {
                 err = "Base of timing integer literal is not decimal";
             }
             TIMING_FLOAT_NUMBER
         }
-        lexer::LiteralKind::SimpleFloat => SIMPLE_FLOAT_NUMBER,
-        lexer::LiteralKind::Byte { terminated } => {
+        oq3_lexer::LiteralKind::SimpleFloat => SIMPLE_FLOAT_NUMBER,
+        oq3_lexer::LiteralKind::Byte { terminated } => {
             if !terminated {
                 err = "Missing trailing `'` symbol to terminate the byte literal";
             }
             BYTE
         }
-        lexer::LiteralKind::Str { terminated } => {
+        oq3_lexer::LiteralKind::Str { terminated } => {
             if !terminated {
                 err = "Missing trailing `\"` symbol to terminate the string literal";
             }
             STRING
         }
-        lexer::LiteralKind::BitStr {
+        oq3_lexer::LiteralKind::BitStr {
             terminated,
             consecutive_underscores,
         } => {
@@ -222,7 +222,7 @@ fn extend_literal_func(len: usize, kind: &lexer::LiteralKind) -> (&str, SyntaxKi
 }
 
 fn inner_extend_token<'a>(
-    kind: &'a lexer::TokenKind,
+    kind: &'a oq3_lexer::TokenKind,
     token_text: &str,
 ) -> (&'a str, SyntaxKind, usize) {
     // A note on an intended tradeoff:
@@ -233,65 +233,65 @@ fn inner_extend_token<'a>(
 
     let syntax_kind = {
         match kind {
-            lexer::TokenKind::LineComment => COMMENT,
-            lexer::TokenKind::BlockComment { terminated } => {
+            oq3_lexer::TokenKind::LineComment => COMMENT,
+            oq3_lexer::TokenKind::BlockComment { terminated } => {
                 if !terminated {
                     err = "Missing trailing `*/` symbols to terminate the block comment";
                 }
                 COMMENT
             }
 
-            lexer::TokenKind::Whitespace => WHITESPACE,
-            lexer::TokenKind::Ident if token_text == "_" => UNDERSCORE,
+            oq3_lexer::TokenKind::Whitespace => WHITESPACE,
+            oq3_lexer::TokenKind::Ident if token_text == "_" => UNDERSCORE,
 
             // If it looks like an identifer, look first if it is a keyword.
-            lexer::TokenKind::Ident => SyntaxKind::from_keyword(token_text)
+            oq3_lexer::TokenKind::Ident => SyntaxKind::from_keyword(token_text)
                 .unwrap_or(SyntaxKind::from_scalar_type(token_text).unwrap_or(IDENT)),
 
             // um, this does not look correct
-            lexer::TokenKind::HardwareIdent => {
+            oq3_lexer::TokenKind::HardwareIdent => {
                 SyntaxKind::from_keyword(token_text).unwrap_or(HARDWAREIDENT)
             }
 
-            lexer::TokenKind::InvalidIdent => {
+            oq3_lexer::TokenKind::InvalidIdent => {
                 err = "Ident contains invalid characters";
                 IDENT
             }
 
-            lexer::TokenKind::Literal { kind, .. } => {
+            oq3_lexer::TokenKind::Literal { kind, .. } => {
                 //                    self.extend_literal(token_text.len(), kind);
                 return extend_literal_func(token_text.len(), kind);
             }
 
-            lexer::TokenKind::Semi => T![;],
-            lexer::TokenKind::Comma => T![,],
-            lexer::TokenKind::Dot => T![.],
-            lexer::TokenKind::OpenParen => T!['('],
-            lexer::TokenKind::CloseParen => T![')'],
-            lexer::TokenKind::OpenBrace => T!['{'],
-            lexer::TokenKind::CloseBrace => T!['}'],
-            lexer::TokenKind::OpenBracket => T!['['],
-            lexer::TokenKind::CloseBracket => T![']'],
-            lexer::TokenKind::At => T![@],
-            lexer::TokenKind::Pound => T![#],
-            lexer::TokenKind::Tilde => T![~],
-            lexer::TokenKind::Question => T![?],
-            lexer::TokenKind::Colon => T![:],
-            lexer::TokenKind::Dollar => T![$],
-            lexer::TokenKind::Eq => T![=],
-            lexer::TokenKind::Bang => T![!],
-            lexer::TokenKind::Lt => T![<],
-            lexer::TokenKind::Gt => T![>],
-            lexer::TokenKind::Minus => T![-],
-            lexer::TokenKind::And => T![&],
-            lexer::TokenKind::Or => T![|],
-            lexer::TokenKind::Plus => T![+],
-            lexer::TokenKind::Star => T![*],
-            lexer::TokenKind::Slash => T![/],
-            lexer::TokenKind::Caret => T![^],
-            lexer::TokenKind::Percent => T![%],
-            lexer::TokenKind::Unknown => ERROR,
-            lexer::TokenKind::Eof => EOF,
+            oq3_lexer::TokenKind::Semi => T![;],
+            oq3_lexer::TokenKind::Comma => T![,],
+            oq3_lexer::TokenKind::Dot => T![.],
+            oq3_lexer::TokenKind::OpenParen => T!['('],
+            oq3_lexer::TokenKind::CloseParen => T![')'],
+            oq3_lexer::TokenKind::OpenBrace => T!['{'],
+            oq3_lexer::TokenKind::CloseBrace => T!['}'],
+            oq3_lexer::TokenKind::OpenBracket => T!['['],
+            oq3_lexer::TokenKind::CloseBracket => T![']'],
+            oq3_lexer::TokenKind::At => T![@],
+            oq3_lexer::TokenKind::Pound => T![#],
+            oq3_lexer::TokenKind::Tilde => T![~],
+            oq3_lexer::TokenKind::Question => T![?],
+            oq3_lexer::TokenKind::Colon => T![:],
+            oq3_lexer::TokenKind::Dollar => T![$],
+            oq3_lexer::TokenKind::Eq => T![=],
+            oq3_lexer::TokenKind::Bang => T![!],
+            oq3_lexer::TokenKind::Lt => T![<],
+            oq3_lexer::TokenKind::Gt => T![>],
+            oq3_lexer::TokenKind::Minus => T![-],
+            oq3_lexer::TokenKind::And => T![&],
+            oq3_lexer::TokenKind::Or => T![|],
+            oq3_lexer::TokenKind::Plus => T![+],
+            oq3_lexer::TokenKind::Star => T![*],
+            oq3_lexer::TokenKind::Slash => T![/],
+            oq3_lexer::TokenKind::Caret => T![^],
+            oq3_lexer::TokenKind::Percent => T![%],
+            oq3_lexer::TokenKind::Unknown => ERROR,
+            oq3_lexer::TokenKind::Eof => EOF,
         }
     };
     (err, syntax_kind, token_text.len())

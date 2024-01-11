@@ -1,8 +1,8 @@
 // Copyright contributors to the openqasm-parser project
 
 // use semantics::asg;
-use semantics::asg::{GateModifier, TExpr};
-use semantics::symbols::SymbolId;
+use oq3_semantics::asg::{GateModifier, TExpr};
+use oq3_semantics::symbols::SymbolId;
 
 #[allow(unused)]
 #[derive(Clone)]

@@ -6,10 +6,10 @@
 
 mod block;
 //mod lexer;
-pub use parser::T;
+pub use oq3_parser::T;
 
 //use rowan::Direction;
-use lexer::unescape::{self, unescape_literal, Mode};
+use oq3_lexer::unescape::{self, unescape_literal, Mode};
 
 use crate::{
     ast::{self, IsString},

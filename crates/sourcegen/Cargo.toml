@@ -1,12 +1,15 @@
 [package]
-name = "sourcegen"
-version = "0.0.0"
+name = "oq3_sourcegen"
 description = "TBD"
-
-authors.workspace = true
+version.workspace = true
 edition.workspace = true
-license.workspace = true
 rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
 
 [lib]
 doctest = false

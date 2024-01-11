@@ -1,7 +1,15 @@
 [package]
-name = "lexer"
-version = "0.0.0"
-edition = "2021"
+name = "oq3_lexer"
+description = ""
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
 
 [dependencies]
 unicode-xid = "0.2.0"

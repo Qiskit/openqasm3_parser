@@ -1,15 +1,23 @@
 [package]
-name = "parser"
-version = "0.1.0"
-edition = "2021"
+name = "oq3_parser"
+description = ""
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
 
 # Added this explicit target just so I could disable the doc tests (GJL Sept 2023)
 [lib]
-name = "parser"
+name = "oq3_parser"
 doctest = false
 
 [dependencies]
-lexer.workspace = true
+oq3_lexer.workspace = true
 drop_bomb = "0.1.5"
 
 limit.workspace = true

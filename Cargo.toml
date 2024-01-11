@@ -3,44 +3,26 @@ members = ["crates/*"]
 resolver = "2"
 
 [workspace.package]
+version = "0.0.1"
 rust-version = "1.70"
 edition = "2021"
-license = "MIT OR Apache-2.0"
+license = "Apache-2.0"
 authors = ["OpenQASM3 parser team"]
-
-[profile.dev]
-# Disabling debug info speeds up builds a bunch,
-# and we don't rely on it for debugging that much.
-# debug = 0
-
-[profile.dev.package]
-# These speed up local tests.
-# rowan.opt-level = 3
-# rustc-hash.opt-level = 3
-# smol_str.opt-level = 3
-# text-size.opt-level = 3
-# # This speeds up `cargo xtask dist`.
-# miniz_oxide.opt-level = 3
-
-# [profile.release]
-# incremental = true
-# # Set this to 1 or 2 to get more useful backtraces in debugger.
-# debug = 0
+readme = "README.md"
+keywords = ["QASM", "OpenQASM3", "parser"]
+categories = ["parser-implementations"]
+repository = "https://github.com/Qiskit/openqasm3_parser"
 
 [workspace.dependencies]
 # local crates
-
-lexer = { path = "./crates/lexer", version = "0.0.0" }
-parser = { path = "./crates/parser", version = "0.1.0" }
-oq3_syntax = { path = "./crates/oq3_syntax", version = "0.0.0" }
-semantics = { path = "./crates/semantics", version = "0.0.0" }
-sourcegen = { path = "./crates/sourcegen", version = "0.0.0" }
-ast_pyo3 = { path = "./crates/ast_pyo3", version = "0.0.0" }
-source_file = { path = "./crates/source_file", version = "0.0.0" }
+oq3_lexer = { path = "crates/lexer", version = "0.0.1" }
+oq3_parser = { path = "crates/parser", version = "0.0.1" }
+oq3_syntax = { path = "crates/oq3_syntax", version = "0.0.1" }
+oq3_semantics = { path = "crates/semantics", version = "0.0.1" }
+oq3_sourcegen = { path = "crates/sourcegen", version = "0.0.1" }
+oq3_source_file = { path = "crates/source_file", version = "0.0.1" }
 
 # non-local crates
-# sourcegen has a hard-coded path. This is a bug, it cannot be used as a standalone crate
-# sourcegen = { version = "0.0.187", package = "ra_ap_sourcegen" }
 limit = { version = "0.0.188", package = "ra_ap_limit" }
 stdx = { version = "0.0.188", package = "ra_ap_stdx"}
 triomphe = { version = "0.1.8", default-features = false, features = ["std"] }
@@ -52,6 +34,5 @@ smallvec = { version = "1.10.0", features = [
 smol_str = "0.2.0"
 nohash-hasher = "0.2.0"
 text-size = "1.1.0"
-
 # can't upgrade due to dashmap depending on 0.12.3 currently
 hashbrown = { version = "0.12.3", features = ["inline-more"], default-features = false }

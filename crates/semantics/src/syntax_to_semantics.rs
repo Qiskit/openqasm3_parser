@@ -18,8 +18,8 @@ use crate::types::{ArrayDims, IsConst, Type};
 use crate::context::Context;
 use crate::semantic_error::{SemanticErrorKind::*, SemanticErrorList};
 use crate::symbols::{ScopeType, SymbolErrorTrait, SymbolIdResult, SymbolTable};
+use oq3_source_file::{SourceFile, SourceString, SourceTrait};
 use oq3_syntax::ast as synast; // Syntactic AST
-use source_file::{SourceFile, SourceString, SourceTrait};
 
 use crate::with_scope;
 
@@ -90,13 +90,13 @@ pub fn parse_source_string<T: ToString>(
     source: T,
     fake_file_path: Option<&str>,
 ) -> ParseResult<SourceString> {
-    let parsed_source = source_file::parse_source_string(source, fake_file_path);
+    let parsed_source = oq3_source_file::parse_source_string(source, fake_file_path);
     analyze_source(parsed_source)
 }
 
 /// Parse source file to semantic ASG
 pub fn parse_source_file(file_path: &PathBuf) -> ParseResult<SourceFile> {
-    let parsed_source = source_file::parse_source_file(file_path);
+    let parsed_source = oq3_source_file::parse_source_file(file_path);
     analyze_source(parsed_source)
 }
 

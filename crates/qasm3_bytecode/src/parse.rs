@@ -4,8 +4,8 @@ use pyo3::prelude::*;
 use pyo3::Python;
 
 //use std::fs; // for reading file
-use semantics::asg;
-use semantics::symbols;
+use oq3_semantics::asg;
+use oq3_semantics::symbols;
 use std::path::PathBuf;
 //use semantics::syntax_to_semantics as synsem;
 // use semantics::syntax_to_semantics::{
@@ -18,7 +18,7 @@ fn _parse_file(file_path: String) -> (asg::Program, symbols::SymbolTable) {
     // let source_text = fs::read_to_string(file_path.clone())
     //     .expect(format!("Unable to read file {:?}", file_path).as_str());
     let pbuf = PathBuf::from(file_path);
-    let result = semantics::syntax_to_semantics::parse_source_file(&pbuf);
+    let result = oq3_semantics::syntax_to_semantics::parse_source_file(&pbuf);
     result.print_errors();
     let context = result.take_context();
     (context.program, context.symbol_table)

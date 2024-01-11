@@ -1,18 +1,21 @@
 [package]
-name = "semantics"
-version = "0.0.0"
+name = "oq3_semantics"
 description = "AST with semantic information for OpenQASM 3"
-
-authors.workspace = true
+version.workspace = true
 edition.workspace = true
-license.workspace = true
 rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
 
 [lib]
 doctest = false
 
 [dependencies]
-source_file.workspace = true
+oq3_source_file.workspace = true
 hashbrown = { version = "0.14" }
 rowan = "0.15.11"
 oq3_syntax.workspace = true
@@ -20,6 +23,5 @@ boolenum = "0.1"
 
 [dev-dependencies]
 clap = { version = "4.0", features = ["derive"] }
-lexer.workspace = true
-parser.workspace = true
-
+oq3_lexer.workspace = true
+oq3_parser.workspace = true

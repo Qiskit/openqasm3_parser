@@ -1,10 +1,10 @@
 // Copyright contributors to the openqasm-parser project
 
 // This is copied and modified from rust-analyzer syntax_error.rs
+use oq3_source_file;
+use oq3_source_file::ErrorTrait;
 use oq3_syntax::AstNode;
 use oq3_syntax::SyntaxNode;
-use source_file;
-use source_file::ErrorTrait;
 use std::fmt;
 use std::path::{Path, PathBuf};
 
@@ -95,7 +95,7 @@ impl SemanticErrorList {
     }
 
     pub fn print_errors(&self) {
-        source_file::print_compiler_errors(self, &self.source_file_path);
+        oq3_source_file::print_compiler_errors(self, &self.source_file_path);
         self.print_included_errors();
     }
 
@@ -103,7 +103,7 @@ impl SemanticErrorList {
     /// with a file. For example it came from a literal string.
     pub fn print_errors_no_file(&self, fake_file_path: &Path, source: &str) {
         // print errors from top level.
-        source_file::inner_print_compiler_errors(self, fake_file_path, source);
+        oq3_source_file::inner_print_compiler_errors(self, fake_file_path, source);
         // print (with recursion) errors from included files.
         self.print_included_errors();
     }
