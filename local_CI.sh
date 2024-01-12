@@ -1,4 +1,4 @@
-#!/bin/env sh
+#!/usr/bin/env sh
 
 # Run locally the same checks that are done remotely in CI
 # Works on linux, and maybe Mac OS.
