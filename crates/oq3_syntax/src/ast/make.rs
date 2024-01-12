@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 //! This module contains free-standing functions for creating AST fragments out
 //! of smaller pieces.

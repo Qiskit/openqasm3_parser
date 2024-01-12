@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 //! Various extension methods to ast Expr Nodes, which are hard to code-generate.
 //!

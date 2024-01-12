@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 //! Lexing, bridging to parser (which does the actual parsing) and
 //! incremental reparsing.

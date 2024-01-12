@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 //! Abstract Semantic Graph (ASG)
 //! This crate implements an abstract semantic graph (ASG) for the OpenQASM 3 language.

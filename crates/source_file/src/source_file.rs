@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 use oq3_syntax::ast as synast; // Syntactic AST
 use oq3_syntax::Parse;
