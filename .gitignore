@@ -15,3 +15,4 @@ crates/oq3_syntax/src/ast/generated/_new_tokens.rs
 .env/
 .envs/
 .ackrc
+save/
