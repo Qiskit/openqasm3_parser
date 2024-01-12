@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 // Defines the data structures representing the types used to annotate types of expressions in
 // the typed ASG.

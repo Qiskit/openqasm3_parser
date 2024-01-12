@@ -1,6 +1,7 @@
 #!/bin/env sh
 
 # Copyright contributors to the openqasm-parser project
+# SPDX-License-Identifier: Apache-2.0
 
 # For nodes.rs
 # Copy the generated code from the temporary files to which it is written

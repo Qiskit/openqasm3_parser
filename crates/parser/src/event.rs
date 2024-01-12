@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 //! This module provides a way to construct a `File`.
 //! It is intended to be completely decoupled from the

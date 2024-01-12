@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 //! This is the actual "grammar" of the OpenQASM 3 language.
 //!

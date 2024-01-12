@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 //! This module contains functions for editing syntax trees. As the trees are
 //! immutable, all function here return a fresh copy of the tree, instead of

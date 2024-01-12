@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 use ast::{HasModuleItem, HasName};
 use oq3_syntax::ast;

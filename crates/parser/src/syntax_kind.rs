@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 //! Defines [`SyntaxKind`] -- a fieldless enum of all possible syntactic
 //! constructs of the OpenQASM 3 language.
