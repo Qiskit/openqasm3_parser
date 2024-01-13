@@ -3,7 +3,7 @@
 
 # Copyright contributors to the openqasm-parser project
 
-channel = "1.70.0"
+channel = "1.72.0"
 components = [
   "cargo",
   "clippy",
