@@ -7,7 +7,7 @@
 //! up elements around the edges.
 use std::{mem, ops::RangeInclusive};
 
-use parser::T;
+use oq3_parser::T;
 
 use crate::{
     ast::{self, edit::IndentLevel, make, AstNode},

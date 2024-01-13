@@ -1,8 +1,8 @@
 // Copyright contributors to the openqasm-parser project
 // SPDX-License-Identifier: Apache-2.0
 
-use semantics::symbols;
-use semantics::types;
+use oq3_semantics::symbols;
+use oq3_semantics::types;
 
 //
 // Test API of symbols and symbol tables

@@ -1,0 +1,23 @@
+[package]
+name = "oq3_lexer"
+description = ""
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
+
+[dependencies]
+unicode-xid = "0.2.0"
+
+[dependencies.unicode-properties]
+version = "0.1.0"
+default-features = false
+features = ["emoji"]
+
+[dev-dependencies]
+expect-test = "1.4.0"

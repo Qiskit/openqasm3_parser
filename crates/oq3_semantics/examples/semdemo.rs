@@ -5,13 +5,13 @@ use clap::{Parser, Subcommand};
 use std::fs;
 use std::path::PathBuf;
 
-use lexer::{tokenize, Token};
+use oq3_lexer::{tokenize, Token};
+use oq3_parser::SyntaxKind;
+use oq3_semantics;
+use oq3_semantics::syntax_to_semantics;
 use oq3_syntax;
 use oq3_syntax::{parse_text, GreenNode, SourceFile};
-use parser::SyntaxKind;
 use rowan::NodeOrToken; // TODO: this can be accessed from a higher level
-use semantics;
-use semantics::syntax_to_semantics;
 
 // use source_file::source_file;
 //use source_file::{SourceTrait};
@@ -101,7 +101,7 @@ fn main() {
                 result.print_errors();
             }
             result.program().print_asg_debug();
-            dbg!(semantics::validate::count_symbol_errors(
+            dbg!(oq3_semantics::validate::count_symbol_errors(
                 &result.program(),
                 &result.symbol_table()
             ));

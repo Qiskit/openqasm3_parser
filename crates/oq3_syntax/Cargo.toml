@@ -1,12 +1,15 @@
 [package]
 name = "oq3_syntax"
-version = "0.0.0"
 description = "Comment and whitespace preserving parser for the OpenQASM 3 language"
-
-authors.workspace = true
+version.workspace = true
 edition.workspace = true
-license.workspace = true
 rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
 
 [lib]
 doctest = false
@@ -21,13 +24,12 @@ once_cell = "1.17.0"
 rowan = "0.15.11"
 rustc-hash = "1.1.0"
 smol_str = "0.2.0"
-triomphe = { version = "0.1.8", default-features = false, features = ["std"] }
-
-# local crates
-lexer.workspace = true
-parser.workspace = true
-sourcegen.workspace = true
 stdx = { version = "0.0.188", package = "ra_ap_stdx"}
+triomphe = { version = "0.1.8", default-features = false, features = ["std"] }
+# local crates
+oq3_lexer.workspace = true
+oq3_parser.workspace = true
+oq3_sourcegen.workspace = true
 
 [dev-dependencies]
 rayon = "1.6.1"
@@ -36,3 +38,4 @@ proc-macro2 = "1.0.47"
 quote = "1.0.20"
 ungrammar = "1.16.1"
 clap = { version = "4.0", features = ["derive"] }
+
