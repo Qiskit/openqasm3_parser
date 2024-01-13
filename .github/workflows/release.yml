@@ -6,8 +6,8 @@ on:
       - '*'
 
 jobs:
-  publish_lexer:
-    name: Publish oq3_lexer crate
+  publish_crates:
+    name: Publish openqasm3_parser crates
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
