@@ -14,17 +14,13 @@ use std::{
 use itertools::Itertools;
 use proc_macro2::{Punct, Spacing};
 use quote::{format_ident, quote};
+use std::path::PathBuf;
 use ungrammar::{Grammar, Rule};
 
+use crate::sourcegen as localsourcegen;
 use crate::tests::ast_src::{
     AstEnumSrc, AstNodeSrc, AstSrc, Cardinality, Field, KindsSrc, KINDS_SRC,
 };
-
-use std::path::PathBuf;
-
-fn our_project_root() -> PathBuf {
-    oq3_sourcegen::project_root()
-}
 
 // I split this into two (now three) tests because I find tests fail if I do the second and third
 // codegen tasks at the same time. (GJL August 2023)
@@ -36,9 +32,9 @@ fn our_project_root() -> PathBuf {
 #[test]
 fn write_syntax_kinds_enum() {
     let syntax_kinds = generate_syntax_kinds(KINDS_SRC);
-    let syntax_kinds_file =
-        our_project_root().join("crates/oq3_parser/src/syntax_kind/_syntax_kind_enum.rs");
-    oq3_sourcegen::ensure_file_contents(syntax_kinds_file.as_path(), &syntax_kinds);
+    let syntax_kinds_file = localsourcegen::project_root()
+        .join("crates/oq3_parser/src/syntax_kind/_syntax_kind_enum.rs");
+    localsourcegen::ensure_file_contents(syntax_kinds_file.as_path(), &syntax_kinds);
 }
 
 /// Read the ungrammar from openqasm3.ungram, lower to the AST, and return the result.
@@ -59,8 +55,8 @@ fn sourcegen_ast_tokens() {
 
     let ast_tokens = generate_tokens(&ast);
     let ast_tokens_file =
-        our_project_root().join("crates/oq3_syntax/src/ast/generated/_new_tokens.rs");
-    oq3_sourcegen::ensure_file_contents(ast_tokens_file.as_path(), &ast_tokens);
+        localsourcegen::project_root().join("crates/oq3_syntax/src/ast/generated/_new_tokens.rs");
+    localsourcegen::ensure_file_contents(ast_tokens_file.as_path(), &ast_tokens);
 }
 
 /// Generate the code destined for nodes.rs, but write to temp file _new_nodes.rs.
@@ -72,8 +68,8 @@ fn sourcegen_ast_nodes() {
 
     let ast_nodes = generate_nodes(KINDS_SRC, &ast);
     let ast_nodes_file =
-        our_project_root().join("crates/oq3_syntax/src/ast/generated/_new_nodes.rs");
-    oq3_sourcegen::ensure_file_contents(ast_nodes_file.as_path(), &ast_nodes);
+        localsourcegen::project_root().join("crates/oq3_syntax/src/ast/generated/_new_nodes.rs");
+    localsourcegen::ensure_file_contents(ast_nodes_file.as_path(), &ast_nodes);
 }
 
 fn generate_tokens(grammar: &AstSrc) -> String {
@@ -100,7 +96,7 @@ fn generate_tokens(grammar: &AstSrc) -> String {
         }
     });
 
-    oq3_sourcegen::add_preamble(
+    localsourcegen::add_preamble(
         "sourcegen_ast",
         quote! {
             use crate::{SyntaxKind::{self, *}, SyntaxToken, ast::AstToken};
@@ -375,7 +371,7 @@ fn generate_nodes(kinds: KindsSrc<'_>, grammar: &AstSrc) -> String {
     }
 
     //    let res = sourcegen::add_preamble("sourcegen_ast", sourcegen::reformat(res)); FIXME
-    let res = oq3_sourcegen::add_preamble("sourcegen_ast", res);
+    let res = localsourcegen::add_preamble("sourcegen_ast", res);
     res.replace("#[derive", "\n#[derive")
 }
 
@@ -542,7 +538,7 @@ fn generate_syntax_kinds(grammar: KindsSrc<'_>) -> String {
     };
 
     //    sourcegen::add_preamble("sourcegen_ast", sourcegen::reformat(ast.to_string())) // FIXME
-    oq3_sourcegen::add_preamble("sourcegen_ast", ast.to_string())
+    localsourcegen::add_preamble("sourcegen_ast", ast.to_string())
 }
 
 fn to_upper_snake_case(s: &str) -> String {

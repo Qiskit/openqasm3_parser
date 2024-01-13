@@ -35,6 +35,7 @@ macro_rules! eprintln {
 
 mod parsing;
 mod ptr;
+mod sourcegen;
 mod syntax_error;
 pub mod syntax_node;
 #[cfg(test)]

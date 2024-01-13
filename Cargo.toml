@@ -19,5 +19,4 @@ oq3_lexer = { path = "crates/oq3_lexer", version = "0.0.1" }
 oq3_parser = { path = "crates/oq3_parser", version = "0.0.1" }
 oq3_syntax = { path = "crates/oq3_syntax", version = "0.0.1" }
 oq3_semantics = { path = "crates/oq3_semantics", version = "0.0.1" }
-oq3_sourcegen = { path = "crates/oq3_sourcegen", version = "0.0.1" }
 oq3_source_file = { path = "crates/oq3_source_file", version = "0.0.1" }
