@@ -3,16 +3,13 @@ name = "parser"
 version = "0.1.0"
 edition = "2021"
 
-# Added this explicit target just so I could disable the doc tests (GJL Sept 2023)
 [lib]
-name = "parser"
 doctest = false
 
 [dependencies]
 lexer.workspace = true
 drop_bomb = "0.1.5"
-
-limit.workspace = true
+limit = { version = "0.0.188", package = "ra_ap_limit" }
 
 [dev-dependencies]
 expect-test = "1.4.0"

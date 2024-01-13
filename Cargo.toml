@@ -16,18 +16,3 @@ oq3_syntax = { path = "./crates/oq3_syntax", version = "0.0.0" }
 semantics = { path = "./crates/semantics", version = "0.0.0" }
 source_file = { path = "./crates/source_file", version = "0.0.0" }
 sourcegen = { path = "./crates/sourcegen", version = "0.0.0" }
-
-# non-local crates
-limit = { version = "0.0.188", package = "ra_ap_limit" }
-stdx = { version = "0.0.188", package = "ra_ap_stdx"}
-triomphe = { version = "0.1.8", default-features = false, features = ["std"] }
-smallvec = { version = "1.10.0", features = [
-  "const_new",
-  "union",
-  "const_generics",
-] }
-smol_str = "0.2.0"
-nohash-hasher = "0.2.0"
-text-size = "1.1.0"
-# can't upgrade due to dashmap depending on 0.12.3 currently
-hashbrown = { version = "0.12.3", features = ["inline-more"], default-features = false }
