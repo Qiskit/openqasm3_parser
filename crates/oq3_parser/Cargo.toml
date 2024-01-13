@@ -11,16 +11,13 @@ keywords.workspace = true
 categories.workspace = true
 repository.workspace = true
 
-# Added this explicit target just so I could disable the doc tests (GJL Sept 2023)
 [lib]
-name = "oq3_parser"
 doctest = false
 
 [dependencies]
 oq3_lexer.workspace = true
 drop_bomb = "0.1.5"
-
-limit.workspace = true
+limit = { version = "0.0.188", package = "ra_ap_limit" }
 
 [dev-dependencies]
 expect-test = "1.4.0"

@@ -1,6 +1,7 @@
 #!/bin/env sh
 
 # Copyright contributors to the openqasm-parser project
+# SPDX-License-Identifier: Apache-2.0
 
 # Run the tests, but skip the tests that do codegen. They currently
 # are breaking the source. Or may break it.

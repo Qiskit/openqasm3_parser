@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 use oq3_semantics::asg;
 use oq3_semantics::semantic_error::SemanticErrorList;

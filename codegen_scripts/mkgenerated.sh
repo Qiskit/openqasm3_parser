@@ -1,6 +1,7 @@
 #!/bin/env sh
 
 # Copyright contributors to the openqasm-parser project
+# SPDX-License-Identifier: Apache-2.0
 
 # This is not how r-a does generation.
 # But I find a boot strapping problem.

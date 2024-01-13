@@ -1,6 +1,7 @@
 #!/bin/env sh
 
 # Copyright contributors to the openqasm-parser project
+# SPDX-License-Identifier: Apache-2.0
 
 # Same as run_tests.sh, but pipe stderr to less
 

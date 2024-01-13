@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 //! Lexing `&str` into a sequence of OpenQASM 3 tokens.
 //!
@@ -6,7 +7,7 @@
 //! Note that strictly speaking the parser in this crate is not required to work
 //! on tokens which originated from text. Macros, eg, can synthesize tokens out
 //! of thin air. So, ideally, oq3_lexer should be an orthogonal crate. It is however
-//! convenient to include a text-based oq3_lexer here!
+//! convenient to include a text-based lexer here!
 //!
 //! Note that these tokens, unlike the tokens we feed into the parser, do
 //! include info about comments and whitespace.

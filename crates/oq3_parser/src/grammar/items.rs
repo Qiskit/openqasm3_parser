@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 use super::*;
 use crate::grammar::expressions::expr_block_contents;

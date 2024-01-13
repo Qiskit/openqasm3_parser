@@ -3,8 +3,6 @@
 
 # Copyright contributors to the openqasm-parser project
 
-# FIXME: Our min required version is > than 1.64.0
-
 channel = "1.70.0"
 components = [
   "cargo",

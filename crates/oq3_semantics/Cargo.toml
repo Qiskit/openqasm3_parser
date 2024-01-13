@@ -16,9 +16,9 @@ doctest = false
 
 [dependencies]
 oq3_source_file.workspace = true
+oq3_syntax.workspace = true
 hashbrown = { version = "0.14" }
 rowan = "0.15.11"
-oq3_syntax.workspace = true
 boolenum = "0.1"
 
 [dev-dependencies]

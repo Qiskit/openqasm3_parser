@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 // This is copied and modified from rust-analyzer syntax_error.rs
 use oq3_source_file;

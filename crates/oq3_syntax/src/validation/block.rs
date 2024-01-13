@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 //! Logic for validating block expressions i.e. `ast::BlockExpr`.
 

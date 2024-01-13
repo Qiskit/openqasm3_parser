@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 // Build the ASG defined in asg.rs from the syntactic AST
 // constructed in the crate oq3_syntax.

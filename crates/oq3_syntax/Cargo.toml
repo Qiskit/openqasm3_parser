@@ -18,17 +18,18 @@ doctest = false
 # external crates
 cov-mark = "2.0.0-pre.1"
 either = "1.7.0"
+indexmap = "2.0.0"
 itertools = "0.10.5"
+once_cell = "1.17.0"
 rowan = "0.15.11"
 rustc-hash = "1.1.0"
-once_cell = "1.17.0"
-indexmap = "2.0.0"
-smol_str.workspace = true
-triomphe.workspace = true
+smol_str = "0.2.0"
+stdx = { version = "0.0.188", package = "ra_ap_stdx"}
+triomphe = { version = "0.1.8", default-features = false, features = ["std"] }
 # local crates
 oq3_lexer.workspace = true
 oq3_parser.workspace = true
-stdx.workspace = true
+oq3_sourcegen.workspace = true
 
 [dev-dependencies]
 rayon = "1.6.1"
@@ -37,5 +38,4 @@ proc-macro2 = "1.0.47"
 quote = "1.0.20"
 ungrammar = "1.16.1"
 clap = { version = "4.0", features = ["derive"] }
-# local crate
-oq3_sourcegen.workspace = true
+

@@ -1,4 +1,5 @@
 // Copyright contributors to the openqasm-parser project
+// SPDX-License-Identifier: Apache-2.0
 
 // Defines data structures and api for symbols, scope, and symbol tables.
 
