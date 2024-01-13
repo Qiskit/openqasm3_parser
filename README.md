@@ -29,22 +29,17 @@ For instance, I hope to soon replace "I" with "we".
 The first three crates are based on tools for `rust` and `rust-analyzer`.
 
 * [oq3_lexer](./crates/oq3_lexer) -- A lightly modified version of the `rustc` (the rust compiler) lexer.
-* [oq3_parser](./crates/oq3_parser) -- Ingests output of `lexer` and outputs a concrete syntax tree.
-* [oq3_syntax](./crates/oq3_syntax) -- Ingests output of `parser` and outputs an abstract syntax tree (AST).
+* [oq3_parser](./crates/oq3_parser) -- Ingests output of `oq3_lexer` and outputs a concrete syntax tree.
+* [oq3_syntax](./crates/oq3_syntax) -- Ingests output of `oq3_parser` and outputs an abstract syntax tree (AST).
 The rust-analyzer [documentation](#design) sometimes refers to this AST by something like "typed AST".
 This can be confusing. It does not mean that semantic
 analysis has been performed and OQ3 types have been assigned to all expressions. It means that the rust type system is
 used to encode syntactic elements, in contrast to some lower representations in the same crate.
-* [semantics](./crates/oq3_semantics) -- Performs [semantic analysis](https://en.wikipedia.org/wiki/Compiler#Front_end)
+* [oq3_semantics](./crates/oq3_semantics) -- Performs [semantic analysis](https://en.wikipedia.org/wiki/Compiler#Front_end)
 and outputs an [abstract semantic graph (ASG)](https://en.wikipedia.org/wiki/Abstract_semantic_graph)
 There are other names for this structure. But "ASG" is convenient.
-* [source_file](./crates/oq3_source_file) -- A higher-level interface to the syntactic AST. This sits beetween the syntactic AST and
+* [oq3_source_file](./crates/oq3_source_file) -- A higher-level interface to the syntactic AST. This sits beetween the syntactic AST and
 semantic ASG. This crate manages the main source file and incuded source files.
-
-#### Supporting crates
-
-* [sourcegen](./crates/oq3_sourcegen) -- supports code generation. This is a very small crate that is copied here because the external
-crate has a bug.
 
 ### Warning !
 

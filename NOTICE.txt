@@ -1,4 +1,4 @@
-The code in crates `lexer`, `parser`, and `oq3_syntax` are derived
+The code in crates `oq3_lexer`, `oq3_parser`, and `oq3_syntax` are derived
 from crates in the rust-analyzer project, commit (d398a).
 The code in these crates is licensed in this OpenQASM 3 parser project under
 the following MIT license:

@@ -9,7 +9,7 @@
 //! smarter than that, it belongs to the `ext` submodule.
 //!
 //! GJL: I think these are meant to be used at a higher level, ie HIR. Not used within
-//! the lexer and parser crates.
+//! the oq3_lexer and oq3_parser crates.
 //!
 //! Keep in mind that `from_text` functions should be kept private. The public
 //! API should require to assemble every node piecewise. The trick of
