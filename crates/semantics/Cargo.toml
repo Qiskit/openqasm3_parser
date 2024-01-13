@@ -12,10 +12,10 @@ rust-version.workspace = true
 doctest = false
 
 [dependencies]
+oq3_syntax.workspace = true
 source_file.workspace = true
 hashbrown = { version = "0.14" }
 rowan = "0.15.11"
-oq3_syntax.workspace = true
 boolenum = "0.1"
 
 [dev-dependencies]
