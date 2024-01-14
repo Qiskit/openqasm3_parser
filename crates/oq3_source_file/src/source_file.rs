@@ -198,14 +198,12 @@ pub(crate) fn read_source_file(file_path: &Path) -> String {
 }
 
 // FIXME: prevent a file from including itself. Then there are two-file cycles, etc.
-// FIXME: I want to disable filter_map_identity globally, but there is no option for clippy.toml
-#[allow(clippy::filter_map_identity)]
 ///  Recursively parse any files `include`d in the program `syntax_ast`.
 pub(crate) fn parse_included_files(syntax_ast: &ParsedSource) -> Vec<SourceFile> {
     syntax_ast
         .tree()
         .statements()
-        .map(|parse_item| match parse_item {
+        .filter_map(|parse_item| match parse_item {
             synast::Stmt::Item(synast::Item::Include(include)) => {
                 let file: synast::FilePath = include.file().unwrap();
                 let file_path = file.to_string().unwrap();
@@ -213,7 +211,6 @@ pub(crate) fn parse_included_files(syntax_ast: &ParsedSource) -> Vec<SourceFile>
             }
             _ => None,
         })
-        .filter_map(|x| x)
         .collect::<Vec<_>>()
 }
 
