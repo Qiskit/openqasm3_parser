@@ -14,7 +14,6 @@ use std::{
 use itertools::Itertools;
 use proc_macro2::{Punct, Spacing};
 use quote::{format_ident, quote};
-use std::path::PathBuf;
 use ungrammar::{Grammar, Rule};
 
 use crate::sourcegen as localsourcegen;

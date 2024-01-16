@@ -4,8 +4,8 @@
 use crate::asg;
 use crate::semantic_error::SemanticErrorKind::*;
 use crate::semantic_error::{SemanticErrorKind, SemanticErrorList};
-use crate::symbols::{SymbolIdResult, SymbolRecordResult, SymbolTable};
-use crate::types::Type;
+use crate::symbols::{ScopeType, SymbolIdResult, SymbolRecordResult, SymbolTable};
+use crate::types::{IsConst, Type};
 use oq3_syntax::ast::AstNode;
 use std::path::PathBuf;
 
@@ -18,11 +18,13 @@ pub struct Context {
 
 impl Context {
     pub(crate) fn new(file_path: PathBuf) -> Context {
-        Context {
+        let mut context = Context {
             program: asg::Program::new(),
             semantic_errors: SemanticErrorList::new(file_path),
             symbol_table: SymbolTable::new(),
-        }
+        };
+        define_U_gate(&mut context);
+        context
     }
 
     pub fn push_included(&mut self, errors: SemanticErrorList) {
@@ -96,4 +98,29 @@ macro_rules! with_scope {
         $code;
         $ctxt.symbol_table.exit_scope();
     };
+}
+
+#[allow(non_snake_case)]
+fn define_U_gate(context: &mut Context) {
+    let symbol_id_result = context.symbol_table.new_binding("U", &Type::Gate);
+    if symbol_id_result.is_err() {
+        panic!("U already defined when defining U gate");
+    }
+    context.symbol_table.enter_scope(ScopeType::Subroutine);
+    let q = context.symbol_table.new_binding("q", &Type::Qubit);
+    let a = context
+        .symbol_table
+        .new_binding("a", &Type::Angle(None, IsConst::True)); // No width
+    let b = context
+        .symbol_table
+        .new_binding("b", &Type::Angle(None, IsConst::True));
+    let c = context
+        .symbol_table
+        .new_binding("c", &Type::Angle(None, IsConst::True));
+    context.symbol_table.exit_scope();
+    let qbits = vec![q];
+    let params = vec![a, b, c];
+    let block = asg::Block::new();
+    let ugate = asg::GateDeclaration::new(symbol_id_result, Some(params), qbits, block).to_stmt();
+    context.program.insert_stmt(ugate);
 }

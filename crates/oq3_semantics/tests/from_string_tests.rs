@@ -18,11 +18,11 @@ qubit q;
 "##;
     let (program, errors, symbol_table) = parse_string(code);
     assert!(errors.is_empty());
-    assert_eq!(program.len(), 1);
-    let stmt = program.first();
-    assert!(matches!(stmt, Some(asg::Stmt::DeclareQuantum(_))));
+    assert_eq!(program.len(), 2);
+    let stmt = &program.stmts()[1];
+    assert!(matches!(stmt, asg::Stmt::DeclareQuantum(_)));
     let qdecl = match stmt {
-        Some(asg::Stmt::DeclareQuantum(qdecl)) => qdecl,
+        asg::Stmt::DeclareQuantum(qdecl) => qdecl,
         _ => unreachable!(),
     };
     let varname_id = qdecl.name().clone().unwrap();
@@ -40,9 +40,10 @@ if (true) {
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
     assert!(errors.is_empty());
-    assert_eq!(program.len(), 1);
-    let if_stmt = match program.first() {
-        Some(asg::Stmt::If(if_stmt)) => if_stmt,
+    assert_eq!(program.len(), 2);
+    let stmt = &program.stmts()[1];
+    let if_stmt = match stmt {
+        asg::Stmt::If(if_stmt) => if_stmt,
         _ => unreachable!(),
     };
 
@@ -68,9 +69,10 @@ while (false) {
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
     assert!(errors.is_empty());
-    assert_eq!(program.len(), 1);
-    let while_stmt = match program.first() {
-        Some(asg::Stmt::While(while_stmt)) => while_stmt,
+    assert_eq!(program.len(), 2);
+    let stmt = &program.stmts()[1];
+    let while_stmt = match stmt {
+        asg::Stmt::While(while_stmt) => while_stmt,
         _ => unreachable!(),
     };
 
@@ -111,7 +113,7 @@ x[1];
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 1);
-    assert_eq!(program.len(), 1);
+    assert_eq!(program.len(), 2);
 }
 
 #[test]
@@ -122,7 +124,7 @@ gate mygate(x, y) q, p, r {
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 0);
-    assert_eq!(program.len(), 1);
+    assert_eq!(program.len(), 2);
 }
 
 #[test]
@@ -133,7 +135,7 @@ gate mygate q, p, r {
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 0);
-    assert_eq!(program.len(), 1);
+    assert_eq!(program.len(), 2);
 }
 
 #[test]
@@ -146,7 +148,7 @@ gate bell q0, q1 {
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 2); // h and cx undefined
-    assert_eq!(program.len(), 1);
+    assert_eq!(program.len(), 2);
 }
 
 #[test]
@@ -156,7 +158,7 @@ mygate(x, y) q;
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 4);
-    assert_eq!(program.len(), 1);
+    assert_eq!(program.len(), 2);
 }
 
 #[test]
@@ -166,7 +168,17 @@ bit[4] b = "1001";
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 0);
-    assert_eq!(program.len(), 1);
+    assert_eq!(program.len(), 2);
+}
+
+#[test]
+fn test_u_gate_builit_in() {
+    let code = r##"
+qubit q;
+U(1.0, 2.0, 3.0) q;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
 }
 
 // #[test]
