@@ -294,17 +294,28 @@ impl IndexExpression {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct IndexedIdentifier {
-    identifer: SymbolIdResult,
+    identifier: SymbolIdResult,
     indexes: Vec<IndexOperator>,
 }
 
 impl IndexedIdentifier {
-    pub fn new(identifer: SymbolIdResult, indexes: Vec<IndexOperator>) -> IndexedIdentifier {
-        IndexedIdentifier { identifer, indexes }
+    pub fn new(identifier: SymbolIdResult, indexes: Vec<IndexOperator>) -> IndexedIdentifier {
+        IndexedIdentifier {
+            identifier,
+            indexes,
+        }
     }
 
     pub fn to_texpr(self) -> TExpr {
         TExpr::new(Expr::IndexedIdentifier(self), Type::ToDo)
+    }
+
+    pub fn identifier(&self) -> &SymbolIdResult {
+        &self.identifier
+    }
+
+    pub fn indexes(&self) -> &[IndexOperator] {
+        &self.indexes
     }
 }
 
@@ -391,6 +402,10 @@ pub struct SetExpression {
 impl SetExpression {
     pub fn new(expressions: Vec<TExpr>) -> SetExpression {
         SetExpression { expressions }
+    }
+
+    pub fn expressions(&self) -> &[TExpr] {
+        &self.expressions
     }
 }
 
