@@ -24,6 +24,10 @@ use oq3_syntax::ast as synast; // Syntactic AST
 
 use crate::with_scope;
 
+// dprintln, ddbg are defined in utils.rs
+#[allow(unused_imports)]
+#[cfg(debug_assertions)]
+use crate::{dprintln, ddbg};
 use crate::utils::type_name_of; // for debugging
 
 // traits

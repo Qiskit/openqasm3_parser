@@ -31,3 +31,40 @@ macro_rules! dbg_stdout {
         ($(::std::dbg_stdout!($val)),+,)
     };
 }
+
+/// This is the same as `dbg!`, except that it is only defined in a debug build.
+/// Attempting use in a release build will result in an error
+/// `error: cannot determine resolution for the macro ddbg`
+#[cfg(debug_assertions)]
+#[macro_export]
+macro_rules! ddbg {
+    () => {
+        println!("[{}:{}:{}]", file!(), line!(), column!())
+    };
+    ($val:expr $(,)?) => {
+        match $val {
+            tmp => {
+                eprintln!("[{}:{}:{}] {} = {:#?}",
+                    file!(), line!(), column!(), stringify!($val), &tmp);
+                tmp
+            }
+        }
+    };
+    ($($val:expr),+ $(,)?) => {
+        ($(ddbg!($val)),+,)
+    };
+}
+
+/// This is the same as `println!`, except that it is only defined in a debug build.
+/// Attempting use in a release build will result in an error
+/// `error: cannot determine resolution for the macro dprintln!`
+#[cfg(debug_assertions)]
+#[macro_export]
+macro_rules! dprintln {
+    () => {
+        print!("\n")
+    };
+    ($($arg:tt)*) => {{
+        println!($($arg)*);
+    }};
+}
