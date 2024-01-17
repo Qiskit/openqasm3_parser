@@ -148,7 +148,7 @@ fn _one_call(op: BinOp, type1: Type, type2: Type) -> Option<Type> {
         otype = promote_type(type2, type1);
     }
     assert!(otype != Bottom);
-    return Some(otype);
+    Some(otype)
 }
 
 // Analyze a vector of triples (Binary op, type of first arg, type of second arg).

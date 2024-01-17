@@ -177,9 +177,9 @@ impl Type {
 #[test]
 fn test_type_enum1() {
     let t = Type::Bit(IsConst::False);
-    assert_eq!(t.is_const(), false);
+    assert!(!t.is_const());
     assert!(t.width().is_none());
-    assert_eq!(t.is_quantum(), false);
+    assert!(!t.is_quantum());
     assert!(t.is_scalar());
 }
 

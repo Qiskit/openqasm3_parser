@@ -105,9 +105,8 @@ fn example_path(example: &str) -> PathBuf {
 
 fn read_example_source(file_name: &str) -> String {
     let file_path = example_path(file_name);
-    let contents = fs::read_to_string(file_path.clone())
-        .expect(format!("Unable to read file {:?}", file_path).as_str());
-    return contents;
+    fs::read_to_string(file_path.clone())
+        .unwrap_or_else(|_| panic!("Unable to read file {:?}", file_path))
 }
 
 fn print_tree(file: SourceFile) {
@@ -119,7 +118,7 @@ fn print_tree(file: SourceFile) {
 
 fn print_node_or_token(item: GreenNode, depth: usize) {
     let spcs = " ".repeat(depth);
-    for (_i, child) in item.children().enumerate() {
+    for child in item.children() {
         //        println!("{}{}: {} : {:?}", spcs, i, child, child);
         match child {
             NodeOrToken::Node(node) => {

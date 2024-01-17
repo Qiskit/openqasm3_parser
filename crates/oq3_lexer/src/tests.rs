@@ -5,6 +5,8 @@ use super::*;
 
 use expect_test::{expect, Expect};
 
+// FIXME: Probably do what clippy asks for here
+#[allow(clippy::format_collect)]
 fn check_lexing(src: &str, expect: Expect) {
     let actual: String = tokenize(src)
         .map(|token| format!("{:?}\n", token))
@@ -107,7 +109,7 @@ fn nested_block_comments() {
 #[test]
 fn literal_suffixes() {
     check_lexing(
-        r####"
+        r#"
 "a"
 1234
 0b101
@@ -120,7 +122,7 @@ fn literal_suffixes() {
 6dt
 5s
 6dta
-"####,
+"#,
         expect![[r#"
             Token { kind: Whitespace, len: 1 }
             Token { kind: Literal { kind: Str { terminated: true }, suffix_start: 3 }, len: 3 }
