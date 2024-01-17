@@ -178,9 +178,6 @@ pub fn syntax_to_semantic<T: SourceTrait>(
 
 fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<asg::Stmt> {
     let expr = from_expr(expr_stmt.expr().unwrap(), context);
-    if expr.is_none() {
-        dbg!(expr_stmt);
-    }
     expr.map_or_else(
         || panic!("expr::ExprStmt is None"),
         |ex| Some(asg::Stmt::ExprStmt(ex)),
@@ -239,7 +236,7 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
 
         // Everything else is not yet implemented
         _ => {
-            println!("MeasureExpression not supported {:?}", expr);
+            println!("Expression not supported {:?}", expr);
             None
         }
     }
@@ -248,16 +245,14 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
 fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -> asg::TExpr {
     match gate_operand {
         synast::GateOperand::HardwareQubit(ref hwq) => {
-            asg::GateOperand::HardwareQubit(ast_hardware_qubit(hwq))
-                .to_texpr(Type::HardwareQubit)
+            asg::GateOperand::HardwareQubit(ast_hardware_qubit(hwq)).to_texpr(Type::HardwareQubit)
         }
         synast::GateOperand::Identifier(identifier) => {
             let (astidentifier, typ) = ast_identifier(&identifier, context);
             asg::GateOperand::Identifier(astidentifier).to_texpr(typ)
         }
         synast::GateOperand::IndexedIdentifier(indexed_identifier) => {
-            let (indexed_identifier, typ) =
-                ast_indexed_identifier(&indexed_identifier, context);
+            let (indexed_identifier, typ) = ast_indexed_identifier(&indexed_identifier, context);
             asg::GateOperand::IndexedIdentifier(indexed_identifier).to_texpr(typ)
         }
     }
