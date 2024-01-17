@@ -483,10 +483,7 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
 
         synast::Item::VersionString(version_string) => {
             let version = version_string.version().unwrap().version().unwrap();
-            dbg!(version.is_simple());
-            dbg!(version.clone());
-            let (p1, p2) = version.split_into_parts();
-            dbg!((p1, p2));
+            let _ = version.split_into_parts();
             None
         }
 
