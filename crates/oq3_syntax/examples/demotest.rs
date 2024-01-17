@@ -118,7 +118,7 @@ fn print_tree(file: SourceFile) {
 
 fn print_node_or_token(item: GreenNode, depth: usize) {
     let spcs = " ".repeat(depth);
-    for (_i, child) in item.children().enumerate() {
+    for child in item.children() {
         //        println!("{}{}: {} : {:?}", spcs, i, child, child);
         match child {
             NodeOrToken::Node(node) => {
