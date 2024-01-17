@@ -7,7 +7,7 @@ use oq3_syntax::SourceFile;
 
 #[allow(dead_code)]
 fn parse_some_code() {
-    let code = r##"
+    let code = r#"
 int q;
 
 OPENQASM 3.1;
@@ -32,7 +32,7 @@ cal {
   x + y;
 }
 
-   "##;
+   "#;
     parse_print_items(code);
 }
 
@@ -70,7 +70,7 @@ fn print_item(item: ast::Item) {
 
 fn parse_print_items(code: &str) {
     use oq3_syntax::AstNode;
-    let parse = SourceFile::parse(&code);
+    let parse = SourceFile::parse(code);
     let file: SourceFile = parse.tree();
     println!("Found {} items", file.items().collect::<Vec<_>>().len());
     for item in file.items() {
@@ -79,7 +79,7 @@ fn parse_print_items(code: &str) {
             item.syntax().descendants().collect::<Vec<_>>().len()
         );
         print_item(item.clone());
-        println!("");
+        println!();
         //        println!("{:?}", item.syntax().descendants().collect::<Vec<_>>());
         for d in item.syntax().descendants().collect::<Vec<_>>() {
             //        for d in item.children().collect::<Vec<_>>() {
@@ -104,24 +104,21 @@ gate mygate q {
     "##;
     // let parse = SourceFile::parse(&code);
     // let file: SourceFile = parse.tree();
-    let file: SourceFile = SourceFile::parse(&code).tree();
+    let file: SourceFile = SourceFile::parse(code).tree();
     let mut gateitem = None;
     for item in file.items() {
-        match item {
-            ast::Item::Gate(gate) => {
-                gateitem = Some(gate);
-                break;
-            }
-            _ => (),
-        }
+        if let ast::Item::Gate(gate) = item {
+            gateitem = Some(gate);
+            break;
+        };
     }
     println!("{}", test_gate_def(gateitem.unwrap(), ("mygate", "q")));
 }
 
 #[allow(dead_code)]
 fn test_gate_def(gate: ast::Gate, (name, qubit_list): (&str, &str)) -> bool {
-    return format!("{}", gate.name().unwrap()) == name
-        && format!("{}", gate.qubit_params().unwrap()) == qubit_list;
+    format!("{}", gate.name().unwrap()) == name
+        && format!("{}", gate.qubit_params().unwrap()) == qubit_list
 }
 
 #[allow(dead_code)]
@@ -147,7 +144,7 @@ fn print_type_declaration_statement(type_decl: ast::ClassicalDeclarationStatemen
     //     println!(" none");
     // }
     print!(" initial value: ");
-    if !type_decl.expr().is_none() {
+    if type_decl.expr().is_some() {
         print!("{}", type_decl.expr().unwrap());
     } else {
         print!(" none");
@@ -161,7 +158,7 @@ fn print_type_declaration_statement(type_decl: ast::ClassicalDeclarationStatemen
 
 fn print_gate(gate: ast::Gate) {
     println!("Gate\ngate name: '{}'", gate.name().unwrap());
-    if !gate.angle_params().is_none() {
+    if gate.angle_params().is_some() {
         println!("parameters: '{}'", gate.angle_params().unwrap());
     }
     println!("qubits: '{}'", gate.qubit_params().unwrap());
@@ -170,11 +167,11 @@ fn print_gate(gate: ast::Gate) {
 
 fn print_defcal(defcal: ast::DefCal) {
     println!("DefCal\ndefcal name: '{}'", defcal.name().unwrap());
-    if !defcal.param_list().is_none() {
+    if defcal.param_list().is_some() {
         println!("parameters: '{}'", defcal.param_list().unwrap());
     }
     println!("qubits: '{}'", defcal.qubit_list().unwrap());
-    if !defcal.ret_type().is_none() {
+    if defcal.ret_type().is_some() {
         println!("return type: '{}'", defcal.ret_type().unwrap());
     }
     print!("body: '{}'", defcal.body().unwrap());
@@ -182,10 +179,10 @@ fn print_defcal(defcal: ast::DefCal) {
 
 fn print_def(def: ast::Def) {
     println!("Def\ndef name: '{}'", def.name().unwrap());
-    if !def.param_list().is_none() {
+    if def.param_list().is_some() {
         println!("parameters: '{}'", def.param_list().unwrap());
     }
-    if !def.ret_type().is_none() {
+    if def.ret_type().is_some() {
         println!("return type: '{}'", def.ret_type().unwrap());
     }
     print!("body: '{}'", def.body().unwrap());
@@ -196,7 +193,7 @@ fn print_defcalgrammar(defcg: ast::DefCalGrammar) {
         "DefCalgrammar\ndefcalgrammar token: '{}'",
         defcg.defcalgrammar_token().unwrap()
     );
-    if !defcg.file().is_none() {
+    if defcg.file().is_some() {
         print!("file: '{}'", defcg.file().unwrap());
     } else {
         print!("file: NONE");
@@ -205,7 +202,7 @@ fn print_defcalgrammar(defcg: ast::DefCalGrammar) {
 
 fn print_cal(cal: ast::Cal) {
     println!("Cal\ncal token: '{}'", cal.cal_token().unwrap());
-    if !cal.body().is_none() {
+    if cal.body().is_some() {
         print!("body: '{}'", cal.body().unwrap());
     } else {
         print!("body: NONE");
@@ -217,7 +214,7 @@ fn print_version_string(version_string: ast::VersionString) {
         "VersionString\n openqasm_token: '{}'",
         version_string.OPENQASM_token().unwrap()
     );
-    if !version_string.version().is_none() {
+    if version_string.version().is_some() {
         print!("version: '{}'", version_string.version().unwrap());
     } else {
         print!("version: NONE");
@@ -229,7 +226,7 @@ fn print_include(include: ast::Include) {
         "Include\ninclude token: '{}'",
         include.include_token().unwrap()
     );
-    if !include.file().is_none() {
+    if include.file().is_some() {
         print!("file: '{}'", include.file().unwrap());
     } else {
         print!("file: NONE");

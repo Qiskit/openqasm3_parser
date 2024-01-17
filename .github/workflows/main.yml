@@ -20,8 +20,8 @@ jobs:
     - name: Rust Format
       run: cargo fmt --all -- --check
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --release --verbose
     - name: Clippy
-      run: cargo clippy -- -D warnings
+      run: cargo clippy --all-targets -- -D warnings
     - name: Run tests
       run: cargo test --verbose -- --skip sourcegen_ast --skip sourcegen_ast_nodes

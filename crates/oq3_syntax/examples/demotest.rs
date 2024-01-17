@@ -105,9 +105,8 @@ fn example_path(example: &str) -> PathBuf {
 
 fn read_example_source(file_name: &str) -> String {
     let file_path = example_path(file_name);
-    let contents = fs::read_to_string(file_path.clone())
-        .expect(format!("Unable to read file {:?}", file_path).as_str());
-    return contents;
+    fs::read_to_string(file_path.clone())
+        .unwrap_or_else(|_| panic!("Unable to read file {:?}", file_path))
 }
 
 fn print_tree(file: SourceFile) {

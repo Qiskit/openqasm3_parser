@@ -243,9 +243,8 @@ defcal xmeasure(int a, int b) q, p -> bit {
 
     let mut defcal = None;
     for item in file.items() {
-        match item {
-            ast::Item::DefCal(f) => defcal = Some(f),
-            _ => (),
+        if let ast::Item::DefCal(f) = item {
+            defcal = Some(f)
         }
     }
     let defcal: ast::DefCal = defcal.unwrap();

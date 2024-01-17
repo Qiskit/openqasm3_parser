@@ -13,9 +13,9 @@ fn parse_string(code: &str) -> (asg::Program, SemanticErrorList, SymbolTable) {
 
 #[test]
 fn test_from_string_one_qubit_decl() {
-    let code = r##"
+    let code = r#"
 qubit q;
-"##;
+"#;
     let (program, errors, symbol_table) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
@@ -51,7 +51,7 @@ if (true) {
         asg::Expr::Literal(asg::Literal::Bool(literal)) => literal,
         _ => unreachable!(),
     };
-    assert_eq!(*bool_literal.value(), true);
+    assert!(*bool_literal.value());
 
     let cond_ty = if_stmt.condition().get_type();
     assert_eq!(cond_ty, &Type::Bool(IsConst::True));
@@ -79,13 +79,10 @@ while (false) {
         asg::Expr::Literal(asg::Literal::Bool(literal)) => literal,
         _ => unreachable!(),
     };
-    assert_eq!(*bool_literal.value(), false);
+    assert!(!(*bool_literal.value()));
     let cond_ty = while_stmt.condition().get_type();
     assert_eq!(cond_ty, &Type::Bool(IsConst::True));
     let body_statements = while_stmt.loop_body().statements();
-    match body_statements[1] {
-        _ => (),
-    };
     let inner = body_statements
         .iter()
         .map(|x| match x {
@@ -161,9 +158,9 @@ mygate(x, y) q;
 
 #[test]
 fn test_bit_string_literal() {
-    let code = r##"
+    let code = r#"
 bit[4] b = "1001";
-"##;
+"#;
     let (program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);

@@ -1,7 +1,6 @@
 // Copyright contributors to the openqasm-parser project
 // SPDX-License-Identifier: Apache-2.0
 
-use oq3_semantics;
 use oq3_semantics::asg;
 use oq3_semantics::symbols;
 use oq3_semantics::types;
