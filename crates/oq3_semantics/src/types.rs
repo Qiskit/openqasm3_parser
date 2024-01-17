@@ -155,7 +155,8 @@ impl Type {
     pub fn is_const(&self) -> bool {
         use Type::*;
         match self {
-            Bit(c) | Int(_, c) => matches!(*c, IsConst::True),
+            Bit(c) | Int(_, c) | UInt(_, c) | Float(_, c) | Angle(_, c) | Complex(_, c) | Bool(c)
+                | Duration(c) | Stretch(c) | BitArray(_, c) => matches!(*c, IsConst::True),
             _ => true,
         }
     }

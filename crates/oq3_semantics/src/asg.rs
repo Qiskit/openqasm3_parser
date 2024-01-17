@@ -131,7 +131,7 @@ pub enum Expr {
     Range(Range),
     Call,    // stub function (def) call
     Set,     // stub
-    Measure, // stub
+    MeasureExpression(MeasureExpression),
 }
 
 /// Typed expression implemented by tagging an `Expr` with a `Type`.
@@ -559,6 +559,23 @@ impl GateDeclaration {
 
     pub fn block(&self) -> &Block {
         &self.block
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct MeasureExpression {
+    operand: Box<TExpr>,
+}
+
+impl MeasureExpression {
+    pub fn new(operand: TExpr) -> MeasureExpression {
+        MeasureExpression { operand: Box::new(operand) }
+    }
+
+    // FIXME: type may not be correct here.
+    // This assumes a single qubit is measured.
+    pub fn to_texpr(self) -> TExpr {
+        TExpr::new(Expr::MeasureExpression(self), Type::Bit(IsConst::False))
     }
 }
 
