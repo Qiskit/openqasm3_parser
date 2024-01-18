@@ -17,4 +17,3 @@ doctest = false
 [dependencies]
 ariadne = { version = "0.3.0", features = ["auto-color"] }
 oq3_syntax.workspace = true
-source-span = { version = "2.7.0" }
