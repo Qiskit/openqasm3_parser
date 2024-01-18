@@ -7,16 +7,10 @@ use std::path::PathBuf;
 
 use oq3_lexer::{tokenize, Token};
 use oq3_parser::SyntaxKind;
-use oq3_semantics;
 use oq3_semantics::syntax_to_semantics;
-use oq3_source_file;
 use oq3_source_file::SourceTrait;
-use oq3_syntax;
 use oq3_syntax::{parse_text, GreenNode, SourceFile};
 use rowan::NodeOrToken; // TODO: this can be accessed from a higher level
-
-// use source_file::source_file;
-//use source_file::{SourceTrait};
 
 #[derive(Parser)]
 #[command(name = "demotest")]
@@ -86,7 +80,7 @@ fn main() {
     // matches just as you would the top level cmd
     match &cli.command {
         Some(Commands::SemanticString { file_name }) => {
-            let source = read_example_source(&file_name);
+            let source = read_example_source(file_name);
             let file_name = Some("giraffe");
             let result = syntax_to_semantics::parse_source_string(source, file_name);
             if result.any_errors() {
@@ -95,8 +89,9 @@ fn main() {
             result.program().print_asg_debug();
         }
 
+        #[allow(clippy::dbg_macro)]
         Some(Commands::Semantic { file_name }) => {
-            let result = syntax_to_semantics::parse_source_file(&file_name);
+            let result = syntax_to_semantics::parse_source_file(file_name);
             let have_errors = result.any_errors();
             if have_errors {
                 println!("Found errors: {}", have_errors);
@@ -104,14 +99,14 @@ fn main() {
             }
             result.program().print_asg_debug();
             dbg!(oq3_semantics::validate::count_symbol_errors(
-                &result.program(),
-                &result.symbol_table()
+                result.program(),
+                result.symbol_table()
             ));
             //            dbg!(semantics::validate::count_symbol_errors(&result.program().stmts, &result.symbol_table()));
         }
 
         Some(Commands::SemanticPretty { file_name }) => {
-            let result = syntax_to_semantics::parse_source_file(&file_name);
+            let result = syntax_to_semantics::parse_source_file(file_name);
             println!("Found errors: {}", result.any_errors());
             result.print_errors();
             result.program().print_asg_debug_pretty();
@@ -165,9 +160,8 @@ fn main() {
 }
 
 fn read_example_source(file_path: &PathBuf) -> String {
-    let contents = fs::read_to_string(file_path.clone())
-        .expect(format!("Unable to read file {:?}", file_path).as_str());
-    return contents;
+    fs::read_to_string(file_path.clone())
+        .unwrap_or_else(|_| panic!("Unable to read file {:?}", file_path))
 }
 
 fn print_tree(file: SourceFile) {
@@ -179,7 +173,7 @@ fn print_tree(file: SourceFile) {
 
 fn print_node_or_token(item: GreenNode, depth: usize) {
     let spcs = " ".repeat(depth);
-    for (_i, child) in item.children().enumerate() {
+    for child in item.children() {
         //        println!("{}{}: {} : {:?}", spcs, i, child, child);
         match child {
             NodeOrToken::Node(node) => {
