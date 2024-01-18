@@ -91,6 +91,7 @@ fn main() {
             result.program().print_asg_debug();
         }
 
+        #[allow(clippy::dbg_macro)]
         Some(Commands::Semantic { file_name }) => {
             let result = syntax_to_semantics::parse_source_file(file_name);
             let have_errors = result.any_errors();
