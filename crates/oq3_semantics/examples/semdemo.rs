@@ -8,11 +8,9 @@ use std::path::PathBuf;
 use oq3_lexer::{tokenize, Token};
 use oq3_parser::SyntaxKind;
 use oq3_semantics::syntax_to_semantics;
+use oq3_source_file::SourceTrait;
 use oq3_syntax::{parse_text, GreenNode, SourceFile};
 use rowan::NodeOrToken; // TODO: this can be accessed from a higher level
-
-// use source_file::source_file;
-//use source_file::{SourceTrait};
 
 #[derive(Parser)]
 #[command(name = "demotest")]
@@ -120,13 +118,13 @@ fn main() {
         //     context.program().print_asg_debug_pretty();
         // }
         Some(Commands::Parse { file_name }) => {
-            let parsed_source = SourceFile::parse(&read_example_source(file_name));
-            let parse_tree: SourceFile = parsed_source.tree();
+            let parsed_source = oq3_source_file::parse_source_file(file_name);
+            let parse_tree = parsed_source.syntax_ast().tree();
             println!(
                 "Found {} items",
                 parse_tree.items().collect::<Vec<_>>().len()
             );
-            let syntax_errors = parsed_source.errors();
+            let syntax_errors = parsed_source.syntax_ast().errors();
             println!(
                 "Found {} parse errors:\n{:?}\n",
                 syntax_errors.len(),
