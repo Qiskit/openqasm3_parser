@@ -421,6 +421,12 @@ impl ast::IndexedIdentifier {
     }
 }
 
+impl ast::AssignmentStmt {
+    pub fn indexed_identifier(&self) -> Option<ast::IndexedIdentifier> {
+        support::child(&self.syntax)
+    }
+}
+
 impl ast::GateCallStmt {
     // This may be redundant
     pub fn name(&self) -> Option<ast::Name> {

@@ -359,8 +359,13 @@ impl ExpressionList {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum LValue {
     Identifier(SymbolIdResult),
-    ArraySlice(ArraySlice),
-    RegisterSlice(RegisterSlice),
+    // We want to remove IndexedIdentifier in favor of more precise types below.
+    IndexedIdentifier(IndexedIdentifier),
+    // FIXME: We really want the following which carry more semantic content.
+    // We have to check types to determine which of these we have. They
+    // also have (sometimes) differing syntax.
+    // ArraySlice(ArraySlice),
+    // RegisterSlice(RegisterSlice),
 }
 
 // For example `expr` in `v[expr]`, or `1:3` in `v[1:3]`
