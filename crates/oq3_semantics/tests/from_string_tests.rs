@@ -5,7 +5,7 @@ use oq3_semantics::asg;
 use oq3_semantics::semantic_error::SemanticErrorList;
 use oq3_semantics::symbols::{SymbolTable, SymbolType};
 use oq3_semantics::syntax_to_semantics::parse_source_string;
-use oq3_semantics::types::{IsConst, Type};
+use oq3_semantics::types::{ArrayDims, IsConst, Type};
 
 fn parse_string(code: &str) -> (asg::Program, SemanticErrorList, SymbolTable) {
     parse_source_string(code, None).take_context().as_tuple()
@@ -166,31 +166,82 @@ bit[4] b = "1001";
     assert_eq!(program.len(), 1);
 }
 
-// #[test]
-// fn test_include() {
-//     let code = r##"
-// include "somefile.qasm";
-// "##;
-//     let (program, errors, symbol_table) = parse_string(code);
-//     assert_eq!(errors.len(), 0);
-//     assert_eq!(program.len(), 1);
-// }
+#[test]
+fn test_from_string_qubit_register_decl() {
+    let code = r#"
+qubit[3] q;
+"#;
+    let (program, errors, symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let stmt = program.first();
+    assert!(matches!(stmt, Some(asg::Stmt::DeclareQuantum(_))));
+    let qdecl = match stmt {
+        Some(asg::Stmt::DeclareQuantum(qdecl)) => qdecl,
+        _ => unreachable!(),
+    };
+    let varname_id = qdecl.name().clone().unwrap();
+    assert_eq!(varname_id, symbol_table.lookup("q").unwrap().symbol_id());
+    assert_eq!(
+        &Type::QubitArray(ArrayDims::D1(3)),
+        symbol_table[&varname_id].symbol_type()
+    );
+}
 
-// #[test]
-// fn test_from_string_qubit_register_decl() {
-//     let code = r##"
-// qubit[3] q;
-// "##;
-//     let (program, errors, symbol_table) = parse_string(code);
-//     assert!(errors.is_empty());
-//     assert_eq!(program.len(), 1);
-//     let stmt = program.first();
-//     assert!(matches!(stmt, Some(asg::Stmt::DeclareQuantum(_))));
-//     let qdecl = match stmt {
-//         Some(asg::Stmt::DeclareQuantum(qdecl)) => qdecl,
-//         _ => unreachable!(),
-//     };
-//     let varname_id = qdecl.name().clone().unwrap();
-//     assert_eq!(varname_id, symbol_table.lookup("q").unwrap().symbol_id());
-//     assert_eq!(&Type::Qubit(Some(3)), (symbol_table[varname_id]).symbol_type());
-// }
+#[test]
+fn test_from_string_measure() {
+    let code = r#"
+qubit q;
+measure q;
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 2);
+}
+
+// Issue #42
+#[test]
+fn test_from_string_measure_assign() {
+    let code = r#"
+qubit q;
+bit c;
+c = measure q;
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 3);
+}
+
+#[test]
+fn test_from_string_measure_indexed() {
+    let code = r#"
+qubit[2] q;
+measure q[1];
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 2);
+}
+
+#[test]
+fn test_from_string_measure_hardware() {
+    let code = r#"
+measure $0;
+measure $42;
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 2);
+}
+
+#[test]
+fn test_from_string_gate_call_indexed() {
+    let code = r#"
+gate h q {}
+qubit[2] q;
+h q[1];
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 3);
+}

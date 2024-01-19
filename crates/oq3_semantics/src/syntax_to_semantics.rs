@@ -228,10 +228,32 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
             Some(indexed_identifier.to_texpr())
         }
 
-        synast::Expr::MeasureExpression(_measure_expr) => None,
+        synast::Expr::MeasureExpression(ref measure_expr) => {
+            let gate_operand = measure_expr.gate_operand().unwrap(); // FIXME: check this
+            let gate_operand_asg = from_gate_operand(gate_operand, context);
+            Some(asg::MeasureExpression::new(gate_operand_asg).to_texpr())
+        }
+
+        // Everything else is not yet implemented
         _ => {
             println!("Expression not supported {:?}", expr);
             None
+        }
+    }
+}
+
+fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -> asg::TExpr {
+    match gate_operand {
+        synast::GateOperand::HardwareQubit(ref hwq) => {
+            asg::GateOperand::HardwareQubit(ast_hardware_qubit(hwq)).to_texpr(Type::HardwareQubit)
+        }
+        synast::GateOperand::Identifier(identifier) => {
+            let (astidentifier, typ) = ast_identifier(&identifier, context);
+            asg::GateOperand::Identifier(astidentifier).to_texpr(typ)
+        }
+        synast::GateOperand::IndexedIdentifier(indexed_identifier) => {
+            let (indexed_identifier, typ) = ast_indexed_identifier(&indexed_identifier, context);
+            asg::GateOperand::IndexedIdentifier(indexed_identifier).to_texpr(typ)
         }
     }
 }
@@ -437,21 +459,7 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
                 .qubit_list()
                 .unwrap()
                 .gate_operands()
-                .map(|qubit| match qubit {
-                    synast::GateOperand::HardwareQubit(ref hwq) => {
-                        asg::GateOperand::HardwareQubit(ast_hardware_qubit(hwq))
-                            .to_texpr(Type::HardwareQubit)
-                    }
-                    synast::GateOperand::Identifier(identifier) => {
-                        let (astidentifier, typ) = ast_identifier(&identifier, context);
-                        asg::GateOperand::Identifier(astidentifier).to_texpr(typ)
-                    }
-                    synast::GateOperand::IndexedIdentifier(indexed_identifier) => {
-                        let (indexed_identifier, typ) =
-                            ast_indexed_identifier(&indexed_identifier, context);
-                        asg::GateOperand::IndexedIdentifier(indexed_identifier).to_texpr(typ)
-                    }
-                })
+                .map(|qubit| from_gate_operand(qubit, context))
                 .collect();
 
             let param_list = gate_call
@@ -571,7 +579,7 @@ fn from_assignment_stmt(
     assignment_stmt: &synast::AssignmentStmt,
     context: &mut Context,
 ) -> Option<asg::Stmt> {
-    let nameb = assignment_stmt.name();
+    let nameb = assignment_stmt.name(); // LHS of assignment
     let name = nameb.as_ref().unwrap();
     let name_str = name.string();
     let expr = from_expr(assignment_stmt.expr().unwrap(), context); // rhs of `=` operator
@@ -579,11 +587,11 @@ fn from_assignment_stmt(
     let (symbol_id, typ) = context.lookup_symbol(name_str.as_str(), name).as_tuple();
     let is_mutating_const = symbol_id.is_ok() && typ.is_const();
     let lvalue = asg::LValue::Identifier(symbol_id);
-    let ret_stmt = Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt());
+    let stmt_asg = Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt());
     if is_mutating_const {
         context.insert_error(MutateConstError, assignment_stmt);
     }
-    ret_stmt
+    stmt_asg
 }
 
 //

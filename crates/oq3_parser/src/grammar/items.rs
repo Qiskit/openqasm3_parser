@@ -233,11 +233,13 @@ pub(crate) fn ident_or_index_expr(p: &mut Parser<'_>) {
             p.bump(IDENT);
             match p.current() {
                 T!['['] => {
-                    let newm = m.complete(p, IDENT);
+                    let newm = m.complete(p, IDENTIFIER);
                     expressions::index_expr(p, newm);
                 }
                 _ => {
-                    m.complete(p, IDENT);
+                    // FIXME: m.complete(p, IDENT) is valid, but it should not be
+                    // it is a source of bugs!
+                    m.complete(p, IDENTIFIER);
                 }
             }
         }
@@ -270,7 +272,8 @@ pub(crate) fn measure_(p: &mut Parser<'_>, m: Marker) {
     p.bump(T![measure]);
     match p.current() {
         IDENT | HARDWAREIDENT => {
-            ident_or_index_expr(p);
+            let m1 = p.start();
+            params::arg_gate_call_qubit(p, m1);
         }
         _ => {
             p.error("expecting qubit(s) to measure");

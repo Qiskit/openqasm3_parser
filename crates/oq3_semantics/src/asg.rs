@@ -129,9 +129,9 @@ pub enum Expr {
     // But we need to handle these in a consistent way. Is there any situation where the "type" of Range is meaningful or useful?
     // For example, in syntax_to_semantics, have a routine that handles out-of-tree expressions.
     Range(Range),
-    Call,    // stub function (def) call
-    Set,     // stub
-    Measure, // stub
+    Call, // stub function (def) call
+    Set,  // stub
+    MeasureExpression(MeasureExpression),
 }
 
 /// Typed expression implemented by tagging an `Expr` with a `Type`.
@@ -559,6 +559,29 @@ impl GateDeclaration {
 
     pub fn block(&self) -> &Block {
         &self.block
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct MeasureExpression {
+    operand: Box<TExpr>,
+}
+
+impl MeasureExpression {
+    pub fn new(operand: TExpr) -> MeasureExpression {
+        MeasureExpression {
+            operand: Box::new(operand),
+        }
+    }
+
+    pub fn operand(&self) -> &TExpr {
+        &self.operand
+    }
+
+    // FIXME: type may not be correct here.
+    // This assumes a single qubit is measured.
+    pub fn to_texpr(self) -> TExpr {
+        TExpr::new(Expr::MeasureExpression(self), Type::Bit(IsConst::False))
     }
 }
 
