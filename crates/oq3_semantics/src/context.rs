@@ -68,6 +68,18 @@ impl Context {
         symbol_record
     }
 
+    /// Lookup the gate symbol, returing a SymbolRecordResult. Possibly log a `UndefGateError`.
+    pub(crate) fn lookup_gate_symbol<T>(&mut self, name: &str, node: &T) -> SymbolRecordResult
+    where
+        T: AstNode,
+    {
+        let symbol_record = self.symbol_table.lookup(name);
+        if symbol_record.is_err() {
+            self.semantic_errors.insert(UndefGateError, node);
+        }
+        symbol_record
+    }
+
     /// Bind `name` to new Symbol, returning SymbolIdResult. Possibly log a `RedeclarationError`.
     pub(crate) fn new_binding<T>(&mut self, name: &str, typ: &Type, node: &T) -> SymbolIdResult
     where

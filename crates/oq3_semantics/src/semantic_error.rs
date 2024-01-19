@@ -15,6 +15,7 @@ use crate::TextRange;
 #[derive(Clone, Debug)]
 pub enum SemanticErrorKind {
     UndefVarError,
+    UndefGateError,
     RedeclarationError,
     ConstIntegerError, // need a better way to organize this kind of type error
     IncompatibleTypesError,
