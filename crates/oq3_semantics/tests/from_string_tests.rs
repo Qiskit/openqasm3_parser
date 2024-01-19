@@ -257,3 +257,28 @@ barrier $0, $1;
     assert!(errors.is_empty());
     assert_eq!(program.len(), 3);
 }
+
+#[test]
+fn test_from_string_assign_indexed() {
+    let code = r#"
+qubit q;
+bit[2] c;
+c[0] = measure q;
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 3);
+}
+
+#[test]
+fn test_from_string_assign_indexed_2() {
+    let code = r#"
+OPENQASM 3.0;
+
+bit[2] out;
+out[0] = measure $0;
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 2);
+}

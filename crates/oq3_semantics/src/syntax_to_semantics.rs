@@ -588,26 +588,38 @@ fn from_classical_declaration_statement(
     asg::DeclareClassical::new(symbol_id, initializer).to_stmt()
 }
 
-// FIXME: In oq3_syntax we have both Name and Identifier. We only need one, I think.
-// This will be changed.
-
+// FIXME: Refactor this. It was done in a hurry.
 fn from_assignment_stmt(
     assignment_stmt: &synast::AssignmentStmt,
     context: &mut Context,
 ) -> Option<asg::Stmt> {
     let nameb = assignment_stmt.name(); // LHS of assignment
-    let name = nameb.as_ref().unwrap();
-    let name_str = name.string();
-    let expr = from_expr(assignment_stmt.expr().unwrap(), context); // rhs of `=` operator
+    if nameb.is_some() {
+        let name = nameb.as_ref().unwrap();
+        let name_str = name.string();
+        let expr = from_expr(assignment_stmt.expr().unwrap(), context); // rhs of `=` operator
 
-    let (symbol_id, typ) = context.lookup_symbol(name_str.as_str(), name).as_tuple();
-    let is_mutating_const = symbol_id.is_ok() && typ.is_const();
-    let lvalue = asg::LValue::Identifier(symbol_id);
-    let stmt_asg = Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt());
-    if is_mutating_const {
-        context.insert_error(MutateConstError, assignment_stmt);
+        let (symbol_id, typ) = context.lookup_symbol(name_str.as_str(), name).as_tuple();
+        let is_mutating_const = symbol_id.is_ok() && typ.is_const();
+        let lvalue = asg::LValue::Identifier(symbol_id);
+        let stmt_asg = Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt());
+        if is_mutating_const {
+            context.insert_error(MutateConstError, assignment_stmt);
+        }
+        return stmt_asg;
     }
-    stmt_asg
+    let indexed_identifier_ast = assignment_stmt.indexed_identifier();
+    let (indexed_identifier, _typ) =
+        ast_indexed_identifier(&indexed_identifier_ast.unwrap(), context);
+    let expr = from_expr(assignment_stmt.expr().unwrap(), context); // rhs of `=` operator
+                                                                    //    let is_mutating_const = symbol_id.is_ok() && typ.is_const();
+    let lvalue = asg::LValue::IndexedIdentifier(indexed_identifier);
+    Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt())
+    // let stmt_asg = Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt());
+    // if is_mutating_const {
+    //     context.insert_error(MutateConstError, assignment_stmt);
+    // }
+    // stmt_asg
 }
 
 //
