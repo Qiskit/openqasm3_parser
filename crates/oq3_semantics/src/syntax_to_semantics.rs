@@ -247,12 +247,18 @@ fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -
         synast::GateOperand::HardwareQubit(ref hwq) => {
             asg::GateOperand::HardwareQubit(ast_hardware_qubit(hwq)).to_texpr(Type::HardwareQubit)
         }
-        synast::GateOperand::Identifier(identifier) => {
-            let (astidentifier, typ) = ast_identifier(&identifier, context);
+        synast::GateOperand::Identifier(ref identifier) => {
+            let (astidentifier, typ) = ast_identifier(identifier, context);
+            if !matches!(typ, Type::Qubit | Type::HardwareQubit) {
+                context.insert_error(IncompatibleTypesError, &gate_operand);
+            }
             asg::GateOperand::Identifier(astidentifier).to_texpr(typ)
         }
-        synast::GateOperand::IndexedIdentifier(indexed_identifier) => {
-            let (indexed_identifier, typ) = ast_indexed_identifier(&indexed_identifier, context);
+        synast::GateOperand::IndexedIdentifier(ref indexed_identifier) => {
+            let (indexed_identifier, typ) = ast_indexed_identifier(indexed_identifier, context);
+            if !matches!(typ, Type::QubitArray(_)) {
+                context.insert_error(IncompatibleTypesError, &gate_operand);
+            }
             asg::GateOperand::IndexedIdentifier(indexed_identifier).to_texpr(typ)
         }
     }

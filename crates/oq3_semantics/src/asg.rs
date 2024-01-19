@@ -55,6 +55,7 @@ impl Program {
         let _ = &self.stmts.push(stmt);
     }
 
+    // FIXME: This should probably log a semantic error rather than panic.
     // The check should be done when checking syntax.
     // This check may be overly restrictive, as one might want to manipulate
     // or construct a `Program` in a way other than sequentially translating
@@ -582,10 +583,7 @@ impl MeasureExpression {
         let out_type = match self.operand.get_type() {
             Type::Qubit | Type::HardwareQubit => Type::Bit(IsConst::False),
             Type::QubitArray(dims) => Type::BitArray(dims.clone(), IsConst::False),
-            _ => panic!(
-                "Measure expression operand has type {:?}",
-                self.operand.get_type()
-            ),
+            _ => Type::Undefined,
         };
         TExpr::new(Expr::MeasureExpression(self), out_type)
     }
