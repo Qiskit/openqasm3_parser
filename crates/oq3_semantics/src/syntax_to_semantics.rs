@@ -475,7 +475,7 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
             // FIXME: make sure we are efficient with strings
             let gate_name = gate_call.identifier().unwrap().text().to_string();
             let (symbol_result, _typ) = context
-                .lookup_symbol(gate_name.as_ref(), &gate_id.unwrap())
+                .lookup_gate_symbol(gate_name.as_ref(), &gate_id.unwrap())
                 .as_tuple();
             Some(asg::Stmt::GateCall(asg::GateCall::new(
                 symbol_result,
