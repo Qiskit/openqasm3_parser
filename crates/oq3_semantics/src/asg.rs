@@ -578,10 +578,16 @@ impl MeasureExpression {
         &self.operand
     }
 
-    // FIXME: type may not be correct here.
-    // This assumes a single qubit is measured.
     pub fn to_texpr(self) -> TExpr {
-        TExpr::new(Expr::MeasureExpression(self), Type::Bit(IsConst::False))
+        let out_type = match self.operand.get_type() {
+            Type::Qubit | Type::HardwareQubit => Type::Bit(IsConst::False),
+            Type::QubitArray(dims) => Type::BitArray(dims.clone(), IsConst::False),
+            _ => panic!(
+                "Measure expression operand has type {:?}",
+                self.operand.get_type()
+            ),
+        };
+        TExpr::new(Expr::MeasureExpression(self), out_type)
     }
 }
 
