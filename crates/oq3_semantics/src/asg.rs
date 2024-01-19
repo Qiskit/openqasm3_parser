@@ -55,6 +55,7 @@ impl Program {
         let _ = &self.stmts.push(stmt);
     }
 
+    // FIXME: This should probably log a semantic error rather than panic.
     // The check should be done when checking syntax.
     // This check may be overly restrictive, as one might want to manipulate
     // or construct a `Program` in a way other than sequentially translating
@@ -578,10 +579,13 @@ impl MeasureExpression {
         &self.operand
     }
 
-    // FIXME: type may not be correct here.
-    // This assumes a single qubit is measured.
     pub fn to_texpr(self) -> TExpr {
-        TExpr::new(Expr::MeasureExpression(self), Type::Bit(IsConst::False))
+        let out_type = match self.operand.get_type() {
+            Type::Qubit | Type::HardwareQubit => Type::Bit(IsConst::False),
+            Type::QubitArray(dims) => Type::BitArray(dims.clone(), IsConst::False),
+            _ => Type::Undefined,
+        };
+        TExpr::new(Expr::MeasureExpression(self), out_type)
     }
 }
 

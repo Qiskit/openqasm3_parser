@@ -152,7 +152,7 @@ fn test_gate_call() {
 mygate(x, y) q;
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 4);
+    assert_eq!(errors.len(), 5);
     assert_eq!(program.len(), 1);
 }
 
