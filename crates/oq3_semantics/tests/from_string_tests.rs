@@ -224,6 +224,17 @@ measure q[1];
 }
 
 #[test]
+fn test_from_string_measure_hardware() {
+    let code = r#"
+measure $0;
+measure $42;
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 2);
+}
+
+#[test]
 fn test_from_string_gate_call_indexed() {
     let code = r#"
 gate h q {}
