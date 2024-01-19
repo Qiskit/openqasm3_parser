@@ -166,16 +166,6 @@ bit[4] b = "1001";
     assert_eq!(program.len(), 1);
 }
 
-// #[test]
-// fn test_include() {
-//     let code = r##"
-// include "somefile.qasm";
-// "##;
-//     let (program, errors, symbol_table) = parse_string(code);
-//     assert_eq!(errors.len(), 0);
-//     assert_eq!(program.len(), 1);
-// }
-
 #[test]
 fn test_from_string_qubit_register_decl() {
     let code = r#"
@@ -196,4 +186,51 @@ qubit[3] q;
         &Type::QubitArray(ArrayDims::D1(3)),
         symbol_table[&varname_id].symbol_type()
     );
+}
+
+#[test]
+fn test_from_string_measure() {
+    let code = r#"
+qubit q;
+measure q;
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 2);
+}
+
+// Issue #42
+#[test]
+fn test_from_string_measure_assign() {
+    let code = r#"
+qubit q;
+bit c;
+c = measure q;
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 3);
+}
+
+#[test]
+fn test_from_string_measure_indexed() {
+    let code = r#"
+qubit[2] q;
+measure q[1];
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 2);
+}
+
+#[test]
+fn test_from_string_gate_call_indexed() {
+    let code = r#"
+gate h q {}
+qubit[2] q;
+h q[1];
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 3);
 }

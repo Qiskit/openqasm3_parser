@@ -103,12 +103,12 @@ fn measure_expression(p: &mut Parser<'_>) -> CompletedMarker {
     p.bump(T![measure]);
     match p.current() {
         IDENT | HARDWAREIDENT => {
-            items::ident_or_index_expr(p);
+            let m1 = p.start();
+            // Parses elements that can be cast to GateOperand
+            params::arg_gate_call_qubit(p, m1);
         }
         _ => {
             p.error("expecting qubit(s) to measure");
-            // m.abandon(p);
-            // return;
         }
     }
     m.complete(p, MEASURE_EXPRESSION)

@@ -234,7 +234,8 @@ fn param_typed(p: &mut Parser<'_>, m: Marker) -> bool {
     success
 }
 
-fn arg_gate_call_qubit(p: &mut Parser<'_>, m: Marker) -> bool {
+// These can be cast to GateOperand
+pub(crate) fn arg_gate_call_qubit(p: &mut Parser<'_>, m: Marker) -> bool {
     if p.at(HARDWAREIDENT) {
         p.bump(HARDWAREIDENT);
         m.complete(p, HARDWARE_QUBIT);

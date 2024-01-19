@@ -272,7 +272,8 @@ pub(crate) fn measure_(p: &mut Parser<'_>, m: Marker) {
     p.bump(T![measure]);
     match p.current() {
         IDENT | HARDWAREIDENT => {
-            ident_or_index_expr(p);
+            let m1 = p.start();
+            params::arg_gate_call_qubit(p, m1);
         }
         _ => {
             p.error("expecting qubit(s) to measure");
