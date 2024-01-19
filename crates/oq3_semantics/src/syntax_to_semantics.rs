@@ -90,14 +90,19 @@ impl ParseResult<SourceString> {
 pub fn parse_source_string<T: ToString>(
     source: T,
     fake_file_path: Option<&str>,
+    search_path_list: Option<&Vec<PathBuf>>,
 ) -> ParseResult<SourceString> {
-    let parsed_source = oq3_source_file::parse_source_string(source, fake_file_path);
+    let parsed_source =
+        oq3_source_file::parse_source_string(source, fake_file_path, search_path_list);
     analyze_source(parsed_source)
 }
 
 /// Parse source file to semantic ASG
-pub fn parse_source_file(file_path: &PathBuf) -> ParseResult<SourceFile> {
-    let parsed_source = oq3_source_file::parse_source_file(file_path);
+pub fn parse_source_file(
+    file_path: &PathBuf,
+    search_path_list: Option<&Vec<PathBuf>>,
+) -> ParseResult<SourceFile> {
+    let parsed_source = oq3_source_file::parse_source_file(file_path, search_path_list);
     analyze_source(parsed_source)
 }
 

@@ -14,9 +14,12 @@ use oq3_syntax::ast::HasModuleItem;
 
 use crate::api::{inner_print_compiler_errors, parse_source_file, print_compiler_errors};
 
-pub(crate) fn parse_source_and_includes(source: &str) -> (ParsedSource, Vec<SourceFile>) {
+pub(crate) fn parse_source_and_includes(
+    source: &str,
+    search_path_list: Option<&Vec<PathBuf>>,
+) -> (ParsedSource, Vec<SourceFile>) {
     let syntax_ast: ParsedSource = synast::SourceFile::parse(source);
-    let included = parse_included_files(&syntax_ast);
+    let included = parse_included_files(&syntax_ast, search_path_list);
     (syntax_ast, included)
 }
 
@@ -167,14 +170,21 @@ pub fn search_paths() -> Option<Vec<PathBuf>> {
     env::var_os("QASM3_PATH").map(|paths| env::split_paths(&paths).collect::<Vec<_>>())
 }
 
-// Expand path with search paths. Return input if expansion fails.
-pub(crate) fn expand_path(file_path: &PathBuf) -> PathBuf {
+/// Expand path with search paths. Return input if expansion fails.
+pub(crate) fn expand_path(file_path: &PathBuf, search_path_list: Option<&Vec<PathBuf>>) -> PathBuf {
     if file_path.is_absolute() {
         return file_path.clone();
     }
     let mut maybe_full_path = file_path.clone();
-    if let Some(paths) = search_paths() {
-        for path in paths {
+    let env_paths = search_paths();
+    // Prefer paths passed to this function over env variable.
+    let paths = if search_path_list.is_some() {
+        search_path_list
+    } else {
+        env_paths.as_ref()
+    };
+    if let Some(paths1) = paths {
+        for path in paths1 {
             let fqpn = path.join(file_path);
             if fqpn.is_file() {
                 maybe_full_path = fqpn;
@@ -199,7 +209,10 @@ pub(crate) fn read_source_file(file_path: &Path) -> String {
 
 // FIXME: prevent a file from including itself. Then there are two-file cycles, etc.
 ///  Recursively parse any files `include`d in the program `syntax_ast`.
-pub(crate) fn parse_included_files(syntax_ast: &ParsedSource) -> Vec<SourceFile> {
+pub(crate) fn parse_included_files(
+    syntax_ast: &ParsedSource,
+    search_path_list: Option<&Vec<PathBuf>>,
+) -> Vec<SourceFile> {
     syntax_ast
         .tree()
         .statements()
@@ -207,7 +220,10 @@ pub(crate) fn parse_included_files(syntax_ast: &ParsedSource) -> Vec<SourceFile>
             synast::Stmt::Item(synast::Item::Include(include)) => {
                 let file: synast::FilePath = include.file().unwrap();
                 let file_path = file.to_string().unwrap();
-                Some(parse_source_file(&PathBuf::from(file_path)))
+                Some(parse_source_file(
+                    &PathBuf::from(file_path),
+                    search_path_list,
+                ))
             }
             _ => None,
         })

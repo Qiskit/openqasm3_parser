@@ -8,7 +8,9 @@ use oq3_semantics::syntax_to_semantics::parse_source_string;
 use oq3_semantics::types::{ArrayDims, IsConst, Type};
 
 fn parse_string(code: &str) -> (asg::Program, SemanticErrorList, SymbolTable) {
-    parse_source_string(code, None).take_context().as_tuple()
+    parse_source_string(code, None, None)
+        .take_context()
+        .as_tuple()
 }
 
 #[test]
