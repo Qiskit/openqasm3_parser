@@ -171,7 +171,7 @@ pub enum Stmt {
     Alias, // stub
     AnnotatedStmt(AnnotatedStmt),
     Assignment(Assignment),
-    Barrier, // stub
+    Barrier(Barrier),
     Block(Block),
     Box, // stub
     Break,
@@ -586,6 +586,21 @@ impl MeasureExpression {
             _ => Type::Undefined,
         };
         TExpr::new(Expr::MeasureExpression(self), out_type)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct Barrier {
+    qubits: Vec<TExpr>,
+}
+
+impl Barrier {
+    pub fn new(qubits: Vec<TExpr>) -> Barrier {
+        Barrier { qubits }
+    }
+
+    pub fn qubits(&self) -> &Vec<TExpr> {
+        &self.qubits
     }
 }
 

@@ -249,7 +249,7 @@ fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -
         }
         synast::GateOperand::Identifier(ref identifier) => {
             let (astidentifier, typ) = ast_identifier(identifier, context);
-            if !matches!(typ, Type::Qubit | Type::HardwareQubit) {
+            if !matches!(typ, Type::Qubit | Type::HardwareQubit | Type::QubitArray(_)) {
                 context.insert_error(IncompatibleTypesError, &gate_operand);
             }
             asg::GateOperand::Identifier(astidentifier).to_texpr(typ)
@@ -483,6 +483,16 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
                 gate_operands,
                 None,
             )))
+        }
+
+        synast::Item::Barrier(barrier) => {
+            let gate_operands: Vec<_> = barrier
+                .qubit_list()
+                .unwrap()
+                .gate_operands()
+                .map(|qubit| from_gate_operand(qubit, context))
+                .collect();
+            Some(asg::Stmt::Barrier(asg::Barrier::new(gate_operands)))
         }
 
         synast::Item::Include(include) => {

@@ -417,7 +417,7 @@ fn version_(p: &mut Parser<'_>) -> bool {
 fn barrier_(p: &mut Parser<'_>, m: Marker) {
     p.bump(T![barrier]);
     if !p.at(T![;]) {
-        params::param_list_gate_qubits(p);
+        params::arg_list_gate_call_qubits(p);
     }
     p.expect(SEMICOLON);
     m.complete(p, BARRIER);
