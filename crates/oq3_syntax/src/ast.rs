@@ -51,12 +51,6 @@ pub trait AstNode {
 
     fn syntax(&self) -> &SyntaxNode;
 
-    // Is this too much sugar? Most cases where you need the text as a String are
-    // already handled.
-    fn gjl_string(&self) -> std::string::String {
-        self.syntax().text().to_string()
-    }
-
     fn clone_for_update(&self) -> Self
     where
         Self: Sized,
