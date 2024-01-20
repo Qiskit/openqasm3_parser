@@ -6,18 +6,15 @@
 //!
 //! These methods should only do simple, shallow tasks related to the syntax of the node itself.
 
-use std::borrow::Cow;
-
-//use parser::SyntaxKind;
 use rowan::{GreenNodeData, GreenTokenData};
+use std::borrow::Cow;
 
 use crate::{
     ast::{self, support, AstNode, SyntaxNode},
     NodeOrToken, TokenText,
 };
-// SyntaxElement, HasAttrs, HasName,
 
-// This function, `text` is borrowe frm r-a (may still be commented out below.
+// This function, `text` is borrowed from r-a (may still be commented out below.)
 // There is another method, also called `text` implemented for `SyntaxNode`.
 // The present function differs in that it returns the text of the first token
 // rather than the text of all tokens in the subtree.
@@ -31,7 +28,7 @@ pub trait HasTextName: AstNode {
     }
 
     // FIXME: is this ok? The name of the function does not seem idiomatic
-    // Nor is returning and owned string. but in practice, at the moment, we always,
+    // Nor is returning an owned string. but in practice, at the moment, we always,
     // convert text immediately to a `String`.
     fn string(&self) -> String {
         self.text().to_string()
@@ -51,18 +48,6 @@ impl HasTextName for ast::Identifier {}
 //     }
 // }
 
-// impl ast::Identifier {
-//     pub fn text(&self) -> TokenText<'_> {
-//         text_of_first_token(self.syntax())
-//     }
-// }
-
-// impl ast::Param {
-//     pub fn text(&self) -> TokenText<'_> {
-//         text_of_first_token(self.syntax())
-//     }
-// }
-
 fn text_of_first_token(node: &SyntaxNode) -> TokenText<'_> {
     fn first_token(green_ref: &GreenNodeData) -> &GreenTokenData {
         green_ref
@@ -77,27 +62,6 @@ fn text_of_first_token(node: &SyntaxNode) -> TokenText<'_> {
         Cow::Owned(green) => TokenText::owned(first_token(&green).to_owned()),
     }
 }
-
-// FIXME. rename `fn statments` in nodes.rs and then
-// rename get_statements to statements.
-// impl ast::BlockExpr {
-//     pub fn get_statements(&self) -> impl Iterator<Item = ast::Stmt> {
-//         self.statements().into_iter().flat_map(|it| it.statements())
-//        self.statements().into_iter().flat_map(|it| it.statements())
-//    }
-// only in rust
-// pub fn tail_expr(&self) -> Option<ast::Expr> {
-//     self.stmt_list()?.tail_expr()
-// }
-// }
-
-// impl ast::HasModuleItem for ast::BlockExpr {}
-
-// impl ast::BlockExpr {
-//     pub fn get_statements(&self) -> impl Iterator<Item = ast::Stmt> {
-//         self.into_iter().flat_map(|it| it.statements())
-//     }
-// }
 
 impl ast::ForStmt {
     pub fn iterable(&self) -> Option<ast::Expr> {

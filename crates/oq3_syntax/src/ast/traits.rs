@@ -30,12 +30,6 @@ pub trait HasArgList: AstNode {
     }
 }
 
-// pub trait HasGateArgList: AstNode {
-//     fn gate_arg_list(&self) -> Option<ast::GateArgList> {
-//         support::child(self.syntax())
-//     }
-// }
-
 pub trait HasModuleItem: AstNode {
     fn items(&self) -> AstChildren<ast::Item> {
         println!("fn items in traits.rs");
@@ -46,14 +40,5 @@ pub trait HasModuleItem: AstNode {
         support::children(self.syntax())
     }
 }
-
-// pub trait HasAttrs: AstNode {
-//     fn attrs(&self) -> AstChildren<ast::Attr> {
-//         support::children(self.syntax())
-//     }
-//     fn has_atom_attr(&self, atom: &str) -> bool {
-//         self.attrs().filter_map(|x| x.as_simple_atom()).any(|x| x == atom)
-//     }
-// }
 
 impl<A: HasName, B: HasName> HasName for Either<A, B> {}

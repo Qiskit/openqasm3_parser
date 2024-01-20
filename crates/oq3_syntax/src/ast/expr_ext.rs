@@ -72,6 +72,7 @@ impl ast::IfStmt {
     }
 
     // FIXME: this may have supported more than what is below.
+    // OQ3 appears not to have `elif`-like construct. So this is not useful.
     // pub fn else_branch(&self) -> Option<ElseBranch> {
     //     match support::children(self.syntax()).nth(2)? {
     //         ast::Expr::BlockExpr(block) => Some(ElseBranch::Block(block)),
@@ -144,17 +145,6 @@ impl ast::IfStmt {
 //         ElseBranch::IfExpr(_) => panic!("should be `else`"),
 //     };
 //     assert_eq!(else_.syntax().text(), r#"{ "else" }"#);
-// }
-
-// FIXME: use fn lhs instead. This was for testing GJL
-// impl ast::BinExpr {
-//     pub fn get_lhs(&self) -> Option<ast::Expr> {
-//         let c1 = self.syntax().first_child();
-//         match c1 {
-//             Some(c1) => ast::Expr::cast(c1),
-//             None => None
-//         }
-//     }
 // }
 
 impl ast::BinExpr {
@@ -291,8 +281,6 @@ pub enum LiteralKind {
     Bool(bool),
 }
 
-// only for OQ3
-// This is not for use in the expression tree.
 // Literal strings in OQ3 occur only in a few contexts.
 impl ast::FilePath {
     pub fn token(&self) -> SyntaxToken {
@@ -408,24 +396,11 @@ impl ast::ArgList {
     }
 }
 
-// ? is this used?
-// #[derive(Debug, Clone, PartialEq, Eq)]
-// pub  enum IndexedIdentifier {
-//     Param(ast::Param),
-//     IndexExpr(ast::IndexExpr),
-// }
-
 impl ast::IndexedIdentifier {
     pub fn identifier(&self) -> Option<ast::Identifier> {
         support::child(&self.syntax)
     }
 }
-
-// impl ast::AssignmentStmt {
-//     pub fn indexed_identifier(&self) -> Option<ast::IndexedIdentifier> {
-//         support::child(&self.syntax)
-//     }
-// }
 
 impl ast::AssignmentStmt {
     pub fn rhs(&self) -> Option<ast::Expr> {
