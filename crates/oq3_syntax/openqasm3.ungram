@@ -456,7 +456,7 @@ QuantumDeclarationStatement =
    QubitType Name ';'
 
 AssignmentStmt =
-   Name '=' Expr ';'
+    (Name | IndexedIdentifier) '=' rhs:Expr ';'
 
 Type =
   ArrayType

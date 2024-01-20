@@ -266,10 +266,31 @@ fn test_from_string_assign_indexed() {
 qubit q;
 bit[2] c;
 c[0] = measure q;
+bit k;
+k = measure q;
 "#;
     let (program, errors, _symbol_table) = parse_string(code);
+    let assignment = match &program[2] {
+        asg::Stmt::Assignment(assignment) => assignment,
+        _ => unreachable!(),
+    };
+    assignment.rvalue().expression();
+    matches!(
+        assignment.rvalue().expression(),
+        asg::Expr::MeasureExpression(_)
+    );
+
+    let assignment = match &program[4] {
+        asg::Stmt::Assignment(assignment) => assignment,
+        _ => unreachable!(),
+    };
+    assignment.rvalue().expression();
+    matches!(
+        assignment.rvalue().expression(),
+        asg::Expr::MeasureExpression(_)
+    );
     assert!(errors.is_empty());
-    assert_eq!(program.len(), 3);
+    assert_eq!(program.len(), 5);
 }
 
 #[test]

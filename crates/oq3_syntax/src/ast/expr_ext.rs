@@ -421,9 +421,24 @@ impl ast::IndexedIdentifier {
     }
 }
 
+// impl ast::AssignmentStmt {
+//     pub fn indexed_identifier(&self) -> Option<ast::IndexedIdentifier> {
+//         support::child(&self.syntax)
+//     }
+// }
+
 impl ast::AssignmentStmt {
-    pub fn indexed_identifier(&self) -> Option<ast::IndexedIdentifier> {
-        support::child(&self.syntax)
+    pub fn rhs(&self) -> Option<ast::Expr> {
+        let mut children: AstChildren<ast::Expr> = support::children(self.syntax());
+        // If there is one child Expr, then the lhs is a Name, rhs is the Expr.
+        // If there are two child Expr's, the lhs is an Expr, and so is the rhs.
+        let expr1 = children.next();
+        let expr2 = children.next();
+        if expr2.is_some() {
+            expr2
+        } else {
+            expr1
+        }
     }
 }
 
