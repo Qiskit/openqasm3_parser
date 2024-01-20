@@ -80,7 +80,6 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "reset",
         "measure",
         "pragma",
-        "end",
         "let",
         "box",
         "extern",
@@ -96,6 +95,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "continue",
         "return",
         "break",
+        "end",
         // Types
         "input",
         "output",
@@ -180,12 +180,10 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "PATH_SEGMENT",
         "LITERAL",
         "NAME",
-        "NAME_REF",
         // "LET_ELSE",
         "EXPR_STMT",
         //        "TYPE_PARAM",
         "TYPE_SPEC", // "SPEC" to avoid the word "type"
-        "TYPE_ARG",
         "TYPE",
         "NEW_TYPE",
         "DECLARED_VAR",

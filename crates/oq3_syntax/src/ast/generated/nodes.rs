@@ -16,33 +16,6 @@ impl Name {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct NameRef {
-    pub(crate) syntax: SyntaxNode,
-}
-impl NameRef {
-    pub fn ident_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![ident])
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct TypeArg {
-    pub(crate) syntax: SyntaxNode,
-}
-impl TypeArg {
-    pub fn ty(&self) -> Option<Type> {
-        support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Type {
-    pub(crate) syntax: SyntaxNode,
-}
-impl Type {
-    pub fn array_type(&self) -> Option<ArrayType> {
-        support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SourceFile {
     pub(crate) syntax: SyntaxNode,
 }
@@ -402,8 +375,8 @@ pub struct EndStmt {
     pub(crate) syntax: SyntaxNode,
 }
 impl EndStmt {
-    pub fn break_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![break])
+    pub fn end_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![end])
     }
     pub fn semicolon_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![;])
@@ -881,11 +854,6 @@ impl AliasExpression {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct IntNum {
-    pub(crate) syntax: SyntaxNode,
-}
-impl IntNum {}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SetExpression {
     pub(crate) syntax: SyntaxNode,
 }
@@ -1042,51 +1010,6 @@ impl ast::HasName for AnyHasName {}
 impl AstNode for Name {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == NAME
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for NameRef {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == NAME_REF
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for TypeArg {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == TYPE_ARG
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for Type {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == TYPE
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -1999,21 +1922,6 @@ impl AstNode for AliasExpression {
         &self.syntax
     }
 }
-impl AstNode for IntNum {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == INT_NUM
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
 impl AstNode for SetExpression {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == SET_EXPRESSION
@@ -2604,21 +2512,6 @@ impl std::fmt::Display for Name {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
-impl std::fmt::Display for NameRef {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for TypeArg {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for Type {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
 impl std::fmt::Display for SourceFile {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
@@ -2915,11 +2808,6 @@ impl std::fmt::Display for AliasDeclarationStatement {
     }
 }
 impl std::fmt::Display for AliasExpression {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for IntNum {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
