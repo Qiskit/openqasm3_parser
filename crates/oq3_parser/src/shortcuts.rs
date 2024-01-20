@@ -201,9 +201,6 @@ impl Builder<'_, '_> {
         match text.split_once('.') {
             Some((left, right)) => {
                 assert!(!left.is_empty());
-                (self.sink)(StrStep::Enter {
-                    kind: SyntaxKind::NAME_REF,
-                });
                 (self.sink)(StrStep::Token {
                     kind: SyntaxKind::INT_NUMBER,
                     text: left,
@@ -222,9 +219,6 @@ impl Builder<'_, '_> {
                     assert!(right.is_empty(), "{left}.{right}");
                     self.state = State::Normal;
                 } else {
-                    (self.sink)(StrStep::Enter {
-                        kind: SyntaxKind::NAME_REF,
-                    });
                     (self.sink)(StrStep::Token {
                         kind: SyntaxKind::INT_NUMBER,
                         text: right,

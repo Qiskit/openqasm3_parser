@@ -53,15 +53,6 @@
 Name =
   'ident'
 
-NameRef =
-  'ident' | 'int_number'
-
-TypeArg =
-  Type
-
-// ConstArg =
-//   Expr
-
 //*************************//
 //          Items          //
 //*************************//
@@ -108,7 +99,7 @@ ContinueStmt =
   'continue' ';'
 
 EndStmt =
-  'break' ';'
+  'end' ';'
 
 VersionString =
   'OPENQASM' version:Version ';'
@@ -143,9 +134,6 @@ Include =
 // code for extracting string from FilePath is in expr_ext.rs
 FilePath =
  'string'
-
-// ItemList =
-//   '{' Item* '}'
 
 TypeDeclarationStmt =
    TypeSpec Name ('=' Expr)? ';'
@@ -249,7 +237,6 @@ LetStmt =
 ConcatenationExpr =
    Expr '++' Expr concat:('++' Expr)*
 
-
 BlockExpr =
   '{'
     statements:Stmt*
@@ -336,18 +323,6 @@ BoxExpr =
 //          Types          //
 //*************************//
 
-// ScalarTypeName =
-//     value:('bit'
-//     | 'int'
-//     | 'uint'
-//     | 'float'
-//     | 'angle'
-//     | 'bool'
-//     | 'duration'
-//     | 'stretch'
-//     | 'complex'
-//     )
-
 // FIXME: move optional `const` here. This is currently
 // in ClassicalDeclarationStatement.
 ScalarType =
@@ -360,7 +335,6 @@ ScalarType =
     | 'duration'
     | 'stretch'
     | 'complex' ('[' ScalarType ']')?
-
 
 Designator =
   '[' Expr ']'
@@ -390,18 +364,12 @@ AliasDeclarationStatement =
 AliasExpression =
    Expr concat:('++' Expr)*
 
-// DeclarationExpression =
-//     ArrayLiteral | Expr | MeasureExpression
-
 MeasureExpression =
     'measure' GateOperand
 
 // We keep Identifier and IndexedIdentifier separate
 GateOperand =
   Identifier | IndexedIdentifier | HardwareQubit
-
-IntNum =
-  'int_number'
 
 SetExpression =
     '{' ExpressionList '}'
@@ -418,25 +386,12 @@ IndexKind =
 IndexedIdentifier =
     Name IndexOperator*
 
-// indexOperator:
-//     LBRACKET
-//     (
-//         setExpression
-//         | (expression | rangeExpression) (COMMA (expression | rangeExpression))* COMMA?
-//     )
-//     RBRACKET;
-
 ArrayLiteral =
   '{' ExpressionList '}'
 
 // // FIXME
 HardwareQubit =
   Name
-
-// Unable to get this work easily. Get obscure error during lowering. We will use just Expr
-// and deal with semantics later.
-// DeclarationExpression =
-//     Expr | MeasureExpression
 
 ClassicalDeclarationStatement =
  'const'? (ScalarType | ArrayType) Name ('=' Expr)? ';'
@@ -457,6 +412,3 @@ QuantumDeclarationStatement =
 
 AssignmentStmt =
     (Name | IndexedIdentifier) '=' rhs:Expr ';'
-
-Type =
-  ArrayType

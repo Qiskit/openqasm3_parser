@@ -53,10 +53,6 @@ pub fn expr_stmt(expr: ast::Expr) -> ast::ExprStmt {
     ast_from_text(&format!("fn f() {{ {expr}{semi} (); }}"))
 }
 
-pub fn type_arg(ty: ast::Type) -> ast::TypeArg {
-    ast_from_text(&format!("const S: T<{ty}> = ();"))
-}
-
 #[track_caller]
 fn ast_from_text<N: AstNode>(text: &str) -> N {
     let parse = SourceFile::parse(text);
