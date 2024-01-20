@@ -602,7 +602,7 @@ fn from_assignment_stmt(
     if nameb.is_some() {
         let name = nameb.as_ref().unwrap();
         let name_str = name.string();
-        let expr = from_expr(assignment_stmt.expr().unwrap(), context); // rhs of `=` operator
+        let expr = from_expr(assignment_stmt.rhs().unwrap(), context); // rhs of `=` operator
 
         let (symbol_id, typ) = context.lookup_symbol(name_str.as_str(), name).as_tuple();
         let is_mutating_const = symbol_id.is_ok() && typ.is_const();
@@ -616,8 +616,8 @@ fn from_assignment_stmt(
     let indexed_identifier_ast = assignment_stmt.indexed_identifier();
     let (indexed_identifier, _typ) =
         ast_indexed_identifier(&indexed_identifier_ast.unwrap(), context);
-    let expr = from_expr(assignment_stmt.expr().unwrap(), context); // rhs of `=` operator
-                                                                    //    let is_mutating_const = symbol_id.is_ok() && typ.is_const();
+    let expr = from_expr(assignment_stmt.rhs().unwrap(), context); // rhs of `=` operator
+                                                                   //    let is_mutating_const = symbol_id.is_ok() && typ.is_const();
     let lvalue = asg::LValue::IndexedIdentifier(indexed_identifier);
     Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt())
     // let stmt_asg = Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt());
