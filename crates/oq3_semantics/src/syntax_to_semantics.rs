@@ -424,9 +424,6 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
         // Gate definition
         synast::Item::Gate(gate) => {
             let name_node = gate.name().unwrap();
-            let gate_name_symbol_id =
-                context.new_binding(name_node.string().as_ref(), &Type::Gate, &name_node);
-
             // Here are three ways to manage the context.
 
             // Make some bindings and push and pop the scope automatically.
@@ -459,6 +456,18 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
                           let qubits = bind_parameter_list(gate.qubit_params(), &Type::Qubit, context).unwrap();
                           let block = from_block_expr(gate.body().unwrap(), context);
             );
+            let num_params = match params {
+                Some(ref params) => params.len(),
+                None => 0,
+            };
+            let gate_name_symbol_id = context.new_binding(
+                name_node.string().as_ref(),
+                &Type::Gate(
+                    num_params.try_into().unwrap(),
+                    qubits.len().try_into().unwrap(),
+                ),
+                &name_node,
+            );
 
             Some(asg::GateDeclaration::new(gate_name_symbol_id, params, qubits, block).to_stmt())
         }
@@ -466,7 +475,7 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
         synast::Item::GateCallStmt(gate_call) => {
             // Warning, I think map overlooks None. which can cause a bug, in the present case.
             // Because None means a coding error upstream. Better to blow up here.
-            let gate_operands = gate_call
+            let gate_operands: Vec<_> = gate_call
                 .qubit_list()
                 .unwrap()
                 .gate_operands()
@@ -476,12 +485,31 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
             let param_list = gate_call
                 .arg_list()
                 .map(|ex| inner_expression_list(ex.expression_list().unwrap(), context));
+            let num_params = match param_list {
+                Some(ref params) => params.len(),
+                None => 0,
+            };
             let gate_id = gate_call.identifier();
             // FIXME: make sure we are efficient with strings
             let gate_name = gate_call.identifier().unwrap().text().to_string();
-            let (symbol_result, _typ) = context
-                .lookup_gate_symbol(gate_name.as_ref(), &gate_id.unwrap())
+            let (symbol_result, gate_type) = context
+                .lookup_gate_symbol(gate_name.as_ref(), gate_id.as_ref().unwrap())
                 .as_tuple();
+            if matches!(gate_type, Type::Gate(_, _)) {
+                let (def_num_params, def_num_qubits) = match gate_type {
+                    Type::Gate(np, nq) => (np, nq),
+                    _ => (0, 0),
+                };
+                if def_num_params != num_params.try_into().unwrap() {
+                    context.insert_error(NumGateParamsError, &gate_call);
+                }
+                if def_num_qubits != gate_operands.len().try_into().unwrap() {
+                    context.insert_error(NumGateQubitsError, &gate_call);
+                }
+            } else if symbol_result.is_ok() {
+                // If symbol_result.is_err then we have already logged UndefGateError.
+                context.insert_error(IncompatibleTypesError, &gate_id.unwrap());
+            }
             Some(asg::Stmt::GateCall(asg::GateCall::new(
                 symbol_result,
                 param_list,
