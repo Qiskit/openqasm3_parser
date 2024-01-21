@@ -4,7 +4,7 @@
 use oq3_semantics::symbols;
 use oq3_semantics::types;
 
-const NUM_BUILTIN_CONSTS: usize = 6;
+const NUM_BUILTIN_CONSTS: usize = 7;
 
 //
 // Test API of symbols and symbol tables

@@ -71,8 +71,8 @@ pub enum Type {
     DurationArray(ArrayDims),
 
     // Other
-    Gate,  // <-- this type seems anomalous
-    Range, // temporary placeholder, perhaps
+    Gate(i32, i32), // (num classical args, num quantum args)
+    Range,          // temporary placeholder, perhaps
     Void,
     ToDo, // not yet implemented
     // Undefined means a type that is erroneously non-existent. This is not the same as unknown.

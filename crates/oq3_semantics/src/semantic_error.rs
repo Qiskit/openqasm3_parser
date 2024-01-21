@@ -21,6 +21,8 @@ pub enum SemanticErrorKind {
     IncompatibleTypesError,
     MutateConstError,
     IncludeNotInGlobalScopeError,
+    NumGateParamsError,
+    NumGateQubitsError,
 }
 
 #[derive(Clone, Debug)]

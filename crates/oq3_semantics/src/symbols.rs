@@ -239,10 +239,12 @@ impl SymbolTable {
             all_symbols: Vec::<Symbol>::new(),
         };
         symbol_table.enter_scope(ScopeType::Global);
+        // Define global, built-in constants
         for const_name in ["pi", "π", "euler", "ℇ", "tau", "τ"] {
             let _ =
                 symbol_table.new_binding(const_name, &Type::Float(Some(64), types::IsConst::True));
         }
+        let _ = symbol_table.new_binding("U", &Type::Gate(3, 1)); // U(a, b, c) q
         symbol_table
     }
 
