@@ -532,12 +532,12 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
         }
 
         synast::Item::Barrier(barrier) => {
-            let gate_operands: Vec<_> = barrier
-                .qubit_list()
-                .unwrap()
-                .gate_operands()
-                .map(|qubit| from_gate_operand(qubit, context))
-                .collect();
+            let gate_operands = barrier.qubit_list().map(|operands| {
+                operands
+                    .gate_operands()
+                    .map(|qubit| from_gate_operand(qubit, context))
+                    .collect()
+            });
             Some(asg::Stmt::Barrier(asg::Barrier::new(gate_operands)))
         }
 
