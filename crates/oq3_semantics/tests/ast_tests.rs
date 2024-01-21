@@ -5,6 +5,8 @@ use oq3_semantics::asg;
 use oq3_semantics::symbols;
 use oq3_semantics::types;
 
+const NUM_BUILTIN_CONSTS: usize = 6;
+
 //
 // TExpr
 //
@@ -88,7 +90,7 @@ fn test_declaration() {
     let mut table = SymbolTable::new();
     let x = table.new_binding("x", &Type::Bool(IsConst::False));
     assert!(x.is_ok());
-    assert_eq!(table.len_current_scope(), 1);
+    assert_eq!(table.len_current_scope(), 1 + NUM_BUILTIN_CONSTS);
     let result = table.lookup("x");
     assert!(result.is_ok());
     assert_eq!(result.unwrap().symbol_id(), x.unwrap());

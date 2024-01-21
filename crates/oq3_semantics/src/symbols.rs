@@ -3,6 +3,7 @@
 
 // Defines data structures and api for symbols, scope, and symbol tables.
 
+use crate::types;
 use crate::types::Type;
 use hashbrown::HashMap;
 
@@ -237,7 +238,11 @@ impl SymbolTable {
             symbol_table_stack: Vec::<SymbolMap>::new(),
             all_symbols: Vec::<Symbol>::new(),
         };
-        symbol_table.enter_scope(ScopeType::Global); // May want to initialize with some global symbols as well
+        symbol_table.enter_scope(ScopeType::Global);
+        for const_name in ["pi", "π", "euler", "ℇ", "tau", "τ"] {
+            let _ =
+                symbol_table.new_binding(const_name, &Type::Float(Some(64), types::IsConst::True));
+        }
         symbol_table
     }
 
