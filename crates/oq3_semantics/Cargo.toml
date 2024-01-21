@@ -1,6 +1,6 @@
 [package]
 name = "oq3_semantics"
-description = "AST with semantic information for OpenQASM 3"
+description = "AST with semantic information for OpenQASM 3 parser/analyzer"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
