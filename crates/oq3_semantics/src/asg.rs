@@ -594,17 +594,18 @@ impl MeasureExpression {
     }
 }
 
+// qubits == None represents `barrier;`
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Barrier {
-    qubits: Vec<TExpr>,
+    qubits: Option<Vec<TExpr>>,
 }
 
 impl Barrier {
-    pub fn new(qubits: Vec<TExpr>) -> Barrier {
+    pub fn new(qubits: Option<Vec<TExpr>>) -> Barrier {
         Barrier { qubits }
     }
 
-    pub fn qubits(&self) -> &Vec<TExpr> {
+    pub fn qubits(&self) -> &Option<Vec<TExpr>> {
         &self.qubits
     }
 }
