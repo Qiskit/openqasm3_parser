@@ -501,10 +501,23 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
                     _ => (0, 0),
                 };
                 if def_num_params != num_params.try_into().unwrap() {
-                    context.insert_error(NumGateParamsError, &gate_call);
+                    if num_params != 0 {
+                        // If num params is mismatched, locate error at list of params supplied.
+                        context.insert_error(NumGateParamsError, &gate_call.arg_list().unwrap());
+                    } else {
+                        // If no params are supplied, but some are expected, locate error at gate name.
+                        context.insert_error(NumGateParamsError, &gate_id.unwrap());
+                    }
                 }
-                if def_num_qubits != gate_operands.len().try_into().unwrap() {
-                    context.insert_error(NumGateQubitsError, &gate_call);
+                let num_qubits: usize = gate_operands.len();
+                if def_num_qubits != num_qubits.try_into().unwrap() {
+                    if num_qubits == 0 {
+                        // This probably can't happen because no qubit args is not recognized syntactially
+                        // as a gate call.
+                        context.insert_error(NumGateQubitsError, &gate_call);
+                    } else {
+                        context.insert_error(NumGateQubitsError, &gate_call.qubit_list().unwrap());
+                    };
                 }
             } else if symbol_result.is_ok() {
                 // If symbol_result.is_err then we have already logged UndefGateError.
