@@ -249,6 +249,18 @@ h q[1];
 }
 
 #[test]
+fn test_from_string_inv_gate_call() {
+    let code = r#"
+gate h q {}
+qubit q;
+inv @ h q;
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 3);
+}
+
+#[test]
 fn test_from_string_barrier() {
     let code = r#"
 qubit[5] q;

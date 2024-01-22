@@ -168,7 +168,8 @@ enum Associativity {
 fn current_op(p: &Parser<'_>) -> (u8, SyntaxKind, Associativity) {
     use Associativity::*;
     // It seems that return value is never checked for `NOT_AN_OP`
-    const NOT_AN_OP: (u8, SyntaxKind, Associativity) = (0, T![@], Left);
+    // r-a had @ for not an op. But we use triple dot
+    const NOT_AN_OP: (u8, SyntaxKind, Associativity) = (0, T![...], Left);
     match p.current() {
         T![|] if p.at(T![||])  => (3,  T![||],  Left),
         T![|] if p.at(T![|=])  => (1,  T![|=],  Right),
@@ -227,11 +228,13 @@ fn expr_bp(
     let lhs_result = lhs(p, r);
     //    dbg!(&lhs_result);
     let mut lhs = match lhs_result {
-        Some((lhs, blocklike, got_call)) => {
-            if got_call {
-                m.abandon(p);
-                return None;
-            }
+        Some((lhs, blocklike, _got_call)) => {
+            // The following prevents making ExprStmt from fn or gate call.
+            // So the entire business of `got_call` can be abandoned, I think
+            // if got_call {
+            //     m.abandon(p);
+            //     return None;
+            // }
             let lhs = lhs.extend_to(p, m);
             if r.prefer_stmt && blocklike.is_block() {
                 return Some((lhs, BlockLike::Block));
@@ -351,7 +354,7 @@ fn call_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     // If there is no identifier, it is a function call.
     if matches!(p.current(), IDENT | HARDWAREIDENT) {
         params::arg_list_gate_call_qubits(p);
-        return m.complete(p, GATE_CALL_STMT);
+        return m.complete(p, GATE_CALL_EXPR);
     }
     m.complete(p, CALL_EXPR)
 }

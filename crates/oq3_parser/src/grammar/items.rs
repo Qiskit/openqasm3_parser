@@ -101,7 +101,7 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
     match p.current() {
         T![qubit] => qubit_declaration_stmt(p, m),
         T![const] => expressions::classical_declaration_stmt(p, m),
-        IDENT if (la == IDENT || la == HARDWAREIDENT) => gate_call_stmt(p, m),
+        //        IDENT if (la == IDENT || la == HARDWAREIDENT) => gate_call_stmt(p, m),
         IDENT if (la == T![=] && p.nth(2) != T![=]) => assignment_statement_with_marker(p, m),
         T![gate] => gate_definition(p, m),
         T![break] => break_(p, m),
@@ -120,6 +120,9 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         T![OPENQASM] => version_string(p, m),
         T![include] => include(p, m),
         T![gphase] => gphase_call(p, m),
+        //        T![pow] => pow_modifier(p, m),
+        //        T![ctrl] => ctrl_modifier(p, m),
+        //        T![negctrl] => negctrl_modifier(p, m),
         // This is already done elsewhere
         //            T![let] => let_stmt(p, m),
         _ => return Err(m),
@@ -130,10 +133,12 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
 // expressions::call_expr also handles some occurences of gate calls
 // FIXME: params in parens are likely always caught in expressions::call_expr
 fn gate_call_stmt(p: &mut Parser<'_>, m: Marker) {
+    println!("*******************************************************************");
     //    expressions::var_name(p);
     expressions::atom::identifier(p); // name of gate
-    assert!(!p.at(T!['(']));
-    // This is never true, I hope
+                                      // disable following assert, because we may arrive here from gate modifiers
+                                      //    assert!(!p.at(T!['(']));
+                                      // This is never true, I hope
     if p.at(T!['(']) {
         expressions::call_arg_list(p);
     }
@@ -149,6 +154,52 @@ fn gphase_call(p: &mut Parser<'_>, m: Marker) {
     p.expect(SEMICOLON);
     m.complete(p, G_PHASE_CALL_STMT);
 }
+
+// fn pow_modifier(p: &mut Parser<'_>, m: Marker) {
+//     assert!(p.at(T![pow]));
+//     p.bump(T![pow]);
+//     if p.at(T!['(']) {
+//         p.expect(T!['(']);
+//         expressions::expr(p);
+//         p.expect(T![')']);
+//     } else {
+//         p.error("expecting argument to pow gate modifier");
+//     }
+//     p.expect(T![@]);
+//     println!("***********************************************");
+//     let m1 = p.start();
+//     println!("***********************************************");
+//     gate_call_stmt(p, m1);
+//     m.complete(p, MODIFIED_GATE_CALL);
+// }
+
+// fn ctrl_modifier(p: &mut Parser<'_>, m: Marker) {
+//     assert!(p.at(T![ctrl]));
+//     p.bump(T![ctrl]);
+//     if p.at(T!['(']) {
+//         p.bump(T!['(']);
+//         expressions::expr(p);
+//         p.expect(T![')']);
+//     }
+//     p.expect(T![@]);
+//     let m1 = p.start();
+//     gate_call_stmt(p, m1);
+//     m.complete(p, MODIFIED_GATE_CALL);
+// }
+
+// fn negctrl_modifier(p: &mut Parser<'_>, m: Marker) {
+//     assert!(p.at(T![negctrl]));
+//     p.bump(T![negctrl]);
+//     if p.at(T!['(']) {
+//         p.bump(T!['(']);
+//         expressions::expr(p);
+//         p.expect(T![')']);
+//     }
+//     p.expect(T![@]);
+//     let m1 = p.start();
+//     gate_call_stmt(p, m1);
+//     m.complete(p, MODIFIED_GATE_CALL);
+// }
 
 fn if_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![if]));

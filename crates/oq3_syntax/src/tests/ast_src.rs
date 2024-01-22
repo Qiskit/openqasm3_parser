@@ -106,6 +106,11 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "qubit",
         "void",
         "array",
+        // Gate modifiers
+        "ctrl",
+        "negctrl",
+        "inv",
+        "pow",
         // I suppose these are literals
         "false",
         "true",
@@ -167,6 +172,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "CALL_EXPR",
         "CAST_EXPRESSION",
         "GATE_CALL_STMT",
+        "GATE_CALL_EXPR",
         "G_PHASE_CALL_STMT",
         "INDEX_EXPR",
         // unary
@@ -217,7 +223,6 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "INDEX_KIND",
         "INDEXED_IDENTIFIER",
         "IDENTIFIER",
-        //        "EXPR_OR_RANGE", // Remove if we dont take this route
         "ARRAY_LITERAL",
         "HARDWARE_QUBIT",
         "CLASSICAL_DECLARATION_STATEMENT",
@@ -229,6 +234,13 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "MEASURE_EXPRESSION",
         "OLD_STYLE_DECLARATION_STATEMENT",
         "QUANTUM_DECLARATION_STATEMENT",
+        // modifiers. Not just the keywords, but the "expresions".
+        "INV_GATE_CALL",
+        "INV_GATE_CALL_EXPR",
+        "CTRL_GATE_CALL",
+        "NEGCTRL_GATE_CALL",
+        "POW_GATE_CALL",
+        "MODIFIED_GATE_CALL",
     ],
 };
 

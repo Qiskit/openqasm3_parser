@@ -239,12 +239,72 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
             Some(asg::MeasureExpression::new(gate_operand_asg).to_texpr())
         }
 
+        synast::Expr::GateCallExpr(gate_call) => Some(from_gate_call_expr(gate_call, context)),
+
+        synast::Expr::InvGateCallExpr(inv_gate_call) => Some(from_gate_call_expr(
+            inv_gate_call.gate_call_expr().unwrap(),
+            context,
+        )),
         // Everything else is not yet implemented
         _ => {
             println!("Expression not supported {:?}", expr);
             None
         }
     }
+}
+
+fn from_gate_call_expr(gate_call_expr: synast::GateCallExpr, context: &mut Context) -> asg::TExpr {
+    // Warning, I think map overlooks None. which can cause a bug, in the present case.
+    // Because None means a coding error upstream. Better to blow up here.
+    let gate_operands: Vec<_> = gate_call_expr
+        .qubit_list()
+        .unwrap()
+        .gate_operands()
+        .map(|qubit| from_gate_operand(qubit, context))
+        .collect();
+
+    let param_list = gate_call_expr
+        .arg_list()
+        .map(|ex| inner_expression_list(ex.expression_list().unwrap(), context));
+    let num_params = match param_list {
+        Some(ref params) => params.len(),
+        None => 0,
+    };
+    let gate_id = gate_call_expr.identifier();
+    // FIXME: make sure we are efficient with strings
+    let gate_name = gate_call_expr.identifier().unwrap().text().to_string();
+    let (symbol_result, gate_type) = context
+        .lookup_gate_symbol(gate_name.as_ref(), gate_id.as_ref().unwrap())
+        .as_tuple();
+    if matches!(gate_type, Type::Gate(_, _)) {
+        let (def_num_params, def_num_qubits) = match gate_type {
+            Type::Gate(np, nq) => (np, nq),
+            _ => (0, 0),
+        };
+        if def_num_params != num_params.try_into().unwrap() {
+            if num_params != 0 {
+                // If num params is mismatched, locate error at list of params supplied.
+                context.insert_error(NumGateParamsError, &gate_call_expr.arg_list().unwrap());
+            } else {
+                // If no params are supplied, but some are expected, locate error at gate name.
+                context.insert_error(NumGateParamsError, &gate_id.unwrap());
+            }
+        }
+        let num_qubits: usize = gate_operands.len();
+        if def_num_qubits != num_qubits.try_into().unwrap() {
+            if num_qubits == 0 {
+                // This probably can't happen because no qubit args is not recognized syntactially
+                // as a gate call.
+                context.insert_error(NumGateQubitsError, &gate_call_expr);
+            } else {
+                context.insert_error(NumGateQubitsError, &gate_call_expr.qubit_list().unwrap());
+            };
+        }
+    } else if symbol_result.is_ok() {
+        // If symbol_result.is_err then we have already logged UndefGateError.
+        context.insert_error(IncompatibleTypesError, &gate_id.unwrap());
+    }
+    asg::GateCallExpr::new(symbol_result, param_list, gate_operands).to_texpr()
 }
 
 fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -> asg::TExpr {
@@ -470,65 +530,6 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
             );
 
             Some(asg::GateDeclaration::new(gate_name_symbol_id, params, qubits, block).to_stmt())
-        }
-
-        synast::Item::GateCallStmt(gate_call) => {
-            // Warning, I think map overlooks None. which can cause a bug, in the present case.
-            // Because None means a coding error upstream. Better to blow up here.
-            let gate_operands: Vec<_> = gate_call
-                .qubit_list()
-                .unwrap()
-                .gate_operands()
-                .map(|qubit| from_gate_operand(qubit, context))
-                .collect();
-
-            let param_list = gate_call
-                .arg_list()
-                .map(|ex| inner_expression_list(ex.expression_list().unwrap(), context));
-            let num_params = match param_list {
-                Some(ref params) => params.len(),
-                None => 0,
-            };
-            let gate_id = gate_call.identifier();
-            // FIXME: make sure we are efficient with strings
-            let gate_name = gate_call.identifier().unwrap().text().to_string();
-            let (symbol_result, gate_type) = context
-                .lookup_gate_symbol(gate_name.as_ref(), gate_id.as_ref().unwrap())
-                .as_tuple();
-            if matches!(gate_type, Type::Gate(_, _)) {
-                let (def_num_params, def_num_qubits) = match gate_type {
-                    Type::Gate(np, nq) => (np, nq),
-                    _ => (0, 0),
-                };
-                if def_num_params != num_params.try_into().unwrap() {
-                    if num_params != 0 {
-                        // If num params is mismatched, locate error at list of params supplied.
-                        context.insert_error(NumGateParamsError, &gate_call.arg_list().unwrap());
-                    } else {
-                        // If no params are supplied, but some are expected, locate error at gate name.
-                        context.insert_error(NumGateParamsError, &gate_id.unwrap());
-                    }
-                }
-                let num_qubits: usize = gate_operands.len();
-                if def_num_qubits != num_qubits.try_into().unwrap() {
-                    if num_qubits == 0 {
-                        // This probably can't happen because no qubit args is not recognized syntactially
-                        // as a gate call.
-                        context.insert_error(NumGateQubitsError, &gate_call);
-                    } else {
-                        context.insert_error(NumGateQubitsError, &gate_call.qubit_list().unwrap());
-                    };
-                }
-            } else if symbol_result.is_ok() {
-                // If symbol_result.is_err then we have already logged UndefGateError.
-                context.insert_error(IncompatibleTypesError, &gate_id.unwrap());
-            }
-            Some(asg::Stmt::GateCall(asg::GateCall::new(
-                symbol_result,
-                param_list,
-                gate_operands,
-                None,
-            )))
         }
 
         synast::Item::Barrier(barrier) => {

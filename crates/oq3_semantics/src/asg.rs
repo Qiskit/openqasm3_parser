@@ -123,6 +123,8 @@ pub enum Expr {
     Cast(Cast),
     Identifier(Identifier),
     HardwareQubit(HardwareQubit),
+    GateCallExpr(Box<GateCallExpr>),
+    InvGateCallExpr(Box<InvGateCallExpr>),
     IndexExpression(IndexExpression),
     IndexedIdentifier(IndexedIdentifier),
     GateOperand(GateOperand),
@@ -186,7 +188,6 @@ pub enum Stmt {
     Extern, // stub
     For,    // stub
     GateDeclaration(GateDeclaration),
-    GateCall(GateCall), // A statement because a gate call does not return anything
     GPhaseCall(GPhaseCall),
     IODeclaration, // stub
     If(If),
@@ -611,11 +612,10 @@ impl Barrier {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct GateCall {
+pub struct GateCallExpr {
     name: SymbolIdResult,
     params: Option<Vec<TExpr>>,
     qubits: Vec<TExpr>,
-    modifier: Option<GateModifier>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -648,18 +648,16 @@ impl GateOperand {
     }
 }
 
-impl GateCall {
+impl GateCallExpr {
     pub fn new(
         name: SymbolIdResult,
         params: Option<Vec<TExpr>>,
         qubits: Vec<TExpr>,
-        modifier: Option<GateModifier>,
-    ) -> GateCall {
-        GateCall {
+    ) -> GateCallExpr {
+        GateCallExpr {
             name,
             params,
             qubits,
-            modifier,
         }
     }
 
@@ -675,8 +673,28 @@ impl GateCall {
         &self.params
     }
 
-    pub fn modifier(&self) -> &Option<GateModifier> {
-        &self.modifier
+    pub fn to_expr(self) -> Expr {
+        Expr::GateCallExpr(Box::new(self))
+    }
+
+    // FIXME: use Gate(i32, i32)
+    pub fn to_texpr(self) -> TExpr {
+        TExpr::new(self.to_expr(), Type::ToDo)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct InvGateCallExpr {
+    gate_call: TExpr,
+}
+
+impl InvGateCallExpr {
+    pub fn new(gate_call: TExpr) -> InvGateCallExpr {
+        InvGateCallExpr { gate_call }
+    }
+
+    pub fn gate_call(&self) -> &TExpr {
+        &self.gate_call
     }
 }
 

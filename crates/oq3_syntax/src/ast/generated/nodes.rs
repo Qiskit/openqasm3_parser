@@ -532,6 +532,17 @@ impl CallExpr {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct GateCallExpr {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ast::HasName for GateCallExpr {}
+impl ast::HasArgList for GateCallExpr {}
+impl GateCallExpr {
+    pub fn qubit_list(&self) -> Option<QubitList> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct CastExpression {
     pub(crate) syntax: SyntaxNode,
 }
@@ -666,6 +677,21 @@ pub struct HardwareQubit {
 }
 impl ast::HasName for HardwareQubit {}
 impl HardwareQubit {}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct InvGateCallExpr {
+    pub(crate) syntax: SyntaxNode,
+}
+impl InvGateCallExpr {
+    pub fn inv_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![inv])
+    }
+    pub fn at_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![@])
+    }
+    pub fn gate_call_expr(&self) -> Option<GateCallExpr> {
+        support::child(&self.syntax)
+    }
+}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ConcatenationExpr {
     pub(crate) syntax: SyntaxNode,
@@ -964,6 +990,7 @@ pub enum Expr {
     BlockExpr(BlockExpr),
     BoxExpr(BoxExpr),
     CallExpr(CallExpr),
+    GateCallExpr(GateCallExpr),
     CastExpression(CastExpression),
     IndexExpr(IndexExpr),
     IndexedIdentifier(IndexedIdentifier),
@@ -975,6 +1002,7 @@ pub enum Expr {
     MeasureExpression(MeasureExpression),
     Identifier(Identifier),
     HardwareQubit(HardwareQubit),
+    InvGateCallExpr(InvGateCallExpr),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GateOperand {
@@ -1592,6 +1620,21 @@ impl AstNode for CallExpr {
         &self.syntax
     }
 }
+impl AstNode for GateCallExpr {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == GATE_CALL_EXPR
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for CastExpression {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == CAST_EXPRESSION
@@ -1745,6 +1788,21 @@ impl AstNode for Identifier {
 impl AstNode for HardwareQubit {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == HARDWARE_QUBIT
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for InvGateCallExpr {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == INV_GATE_CALL_EXPR
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2211,6 +2269,11 @@ impl From<CallExpr> for Expr {
         Expr::CallExpr(node)
     }
 }
+impl From<GateCallExpr> for Expr {
+    fn from(node: GateCallExpr) -> Expr {
+        Expr::GateCallExpr(node)
+    }
+}
 impl From<CastExpression> for Expr {
     fn from(node: CastExpression) -> Expr {
         Expr::CastExpression(node)
@@ -2266,6 +2329,11 @@ impl From<HardwareQubit> for Expr {
         Expr::HardwareQubit(node)
     }
 }
+impl From<InvGateCallExpr> for Expr {
+    fn from(node: InvGateCallExpr) -> Expr {
+        Expr::InvGateCallExpr(node)
+    }
+}
 impl AstNode for Expr {
     fn can_cast(kind: SyntaxKind) -> bool {
         matches!(
@@ -2275,6 +2343,7 @@ impl AstNode for Expr {
                 | BLOCK_EXPR
                 | BOX_EXPR
                 | CALL_EXPR
+                | GATE_CALL_EXPR
                 | CAST_EXPRESSION
                 | INDEX_EXPR
                 | INDEXED_IDENTIFIER
@@ -2286,6 +2355,7 @@ impl AstNode for Expr {
                 | MEASURE_EXPRESSION
                 | IDENTIFIER
                 | HARDWARE_QUBIT
+                | INV_GATE_CALL_EXPR
         )
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
@@ -2295,6 +2365,7 @@ impl AstNode for Expr {
             BLOCK_EXPR => Expr::BlockExpr(BlockExpr { syntax }),
             BOX_EXPR => Expr::BoxExpr(BoxExpr { syntax }),
             CALL_EXPR => Expr::CallExpr(CallExpr { syntax }),
+            GATE_CALL_EXPR => Expr::GateCallExpr(GateCallExpr { syntax }),
             CAST_EXPRESSION => Expr::CastExpression(CastExpression { syntax }),
             INDEX_EXPR => Expr::IndexExpr(IndexExpr { syntax }),
             INDEXED_IDENTIFIER => Expr::IndexedIdentifier(IndexedIdentifier { syntax }),
@@ -2306,6 +2377,7 @@ impl AstNode for Expr {
             MEASURE_EXPRESSION => Expr::MeasureExpression(MeasureExpression { syntax }),
             IDENTIFIER => Expr::Identifier(Identifier { syntax }),
             HARDWARE_QUBIT => Expr::HardwareQubit(HardwareQubit { syntax }),
+            INV_GATE_CALL_EXPR => Expr::InvGateCallExpr(InvGateCallExpr { syntax }),
             _ => return None,
         };
         Some(res)
@@ -2317,6 +2389,7 @@ impl AstNode for Expr {
             Expr::BlockExpr(it) => &it.syntax,
             Expr::BoxExpr(it) => &it.syntax,
             Expr::CallExpr(it) => &it.syntax,
+            Expr::GateCallExpr(it) => &it.syntax,
             Expr::CastExpression(it) => &it.syntax,
             Expr::IndexExpr(it) => &it.syntax,
             Expr::IndexedIdentifier(it) => &it.syntax,
@@ -2328,6 +2401,7 @@ impl AstNode for Expr {
             Expr::MeasureExpression(it) => &it.syntax,
             Expr::Identifier(it) => &it.syntax,
             Expr::HardwareQubit(it) => &it.syntax,
+            Expr::InvGateCallExpr(it) => &it.syntax,
         }
     }
 }
@@ -2416,7 +2490,7 @@ impl AnyHasArgList {
 }
 impl AstNode for AnyHasArgList {
     fn can_cast(kind: SyntaxKind) -> bool {
-        matches!(kind, GATE_CALL_STMT | CALL_EXPR)
+        matches!(kind, GATE_CALL_STMT | CALL_EXPR | GATE_CALL_EXPR)
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         Self::can_cast(syntax.kind()).then_some(AnyHasArgList { syntax })
@@ -2467,6 +2541,7 @@ impl AstNode for AnyHasName {
                 | TYPE_SPEC
                 | PARAM
                 | EXTERN_ITEM
+                | GATE_CALL_EXPR
                 | INDEXED_IDENTIFIER
                 | HARDWARE_QUBIT
                 | ALIAS_DECLARATION_STATEMENT
@@ -2702,6 +2777,11 @@ impl std::fmt::Display for CallExpr {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
+impl std::fmt::Display for GateCallExpr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
 impl std::fmt::Display for CastExpression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
@@ -2753,6 +2833,11 @@ impl std::fmt::Display for Identifier {
     }
 }
 impl std::fmt::Display for HardwareQubit {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for InvGateCallExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

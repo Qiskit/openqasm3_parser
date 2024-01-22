@@ -199,6 +199,7 @@ Expr =
 | BlockExpr
 | BoxExpr
 | CallExpr
+| GateCallExpr
 | CastExpression
 | IndexExpr
 | IndexedIdentifier
@@ -210,6 +211,7 @@ Expr =
 | MeasureExpression
 | Identifier
 | HardwareQubit
+| InvGateCallExpr
 
 Identifier =
     'ident'
@@ -268,9 +270,6 @@ ArrayExpr =
 IndexExpr =
   Expr IndexOperator
 
-CallExpr =
-  Expr ArgList
-
 // Note: I don't know if the modifier '?' is used at all. Not in methods on `struct ArgList`.
 // FIXME: use ExpressionList
 ArgList =
@@ -287,8 +286,18 @@ CastExpression =
 GateCallStmt =
   Name ArgList? QubitList
 
+// FIXME: Explain why head of call expression is Expr and not Name
+CallExpr =
+  Expr ArgList
+
+GateCallExpr =
+  Name ArgList? QubitList
+
 GPhaseCallStmt =
  'gphase' arg:Expr
+
+InvGateCallExpr =
+  'inv' '@' GateCallExpr
 
 // label 'then_branch' is handled manually in expr_ext.rs
 IfStmt =

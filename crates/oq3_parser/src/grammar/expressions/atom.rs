@@ -44,6 +44,10 @@ pub(super) const ATOM_EXPR_FIRST: TokenSet =
         T![return],
         T![while],
         T![measure],
+        T![inv],
+        T![ctrl],
+        T![negctrl],
+        T![pow],
     ]));
 
 pub(super) const EXPR_RECOVERY_SET: TokenSet = TokenSet::new(&[T![')'], T![']']]);
@@ -77,9 +81,10 @@ pub(super) fn atom_expr(
         T![return] => return_expr(p),
         T!['{'] => block_expr(p),
         T![for] => for_expr(p, None),
+        T![inv] => inv_modifier_expr(p),
         // FIXME: This is the simplest gate call. Need to cover
         // `mygate(myparam) q1, q2;` as well.
-        //        IDENT if la == IDENT => gate_call_expr(p),
+        IDENT if la == IDENT => gate_call_expr(p),
         IDENT if (la == T![=] && p.nth(2) != T![=]) => grammar::items::assignment_statement(p),
         // FIXME: An identifer bound by the user in the program.
         // Need to handle more than identifier.
@@ -96,6 +101,30 @@ pub(super) fn atom_expr(
         BlockLike::NotBlock
     };
     Some((done, blocklike))
+}
+
+fn inv_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    let m = p.start();
+    assert!(p.at(T![inv]));
+    p.bump(T![inv]);
+    p.expect(T![@]);
+    gate_call_expr(p);
+    m.complete(p, INV_GATE_CALL_EXPR)
+}
+
+fn gate_call_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    let m = p.start();
+    //    expressions::var_name(p);
+    identifier(p); // name of gate
+                   // disable following assert, because we may arrive here from gate modifiers
+                   //    assert!(!p.at(T!['(']));
+                   // This is never true, I hope
+    if p.at(T!['(']) {
+        expressions::call_arg_list(p);
+    }
+    params::arg_list_gate_call_qubits(p);
+    //    p.expect(SEMICOLON);
+    m.complete(p, GATE_CALL_EXPR)
 }
 
 fn measure_expression(p: &mut Parser<'_>) -> CompletedMarker {
