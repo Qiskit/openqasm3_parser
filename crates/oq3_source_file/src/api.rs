@@ -13,16 +13,17 @@ use std::path::{Path, PathBuf};
 
 use crate::source_file::{
     expand_path, parse_source_and_includes, range_to_span, read_source_file, ErrorTrait,
-    Normalizeable, SourceFile, SourceString,
+    SourceFile, SourceString,
 };
 
 /// Read source from `file_path` and parse to the syntactic AST.
 /// Parse and store included files recursively.
-pub fn parse_source_file(
-    file_path: &PathBuf,
-    search_path_list: Option<&Vec<PathBuf>>,
-) -> SourceFile {
-    let full_path = expand_path(file_path, search_path_list).normalize();
+pub fn parse_source_file<T, P>(file_path: T, search_path_list: Option<&[P]>) -> SourceFile
+where
+    T: AsRef<Path>,
+    P: AsRef<Path>,
+{
+    let full_path = expand_path(file_path, search_path_list);
     let (syntax_ast, included) =
         parse_source_and_includes(read_source_file(&full_path).as_str(), search_path_list);
     SourceFile::new(full_path, syntax_ast, included)
@@ -30,13 +31,17 @@ pub fn parse_source_file(
 
 /// Read source from `file_path` and parse to the syntactic AST.
 /// Parse and store included files recursively.
-pub fn parse_source_string<T: ToString>(
+pub fn parse_source_string<T, P>(
     source: T,
     fake_file_path: Option<&str>,
-    search_path_list: Option<&Vec<PathBuf>>,
-) -> SourceString {
-    let source = source.to_string();
-    let (syntax_ast, included) = parse_source_and_includes(source.as_str(), search_path_list);
+    search_path_list: Option<&[P]>,
+) -> SourceString
+where
+    T: AsRef<str>,
+    P: AsRef<Path>,
+{
+    let source = source.as_ref();
+    let (syntax_ast, included) = parse_source_and_includes(source, search_path_list);
     let fake_file_path = PathBuf::from(fake_file_path.unwrap_or("no file"));
     SourceString::new(source, fake_file_path, syntax_ast, included)
 }

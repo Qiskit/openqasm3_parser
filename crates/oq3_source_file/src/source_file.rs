@@ -5,7 +5,6 @@ use oq3_syntax::ast as synast; // Syntactic AST
 use oq3_syntax::Parse;
 use oq3_syntax::TextRange;
 use std::env;
-use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -14,9 +13,9 @@ use oq3_syntax::ast::HasModuleItem;
 
 use crate::api::{inner_print_compiler_errors, parse_source_file, print_compiler_errors};
 
-pub(crate) fn parse_source_and_includes(
+pub(crate) fn parse_source_and_includes<P: AsRef<Path>>(
     source: &str,
-    search_path_list: Option<&Vec<PathBuf>>,
+    search_path_list: Option<&[P]>,
 ) -> (ParsedSource, Vec<SourceFile>) {
     let syntax_ast: ParsedSource = synast::SourceFile::parse(source);
     let included = parse_included_files(&syntax_ast, search_path_list);
@@ -26,64 +25,6 @@ pub(crate) fn parse_source_and_includes(
 // I think SourceFile actually just works with the source as a string.
 // Knowledge of any file is not used by synast::SourceFile;
 pub(crate) type ParsedSource = Parse<synast::SourceFile>;
-
-/// This trait requires implementing `normalize` which returns an absolute path. `normalize`
-/// essentially wraps `fs::canonicalize`. It exists so the consumer can initialize paths
-/// with `PathBuf`, `&PathBuf`, `&str`, `&OsStr` etc.
-/// The method `to_path_buf` which converts to `PathBuf` without `canonicalize` is also required.
-pub trait Normalizeable {
-    fn normalize(&self) -> PathBuf;
-    fn to_path_buf(self) -> PathBuf;
-}
-
-impl Normalizeable for PathBuf {
-    fn to_path_buf(self) -> Self {
-        self
-    }
-
-    /// `normalize` essentially wraps `fs::canonicalize`. See `Normalizeable`.
-    fn normalize(&self) -> PathBuf {
-        match fs::canonicalize(self) {
-            Ok(file_path) => file_path,
-            Err(e) => panic!("Unable to find {}\n{e}", self.display()),
-        }
-    }
-}
-
-impl Normalizeable for &PathBuf {
-    fn to_path_buf(self) -> PathBuf {
-        self.clone()
-    }
-
-    fn normalize(&self) -> PathBuf {
-        match fs::canonicalize(self) {
-            Ok(file_path) => file_path,
-            Err(e) => panic!("Unable to find {}\n{e}", self.display()),
-        }
-    }
-}
-
-// FIXME: Can probably use From trait in order to minimize code supporting
-// this trait, or perhaps eliminate it.
-impl Normalizeable for &str {
-    fn to_path_buf(self) -> PathBuf {
-        PathBuf::from(self)
-    }
-
-    fn normalize(&self) -> PathBuf {
-        PathBuf::from(self).normalize()
-    }
-}
-
-impl Normalizeable for &OsStr {
-    fn to_path_buf(self) -> PathBuf {
-        PathBuf::from(&self)
-    }
-
-    fn normalize(&self) -> PathBuf {
-        PathBuf::from(self).normalize()
-    }
-}
 
 pub trait ErrorTrait {
     fn message(&self) -> String;
@@ -149,13 +90,17 @@ impl SourceTrait for SourceFile {
 }
 
 impl SourceFile {
-    pub fn new<F: Normalizeable>(
+    pub fn new<F: AsRef<Path>>(
         file_path: F,
         syntax_ast: ParsedSource,
         included: Vec<SourceFile>,
     ) -> SourceFile {
+        let file_path = match fs::canonicalize(file_path.as_ref()) {
+            Ok(file_path) => file_path,
+            Err(e) => panic!("Unable to find {:?}\n{:?}", file_path.as_ref(), e),
+        };
         SourceFile {
-            file_path: file_path.normalize(),
+            file_path,
             syntax_ast,
             included,
         }
@@ -167,32 +112,37 @@ impl SourceFile {
 }
 
 pub fn search_paths() -> Option<Vec<PathBuf>> {
-    env::var_os("QASM3_PATH").map(|paths| env::split_paths(&paths).collect::<Vec<_>>())
+    env::var_os("QASM3_PATH").map(|paths| env::split_paths(&paths).collect())
 }
 
 /// Expand path with search paths. Return input if expansion fails.
-pub(crate) fn expand_path(file_path: &PathBuf, search_path_list: Option<&Vec<PathBuf>>) -> PathBuf {
+pub(crate) fn expand_path<T: AsRef<Path>, P: AsRef<Path>>(
+    file_path: T,
+    search_path_list: Option<&[P]>,
+) -> PathBuf {
+    let file_path = PathBuf::from(file_path.as_ref());
     if file_path.is_absolute() {
-        return file_path.clone();
+        return file_path;
     }
-    let mut maybe_full_path = file_path.clone();
-    let env_paths = search_paths();
-    // Prefer paths passed to this function over env variable.
-    let paths = if search_path_list.is_some() {
-        search_path_list
-    } else {
-        env_paths.as_ref()
+    let try_path = |dir: &Path| {
+        let full_path = dir.join(&file_path);
+        full_path.is_file().then_some(full_path)
     };
-    if let Some(paths1) = paths {
-        for path in paths1 {
-            let fqpn = path.join(file_path);
-            if fqpn.is_file() {
-                maybe_full_path = fqpn;
-                break;
+
+    if let Some(paths) = search_path_list {
+        for path in paths {
+            if let Some(full_path) = try_path(path.as_ref()) {
+                return full_path;
+            }
+        }
+    } else if let Some(paths) = search_paths() {
+        for path in paths {
+            if let Some(full_path) = try_path(path.as_ref()) {
+                return full_path;
             }
         }
     }
-    maybe_full_path
+    file_path
 }
 
 /// Read QASM3 source file, respecting env variable `QASM3_PATH` if set.
@@ -209,9 +159,9 @@ pub(crate) fn read_source_file(file_path: &Path) -> String {
 
 // FIXME: prevent a file from including itself. Then there are two-file cycles, etc.
 ///  Recursively parse any files `include`d in the program `syntax_ast`.
-pub(crate) fn parse_included_files(
+pub(crate) fn parse_included_files<P: AsRef<Path>>(
     syntax_ast: &ParsedSource,
-    search_path_list: Option<&Vec<PathBuf>>,
+    search_path_list: Option<&[P]>,
 ) -> Vec<SourceFile> {
     syntax_ast
         .tree()
@@ -220,10 +170,7 @@ pub(crate) fn parse_included_files(
             synast::Stmt::Item(synast::Item::Include(include)) => {
                 let file: synast::FilePath = include.file().unwrap();
                 let file_path = file.to_string().unwrap();
-                Some(parse_source_file(
-                    &PathBuf::from(file_path),
-                    search_path_list,
-                ))
+                Some(parse_source_file(file_path, search_path_list))
             }
             _ => None,
         })
@@ -277,16 +224,15 @@ impl SourceTrait for SourceString {
 }
 
 impl SourceString {
-    pub fn new<T: ToString, F: Normalizeable>(
+    pub fn new<T: AsRef<str>, P: AsRef<Path>>(
         source: T,
-        fake_file_path: F,
+        fake_file_path: P,
         syntax_ast: ParsedSource,
         included: Vec<SourceFile>,
     ) -> SourceString {
-        let fake_file_path_buf = fake_file_path.to_path_buf();
         SourceString {
-            source: source.to_string(),
-            fake_file_path: fake_file_path_buf,
+            source: source.as_ref().to_owned(),
+            fake_file_path: fake_file_path.as_ref().to_owned(),
             syntax_ast,
             included,
         }

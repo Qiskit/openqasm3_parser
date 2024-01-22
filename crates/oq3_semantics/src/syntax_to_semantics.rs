@@ -10,7 +10,7 @@
 
 use std;
 use std::mem::replace;
-use std::path::PathBuf;
+use std::path::Path;
 
 use crate::asg;
 use crate::types;
@@ -87,21 +87,29 @@ impl ParseResult<SourceString> {
 
 /// Parse string containing source to semantic ASG.
 /// Fake file name is used for printing diagnostics.
-pub fn parse_source_string<T: ToString>(
+pub fn parse_source_string<T, P>(
     source: T,
     fake_file_path: Option<&str>,
-    search_path_list: Option<&Vec<PathBuf>>,
-) -> ParseResult<SourceString> {
+    search_path_list: Option<&[P]>,
+) -> ParseResult<SourceString>
+where
+    T: AsRef<str>,
+    P: AsRef<Path>,
+{
     let parsed_source =
         oq3_source_file::parse_source_string(source, fake_file_path, search_path_list);
     analyze_source(parsed_source)
 }
 
 /// Parse source file to semantic ASG
-pub fn parse_source_file(
-    file_path: &PathBuf,
-    search_path_list: Option<&Vec<PathBuf>>,
-) -> ParseResult<SourceFile> {
+pub fn parse_source_file<T, P>(
+    file_path: T,
+    search_path_list: Option<&[P]>,
+) -> ParseResult<SourceFile>
+where
+    T: AsRef<Path>,
+    P: AsRef<Path>,
+{
     let parsed_source = oq3_source_file::parse_source_file(file_path, search_path_list);
     analyze_source(parsed_source)
 }
