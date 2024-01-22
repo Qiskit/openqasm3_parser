@@ -82,7 +82,8 @@ fn main() {
         Some(Commands::SemanticString { file_name }) => {
             let source = read_example_source(file_name);
             let file_name = Some("giraffe");
-            let result = syntax_to_semantics::parse_source_string(source, file_name, None);
+            let result =
+                syntax_to_semantics::parse_source_string(source, file_name, None::<&[PathBuf]>);
             if result.any_errors() {
                 result.print_errors();
             }
@@ -91,7 +92,7 @@ fn main() {
 
         #[allow(clippy::dbg_macro)]
         Some(Commands::Semantic { file_name }) => {
-            let result = syntax_to_semantics::parse_source_file(file_name, None);
+            let result = syntax_to_semantics::parse_source_file(file_name, None::<&[PathBuf]>);
             let have_errors = result.any_errors();
             if have_errors {
                 println!("Found errors: {}", have_errors);
@@ -106,7 +107,7 @@ fn main() {
         }
 
         Some(Commands::SemanticPretty { file_name }) => {
-            let result = syntax_to_semantics::parse_source_file(file_name, None);
+            let result = syntax_to_semantics::parse_source_file(file_name, None::<&[PathBuf]>);
             println!("Found errors: {}", result.any_errors());
             result.print_errors();
             result.program().print_asg_debug_pretty();
@@ -118,7 +119,7 @@ fn main() {
         //     context.program().print_asg_debug_pretty();
         // }
         Some(Commands::Parse { file_name }) => {
-            let parsed_source = oq3_source_file::parse_source_file(file_name, None);
+            let parsed_source = oq3_source_file::parse_source_file(file_name, None::<&[PathBuf]>);
             let parse_tree = parsed_source.syntax_ast().tree();
             println!(
                 "Found {} items",
