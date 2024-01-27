@@ -138,8 +138,15 @@ impl Expr {
             ArrayLiteral(_) => (0, 0), // These need to be checked
             MeasureExpression(_) => (0, 0),
             BoxExpr(_) => (0, 27),
-            GateCallExpr(_) | CallExpr(_) | CastExpression(_) | IndexExpr(_)
-            | InvGateCallExpr(_) | PowGateCallExpr(_) | IndexedIdentifier(_) => (29, 0),
+            GateCallExpr(_)
+            | CallExpr(_)
+            | CastExpression(_)
+            | IndexExpr(_)
+            | CtrlGateCallExpr(_)
+            | NegCtrlGateCallExpr(_)
+            | InvGateCallExpr(_)
+            | PowGateCallExpr(_)
+            | IndexedIdentifier(_) => (29, 0),
             ArrayExpr(_) | Literal(_) | ParenExpr(_) | Identifier(_) | HardwareQubit(_)
             | BlockExpr(_) => (0, 0),
         }
@@ -190,6 +197,8 @@ impl Expr {
                 GateCallExpr(_) => None,
                 InvGateCallExpr(_) => None,
                 PowGateCallExpr(_) => None,
+                CtrlGateCallExpr(_) => None,
+                NegCtrlGateCallExpr(_) => None,
                 CastExpression(e) => e.l_paren_token(),
                 //                IndexExpr(e) => e.l_brack_token(),
                 // The bracket in IndexExpr is now absorbed in IndexOperator
@@ -212,9 +221,21 @@ impl Expr {
         use Expr::*;
 
         match self {
-            ArrayExpr(_) | BlockExpr(_) | CallExpr(_) | GateCallExpr(_) | CastExpression(_)
-            | InvGateCallExpr(_) | IndexExpr(_) | IndexedIdentifier(_) | Literal(_)
-            | PowGateCallExpr(_) | Identifier(_) | HardwareQubit(_) | ParenExpr(_) => false,
+            ArrayExpr(_)
+            | BlockExpr(_)
+            | CallExpr(_)
+            | GateCallExpr(_)
+            | CastExpression(_)
+            | InvGateCallExpr(_)
+            | IndexExpr(_)
+            | IndexedIdentifier(_)
+            | Literal(_)
+            | CtrlGateCallExpr(_)
+            | NegCtrlGateCallExpr(_)
+            | PowGateCallExpr(_)
+            | Identifier(_)
+            | HardwareQubit(_)
+            | ParenExpr(_) => false,
 
             // For BinExpr and RangeExpr this is technically wrong -- the child can be on the left...
             BinExpr(_) | RangeExpr(_) | BoxExpr(_) | ReturnExpr(_) => self

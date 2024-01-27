@@ -260,6 +260,25 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
             Some(asg::PowGateCallExpr::new(gate_call, exponent).to_texpr())
         }
 
+        synast::Expr::CtrlGateCallExpr(ctrl_gate_call) => {
+            let exponent = match ctrl_gate_call.paren_expr() {
+                Some(paren_expr) => from_paren_expr(paren_expr, context),
+                None => None,
+            };
+            let gate_call = from_gate_call_expr(ctrl_gate_call.gate_call_expr().unwrap(), context);
+            Some(asg::CtrlGateCallExpr::new(gate_call, exponent).to_texpr())
+        }
+
+        synast::Expr::NegCtrlGateCallExpr(neg_ctrl_gate_call) => {
+            let exponent = match neg_ctrl_gate_call.paren_expr() {
+                Some(paren_expr) => from_paren_expr(paren_expr, context),
+                None => None,
+            };
+            let gate_call =
+                from_gate_call_expr(neg_ctrl_gate_call.gate_call_expr().unwrap(), context);
+            Some(asg::NegCtrlGateCallExpr::new(gate_call, exponent).to_texpr())
+        }
+
         // Everything else is not yet implemented
         _ => {
             println!("Expression not supported {:?}", expr);

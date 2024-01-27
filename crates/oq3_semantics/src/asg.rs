@@ -126,6 +126,8 @@ pub enum Expr {
     GateCallExpr(Box<GateCallExpr>),
     InvGateCallExpr(Box<InvGateCallExpr>),
     PowGateCallExpr(Box<PowGateCallExpr>),
+    CtrlGateCallExpr(Box<CtrlGateCallExpr>),
+    NegCtrlGateCallExpr(Box<NegCtrlGateCallExpr>),
     IndexExpression(IndexExpression),
     IndexedIdentifier(IndexedIdentifier),
     GateOperand(GateOperand),
@@ -619,13 +621,13 @@ pub struct GateCallExpr {
     qubits: Vec<TExpr>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub enum GateModifier {
-    Inv,
-    Pow(TExpr),
-    Ctrl(Option<TExpr>),
-    NegCtrl(Option<TExpr>),
-}
+// #[derive(Clone, Debug, PartialEq, Eq, Hash)]
+// pub enum GateModifier {
+//     Inv,
+//     Pow(TExpr),
+//     Ctrl(Option<TExpr>),
+//     NegCtrl(Option<TExpr>),
+// }
 
 // Following naming in ref parser instead
 // We ~~will~~ should try to use the distinction between "parameter", which appears in the signature,
@@ -731,6 +733,68 @@ impl PowGateCallExpr {
 
     pub fn to_expr(self) -> Expr {
         Expr::PowGateCallExpr(Box::new(self))
+    }
+
+    pub fn to_texpr(self) -> TExpr {
+        TExpr::new(self.to_expr(), Type::ToDo)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct CtrlGateCallExpr {
+    gate_call: TExpr,
+    exponent: Option<TExpr>,
+}
+
+impl CtrlGateCallExpr {
+    pub fn new(gate_call: TExpr, exponent: Option<TExpr>) -> CtrlGateCallExpr {
+        CtrlGateCallExpr {
+            gate_call,
+            exponent,
+        }
+    }
+
+    pub fn gate_call(&self) -> &TExpr {
+        &self.gate_call
+    }
+
+    pub fn exponent(&self) -> Option<&TExpr> {
+        self.exponent.as_ref()
+    }
+
+    pub fn to_expr(self) -> Expr {
+        Expr::CtrlGateCallExpr(Box::new(self))
+    }
+
+    pub fn to_texpr(self) -> TExpr {
+        TExpr::new(self.to_expr(), Type::ToDo)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct NegCtrlGateCallExpr {
+    gate_call: TExpr,
+    exponent: Option<TExpr>,
+}
+
+impl NegCtrlGateCallExpr {
+    pub fn new(gate_call: TExpr, exponent: Option<TExpr>) -> NegCtrlGateCallExpr {
+        NegCtrlGateCallExpr {
+            gate_call,
+            exponent,
+        }
+    }
+
+    pub fn gate_call(&self) -> &TExpr {
+        &self.gate_call
+    }
+
+    pub fn exponent(&self) -> Option<&TExpr> {
+        self.exponent.as_ref()
+    }
+
+    pub fn to_expr(self) -> Expr {
+        Expr::NegCtrlGateCallExpr(Box::new(self))
     }
 
     pub fn to_texpr(self) -> TExpr {

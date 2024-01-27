@@ -213,6 +213,8 @@ Expr =
 | HardwareQubit
 | InvGateCallExpr
 | PowGateCallExpr
+| CtrlGateCallExpr
+| NegCtrlGateCallExpr
 
 Identifier =
     'ident'
@@ -302,6 +304,12 @@ InvGateCallExpr =
 
 PowGateCallExpr =
   'pow' ParenExpr '@' GateCallExpr
+
+CtrlGateCallExpr =
+  'ctrl' ParenExpr? '@' GateCallExpr
+
+NegCtrlGateCallExpr =
+  'negctrl' ParenExpr? '@' GateCallExpr
 
 // label 'then_branch' is handled manually in expr_ext.rs
 IfStmt =

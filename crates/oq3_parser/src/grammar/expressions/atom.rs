@@ -83,6 +83,8 @@ pub(super) fn atom_expr(
         T![for] => for_expr(p, None),
         T![inv] => inv_modifier_expr(p),
         T![pow] => pow_modifier_expr(p),
+        T![ctrl] => ctrl_modifier_expr(p),
+        T![negctrl] => negctrl_modifier_expr(p),
         // FIXME: This is the simplest gate call. Need to cover
         // `mygate(myparam) q1, q2;` as well.
         IDENT if la == IDENT => gate_call_expr(p),
@@ -134,6 +136,36 @@ fn pow_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
     p.expect(T![@]);
     gate_call_expr(p);
     m.complete(p, POW_GATE_CALL_EXPR)
+}
+
+fn ctrl_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    let m = p.start();
+    p.bump(T![ctrl]);
+    if p.at(T!['(']) {
+        let m1 = p.start();
+        p.expect(T!['(']);
+        expressions::expr(p);
+        p.expect(T![')']);
+        m1.complete(p, PAREN_EXPR);
+    }
+    p.expect(T![@]);
+    gate_call_expr(p);
+    m.complete(p, CTRL_GATE_CALL_EXPR)
+}
+
+fn negctrl_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    let m = p.start();
+    p.bump(T![negctrl]);
+    if p.at(T!['(']) {
+        let m1 = p.start();
+        p.expect(T!['(']);
+        expressions::expr(p);
+        p.expect(T![')']);
+        m1.complete(p, PAREN_EXPR);
+    }
+    p.expect(T![@]);
+    gate_call_expr(p);
+    m.complete(p, NEG_CTRL_GATE_CALL_EXPR)
 }
 
 fn gate_call_expr(p: &mut Parser<'_>) -> CompletedMarker {

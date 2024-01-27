@@ -711,6 +711,42 @@ impl PowGateCallExpr {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct CtrlGateCallExpr {
+    pub(crate) syntax: SyntaxNode,
+}
+impl CtrlGateCallExpr {
+    pub fn ctrl_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![ctrl])
+    }
+    pub fn paren_expr(&self) -> Option<ParenExpr> {
+        support::child(&self.syntax)
+    }
+    pub fn at_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![@])
+    }
+    pub fn gate_call_expr(&self) -> Option<GateCallExpr> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct NegCtrlGateCallExpr {
+    pub(crate) syntax: SyntaxNode,
+}
+impl NegCtrlGateCallExpr {
+    pub fn negctrl_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![negctrl])
+    }
+    pub fn paren_expr(&self) -> Option<ParenExpr> {
+        support::child(&self.syntax)
+    }
+    pub fn at_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![@])
+    }
+    pub fn gate_call_expr(&self) -> Option<GateCallExpr> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ConcatenationExpr {
     pub(crate) syntax: SyntaxNode,
 }
@@ -1022,6 +1058,8 @@ pub enum Expr {
     HardwareQubit(HardwareQubit),
     InvGateCallExpr(InvGateCallExpr),
     PowGateCallExpr(PowGateCallExpr),
+    CtrlGateCallExpr(CtrlGateCallExpr),
+    NegCtrlGateCallExpr(NegCtrlGateCallExpr),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GateOperand {
@@ -1849,6 +1887,36 @@ impl AstNode for PowGateCallExpr {
         &self.syntax
     }
 }
+impl AstNode for CtrlGateCallExpr {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == CTRL_GATE_CALL_EXPR
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for NegCtrlGateCallExpr {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == NEG_CTRL_GATE_CALL_EXPR
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for ConcatenationExpr {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == CONCATENATION_EXPR
@@ -2373,6 +2441,16 @@ impl From<PowGateCallExpr> for Expr {
         Expr::PowGateCallExpr(node)
     }
 }
+impl From<CtrlGateCallExpr> for Expr {
+    fn from(node: CtrlGateCallExpr) -> Expr {
+        Expr::CtrlGateCallExpr(node)
+    }
+}
+impl From<NegCtrlGateCallExpr> for Expr {
+    fn from(node: NegCtrlGateCallExpr) -> Expr {
+        Expr::NegCtrlGateCallExpr(node)
+    }
+}
 impl AstNode for Expr {
     fn can_cast(kind: SyntaxKind) -> bool {
         matches!(
@@ -2396,6 +2474,8 @@ impl AstNode for Expr {
                 | HARDWARE_QUBIT
                 | INV_GATE_CALL_EXPR
                 | POW_GATE_CALL_EXPR
+                | CTRL_GATE_CALL_EXPR
+                | NEG_CTRL_GATE_CALL_EXPR
         )
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
@@ -2419,6 +2499,8 @@ impl AstNode for Expr {
             HARDWARE_QUBIT => Expr::HardwareQubit(HardwareQubit { syntax }),
             INV_GATE_CALL_EXPR => Expr::InvGateCallExpr(InvGateCallExpr { syntax }),
             POW_GATE_CALL_EXPR => Expr::PowGateCallExpr(PowGateCallExpr { syntax }),
+            CTRL_GATE_CALL_EXPR => Expr::CtrlGateCallExpr(CtrlGateCallExpr { syntax }),
+            NEG_CTRL_GATE_CALL_EXPR => Expr::NegCtrlGateCallExpr(NegCtrlGateCallExpr { syntax }),
             _ => return None,
         };
         Some(res)
@@ -2444,6 +2526,8 @@ impl AstNode for Expr {
             Expr::HardwareQubit(it) => &it.syntax,
             Expr::InvGateCallExpr(it) => &it.syntax,
             Expr::PowGateCallExpr(it) => &it.syntax,
+            Expr::CtrlGateCallExpr(it) => &it.syntax,
+            Expr::NegCtrlGateCallExpr(it) => &it.syntax,
         }
     }
 }
@@ -2885,6 +2969,16 @@ impl std::fmt::Display for InvGateCallExpr {
     }
 }
 impl std::fmt::Display for PowGateCallExpr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for CtrlGateCallExpr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for NegCtrlGateCallExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
