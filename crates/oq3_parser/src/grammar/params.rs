@@ -108,7 +108,6 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         let m = param_marker.take().unwrap_or_else(|| p.start());
         if !(p.current().is_type_name() || p.at_ts(PARAM_FIRST)) {
             p.error("expected value parameter");
-            println!("!!!! Got {:?}", p.current());
             m.abandon(p);
             break;
         }
@@ -118,7 +117,6 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
                 expressions::expr_or_range_expr(p);
                 true
             }
-            //            SetExpression => { m.abandon(p); expressions::expr(p); true }
             GateCallQubits => arg_gate_call_qubit(p, m),
             DefParams | DefCalParams => param_typed(p, m),
             _ => param_untyped(p, m),

@@ -343,8 +343,6 @@ fn postfix_expr(
 }
 
 // Consumes either a function (def) call, or a gate call.
-// expressions::gate_call_stmt also consumes gate calls in a different context.
-// I think the present function gets all gate calls that include params in parens.
 fn call_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     assert!(p.at(T!['(']));
     let m = lhs.precede(p);

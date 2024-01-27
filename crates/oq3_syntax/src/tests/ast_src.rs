@@ -235,12 +235,12 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "OLD_STYLE_DECLARATION_STATEMENT",
         "QUANTUM_DECLARATION_STATEMENT",
         // modifiers. Not just the keywords, but the "expresions".
-        "INV_GATE_CALL",
+        //        "INV_GATE_CALL",
         "INV_GATE_CALL_EXPR",
-        "CTRL_GATE_CALL",
-        "NEGCTRL_GATE_CALL",
-        "POW_GATE_CALL",
-        "MODIFIED_GATE_CALL",
+        "CTRL_GATE_CALL_EXPR",
+        "NEGCTRL_GATE_CALL_EXPR",
+        "POW_GATE_CALL_EXPR",
+        //        "MODIFIED_GATE_CALL",
     ],
 };
 

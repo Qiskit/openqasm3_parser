@@ -125,6 +125,7 @@ pub enum Expr {
     HardwareQubit(HardwareQubit),
     GateCallExpr(Box<GateCallExpr>),
     InvGateCallExpr(Box<InvGateCallExpr>),
+    PowGateCallExpr(Box<PowGateCallExpr>),
     IndexExpression(IndexExpression),
     IndexedIdentifier(IndexedIdentifier),
     GateOperand(GateOperand),
@@ -695,6 +696,45 @@ impl InvGateCallExpr {
 
     pub fn gate_call(&self) -> &TExpr {
         &self.gate_call
+    }
+
+    pub fn to_expr(self) -> Expr {
+        Expr::InvGateCallExpr(Box::new(self))
+    }
+
+    pub fn to_texpr(self) -> TExpr {
+        TExpr::new(self.to_expr(), Type::ToDo)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct PowGateCallExpr {
+    gate_call: TExpr,
+    exponent: TExpr,
+}
+
+impl PowGateCallExpr {
+    pub fn new(gate_call: TExpr, exponent: TExpr) -> PowGateCallExpr {
+        PowGateCallExpr {
+            gate_call,
+            exponent,
+        }
+    }
+
+    pub fn gate_call(&self) -> &TExpr {
+        &self.gate_call
+    }
+
+    pub fn exponent(&self) -> &TExpr {
+        &self.exponent
+    }
+
+    pub fn to_expr(self) -> Expr {
+        Expr::PowGateCallExpr(Box::new(self))
+    }
+
+    pub fn to_texpr(self) -> TExpr {
+        TExpr::new(self.to_expr(), Type::ToDo)
     }
 }
 

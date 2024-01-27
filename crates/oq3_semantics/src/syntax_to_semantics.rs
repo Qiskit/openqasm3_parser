@@ -189,9 +189,14 @@ fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<
     )
 }
 
+fn from_paren_expr(paren_expr: synast::ParenExpr, context: &mut Context) -> Option<asg::TExpr> {
+    from_expr(paren_expr.expr().unwrap(), context)
+}
+
 fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
     match expr {
-        synast::Expr::ParenExpr(paren_expr) => from_expr(paren_expr.expr().unwrap(), context),
+        //        synast::Expr::ParenExpr(paren_expr) => from_expr(paren_expr.expr().unwrap(), context),
+        synast::Expr::ParenExpr(paren_expr) => from_paren_expr(paren_expr, context),
         synast::Expr::BinExpr(bin_expr) => {
             let synast_op = bin_expr.op_kind().unwrap();
             let left_syn = bin_expr.lhs().unwrap();
@@ -241,10 +246,20 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
 
         synast::Expr::GateCallExpr(gate_call) => Some(from_gate_call_expr(gate_call, context)),
 
-        synast::Expr::InvGateCallExpr(inv_gate_call) => Some(from_gate_call_expr(
-            inv_gate_call.gate_call_expr().unwrap(),
-            context,
-        )),
+        synast::Expr::InvGateCallExpr(inv_gate_call) => Some(
+            asg::InvGateCallExpr::new(from_gate_call_expr(
+                inv_gate_call.gate_call_expr().unwrap(),
+                context,
+            ))
+            .to_texpr(),
+        ),
+
+        synast::Expr::PowGateCallExpr(pow_gate_call) => {
+            let exponent = from_paren_expr(pow_gate_call.paren_expr().unwrap(), context).unwrap();
+            let gate_call = from_gate_call_expr(pow_gate_call.gate_call_expr().unwrap(), context);
+            Some(asg::PowGateCallExpr::new(gate_call, exponent).to_texpr())
+        }
+
         // Everything else is not yet implemented
         _ => {
             println!("Expression not supported {:?}", expr);

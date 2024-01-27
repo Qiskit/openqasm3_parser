@@ -212,6 +212,7 @@ Expr =
 | Identifier
 | HardwareQubit
 | InvGateCallExpr
+| PowGateCallExpr
 
 Identifier =
     'ident'
@@ -298,6 +299,9 @@ GPhaseCallStmt =
 
 InvGateCallExpr =
   'inv' '@' GateCallExpr
+
+PowGateCallExpr =
+  'pow' ParenExpr '@' GateCallExpr
 
 // label 'then_branch' is handled manually in expr_ext.rs
 IfStmt =

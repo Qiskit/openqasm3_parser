@@ -82,6 +82,7 @@ pub(super) fn atom_expr(
         T!['{'] => block_expr(p),
         T![for] => for_expr(p, None),
         T![inv] => inv_modifier_expr(p),
+        T![pow] => pow_modifier_expr(p),
         // FIXME: This is the simplest gate call. Need to cover
         // `mygate(myparam) q1, q2;` as well.
         IDENT if la == IDENT => gate_call_expr(p),
@@ -105,25 +106,43 @@ pub(super) fn atom_expr(
 
 fn inv_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
     let m = p.start();
-    assert!(p.at(T![inv]));
     p.bump(T![inv]);
-    p.expect(T![@]);
+    if p.at(T![@]) {
+        p.bump(T![@]);
+    } else if p.at(T!['(']) {
+        p.error("Modifier `inv` accepts no parameter. Expecting `@`");
+    } else {
+        p.error("Expecting `@`");
+    }
     gate_call_expr(p);
     m.complete(p, INV_GATE_CALL_EXPR)
 }
 
+fn pow_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    let m = p.start();
+    assert!(p.at(T![pow]));
+    p.bump(T![pow]);
+    if p.at(T!['(']) {
+        let m1 = p.start();
+        p.expect(T!['(']);
+        expressions::expr(p);
+        p.expect(T![')']);
+        m1.complete(p, PAREN_EXPR);
+    } else {
+        p.error("expecting argument to pow gate modifier");
+    }
+    p.expect(T![@]);
+    gate_call_expr(p);
+    m.complete(p, POW_GATE_CALL_EXPR)
+}
+
 fn gate_call_expr(p: &mut Parser<'_>) -> CompletedMarker {
     let m = p.start();
-    //    expressions::var_name(p);
     identifier(p); // name of gate
-                   // disable following assert, because we may arrive here from gate modifiers
-                   //    assert!(!p.at(T!['(']));
-                   // This is never true, I hope
     if p.at(T!['(']) {
         expressions::call_arg_list(p);
     }
     params::arg_list_gate_call_qubits(p);
-    //    p.expect(SEMICOLON);
     m.complete(p, GATE_CALL_EXPR)
 }
 
@@ -147,7 +166,7 @@ fn measure_expression(p: &mut Parser<'_>) -> CompletedMarker {
 // FIXME: changed it back to IDENTIFIER
 pub(crate) fn identifier(p: &mut Parser<'_>) -> CompletedMarker {
     let m = p.start();
-    p.bump(IDENT);
+    p.expect(IDENT);
     m.complete(p, IDENTIFIER)
 }
 

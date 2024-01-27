@@ -139,7 +139,7 @@ impl Expr {
             MeasureExpression(_) => (0, 0),
             BoxExpr(_) => (0, 27),
             GateCallExpr(_) | CallExpr(_) | CastExpression(_) | IndexExpr(_)
-            | InvGateCallExpr(_) | IndexedIdentifier(_) => (29, 0),
+            | InvGateCallExpr(_) | PowGateCallExpr(_) | IndexedIdentifier(_) => (29, 0),
             ArrayExpr(_) | Literal(_) | ParenExpr(_) | Identifier(_) | HardwareQubit(_)
             | BlockExpr(_) => (0, 0),
         }
@@ -189,6 +189,7 @@ impl Expr {
                 // FIXME: next line is quick fix, likely wrong
                 GateCallExpr(_) => None,
                 InvGateCallExpr(_) => None,
+                PowGateCallExpr(_) => None,
                 CastExpression(e) => e.l_paren_token(),
                 //                IndexExpr(e) => e.l_brack_token(),
                 // The bracket in IndexExpr is now absorbed in IndexOperator
@@ -213,7 +214,7 @@ impl Expr {
         match self {
             ArrayExpr(_) | BlockExpr(_) | CallExpr(_) | GateCallExpr(_) | CastExpression(_)
             | InvGateCallExpr(_) | IndexExpr(_) | IndexedIdentifier(_) | Literal(_)
-            | Identifier(_) | HardwareQubit(_) | ParenExpr(_) => false,
+            | PowGateCallExpr(_) | Identifier(_) | HardwareQubit(_) | ParenExpr(_) => false,
 
             // For BinExpr and RangeExpr this is technically wrong -- the child can be on the left...
             BinExpr(_) | RangeExpr(_) | BoxExpr(_) | ReturnExpr(_) => self
