@@ -246,43 +246,98 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
 
         synast::Expr::GateCallExpr(gate_call) => Some(from_gate_call_expr(gate_call, context)),
 
-        synast::Expr::InvGateCallExpr(inv_gate_call) => Some(
-            asg::InvGateCallExpr::new(from_gate_call_expr(
-                inv_gate_call.gate_call_expr().unwrap(),
-                context,
-            ))
-            .to_texpr(),
-        ),
+        synast::Expr::InvGateCallExpr(inv_gate_call) => {
+            from_inv_gate_call_expr(inv_gate_call, context)
+        }
 
         synast::Expr::PowGateCallExpr(pow_gate_call) => {
-            let exponent = from_paren_expr(pow_gate_call.paren_expr().unwrap(), context).unwrap();
-            let gate_call = from_gate_call_expr(pow_gate_call.gate_call_expr().unwrap(), context);
-            Some(asg::PowGateCallExpr::new(gate_call, exponent).to_texpr())
+            from_pow_gate_call_expr(pow_gate_call, context)
         }
 
         synast::Expr::CtrlGateCallExpr(ctrl_gate_call) => {
-            let exponent = match ctrl_gate_call.paren_expr() {
-                Some(paren_expr) => from_paren_expr(paren_expr, context),
-                None => None,
-            };
-            let gate_call = from_gate_call_expr(ctrl_gate_call.gate_call_expr().unwrap(), context);
-            Some(asg::CtrlGateCallExpr::new(gate_call, exponent).to_texpr())
+            from_ctrl_gate_call_expr(ctrl_gate_call, context)
         }
 
-        synast::Expr::NegCtrlGateCallExpr(neg_ctrl_gate_call) => {
-            let exponent = match neg_ctrl_gate_call.paren_expr() {
-                Some(paren_expr) => from_paren_expr(paren_expr, context),
-                None => None,
-            };
-            let gate_call =
-                from_gate_call_expr(neg_ctrl_gate_call.gate_call_expr().unwrap(), context);
-            Some(asg::NegCtrlGateCallExpr::new(gate_call, exponent).to_texpr())
+        synast::Expr::NegCtrlGateCallExpr(negctrl_gate_call) => {
+            from_negctrl_gate_call_expr(negctrl_gate_call, context)
         }
 
         // Everything else is not yet implemented
         _ => {
             println!("Expression not supported {:?}", expr);
             None
+        }
+    }
+}
+
+fn from_inv_gate_call_expr(
+    inv_gate_call_expr: synast::InvGateCallExpr,
+    context: &mut Context,
+) -> Option<asg::TExpr> {
+    let gate_call =
+        from_gen_gate_call_expr(inv_gate_call_expr.gen_gate_call_expr().unwrap(), context).unwrap();
+    Some(asg::InvGateCallExpr::new(gate_call).to_texpr())
+}
+
+fn from_pow_gate_call_expr(
+    pow_gate_call_expr: synast::PowGateCallExpr,
+    context: &mut Context,
+) -> Option<asg::TExpr> {
+    let gate_call =
+        from_gen_gate_call_expr(pow_gate_call_expr.gen_gate_call_expr().unwrap(), context).unwrap();
+    let exponent = from_paren_expr(pow_gate_call_expr.paren_expr().unwrap(), context).unwrap();
+    Some(asg::PowGateCallExpr::new(gate_call, exponent).to_texpr())
+}
+
+fn from_ctrl_gate_call_expr(
+    ctrl_gate_call_expr: synast::CtrlGateCallExpr,
+    context: &mut Context,
+) -> Option<asg::TExpr> {
+    let gate_call =
+        from_gen_gate_call_expr(ctrl_gate_call_expr.gen_gate_call_expr().unwrap(), context)
+            .unwrap();
+    let exponent = match ctrl_gate_call_expr.paren_expr() {
+        Some(paren_expr) => from_paren_expr(paren_expr, context),
+        None => None,
+    };
+    Some(asg::CtrlGateCallExpr::new(gate_call, exponent).to_texpr())
+}
+
+fn from_negctrl_gate_call_expr(
+    negctrl_gate_call_expr: synast::NegCtrlGateCallExpr,
+    context: &mut Context,
+) -> Option<asg::TExpr> {
+    let gate_call = from_gen_gate_call_expr(
+        negctrl_gate_call_expr.gen_gate_call_expr().unwrap(),
+        context,
+    )
+    .unwrap();
+    let exponent = match negctrl_gate_call_expr.paren_expr() {
+        Some(paren_expr) => from_paren_expr(paren_expr, context),
+        None => None,
+    };
+    Some(asg::NegCtrlGateCallExpr::new(gate_call, exponent).to_texpr())
+}
+
+fn from_gen_gate_call_expr(
+    gen_gate_call_expr: synast::GenGateCallExpr,
+    context: &mut Context,
+) -> Option<asg::TExpr> {
+    match gen_gate_call_expr {
+        synast::GenGateCallExpr::GateCallExpr(gate_call_expr) => {
+            Some(from_gate_call_expr(gate_call_expr, context))
+        }
+        synast::GenGateCallExpr::InvGateCallExpr(gate_call_expr) => {
+            from_inv_gate_call_expr(gate_call_expr, context)
+        }
+        synast::GenGateCallExpr::PowGateCallExpr(gate_call_expr) => {
+            from_pow_gate_call_expr(gate_call_expr, context)
+        }
+        synast::GenGateCallExpr::CtrlGateCallExpr(gate_call_expr) => {
+            from_ctrl_gate_call_expr(gate_call_expr, context)
+        }
+        synast::GenGateCallExpr::NegCtrlGateCallExpr(gate_call_expr) => {
+            from_negctrl_gate_call_expr(gate_call_expr, context)
         }
     }
 }

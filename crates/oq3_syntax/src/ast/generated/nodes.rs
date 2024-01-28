@@ -688,7 +688,7 @@ impl InvGateCallExpr {
     pub fn at_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![@])
     }
-    pub fn gate_call_expr(&self) -> Option<GateCallExpr> {
+    pub fn gen_gate_call_expr(&self) -> Option<GenGateCallExpr> {
         support::child(&self.syntax)
     }
 }
@@ -706,7 +706,7 @@ impl PowGateCallExpr {
     pub fn at_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![@])
     }
-    pub fn gate_call_expr(&self) -> Option<GateCallExpr> {
+    pub fn gen_gate_call_expr(&self) -> Option<GenGateCallExpr> {
         support::child(&self.syntax)
     }
 }
@@ -724,7 +724,7 @@ impl CtrlGateCallExpr {
     pub fn at_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![@])
     }
-    pub fn gate_call_expr(&self) -> Option<GateCallExpr> {
+    pub fn gen_gate_call_expr(&self) -> Option<GenGateCallExpr> {
         support::child(&self.syntax)
     }
 }
@@ -742,7 +742,7 @@ impl NegCtrlGateCallExpr {
     pub fn at_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![@])
     }
-    pub fn gate_call_expr(&self) -> Option<GateCallExpr> {
+    pub fn gen_gate_call_expr(&self) -> Option<GenGateCallExpr> {
         support::child(&self.syntax)
     }
 }
@@ -1071,6 +1071,14 @@ pub enum GateOperand {
 pub enum Stmt {
     ExprStmt(ExprStmt),
     Item(Item),
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum GenGateCallExpr {
+    InvGateCallExpr(InvGateCallExpr),
+    PowGateCallExpr(PowGateCallExpr),
+    CtrlGateCallExpr(CtrlGateCallExpr),
+    NegCtrlGateCallExpr(NegCtrlGateCallExpr),
+    GateCallExpr(GateCallExpr),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum IndexKind {
@@ -2577,6 +2585,65 @@ impl From<Item> for Stmt {
         Stmt::Item(node)
     }
 }
+impl From<InvGateCallExpr> for GenGateCallExpr {
+    fn from(node: InvGateCallExpr) -> GenGateCallExpr {
+        GenGateCallExpr::InvGateCallExpr(node)
+    }
+}
+impl From<PowGateCallExpr> for GenGateCallExpr {
+    fn from(node: PowGateCallExpr) -> GenGateCallExpr {
+        GenGateCallExpr::PowGateCallExpr(node)
+    }
+}
+impl From<CtrlGateCallExpr> for GenGateCallExpr {
+    fn from(node: CtrlGateCallExpr) -> GenGateCallExpr {
+        GenGateCallExpr::CtrlGateCallExpr(node)
+    }
+}
+impl From<NegCtrlGateCallExpr> for GenGateCallExpr {
+    fn from(node: NegCtrlGateCallExpr) -> GenGateCallExpr {
+        GenGateCallExpr::NegCtrlGateCallExpr(node)
+    }
+}
+impl From<GateCallExpr> for GenGateCallExpr {
+    fn from(node: GateCallExpr) -> GenGateCallExpr {
+        GenGateCallExpr::GateCallExpr(node)
+    }
+}
+impl AstNode for GenGateCallExpr {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        matches!(
+            kind,
+            INV_GATE_CALL_EXPR
+                | POW_GATE_CALL_EXPR
+                | CTRL_GATE_CALL_EXPR
+                | NEG_CTRL_GATE_CALL_EXPR
+                | GATE_CALL_EXPR
+        )
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        let res = match syntax.kind() {
+            INV_GATE_CALL_EXPR => GenGateCallExpr::InvGateCallExpr(InvGateCallExpr { syntax }),
+            POW_GATE_CALL_EXPR => GenGateCallExpr::PowGateCallExpr(PowGateCallExpr { syntax }),
+            CTRL_GATE_CALL_EXPR => GenGateCallExpr::CtrlGateCallExpr(CtrlGateCallExpr { syntax }),
+            NEG_CTRL_GATE_CALL_EXPR => {
+                GenGateCallExpr::NegCtrlGateCallExpr(NegCtrlGateCallExpr { syntax })
+            }
+            GATE_CALL_EXPR => GenGateCallExpr::GateCallExpr(GateCallExpr { syntax }),
+            _ => return None,
+        };
+        Some(res)
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        match self {
+            GenGateCallExpr::InvGateCallExpr(it) => &it.syntax,
+            GenGateCallExpr::PowGateCallExpr(it) => &it.syntax,
+            GenGateCallExpr::CtrlGateCallExpr(it) => &it.syntax,
+            GenGateCallExpr::NegCtrlGateCallExpr(it) => &it.syntax,
+            GenGateCallExpr::GateCallExpr(it) => &it.syntax,
+        }
+    }
+}
 impl From<SetExpression> for IndexKind {
     fn from(node: SetExpression) -> IndexKind {
         IndexKind::SetExpression(node)
@@ -2699,6 +2766,11 @@ impl std::fmt::Display for GateOperand {
     }
 }
 impl std::fmt::Display for Stmt {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for GenGateCallExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

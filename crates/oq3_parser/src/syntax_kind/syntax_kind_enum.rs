@@ -229,6 +229,7 @@ pub enum SyntaxKind {
     CTRL_GATE_CALL_EXPR,
     NEG_CTRL_GATE_CALL_EXPR,
     POW_GATE_CALL_EXPR,
+    GEN_GATE_CALL_EXPR,
     #[doc(hidden)]
     __LAST,
 }

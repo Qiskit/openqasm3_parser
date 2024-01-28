@@ -239,6 +239,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "CTRL_GATE_CALL_EXPR",
         "NEG_CTRL_GATE_CALL_EXPR",
         "POW_GATE_CALL_EXPR",
+        "GEN_GATE_CALL_EXPR",
     ],
 };
 

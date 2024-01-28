@@ -116,7 +116,7 @@ fn inv_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
     } else {
         p.error("Expecting `@`");
     }
-    gate_call_expr(p);
+    maybe_modified_gate_call_expr(p);
     m.complete(p, INV_GATE_CALL_EXPR)
 }
 
@@ -134,7 +134,7 @@ fn pow_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
         p.error("expecting argument to pow gate modifier");
     }
     p.expect(T![@]);
-    gate_call_expr(p);
+    maybe_modified_gate_call_expr(p);
     m.complete(p, POW_GATE_CALL_EXPR)
 }
 
@@ -149,7 +149,7 @@ fn ctrl_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
         m1.complete(p, PAREN_EXPR);
     }
     p.expect(T![@]);
-    gate_call_expr(p);
+    maybe_modified_gate_call_expr(p);
     m.complete(p, CTRL_GATE_CALL_EXPR)
 }
 
@@ -164,8 +164,18 @@ fn negctrl_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
         m1.complete(p, PAREN_EXPR);
     }
     p.expect(T![@]);
-    gate_call_expr(p);
+    maybe_modified_gate_call_expr(p);
     m.complete(p, NEG_CTRL_GATE_CALL_EXPR)
+}
+
+fn maybe_modified_gate_call_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    match p.current() {
+        T![inv] => inv_modifier_expr(p),
+        T![pow] => pow_modifier_expr(p),
+        T![ctrl] => ctrl_modifier_expr(p),
+        T![negctrl] => negctrl_modifier_expr(p),
+        _ => gate_call_expr(p),
+    }
 }
 
 fn gate_call_expr(p: &mut Parser<'_>) -> CompletedMarker {

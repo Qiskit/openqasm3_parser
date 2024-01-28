@@ -300,16 +300,19 @@ GPhaseCallStmt =
  'gphase' arg:Expr
 
 InvGateCallExpr =
-  'inv' '@' GateCallExpr
+  'inv' '@' GenGateCallExpr
 
 PowGateCallExpr =
-  'pow' ParenExpr '@' GateCallExpr
+  'pow' ParenExpr '@' GenGateCallExpr
 
 CtrlGateCallExpr =
-  'ctrl' ParenExpr? '@' GateCallExpr
+  'ctrl' ParenExpr? '@' GenGateCallExpr
 
 NegCtrlGateCallExpr =
-  'negctrl' ParenExpr? '@' GateCallExpr
+  'negctrl' ParenExpr? '@' GenGateCallExpr
+
+GenGateCallExpr =
+  InvGateCallExpr | PowGateCallExpr | CtrlGateCallExpr | NegCtrlGateCallExpr | GateCallExpr
 
 // label 'then_branch' is handled manually in expr_ext.rs
 IfStmt =
