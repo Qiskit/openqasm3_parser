@@ -56,7 +56,6 @@ pub(crate) fn expr_no_struct(p: &mut Parser<'_>) {
 
 // GJL made public. remove visibility
 pub(crate) fn stmt(p: &mut Parser<'_>, semicolon: Semicolon) {
-    // dbg!(p.current());
     if p.eat(T![;]) {
         return;
     }
@@ -226,15 +225,8 @@ fn expr_bp(
         return None;
     }
     let lhs_result = lhs(p, r);
-    //    dbg!(&lhs_result);
     let mut lhs = match lhs_result {
-        Some((lhs, blocklike, _got_call)) => {
-            // The following prevents making ExprStmt from fn or gate call.
-            // So the entire business of `got_call` can be abandoned, I think
-            // if got_call {
-            //     m.abandon(p);
-            //     return None;
-            // }
+        Some((lhs, blocklike)) => {
             let lhs = lhs.extend_to(p, m);
             if r.prefer_stmt && blocklike.is_block() {
                 return Some((lhs, BlockLike::Block));
@@ -284,7 +276,7 @@ const LHS_FIRST: TokenSet =
     atom::ATOM_EXPR_FIRST.union(TokenSet::new(&[T![&], T![*], T![!], T![.], T![-], T![_]]));
 
 // Handles only prefix and postfix expressions?? Not binary infix?
-fn lhs(p: &mut Parser<'_>, r: Restrictions) -> Option<(CompletedMarker, BlockLike, bool)> {
+fn lhs(p: &mut Parser<'_>, r: Restrictions) -> Option<(CompletedMarker, BlockLike)> {
     let m;
     // Unary operators. In OQ3 should be ~ ! -, In r-a this is * ! -
     let kind = match p.current() {
@@ -295,15 +287,15 @@ fn lhs(p: &mut Parser<'_>, r: Restrictions) -> Option<(CompletedMarker, BlockLik
         }
         _ => {
             let (lhs, blocklike) = atom::atom_expr(p, r)?;
-            let (cm, block_like, got_call) =
+            let (cm, block_like) =
                 postfix_expr(p, lhs, blocklike, !(r.prefer_stmt && blocklike.is_block()));
-            return Some((cm, block_like, got_call));
+            return Some((cm, block_like));
         }
     };
     // parse the interior of the unary expression
     expr_bp(p, None, r, 255);
     let cm = m.complete(p, kind);
-    Some((cm, BlockLike::NotBlock, false))
+    Some((cm, BlockLike::NotBlock))
 }
 
 fn postfix_expr(
@@ -314,8 +306,7 @@ fn postfix_expr(
     // `while true {break}; ();`
     mut block_like: BlockLike,
     mut allow_calls: bool,
-) -> (CompletedMarker, BlockLike, bool) {
-    let mut got_call = false;
+) -> (CompletedMarker, BlockLike) {
     loop {
         lhs = match p.current() {
             // test stmt_postfix_expr_ambiguity
@@ -326,10 +317,7 @@ fn postfix_expr(
             //         [] => {}
             //     }
             // }
-            T!['('] if allow_calls => {
-                got_call = true;
-                call_expr(p, lhs)
-            }
+            T!['('] if allow_calls => call_expr(p, lhs),
             T!['['] if allow_calls => match lhs.kind() {
                 IDENTIFIER => indexed_identifer(p, lhs),
                 _ => index_expr(p, lhs),
@@ -339,7 +327,7 @@ fn postfix_expr(
         allow_calls = true;
         block_like = BlockLike::NotBlock;
     }
-    (lhs, block_like, got_call)
+    (lhs, block_like)
 }
 
 // Consumes either a function (def) call, or a gate call.

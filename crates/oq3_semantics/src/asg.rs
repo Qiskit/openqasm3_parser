@@ -621,16 +621,8 @@ pub struct GateCallExpr {
     qubits: Vec<TExpr>,
 }
 
-// #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-// pub enum GateModifier {
-//     Inv,
-//     Pow(TExpr),
-//     Ctrl(Option<TExpr>),
-//     NegCtrl(Option<TExpr>),
-// }
-
 // Following naming in ref parser instead
-// We ~~will~~ should try to use the distinction between "parameter", which appears in the signature,
+// We ~~will~~ try to use the distinction between "parameter", which appears in the signature,
 // and "argument", which appears in the call expression.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum QubitArgument {
