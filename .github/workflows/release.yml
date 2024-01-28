@@ -13,6 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         crate: [oq3_lexer, oq3_parser, oq3_syntax, oq3_source_file, oq3_semantics]
+      max-parallel: 1
 
     steps:
       - uses: actions/checkout@v4
