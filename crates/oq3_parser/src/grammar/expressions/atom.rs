@@ -44,6 +44,10 @@ pub(super) const ATOM_EXPR_FIRST: TokenSet =
         T![return],
         T![while],
         T![measure],
+        T![inv],
+        T![ctrl],
+        T![negctrl],
+        T![pow],
     ]));
 
 pub(super) const EXPR_RECOVERY_SET: TokenSet = TokenSet::new(&[T![')'], T![']']]);
@@ -77,9 +81,13 @@ pub(super) fn atom_expr(
         T![return] => return_expr(p),
         T!['{'] => block_expr(p),
         T![for] => for_expr(p, None),
+        T![inv] => inv_modifier_expr(p),
+        T![pow] => pow_modifier_expr(p),
+        T![ctrl] => ctrl_modifier_expr(p),
+        T![negctrl] => negctrl_modifier_expr(p),
         // FIXME: This is the simplest gate call. Need to cover
         // `mygate(myparam) q1, q2;` as well.
-        //        IDENT if la == IDENT => gate_call_expr(p),
+        IDENT if la == IDENT => gate_call_expr(p),
         IDENT if (la == T![=] && p.nth(2) != T![=]) => grammar::items::assignment_statement(p),
         // FIXME: An identifer bound by the user in the program.
         // Need to handle more than identifier.
@@ -96,6 +104,88 @@ pub(super) fn atom_expr(
         BlockLike::NotBlock
     };
     Some((done, blocklike))
+}
+
+fn inv_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    let m = p.start();
+    p.bump(T![inv]);
+    if p.at(T![@]) {
+        p.bump(T![@]);
+    } else if p.at(T!['(']) {
+        p.error("Modifier `inv` accepts no parameter. Expecting `@`");
+    } else {
+        p.error("Expecting `@`");
+    }
+    maybe_modified_gate_call_expr(p);
+    m.complete(p, INV_GATE_CALL_EXPR)
+}
+
+fn pow_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    let m = p.start();
+    assert!(p.at(T![pow]));
+    p.bump(T![pow]);
+    if p.at(T!['(']) {
+        let m1 = p.start();
+        p.expect(T!['(']);
+        expressions::expr(p);
+        p.expect(T![')']);
+        m1.complete(p, PAREN_EXPR);
+    } else {
+        p.error("expecting argument to pow gate modifier");
+    }
+    p.expect(T![@]);
+    maybe_modified_gate_call_expr(p);
+    m.complete(p, POW_GATE_CALL_EXPR)
+}
+
+fn ctrl_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    let m = p.start();
+    p.bump(T![ctrl]);
+    if p.at(T!['(']) {
+        let m1 = p.start();
+        p.expect(T!['(']);
+        expressions::expr(p);
+        p.expect(T![')']);
+        m1.complete(p, PAREN_EXPR);
+    }
+    p.expect(T![@]);
+    maybe_modified_gate_call_expr(p);
+    m.complete(p, CTRL_GATE_CALL_EXPR)
+}
+
+fn negctrl_modifier_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    let m = p.start();
+    p.bump(T![negctrl]);
+    if p.at(T!['(']) {
+        let m1 = p.start();
+        p.expect(T!['(']);
+        expressions::expr(p);
+        p.expect(T![')']);
+        m1.complete(p, PAREN_EXPR);
+    }
+    p.expect(T![@]);
+    maybe_modified_gate_call_expr(p);
+    m.complete(p, NEG_CTRL_GATE_CALL_EXPR)
+}
+
+fn maybe_modified_gate_call_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    match p.current() {
+        T![inv] => inv_modifier_expr(p),
+        T![pow] => pow_modifier_expr(p),
+        T![ctrl] => ctrl_modifier_expr(p),
+        T![negctrl] => negctrl_modifier_expr(p),
+        _ => gate_call_expr(p),
+    }
+}
+
+fn gate_call_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    let m = p.start();
+    identifier(p); // name of gate
+    if p.at(T!['(']) {
+        expressions::call_arg_list(p);
+    }
+    params::arg_list_gate_call_qubits(p);
+    m.complete(p, GATE_CALL_EXPR)
 }
 
 fn measure_expression(p: &mut Parser<'_>) -> CompletedMarker {
@@ -118,7 +208,7 @@ fn measure_expression(p: &mut Parser<'_>) -> CompletedMarker {
 // FIXME: changed it back to IDENTIFIER
 pub(crate) fn identifier(p: &mut Parser<'_>) -> CompletedMarker {
     let m = p.start();
-    p.bump(IDENT);
+    p.expect(IDENT);
     m.complete(p, IDENTIFIER)
 }
 

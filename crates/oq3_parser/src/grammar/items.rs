@@ -101,7 +101,6 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
     match p.current() {
         T![qubit] => qubit_declaration_stmt(p, m),
         T![const] => expressions::classical_declaration_stmt(p, m),
-        IDENT if (la == IDENT || la == HARDWAREIDENT) => gate_call_stmt(p, m),
         IDENT if (la == T![=] && p.nth(2) != T![=]) => assignment_statement_with_marker(p, m),
         T![gate] => gate_definition(p, m),
         T![break] => break_(p, m),
@@ -125,21 +124,6 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         _ => return Err(m),
     }
     Ok(())
-}
-
-// expressions::call_expr also handles some occurences of gate calls
-// FIXME: params in parens are likely always caught in expressions::call_expr
-fn gate_call_stmt(p: &mut Parser<'_>, m: Marker) {
-    //    expressions::var_name(p);
-    expressions::atom::identifier(p); // name of gate
-    assert!(!p.at(T!['(']));
-    // This is never true, I hope
-    if p.at(T!['(']) {
-        expressions::call_arg_list(p);
-    }
-    params::arg_list_gate_call_qubits(p);
-    p.expect(SEMICOLON);
-    m.complete(p, GATE_CALL_STMT);
 }
 
 fn gphase_call(p: &mut Parser<'_>, m: Marker) {

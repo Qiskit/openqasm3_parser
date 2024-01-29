@@ -352,7 +352,7 @@ impl Marker {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct CompletedMarker {
     pos: u32,
     kind: SyntaxKind,
