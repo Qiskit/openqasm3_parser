@@ -1,4 +1,8 @@
 # OpenQASM 3 Parser
+[![License](https://img.shields.io/github/license/Qiskit/rustworkx.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)
+[![Minimum rustc 1.70](https://img.shields.io/badge/rustc-1.70+-blue.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
+[![oq3_semantics crate](https://img.shields.io/crates/v/oq3_semantics.svg)](https://crates.io/crates/oq3_semantics)
+
 
 This project provides a compiler front end for OpenQASM 3 language (OQ3).
 
@@ -9,20 +13,6 @@ Differences with the [OpenQASM reference parser](https://github.com/openqasm/ope
 * The parser in `openqasm3_parser` is much more performant.
   A crude test with large source files showed parse time reduced by a factor of 80.
 * `openqasm3_parser` performs semantic analysis.
-
-<details>
-  <summary>What is a rust "crate"</summary>
-
-We talk about rust ["crates"](https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html).
-A rust library crate is more or less the source for a rust library that is developed, built, and installed with the rust package manager [cargo](https://doc.rust-lang.org/cargo/).
-This single repository contains more than one separately installable crates. In the future, this repository may also be used to generate other artifacts.
-
-</details>
-
-### Status
-
-There have been no releases of any kind. I'll try to keep something more or less meaningful in this spot.
-For instance, I hope to soon replace "I" with "we".
 
 ### Crates (roughly one installable library per crate)
 
@@ -40,6 +30,16 @@ and outputs an [abstract semantic graph (ASG)](https://en.wikipedia.org/wiki/Abs
 There are other names for this structure. But "ASG" is convenient.
 * [oq3_source_file](./crates/oq3_source_file) -- A higher-level interface to the syntactic AST. This sits beetween the syntactic AST and
 semantic ASG. This crate manages the main source file and incuded source files.
+
+<details>
+  <summary>What is a rust "crate"</summary>
+
+We talk about rust ["crates"](https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html).
+A rust library crate is more or less the source for a rust library that is developed, built, and installed with the rust package manager [cargo](https://doc.rust-lang.org/cargo/).
+This single repository contains more than one separately installable crates. In the future, this repository may also be used to generate other artifacts.
+
+</details>
+
 
 ### Warning !
 
