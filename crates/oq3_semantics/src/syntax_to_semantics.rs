@@ -190,11 +190,54 @@ pub fn syntax_to_semantic<T: SourceTrait>(
 }
 
 fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<asg::Stmt> {
-    let expr = from_expr(expr_stmt.expr().unwrap(), context);
-    expr.map_or_else(
-        || panic!("expr::ExprStmt is None"),
-        |ex| Some(asg::Stmt::ExprStmt(ex)),
-    )
+    use synast::Expr::{GateCallExpr, ModifiedGateCallExpr};
+    let syn_expr = expr_stmt.expr().unwrap();
+
+    // At present, two expressions, those for gate calls, are handled specially. In oq3_syntax, gate calls
+    // are expressions wrapped in `ExprStmt`. But in the ASG, gate calls are are variant of `Stmt`. All
+    // other `synast::ExprStmt` are translated to `asg::ExprStmt`.
+    match syn_expr {
+        GateCallExpr(gate_call) => {
+            from_gate_call_expr(gate_call, Vec::<asg::GateModifier>::new(), context)
+        }
+        ModifiedGateCallExpr(mod_gate_call) => {
+            let modifiers = mod_gate_call
+                .modifiers()
+                .map(|modifier| match modifier {
+                    synast::Modifier::InvModifier(_) => asg::GateModifier::Inv,
+
+                    synast::Modifier::PowModifier(pow_mod) => {
+                        let exponent =
+                            from_paren_expr(pow_mod.paren_expr().unwrap(), context).unwrap();
+                        asg::GateModifier::Pow(exponent)
+                    }
+
+                    synast::Modifier::CtrlModifier(ctrl_mod) => {
+                        let exponent = ctrl_mod
+                            .paren_expr()
+                            .and_then(|x| from_paren_expr(x, context));
+                        asg::GateModifier::Ctrl(exponent)
+                    }
+
+                    synast::Modifier::NegCtrlModifier(neg_ctrl_mod) => {
+                        let exponent = neg_ctrl_mod
+                            .paren_expr()
+                            .and_then(|x| from_paren_expr(x, context));
+                        asg::GateModifier::NegCtrl(exponent)
+                    }
+                })
+                .collect();
+
+            from_gate_call_expr(mod_gate_call.gate_call_expr().unwrap(), modifiers, context)
+        }
+        _ => {
+            let expr = from_expr(syn_expr, context);
+            expr.map_or_else(
+                || panic!("expr::ExprStmt is None"),
+                |ex| Some(asg::Stmt::ExprStmt(ex)),
+            )
+        }
+    }
 }
 
 fn from_paren_expr(paren_expr: synast::ParenExpr, context: &mut Context) -> Option<asg::TExpr> {
@@ -203,8 +246,8 @@ fn from_paren_expr(paren_expr: synast::ParenExpr, context: &mut Context) -> Opti
 
 fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
     match expr {
-        //        synast::Expr::ParenExpr(paren_expr) => from_expr(paren_expr.expr().unwrap(), context),
         synast::Expr::ParenExpr(paren_expr) => from_paren_expr(paren_expr, context),
+
         synast::Expr::BinExpr(bin_expr) => {
             let synast_op = bin_expr.op_kind().unwrap();
             let left_syn = bin_expr.lhs().unwrap();
@@ -252,24 +295,6 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
             Some(asg::MeasureExpression::new(gate_operand_asg).to_texpr())
         }
 
-        synast::Expr::GateCallExpr(gate_call) => Some(from_gate_call_expr(gate_call, context)),
-
-        synast::Expr::InvGateCallExpr(inv_gate_call) => {
-            from_inv_gate_call_expr(inv_gate_call, context)
-        }
-
-        synast::Expr::PowGateCallExpr(pow_gate_call) => {
-            from_pow_gate_call_expr(pow_gate_call, context)
-        }
-
-        synast::Expr::CtrlGateCallExpr(ctrl_gate_call) => {
-            from_ctrl_gate_call_expr(ctrl_gate_call, context)
-        }
-
-        synast::Expr::NegCtrlGateCallExpr(negctrl_gate_call) => {
-            from_negctrl_gate_call_expr(negctrl_gate_call, context)
-        }
-
         // Everything else is not yet implemented
         _ => {
             println!("Expression not supported {:?}", expr);
@@ -278,80 +303,12 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
     }
 }
 
-fn from_inv_gate_call_expr(
-    inv_gate_call_expr: synast::InvGateCallExpr,
+fn from_gate_call_expr(
+    gate_call_expr: synast::GateCallExpr,
+    modifiers: Vec<asg::GateModifier>,
     context: &mut Context,
-) -> Option<asg::TExpr> {
-    let gate_call =
-        from_gen_gate_call_expr(inv_gate_call_expr.gen_gate_call_expr().unwrap(), context).unwrap();
-    Some(asg::InvGateCallExpr::new(gate_call).to_texpr())
-}
-
-fn from_pow_gate_call_expr(
-    pow_gate_call_expr: synast::PowGateCallExpr,
-    context: &mut Context,
-) -> Option<asg::TExpr> {
-    let gate_call =
-        from_gen_gate_call_expr(pow_gate_call_expr.gen_gate_call_expr().unwrap(), context).unwrap();
-    let exponent = from_paren_expr(pow_gate_call_expr.paren_expr().unwrap(), context).unwrap();
-    Some(asg::PowGateCallExpr::new(gate_call, exponent).to_texpr())
-}
-
-fn from_ctrl_gate_call_expr(
-    ctrl_gate_call_expr: synast::CtrlGateCallExpr,
-    context: &mut Context,
-) -> Option<asg::TExpr> {
-    let gate_call =
-        from_gen_gate_call_expr(ctrl_gate_call_expr.gen_gate_call_expr().unwrap(), context)
-            .unwrap();
-    let exponent = match ctrl_gate_call_expr.paren_expr() {
-        Some(paren_expr) => from_paren_expr(paren_expr, context),
-        None => None,
-    };
-    Some(asg::CtrlGateCallExpr::new(gate_call, exponent).to_texpr())
-}
-
-fn from_negctrl_gate_call_expr(
-    negctrl_gate_call_expr: synast::NegCtrlGateCallExpr,
-    context: &mut Context,
-) -> Option<asg::TExpr> {
-    let gate_call = from_gen_gate_call_expr(
-        negctrl_gate_call_expr.gen_gate_call_expr().unwrap(),
-        context,
-    )
-    .unwrap();
-    let exponent = match negctrl_gate_call_expr.paren_expr() {
-        Some(paren_expr) => from_paren_expr(paren_expr, context),
-        None => None,
-    };
-    Some(asg::NegCtrlGateCallExpr::new(gate_call, exponent).to_texpr())
-}
-
-fn from_gen_gate_call_expr(
-    gen_gate_call_expr: synast::GenGateCallExpr,
-    context: &mut Context,
-) -> Option<asg::TExpr> {
-    match gen_gate_call_expr {
-        synast::GenGateCallExpr::GateCallExpr(gate_call_expr) => {
-            Some(from_gate_call_expr(gate_call_expr, context))
-        }
-        synast::GenGateCallExpr::InvGateCallExpr(gate_call_expr) => {
-            from_inv_gate_call_expr(gate_call_expr, context)
-        }
-        synast::GenGateCallExpr::PowGateCallExpr(gate_call_expr) => {
-            from_pow_gate_call_expr(gate_call_expr, context)
-        }
-        synast::GenGateCallExpr::CtrlGateCallExpr(gate_call_expr) => {
-            from_ctrl_gate_call_expr(gate_call_expr, context)
-        }
-        synast::GenGateCallExpr::NegCtrlGateCallExpr(gate_call_expr) => {
-            from_negctrl_gate_call_expr(gate_call_expr, context)
-        }
-    }
-}
-
-fn from_gate_call_expr(gate_call_expr: synast::GateCallExpr, context: &mut Context) -> asg::TExpr {
-    // Warning, I think map overlooks None. which can cause a bug, in the present case.
+) -> Option<asg::Stmt> {
+    // Warning, I think map overlooks None. This can cause a bug in the present case.
     // Because None means a coding error upstream. Better to blow up here.
     let gate_operands: Vec<_> = gate_call_expr
         .qubit_list()
@@ -401,7 +358,12 @@ fn from_gate_call_expr(gate_call_expr: synast::GateCallExpr, context: &mut Conte
         // If symbol_result.is_err then we have already logged UndefGateError.
         context.insert_error(IncompatibleTypesError, &gate_id.unwrap());
     }
-    asg::GateCallExpr::new(symbol_result, param_list, gate_operands).to_texpr()
+    Some(asg::Stmt::GateCall(asg::GateCall::new(
+        symbol_result,
+        param_list,
+        gate_operands,
+        modifiers,
+    )))
 }
 
 fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -> asg::TExpr {
@@ -759,11 +721,6 @@ fn from_assignment_stmt(
                                                                    //    let is_mutating_const = symbol_id.is_ok() && typ.is_const();
     let lvalue = asg::LValue::IndexedIdentifier(indexed_identifier);
     Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt())
-    // let stmt_asg = Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt());
-    // if is_mutating_const {
-    //     context.insert_error(MutateConstError, assignment_stmt);
-    // }
-    // stmt_asg
 }
 
 //

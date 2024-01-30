@@ -163,17 +163,16 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "BLOCK_EXPR",
         "STMT_LIST",
         "RETURN_EXPR",
-        //        "LET_EXPR",
         "LET_STMT",
         "ALIAS_EXPR",
         "CONCATENATION_EXPR",
         "BOX_EXPR",
         // postfix
         "CALL_EXPR",
-        "CAST_EXPRESSION",
-        "GATE_CALL_STMT",
         "GATE_CALL_EXPR",
+        "MODIFIED_GATE_CALL_EXPR",
         "G_PHASE_CALL_STMT",
+        "CAST_EXPRESSION",
         "INDEX_EXPR",
         // unary
         "PREFIX_EXPR",
@@ -234,12 +233,12 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "MEASURE_EXPRESSION",
         "OLD_STYLE_DECLARATION_STATEMENT",
         "QUANTUM_DECLARATION_STATEMENT",
-        // modified gate calls
-        "INV_GATE_CALL_EXPR",
-        "CTRL_GATE_CALL_EXPR",
-        "NEG_CTRL_GATE_CALL_EXPR",
-        "POW_GATE_CALL_EXPR",
-        "GEN_GATE_CALL_EXPR",
+        // Gate modifiers
+        "INV_MODIFIER",
+        "POW_MODIFIER",
+        "CTRL_MODIFIER",
+        "NEG_CTRL_MODIFIER",
+        "MODIFIER",
     ],
 };
 

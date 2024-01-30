@@ -60,6 +60,22 @@ if (true) {
     assert!(if_stmt.else_branch().is_none());
 }
 
+// FIXME: The small test harness we use here only counts semantic errors.
+// but we need to detect syntax errors here.
+// #[test]
+// fn test_from_string_if_condition_parens() {
+//     let code = r##"
+// if x == 1 {
+//    true;
+// }
+// "##;
+//     let (program, errors, _symbol_table) = parse_string(code);
+//     dbg!(program.clone());
+//     dbg!(errors.clone());
+//     assert_eq!(errors.len(), 1);
+//     assert_eq!(program.len(), 0);
+// }
+
 #[test]
 fn test_from_string_while_stmt() {
     let code = r##"
@@ -254,6 +270,18 @@ fn test_from_string_inv_gate_call() {
 gate h q {}
 qubit q;
 inv @ h q;
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 3);
+}
+
+#[test]
+fn test_from_string_mult_mod_gate_call() {
+    let code = r#"
+gate h q {}
+qubit q;
+ctrl(3) @ inv @ h q;
 "#;
     let (program, errors, _symbol_table) = parse_string(code);
     assert!(errors.is_empty());

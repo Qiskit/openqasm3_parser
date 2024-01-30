@@ -123,11 +123,6 @@ pub enum Expr {
     Cast(Cast),
     Identifier(Identifier),
     HardwareQubit(HardwareQubit),
-    GateCallExpr(Box<GateCallExpr>),
-    InvGateCallExpr(Box<InvGateCallExpr>),
-    PowGateCallExpr(Box<PowGateCallExpr>),
-    CtrlGateCallExpr(Box<CtrlGateCallExpr>),
-    NegCtrlGateCallExpr(Box<NegCtrlGateCallExpr>),
     IndexExpression(IndexExpression),
     IndexedIdentifier(IndexedIdentifier),
     GateOperand(GateOperand),
@@ -191,6 +186,7 @@ pub enum Stmt {
     Extern, // stub
     For,    // stub
     GateDeclaration(GateDeclaration),
+    GateCall(GateCall), // A statement because a gate call does not return anything
     GPhaseCall(GPhaseCall),
     IODeclaration, // stub
     If(If),
@@ -615,14 +611,23 @@ impl Barrier {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct GateCallExpr {
+pub struct GateCall {
     name: SymbolIdResult,
     params: Option<Vec<TExpr>>,
     qubits: Vec<TExpr>,
+    modifiers: Vec<GateModifier>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub enum GateModifier {
+    Inv,
+    Pow(TExpr),
+    Ctrl(Option<TExpr>),
+    NegCtrl(Option<TExpr>),
 }
 
 // Following naming in ref parser instead
-// We ~~will~~ try to use the distinction between "parameter", which appears in the signature,
+// We ~~will~~ should try to use the distinction between "parameter", which appears in the signature,
 // and "argument", which appears in the call expression.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum QubitArgument {
@@ -643,16 +648,18 @@ impl GateOperand {
     }
 }
 
-impl GateCallExpr {
+impl GateCall {
     pub fn new(
         name: SymbolIdResult,
         params: Option<Vec<TExpr>>,
         qubits: Vec<TExpr>,
-    ) -> GateCallExpr {
-        GateCallExpr {
+        modifiers: Vec<GateModifier>,
+    ) -> GateCall {
+        GateCall {
             name,
             params,
             qubits,
+            modifiers,
         }
     }
 
@@ -668,129 +675,8 @@ impl GateCallExpr {
         &self.params
     }
 
-    pub fn to_expr(self) -> Expr {
-        Expr::GateCallExpr(Box::new(self))
-    }
-
-    // FIXME: use Gate(i32, i32)
-    pub fn to_texpr(self) -> TExpr {
-        TExpr::new(self.to_expr(), Type::ToDo)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct InvGateCallExpr {
-    gate_call: TExpr,
-}
-
-impl InvGateCallExpr {
-    pub fn new(gate_call: TExpr) -> InvGateCallExpr {
-        InvGateCallExpr { gate_call }
-    }
-
-    pub fn gate_call(&self) -> &TExpr {
-        &self.gate_call
-    }
-
-    pub fn to_expr(self) -> Expr {
-        Expr::InvGateCallExpr(Box::new(self))
-    }
-
-    pub fn to_texpr(self) -> TExpr {
-        TExpr::new(self.to_expr(), Type::ToDo)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct PowGateCallExpr {
-    gate_call: TExpr,
-    exponent: TExpr,
-}
-
-impl PowGateCallExpr {
-    pub fn new(gate_call: TExpr, exponent: TExpr) -> PowGateCallExpr {
-        PowGateCallExpr {
-            gate_call,
-            exponent,
-        }
-    }
-
-    pub fn gate_call(&self) -> &TExpr {
-        &self.gate_call
-    }
-
-    pub fn exponent(&self) -> &TExpr {
-        &self.exponent
-    }
-
-    pub fn to_expr(self) -> Expr {
-        Expr::PowGateCallExpr(Box::new(self))
-    }
-
-    pub fn to_texpr(self) -> TExpr {
-        TExpr::new(self.to_expr(), Type::ToDo)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct CtrlGateCallExpr {
-    gate_call: TExpr,
-    exponent: Option<TExpr>,
-}
-
-impl CtrlGateCallExpr {
-    pub fn new(gate_call: TExpr, exponent: Option<TExpr>) -> CtrlGateCallExpr {
-        CtrlGateCallExpr {
-            gate_call,
-            exponent,
-        }
-    }
-
-    pub fn gate_call(&self) -> &TExpr {
-        &self.gate_call
-    }
-
-    pub fn exponent(&self) -> Option<&TExpr> {
-        self.exponent.as_ref()
-    }
-
-    pub fn to_expr(self) -> Expr {
-        Expr::CtrlGateCallExpr(Box::new(self))
-    }
-
-    pub fn to_texpr(self) -> TExpr {
-        TExpr::new(self.to_expr(), Type::ToDo)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct NegCtrlGateCallExpr {
-    gate_call: TExpr,
-    exponent: Option<TExpr>,
-}
-
-impl NegCtrlGateCallExpr {
-    pub fn new(gate_call: TExpr, exponent: Option<TExpr>) -> NegCtrlGateCallExpr {
-        NegCtrlGateCallExpr {
-            gate_call,
-            exponent,
-        }
-    }
-
-    pub fn gate_call(&self) -> &TExpr {
-        &self.gate_call
-    }
-
-    pub fn exponent(&self) -> Option<&TExpr> {
-        self.exponent.as_ref()
-    }
-
-    pub fn to_expr(self) -> Expr {
-        Expr::NegCtrlGateCallExpr(Box::new(self))
-    }
-
-    pub fn to_texpr(self) -> TExpr {
-        TExpr::new(self.to_expr(), Type::ToDo)
+    pub fn modifiers(&self) -> &[GateModifier] {
+        &self.modifiers
     }
 }
 

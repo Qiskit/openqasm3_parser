@@ -138,7 +138,9 @@ fn if_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![if]));
     //    let m = p.start();
     p.bump(T![if]);
+    p.expect(T!['(']);
     expressions::expr_no_struct(p);
+    p.expect(T![')']);
     expressions::block_expr(p);
     if p.at(T![else]) {
         p.bump(T![else]);
@@ -156,7 +158,9 @@ fn if_stmt(p: &mut Parser<'_>, m: Marker) {
 fn while_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![while]));
     p.bump(T![while]);
+    p.expect(T!['(']);
     expressions::expr_no_struct(p);
+    p.expect(T![')']);
     expressions::block_expr(p);
     m.complete(p, WHILE_STMT);
 }
