@@ -25,5 +25,5 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       - run: date
-      - run: sleep 120
+      - run: sleep 60
       - run: date
