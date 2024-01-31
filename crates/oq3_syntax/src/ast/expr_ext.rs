@@ -417,21 +417,6 @@ impl ast::AssignmentStmt {
     }
 }
 
-impl ast::GateCallStmt {
-    // This may be redundant
-    pub fn name(&self) -> Option<ast::Name> {
-        support::child(&self.syntax)
-    }
-
-    pub fn identifier(&self) -> Option<ast::Identifier> {
-        let maybe_id = support::children(self.syntax()).next();
-        match maybe_id {
-            Some(ast::Expr::Identifier(ident)) => Some(ident),
-            _ => None,
-        }
-    }
-}
-
 impl ast::GateCallExpr {
     // This may be redundant
     pub fn name(&self) -> Option<ast::Name> {

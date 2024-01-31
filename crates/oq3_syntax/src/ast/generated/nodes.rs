@@ -175,17 +175,6 @@ impl QuantumDeclarationStatement {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct GateCallStmt {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ast::HasName for GateCallStmt {}
-impl ast::HasArgList for GateCallStmt {}
-impl GateCallStmt {
-    pub fn qubit_list(&self) -> Option<QubitList> {
-        support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct GPhaseCallStmt {
     pub(crate) syntax: SyntaxNode,
 }
@@ -273,6 +262,12 @@ impl IfStmt {
     pub fn if_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![if])
     }
+    pub fn l_paren_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['('])
+    }
+    pub fn r_paren_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![')'])
+    }
     pub fn else_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![else])
     }
@@ -284,6 +279,12 @@ pub struct WhileStmt {
 impl WhileStmt {
     pub fn while_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![while])
+    }
+    pub fn l_paren_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['('])
+    }
+    pub fn r_paren_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![')'])
     }
     pub fn loop_body(&self) -> Option<Expr> {
         support::child(&self.syntax)
@@ -505,6 +506,21 @@ impl ArrayExpr {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct ArrayLiteral {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ArrayLiteral {
+    pub fn l_curly_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['{'])
+    }
+    pub fn expression_list(&self) -> Option<ExpressionList> {
+        support::child(&self.syntax)
+    }
+    pub fn r_curly_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['}'])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct BinExpr {
     pub(crate) syntax: SyntaxNode,
 }
@@ -532,17 +548,6 @@ impl CallExpr {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct GateCallExpr {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ast::HasName for GateCallExpr {}
-impl ast::HasArgList for GateCallExpr {}
-impl GateCallExpr {
-    pub fn qubit_list(&self) -> Option<QubitList> {
-        support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct CastExpression {
     pub(crate) syntax: SyntaxNode,
 }
@@ -561,6 +566,32 @@ impl CastExpression {
     }
     pub fn r_paren_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![')'])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct GateCallExpr {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ast::HasName for GateCallExpr {}
+impl ast::HasArgList for GateCallExpr {}
+impl GateCallExpr {
+    pub fn qubit_list(&self) -> Option<QubitList> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct HardwareQubit {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ast::HasName for HardwareQubit {}
+impl HardwareQubit {}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Identifier {
+    pub(crate) syntax: SyntaxNode,
+}
+impl Identifier {
+    pub fn ident_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![ident])
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -590,6 +621,33 @@ pub struct Literal {
     pub(crate) syntax: SyntaxNode,
 }
 impl Literal {}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct MeasureExpression {
+    pub(crate) syntax: SyntaxNode,
+}
+impl MeasureExpression {
+    pub fn measure_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![measure])
+    }
+    pub fn gate_operand(&self) -> Option<GateOperand> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct ModifiedGateCallExpr {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ModifiedGateCallExpr {
+    pub fn modifier(&self) -> Option<Modifier> {
+        support::child(&self.syntax)
+    }
+    pub fn modifiers(&self) -> AstChildren<Modifier> {
+        support::children(&self.syntax)
+    }
+    pub fn gate_call_expr(&self) -> Option<GateCallExpr> {
+        support::child(&self.syntax)
+    }
+}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ParenExpr {
     pub(crate) syntax: SyntaxNode,
@@ -632,117 +690,6 @@ impl ReturnExpr {
         support::token(&self.syntax, T![return])
     }
     pub fn expr(&self) -> Option<Expr> {
-        support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ArrayLiteral {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ArrayLiteral {
-    pub fn l_curly_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T!['{'])
-    }
-    pub fn expression_list(&self) -> Option<ExpressionList> {
-        support::child(&self.syntax)
-    }
-    pub fn r_curly_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T!['}'])
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct MeasureExpression {
-    pub(crate) syntax: SyntaxNode,
-}
-impl MeasureExpression {
-    pub fn measure_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![measure])
-    }
-    pub fn gate_operand(&self) -> Option<GateOperand> {
-        support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Identifier {
-    pub(crate) syntax: SyntaxNode,
-}
-impl Identifier {
-    pub fn ident_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![ident])
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct HardwareQubit {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ast::HasName for HardwareQubit {}
-impl HardwareQubit {}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct InvGateCallExpr {
-    pub(crate) syntax: SyntaxNode,
-}
-impl InvGateCallExpr {
-    pub fn inv_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![inv])
-    }
-    pub fn at_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![@])
-    }
-    pub fn gen_gate_call_expr(&self) -> Option<GenGateCallExpr> {
-        support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct PowGateCallExpr {
-    pub(crate) syntax: SyntaxNode,
-}
-impl PowGateCallExpr {
-    pub fn pow_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![pow])
-    }
-    pub fn paren_expr(&self) -> Option<ParenExpr> {
-        support::child(&self.syntax)
-    }
-    pub fn at_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![@])
-    }
-    pub fn gen_gate_call_expr(&self) -> Option<GenGateCallExpr> {
-        support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct CtrlGateCallExpr {
-    pub(crate) syntax: SyntaxNode,
-}
-impl CtrlGateCallExpr {
-    pub fn ctrl_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![ctrl])
-    }
-    pub fn paren_expr(&self) -> Option<ParenExpr> {
-        support::child(&self.syntax)
-    }
-    pub fn at_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![@])
-    }
-    pub fn gen_gate_call_expr(&self) -> Option<GenGateCallExpr> {
-        support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct NegCtrlGateCallExpr {
-    pub(crate) syntax: SyntaxNode,
-}
-impl NegCtrlGateCallExpr {
-    pub fn negctrl_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![negctrl])
-    }
-    pub fn paren_expr(&self) -> Option<ParenExpr> {
-        support::child(&self.syntax)
-    }
-    pub fn at_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![@])
-    }
-    pub fn gen_gate_call_expr(&self) -> Option<GenGateCallExpr> {
         support::child(&self.syntax)
     }
 }
@@ -864,6 +811,63 @@ impl ArrayType {
     }
     pub fn r_brack_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![']'])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct InvModifier {
+    pub(crate) syntax: SyntaxNode,
+}
+impl InvModifier {
+    pub fn inv_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![inv])
+    }
+    pub fn at_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![@])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct PowModifier {
+    pub(crate) syntax: SyntaxNode,
+}
+impl PowModifier {
+    pub fn pow_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![pow])
+    }
+    pub fn paren_expr(&self) -> Option<ParenExpr> {
+        support::child(&self.syntax)
+    }
+    pub fn at_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![@])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct CtrlModifier {
+    pub(crate) syntax: SyntaxNode,
+}
+impl CtrlModifier {
+    pub fn ctrl_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![ctrl])
+    }
+    pub fn paren_expr(&self) -> Option<ParenExpr> {
+        support::child(&self.syntax)
+    }
+    pub fn at_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![@])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct NegCtrlModifier {
+    pub(crate) syntax: SyntaxNode,
+}
+impl NegCtrlModifier {
+    pub fn negctrl_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![negctrl])
+    }
+    pub fn paren_expr(&self) -> Option<ParenExpr> {
+        support::child(&self.syntax)
+    }
+    pub fn at_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![@])
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -1021,7 +1025,6 @@ pub enum Item {
     TypeDeclarationStmt(TypeDeclarationStmt),
     ClassicalDeclarationStatement(ClassicalDeclarationStatement),
     QuantumDeclarationStatement(QuantumDeclarationStatement),
-    GateCallStmt(GateCallStmt),
     GPhaseCallStmt(GPhaseCallStmt),
     LetStmt(LetStmt),
     AssignmentStmt(AssignmentStmt),
@@ -1040,26 +1043,23 @@ pub enum Item {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Expr {
     ArrayExpr(ArrayExpr),
+    ArrayLiteral(ArrayLiteral),
     BinExpr(BinExpr),
     BlockExpr(BlockExpr),
     BoxExpr(BoxExpr),
     CallExpr(CallExpr),
-    GateCallExpr(GateCallExpr),
     CastExpression(CastExpression),
+    GateCallExpr(GateCallExpr),
+    HardwareQubit(HardwareQubit),
+    Identifier(Identifier),
     IndexExpr(IndexExpr),
     IndexedIdentifier(IndexedIdentifier),
     Literal(Literal),
+    MeasureExpression(MeasureExpression),
+    ModifiedGateCallExpr(ModifiedGateCallExpr),
     ParenExpr(ParenExpr),
     RangeExpr(RangeExpr),
     ReturnExpr(ReturnExpr),
-    ArrayLiteral(ArrayLiteral),
-    MeasureExpression(MeasureExpression),
-    Identifier(Identifier),
-    HardwareQubit(HardwareQubit),
-    InvGateCallExpr(InvGateCallExpr),
-    PowGateCallExpr(PowGateCallExpr),
-    CtrlGateCallExpr(CtrlGateCallExpr),
-    NegCtrlGateCallExpr(NegCtrlGateCallExpr),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GateOperand {
@@ -1073,12 +1073,11 @@ pub enum Stmt {
     Item(Item),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum GenGateCallExpr {
-    InvGateCallExpr(InvGateCallExpr),
-    PowGateCallExpr(PowGateCallExpr),
-    CtrlGateCallExpr(CtrlGateCallExpr),
-    NegCtrlGateCallExpr(NegCtrlGateCallExpr),
-    GateCallExpr(GateCallExpr),
+pub enum Modifier {
+    InvModifier(InvModifier),
+    PowModifier(PowModifier),
+    CtrlModifier(CtrlModifier),
+    NegCtrlModifier(NegCtrlModifier),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum IndexKind {
@@ -1238,21 +1237,6 @@ impl AstNode for ClassicalDeclarationStatement {
 impl AstNode for QuantumDeclarationStatement {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == QUANTUM_DECLARATION_STATEMENT
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for GateCallStmt {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == GATE_CALL_STMT
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -1640,6 +1624,21 @@ impl AstNode for ArrayExpr {
         &self.syntax
     }
 }
+impl AstNode for ArrayLiteral {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == ARRAY_LITERAL
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for BinExpr {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == BIN_EXPR
@@ -1685,6 +1684,21 @@ impl AstNode for CallExpr {
         &self.syntax
     }
 }
+impl AstNode for CastExpression {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == CAST_EXPRESSION
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for GateCallExpr {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == GATE_CALL_EXPR
@@ -1700,9 +1714,24 @@ impl AstNode for GateCallExpr {
         &self.syntax
     }
 }
-impl AstNode for CastExpression {
+impl AstNode for HardwareQubit {
     fn can_cast(kind: SyntaxKind) -> bool {
-        kind == CAST_EXPRESSION
+        kind == HARDWARE_QUBIT
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for Identifier {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == IDENTIFIER
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -1760,6 +1789,36 @@ impl AstNode for Literal {
         &self.syntax
     }
 }
+impl AstNode for MeasureExpression {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == MEASURE_EXPRESSION
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for ModifiedGateCallExpr {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == MODIFIED_GATE_CALL_EXPR
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for ParenExpr {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == PAREN_EXPR
@@ -1793,126 +1852,6 @@ impl AstNode for RangeExpr {
 impl AstNode for ReturnExpr {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == RETURN_EXPR
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for ArrayLiteral {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == ARRAY_LITERAL
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for MeasureExpression {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == MEASURE_EXPRESSION
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for Identifier {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == IDENTIFIER
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for HardwareQubit {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == HARDWARE_QUBIT
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for InvGateCallExpr {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == INV_GATE_CALL_EXPR
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for PowGateCallExpr {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == POW_GATE_CALL_EXPR
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for CtrlGateCallExpr {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == CTRL_GATE_CALL_EXPR
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for NegCtrlGateCallExpr {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == NEG_CTRL_GATE_CALL_EXPR
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2003,6 +1942,66 @@ impl AstNode for ScalarType {
 impl AstNode for ArrayType {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == ARRAY_TYPE
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for InvModifier {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == INV_MODIFIER
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for PowModifier {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == POW_MODIFIER
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for CtrlModifier {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == CTRL_MODIFIER
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for NegCtrlModifier {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == NEG_CTRL_MODIFIER
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2190,11 +2189,6 @@ impl From<QuantumDeclarationStatement> for Item {
         Item::QuantumDeclarationStatement(node)
     }
 }
-impl From<GateCallStmt> for Item {
-    fn from(node: GateCallStmt) -> Item {
-        Item::GateCallStmt(node)
-    }
-}
 impl From<GPhaseCallStmt> for Item {
     fn from(node: GPhaseCallStmt) -> Item {
         Item::GPhaseCallStmt(node)
@@ -2276,7 +2270,6 @@ impl AstNode for Item {
                 | TYPE_DECLARATION_STMT
                 | CLASSICAL_DECLARATION_STATEMENT
                 | QUANTUM_DECLARATION_STATEMENT
-                | GATE_CALL_STMT
                 | G_PHASE_CALL_STMT
                 | LET_STMT
                 | ASSIGNMENT_STMT
@@ -2307,7 +2300,6 @@ impl AstNode for Item {
             QUANTUM_DECLARATION_STATEMENT => {
                 Item::QuantumDeclarationStatement(QuantumDeclarationStatement { syntax })
             }
-            GATE_CALL_STMT => Item::GateCallStmt(GateCallStmt { syntax }),
             G_PHASE_CALL_STMT => Item::GPhaseCallStmt(GPhaseCallStmt { syntax }),
             LET_STMT => Item::LetStmt(LetStmt { syntax }),
             ASSIGNMENT_STMT => Item::AssignmentStmt(AssignmentStmt { syntax }),
@@ -2336,7 +2328,6 @@ impl AstNode for Item {
             Item::TypeDeclarationStmt(it) => &it.syntax,
             Item::ClassicalDeclarationStatement(it) => &it.syntax,
             Item::QuantumDeclarationStatement(it) => &it.syntax,
-            Item::GateCallStmt(it) => &it.syntax,
             Item::GPhaseCallStmt(it) => &it.syntax,
             Item::LetStmt(it) => &it.syntax,
             Item::AssignmentStmt(it) => &it.syntax,
@@ -2359,6 +2350,11 @@ impl From<ArrayExpr> for Expr {
         Expr::ArrayExpr(node)
     }
 }
+impl From<ArrayLiteral> for Expr {
+    fn from(node: ArrayLiteral) -> Expr {
+        Expr::ArrayLiteral(node)
+    }
+}
 impl From<BinExpr> for Expr {
     fn from(node: BinExpr) -> Expr {
         Expr::BinExpr(node)
@@ -2379,14 +2375,24 @@ impl From<CallExpr> for Expr {
         Expr::CallExpr(node)
     }
 }
+impl From<CastExpression> for Expr {
+    fn from(node: CastExpression) -> Expr {
+        Expr::CastExpression(node)
+    }
+}
 impl From<GateCallExpr> for Expr {
     fn from(node: GateCallExpr) -> Expr {
         Expr::GateCallExpr(node)
     }
 }
-impl From<CastExpression> for Expr {
-    fn from(node: CastExpression) -> Expr {
-        Expr::CastExpression(node)
+impl From<HardwareQubit> for Expr {
+    fn from(node: HardwareQubit) -> Expr {
+        Expr::HardwareQubit(node)
+    }
+}
+impl From<Identifier> for Expr {
+    fn from(node: Identifier) -> Expr {
+        Expr::Identifier(node)
     }
 }
 impl From<IndexExpr> for Expr {
@@ -2404,6 +2410,16 @@ impl From<Literal> for Expr {
         Expr::Literal(node)
     }
 }
+impl From<MeasureExpression> for Expr {
+    fn from(node: MeasureExpression) -> Expr {
+        Expr::MeasureExpression(node)
+    }
+}
+impl From<ModifiedGateCallExpr> for Expr {
+    fn from(node: ModifiedGateCallExpr) -> Expr {
+        Expr::ModifiedGateCallExpr(node)
+    }
+}
 impl From<ParenExpr> for Expr {
     fn from(node: ParenExpr) -> Expr {
         Expr::ParenExpr(node)
@@ -2419,96 +2435,50 @@ impl From<ReturnExpr> for Expr {
         Expr::ReturnExpr(node)
     }
 }
-impl From<ArrayLiteral> for Expr {
-    fn from(node: ArrayLiteral) -> Expr {
-        Expr::ArrayLiteral(node)
-    }
-}
-impl From<MeasureExpression> for Expr {
-    fn from(node: MeasureExpression) -> Expr {
-        Expr::MeasureExpression(node)
-    }
-}
-impl From<Identifier> for Expr {
-    fn from(node: Identifier) -> Expr {
-        Expr::Identifier(node)
-    }
-}
-impl From<HardwareQubit> for Expr {
-    fn from(node: HardwareQubit) -> Expr {
-        Expr::HardwareQubit(node)
-    }
-}
-impl From<InvGateCallExpr> for Expr {
-    fn from(node: InvGateCallExpr) -> Expr {
-        Expr::InvGateCallExpr(node)
-    }
-}
-impl From<PowGateCallExpr> for Expr {
-    fn from(node: PowGateCallExpr) -> Expr {
-        Expr::PowGateCallExpr(node)
-    }
-}
-impl From<CtrlGateCallExpr> for Expr {
-    fn from(node: CtrlGateCallExpr) -> Expr {
-        Expr::CtrlGateCallExpr(node)
-    }
-}
-impl From<NegCtrlGateCallExpr> for Expr {
-    fn from(node: NegCtrlGateCallExpr) -> Expr {
-        Expr::NegCtrlGateCallExpr(node)
-    }
-}
 impl AstNode for Expr {
     fn can_cast(kind: SyntaxKind) -> bool {
         matches!(
             kind,
             ARRAY_EXPR
+                | ARRAY_LITERAL
                 | BIN_EXPR
                 | BLOCK_EXPR
                 | BOX_EXPR
                 | CALL_EXPR
-                | GATE_CALL_EXPR
                 | CAST_EXPRESSION
+                | GATE_CALL_EXPR
+                | HARDWARE_QUBIT
+                | IDENTIFIER
                 | INDEX_EXPR
                 | INDEXED_IDENTIFIER
                 | LITERAL
+                | MEASURE_EXPRESSION
+                | MODIFIED_GATE_CALL_EXPR
                 | PAREN_EXPR
                 | RANGE_EXPR
                 | RETURN_EXPR
-                | ARRAY_LITERAL
-                | MEASURE_EXPRESSION
-                | IDENTIFIER
-                | HARDWARE_QUBIT
-                | INV_GATE_CALL_EXPR
-                | POW_GATE_CALL_EXPR
-                | CTRL_GATE_CALL_EXPR
-                | NEG_CTRL_GATE_CALL_EXPR
         )
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         let res = match syntax.kind() {
             ARRAY_EXPR => Expr::ArrayExpr(ArrayExpr { syntax }),
+            ARRAY_LITERAL => Expr::ArrayLiteral(ArrayLiteral { syntax }),
             BIN_EXPR => Expr::BinExpr(BinExpr { syntax }),
             BLOCK_EXPR => Expr::BlockExpr(BlockExpr { syntax }),
             BOX_EXPR => Expr::BoxExpr(BoxExpr { syntax }),
             CALL_EXPR => Expr::CallExpr(CallExpr { syntax }),
-            GATE_CALL_EXPR => Expr::GateCallExpr(GateCallExpr { syntax }),
             CAST_EXPRESSION => Expr::CastExpression(CastExpression { syntax }),
+            GATE_CALL_EXPR => Expr::GateCallExpr(GateCallExpr { syntax }),
+            HARDWARE_QUBIT => Expr::HardwareQubit(HardwareQubit { syntax }),
+            IDENTIFIER => Expr::Identifier(Identifier { syntax }),
             INDEX_EXPR => Expr::IndexExpr(IndexExpr { syntax }),
             INDEXED_IDENTIFIER => Expr::IndexedIdentifier(IndexedIdentifier { syntax }),
             LITERAL => Expr::Literal(Literal { syntax }),
+            MEASURE_EXPRESSION => Expr::MeasureExpression(MeasureExpression { syntax }),
+            MODIFIED_GATE_CALL_EXPR => Expr::ModifiedGateCallExpr(ModifiedGateCallExpr { syntax }),
             PAREN_EXPR => Expr::ParenExpr(ParenExpr { syntax }),
             RANGE_EXPR => Expr::RangeExpr(RangeExpr { syntax }),
             RETURN_EXPR => Expr::ReturnExpr(ReturnExpr { syntax }),
-            ARRAY_LITERAL => Expr::ArrayLiteral(ArrayLiteral { syntax }),
-            MEASURE_EXPRESSION => Expr::MeasureExpression(MeasureExpression { syntax }),
-            IDENTIFIER => Expr::Identifier(Identifier { syntax }),
-            HARDWARE_QUBIT => Expr::HardwareQubit(HardwareQubit { syntax }),
-            INV_GATE_CALL_EXPR => Expr::InvGateCallExpr(InvGateCallExpr { syntax }),
-            POW_GATE_CALL_EXPR => Expr::PowGateCallExpr(PowGateCallExpr { syntax }),
-            CTRL_GATE_CALL_EXPR => Expr::CtrlGateCallExpr(CtrlGateCallExpr { syntax }),
-            NEG_CTRL_GATE_CALL_EXPR => Expr::NegCtrlGateCallExpr(NegCtrlGateCallExpr { syntax }),
             _ => return None,
         };
         Some(res)
@@ -2516,26 +2486,23 @@ impl AstNode for Expr {
     fn syntax(&self) -> &SyntaxNode {
         match self {
             Expr::ArrayExpr(it) => &it.syntax,
+            Expr::ArrayLiteral(it) => &it.syntax,
             Expr::BinExpr(it) => &it.syntax,
             Expr::BlockExpr(it) => &it.syntax,
             Expr::BoxExpr(it) => &it.syntax,
             Expr::CallExpr(it) => &it.syntax,
-            Expr::GateCallExpr(it) => &it.syntax,
             Expr::CastExpression(it) => &it.syntax,
+            Expr::GateCallExpr(it) => &it.syntax,
+            Expr::HardwareQubit(it) => &it.syntax,
+            Expr::Identifier(it) => &it.syntax,
             Expr::IndexExpr(it) => &it.syntax,
             Expr::IndexedIdentifier(it) => &it.syntax,
             Expr::Literal(it) => &it.syntax,
+            Expr::MeasureExpression(it) => &it.syntax,
+            Expr::ModifiedGateCallExpr(it) => &it.syntax,
             Expr::ParenExpr(it) => &it.syntax,
             Expr::RangeExpr(it) => &it.syntax,
             Expr::ReturnExpr(it) => &it.syntax,
-            Expr::ArrayLiteral(it) => &it.syntax,
-            Expr::MeasureExpression(it) => &it.syntax,
-            Expr::Identifier(it) => &it.syntax,
-            Expr::HardwareQubit(it) => &it.syntax,
-            Expr::InvGateCallExpr(it) => &it.syntax,
-            Expr::PowGateCallExpr(it) => &it.syntax,
-            Expr::CtrlGateCallExpr(it) => &it.syntax,
-            Expr::NegCtrlGateCallExpr(it) => &it.syntax,
         }
     }
 }
@@ -2585,62 +2552,49 @@ impl From<Item> for Stmt {
         Stmt::Item(node)
     }
 }
-impl From<InvGateCallExpr> for GenGateCallExpr {
-    fn from(node: InvGateCallExpr) -> GenGateCallExpr {
-        GenGateCallExpr::InvGateCallExpr(node)
+impl From<InvModifier> for Modifier {
+    fn from(node: InvModifier) -> Modifier {
+        Modifier::InvModifier(node)
     }
 }
-impl From<PowGateCallExpr> for GenGateCallExpr {
-    fn from(node: PowGateCallExpr) -> GenGateCallExpr {
-        GenGateCallExpr::PowGateCallExpr(node)
+impl From<PowModifier> for Modifier {
+    fn from(node: PowModifier) -> Modifier {
+        Modifier::PowModifier(node)
     }
 }
-impl From<CtrlGateCallExpr> for GenGateCallExpr {
-    fn from(node: CtrlGateCallExpr) -> GenGateCallExpr {
-        GenGateCallExpr::CtrlGateCallExpr(node)
+impl From<CtrlModifier> for Modifier {
+    fn from(node: CtrlModifier) -> Modifier {
+        Modifier::CtrlModifier(node)
     }
 }
-impl From<NegCtrlGateCallExpr> for GenGateCallExpr {
-    fn from(node: NegCtrlGateCallExpr) -> GenGateCallExpr {
-        GenGateCallExpr::NegCtrlGateCallExpr(node)
+impl From<NegCtrlModifier> for Modifier {
+    fn from(node: NegCtrlModifier) -> Modifier {
+        Modifier::NegCtrlModifier(node)
     }
 }
-impl From<GateCallExpr> for GenGateCallExpr {
-    fn from(node: GateCallExpr) -> GenGateCallExpr {
-        GenGateCallExpr::GateCallExpr(node)
-    }
-}
-impl AstNode for GenGateCallExpr {
+impl AstNode for Modifier {
     fn can_cast(kind: SyntaxKind) -> bool {
         matches!(
             kind,
-            INV_GATE_CALL_EXPR
-                | POW_GATE_CALL_EXPR
-                | CTRL_GATE_CALL_EXPR
-                | NEG_CTRL_GATE_CALL_EXPR
-                | GATE_CALL_EXPR
+            INV_MODIFIER | POW_MODIFIER | CTRL_MODIFIER | NEG_CTRL_MODIFIER
         )
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         let res = match syntax.kind() {
-            INV_GATE_CALL_EXPR => GenGateCallExpr::InvGateCallExpr(InvGateCallExpr { syntax }),
-            POW_GATE_CALL_EXPR => GenGateCallExpr::PowGateCallExpr(PowGateCallExpr { syntax }),
-            CTRL_GATE_CALL_EXPR => GenGateCallExpr::CtrlGateCallExpr(CtrlGateCallExpr { syntax }),
-            NEG_CTRL_GATE_CALL_EXPR => {
-                GenGateCallExpr::NegCtrlGateCallExpr(NegCtrlGateCallExpr { syntax })
-            }
-            GATE_CALL_EXPR => GenGateCallExpr::GateCallExpr(GateCallExpr { syntax }),
+            INV_MODIFIER => Modifier::InvModifier(InvModifier { syntax }),
+            POW_MODIFIER => Modifier::PowModifier(PowModifier { syntax }),
+            CTRL_MODIFIER => Modifier::CtrlModifier(CtrlModifier { syntax }),
+            NEG_CTRL_MODIFIER => Modifier::NegCtrlModifier(NegCtrlModifier { syntax }),
             _ => return None,
         };
         Some(res)
     }
     fn syntax(&self) -> &SyntaxNode {
         match self {
-            GenGateCallExpr::InvGateCallExpr(it) => &it.syntax,
-            GenGateCallExpr::PowGateCallExpr(it) => &it.syntax,
-            GenGateCallExpr::CtrlGateCallExpr(it) => &it.syntax,
-            GenGateCallExpr::NegCtrlGateCallExpr(it) => &it.syntax,
-            GenGateCallExpr::GateCallExpr(it) => &it.syntax,
+            Modifier::InvModifier(it) => &it.syntax,
+            Modifier::PowModifier(it) => &it.syntax,
+            Modifier::CtrlModifier(it) => &it.syntax,
+            Modifier::NegCtrlModifier(it) => &it.syntax,
         }
     }
 }
@@ -2683,7 +2637,7 @@ impl AnyHasArgList {
 }
 impl AstNode for AnyHasArgList {
     fn can_cast(kind: SyntaxKind) -> bool {
-        matches!(kind, GATE_CALL_STMT | CALL_EXPR | GATE_CALL_EXPR)
+        matches!(kind, CALL_EXPR | GATE_CALL_EXPR)
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         Self::can_cast(syntax.kind()).then_some(AnyHasArgList { syntax })
@@ -2728,15 +2682,14 @@ impl AstNode for AnyHasName {
                 | TYPE_DECLARATION_STMT
                 | CLASSICAL_DECLARATION_STATEMENT
                 | QUANTUM_DECLARATION_STATEMENT
-                | GATE_CALL_STMT
                 | LET_STMT
                 | ASSIGNMENT_STMT
                 | TYPE_SPEC
                 | PARAM
                 | EXTERN_ITEM
                 | GATE_CALL_EXPR
-                | INDEXED_IDENTIFIER
                 | HARDWARE_QUBIT
+                | INDEXED_IDENTIFIER
                 | ALIAS_DECLARATION_STATEMENT
                 | CONST_DECLARATION_STATEMENT
                 | I_O_DECLARATION_STATEMENT
@@ -2770,7 +2723,7 @@ impl std::fmt::Display for Stmt {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
-impl std::fmt::Display for GenGateCallExpr {
+impl std::fmt::Display for Modifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -2826,11 +2779,6 @@ impl std::fmt::Display for ClassicalDeclarationStatement {
     }
 }
 impl std::fmt::Display for QuantumDeclarationStatement {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for GateCallStmt {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -2960,6 +2908,11 @@ impl std::fmt::Display for ArrayExpr {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
+impl std::fmt::Display for ArrayLiteral {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
 impl std::fmt::Display for BinExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
@@ -2975,12 +2928,22 @@ impl std::fmt::Display for CallExpr {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
+impl std::fmt::Display for CastExpression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
 impl std::fmt::Display for GateCallExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
-impl std::fmt::Display for CastExpression {
+impl std::fmt::Display for HardwareQubit {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for Identifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -3000,6 +2963,16 @@ impl std::fmt::Display for Literal {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
+impl std::fmt::Display for MeasureExpression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for ModifiedGateCallExpr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
 impl std::fmt::Display for ParenExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
@@ -3011,46 +2984,6 @@ impl std::fmt::Display for RangeExpr {
     }
 }
 impl std::fmt::Display for ReturnExpr {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for ArrayLiteral {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for MeasureExpression {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for Identifier {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for HardwareQubit {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for InvGateCallExpr {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for PowGateCallExpr {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for CtrlGateCallExpr {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for NegCtrlGateCallExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -3081,6 +3014,26 @@ impl std::fmt::Display for ScalarType {
     }
 }
 impl std::fmt::Display for ArrayType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for InvModifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for PowModifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for CtrlModifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for NegCtrlModifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

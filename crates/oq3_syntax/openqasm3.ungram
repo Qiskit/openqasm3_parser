@@ -24,7 +24,7 @@
 //  1. Map it to an identifer in `fn method_name` in sourcegen_ast.rs. For example:
 //   `"++" => "double_plus"`
 //  2. Add ++ to KINDS_SRC in ast_src.rs
-//  3. Add T![++] to `fn eat` in parser/parser.rs 
+//  3. Add T![++] to `fn eat` in parser/parser.rs
 //  4. Add T![++] to `fn nth_at` in parser/parser.rs
 //  5. Add ++ to current_op in parser/src/grammar/expressions.rs.
 //     Specify binding power and associtivity.
@@ -76,7 +76,6 @@ Item =
 | TypeDeclarationStmt
 | ClassicalDeclarationStatement
 | QuantumDeclarationStatement
-| GateCallStmt
 | GPhaseCallStmt
 | LetStmt
 | AssignmentStmt
@@ -195,26 +194,23 @@ ExprStmt =
 // We do not want to include all expressions here.
 Expr =
   ArrayExpr
+| ArrayLiteral
 | BinExpr
 | BlockExpr
 | BoxExpr
 | CallExpr
-| GateCallExpr
 | CastExpression
+| GateCallExpr
+| HardwareQubit
+| Identifier
 | IndexExpr
 | IndexedIdentifier
 | Literal
+| MeasureExpression
+| ModifiedGateCallExpr
 | ParenExpr
 | RangeExpr
 | ReturnExpr
-| ArrayLiteral
-| MeasureExpression
-| Identifier
-| HardwareQubit
-| InvGateCallExpr
-| PowGateCallExpr
-| CtrlGateCallExpr
-| NegCtrlGateCallExpr
 
 Identifier =
     'ident'
@@ -286,37 +282,37 @@ ArgList =
 CastExpression =
   (ScalarType | ArrayType) '(' Expr ')'
 
-GateCallStmt =
-  Name ArgList? QubitList
+GPhaseCallStmt =
+ 'gphase' arg:Expr
 
 // FIXME: Explain why head of call expression is Expr and not Name
 CallExpr =
   Expr ArgList
 
+InvModifier =
+    'inv' '@'
+
+PowModifier =
+    'pow' ParenExpr '@'
+
+CtrlModifier =
+    'ctrl' ParenExpr? '@'
+
+NegCtrlModifier =
+    'negctrl' ParenExpr? '@'
+
 GateCallExpr =
   Name ArgList? QubitList
 
-GPhaseCallStmt =
- 'gphase' arg:Expr
+Modifier =
+    InvModifier | PowModifier | CtrlModifier | NegCtrlModifier
 
-InvGateCallExpr =
-  'inv' '@' GenGateCallExpr
-
-PowGateCallExpr =
-  'pow' ParenExpr '@' GenGateCallExpr
-
-CtrlGateCallExpr =
-  'ctrl' ParenExpr? '@' GenGateCallExpr
-
-NegCtrlGateCallExpr =
-  'negctrl' ParenExpr? '@' GenGateCallExpr
-
-GenGateCallExpr =
-  InvGateCallExpr | PowGateCallExpr | CtrlGateCallExpr | NegCtrlGateCallExpr | GateCallExpr
+ModifiedGateCallExpr =
+    (Modifier Modifier*) GateCallExpr
 
 // label 'then_branch' is handled manually in expr_ext.rs
 IfStmt =
-  'if' condition:Expr then_branch:Expr
+  'if' '(' condition:Expr ')' then_branch:Expr
   ('else' else_branch:Expr)?
 
 // label 'iterable' is handled manually in node_ext.rs
@@ -325,7 +321,7 @@ ForStmt =
   loop_body:Expr
 
 WhileStmt =
-  'while' condition:Expr
+  'while' '(' condition:Expr ')'
   loop_body:Expr
 
 // For OQ3
