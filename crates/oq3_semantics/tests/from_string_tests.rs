@@ -371,6 +371,17 @@ fn literal_value(stmt: &asg::Stmt) -> Option<String> {
 }
 
 #[test]
+fn test_from_string_unary_minus() {
+    let code = r##"
+- a;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    let expr = expr_from_expr_stmt(&program[0]);
+    assert!(matches!(&expr, asg::Expr::UnaryExpr(_)));
+}
+
+#[test]
 fn test_from_string_pos_lit_float() {
     let code = r##"
 1.23;
