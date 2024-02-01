@@ -233,7 +233,7 @@ fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<
         _ => {
             let expr = from_expr(syn_expr, context);
             expr.map_or_else(
-                || panic!("expr::ExprStmt is None"),
+                || panic!("expr::ExprStmt is None. Expression not implemented in the ASG."),
                 |ex| Some(asg::Stmt::ExprStmt(ex)),
             )
         }
@@ -248,26 +248,37 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
     match expr {
         // FIXME: Ugh. could clean up logic here
         synast::Expr::PrefixExpr(prefix_expr) => {
-            match prefix_expr.op_kind()? {
-                synast::UnaryOp::Neg => {
-                    if let synast::Expr::Literal(ref literal) = prefix_expr.expr()? {
-                        match literal.kind() {
-                            synast::LiteralKind::FloatNumber(float_num) => {
-                                let num = float_num.value().unwrap();
-                                let float = format!("-{num}");
-                                return Some(asg::FloatLiteral::new(float).to_texpr());
+            match prefix_expr.op_kind() {
+                Some(synast::UnaryOp::Neg) => {
+                    match prefix_expr.expr() {
+                        Some(synast::Expr::Literal(ref literal)) => {
+                            match literal.kind() {
+                                synast::LiteralKind::FloatNumber(float_num) => {
+                                    let num = float_num.value().unwrap();
+                                    let float = format!("-{num}");
+                                    Some(asg::FloatLiteral::new(float).to_texpr())
+                                }
+                                synast::LiteralKind::IntNumber(int_num) => {
+                                    let num = int_num.value_u128().unwrap(); // fn value_u128 is kind of a hack
+                                    Some(asg::IntLiteral::new(num, false).to_texpr())
+                                    // `false` means negative
+                                }
+                                _ => todo!(),
                             }
-                            synast::LiteralKind::IntNumber(int_num) => {
-                                let num = int_num.value_u128().unwrap(); // fn value_u128 is kind of a hack
-                                return Some(asg::IntLiteral::new(num, false).to_texpr());
-                                // `false` means negative
-                            }
-                            _ => todo!(),
                         }
+
+                        Some(synexpr) => Some(
+                            asg::UnaryExpr::new(
+                                asg::UnaryOp::Minus,
+                                from_expr(synexpr, context).unwrap(),
+                            )
+                            .to_texpr(),
+                        ),
+
+                        _ => todo!(),
                     }
-                    None
                 }
-                _ => None,
+                _ => todo!(),
             }
         }
 

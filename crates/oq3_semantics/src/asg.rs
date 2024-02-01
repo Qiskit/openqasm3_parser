@@ -921,6 +921,16 @@ impl UnaryExpr {
     pub fn op(&self) -> &UnaryOp {
         &self.op
     }
+
+    pub fn to_texpr(self) -> TExpr {
+        match self.op() {
+            UnaryOp::Not => TExpr::new(Expr::UnaryExpr(self), Type::Bool(IsConst::False)),
+            _ => {
+                let ty = self.operand.get_type().clone();
+                TExpr::new(Expr::UnaryExpr(self), ty)
+            }
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
