@@ -315,7 +315,48 @@ impl Cursor<'_> {
             c if is_id_start(c) => self.ident_or_unknown_prefix(),
 
             // Numeric literal.
-            c @ '0'..='9' => self.numeric_literal(c),
+            c @ '0'..='9' => {
+                // n.b. floating point literals must have an integer part. e.g. .123 is not valid
+                let literal_kind = self.number(c);
+                let suffix_start = self.pos_within_token();
+                // Eat suffix, and return true if it is a timing suffix.
+                if self.timing_suffix() {
+                    match literal_kind {
+                        Float {
+                            base: baseval,
+                            empty_exponent: emptyval,
+                        } => TokenKind::Literal {
+                            kind: TimingFloat {
+                                base: baseval,
+                                empty_exponent: emptyval,
+                            },
+                            suffix_start,
+                        },
+                        Int {
+                            base: baseval,
+                            empty_int: emptyval,
+                        } => TokenKind::Literal {
+                            kind: TimingInt {
+                                base: baseval,
+                                empty_int: emptyval,
+                            },
+                            suffix_start,
+                        },
+                        _ => {
+                            // This is unreachable
+                            TokenKind::Literal {
+                                kind: literal_kind,
+                                suffix_start,
+                            }
+                        }
+                    }
+                } else {
+                    TokenKind::Literal {
+                        kind: literal_kind,
+                        suffix_start,
+                    }
+                }
+            }
 
             '$' => self.hardware_ident(),
             // One-symbol tokens.
@@ -339,18 +380,7 @@ impl Cursor<'_> {
             '!' => Bang,
             '<' => Lt,
             '>' => Gt,
-            // If `-` preceeds what would be a positive numeric literal, include it in the literal.
-            // Otherwise, produce a single token `Minus` for the character `-`.
-            '-' => {
-                let c_next = self.first();
-                match c_next {
-                    '0'..='9' => {
-                        self.bump(); // Eat the `-`
-                        self.numeric_literal(c_next)
-                    }
-                    _ => Minus,
-                }
-            }
+            '-' => Minus,
             '&' => And,
             '|' => Or,
             '+' => Plus,
@@ -387,49 +417,6 @@ impl Cursor<'_> {
         let res = Token::new(token_kind, self.pos_within_token());
         self.reset_pos_within_token();
         res
-    }
-
-    fn numeric_literal(&mut self, c: char) -> TokenKind {
-        // n.b. floating point literals must have an integer part. e.g. .123 is not valid
-        let literal_kind = self.number(c);
-        let suffix_start = self.pos_within_token();
-        // Eat suffix, and return true if it is a timing suffix.
-        if self.timing_suffix() {
-            match literal_kind {
-                Float {
-                    base: baseval,
-                    empty_exponent: emptyval,
-                } => TokenKind::Literal {
-                    kind: TimingFloat {
-                        base: baseval,
-                        empty_exponent: emptyval,
-                    },
-                    suffix_start,
-                },
-                Int {
-                    base: baseval,
-                    empty_int: emptyval,
-                } => TokenKind::Literal {
-                    kind: TimingInt {
-                        base: baseval,
-                        empty_int: emptyval,
-                    },
-                    suffix_start,
-                },
-                _ => {
-                    // This is unreachable
-                    TokenKind::Literal {
-                        kind: literal_kind,
-                        suffix_start,
-                    }
-                }
-            }
-        } else {
-            TokenKind::Literal {
-                kind: literal_kind,
-                suffix_start,
-            }
-        }
     }
 
     fn line_comment(&mut self) -> TokenKind {
