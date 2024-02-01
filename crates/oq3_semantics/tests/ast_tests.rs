@@ -28,7 +28,7 @@ fn test_texpr_int_literal() {
     use asg::IntLiteral;
     use types::{IsConst, Type};
 
-    let literal = IntLiteral::new(1_u32);
+    let literal = IntLiteral::new(1_u32, true);
     let texpr = literal.clone().to_texpr();
     assert_eq!(texpr.expression(), &literal.to_expr());
     assert_eq!(texpr.get_type(), &Type::UInt(Some(128), IsConst::True));
@@ -47,7 +47,7 @@ fn test_int_literal() {
     use asg::IntLiteral;
 
     let int_value = 42;
-    let literal = IntLiteral::new(int_value as u32);
+    let literal = IntLiteral::new(int_value as u32, true);
     assert_eq!(*literal.value(), int_value as u128);
 }
 
@@ -75,7 +75,7 @@ fn test_cast() {
     use types::{IsConst, Type};
 
     let typ = Type::Int(Some(32), IsConst::True);
-    let literal = IntLiteral::new(1_u64).to_texpr();
+    let literal = IntLiteral::new(1_u64, true).to_texpr();
     let cast = Cast::new(literal.clone(), typ.clone());
     assert_eq!(cast.get_type(), &typ);
     assert_eq!(cast.operand(), &literal);

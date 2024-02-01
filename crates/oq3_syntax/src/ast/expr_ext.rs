@@ -8,7 +8,7 @@
 use crate::{
     ast::{
         self,
-        operators::{ArithOp, BinaryOp, CmpOp, LogicOp, Ordering},
+        operators::{ArithOp, BinaryOp, CmpOp, LogicOp, Ordering, UnaryOp},
         support, AstChildren, AstNode,
     },
     AstToken,
@@ -146,6 +146,22 @@ impl ast::IfStmt {
 //     };
 //     assert_eq!(else_.syntax().text(), r#"{ "else" }"#);
 // }
+
+impl ast::PrefixExpr {
+    pub fn op_kind(&self) -> Option<UnaryOp> {
+        let res = match self.op_token()?.kind() {
+            T![~] => UnaryOp::LogicNot,
+            T![!] => UnaryOp::Not,
+            T![-] => UnaryOp::Neg,
+            _ => return None,
+        };
+        Some(res)
+    }
+
+    pub fn op_token(&self) -> Option<SyntaxToken> {
+        self.syntax().first_child_or_token()?.into_token()
+    }
+}
 
 impl ast::BinExpr {
     pub fn op_details(&self) -> Option<(SyntaxToken, BinaryOp)> {

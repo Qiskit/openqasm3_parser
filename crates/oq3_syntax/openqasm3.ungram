@@ -209,6 +209,7 @@ Expr =
 | MeasureExpression
 | ModifiedGateCallExpr
 | ParenExpr
+| PrefixExpr
 | RangeExpr
 | ReturnExpr
 
@@ -242,6 +243,9 @@ BlockExpr =
   '{'
     statements:Stmt*
   '}'
+
+PrefixExpr =
+    op:('~' | '!' | '-') Expr
 
 // Adding a binary op here requires changes in several places. See notes at the top of this file.
 BinExpr =

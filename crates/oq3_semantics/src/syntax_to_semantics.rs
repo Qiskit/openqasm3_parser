@@ -246,6 +246,31 @@ fn from_paren_expr(paren_expr: synast::ParenExpr, context: &mut Context) -> Opti
 
 fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
     match expr {
+        // FIXME: Ugh. could clean up logic here
+        synast::Expr::PrefixExpr(prefix_expr) => {
+            match prefix_expr.op_kind()? {
+                synast::UnaryOp::Neg => {
+                    if let synast::Expr::Literal(ref literal) = prefix_expr.expr()? {
+                        match literal.kind() {
+                            synast::LiteralKind::FloatNumber(float_num) => {
+                                let num = float_num.value().unwrap();
+                                let float = format!("-{num}");
+                                return Some(asg::FloatLiteral::new(float).to_texpr());
+                            }
+                            synast::LiteralKind::IntNumber(int_num) => {
+                                let num = int_num.value_u128().unwrap(); // fn value_u128 is kind of a hack
+                                return Some(asg::IntLiteral::new(num, false).to_texpr());
+                                // `false` means negative
+                            }
+                            _ => todo!(),
+                        }
+                    }
+                    None
+                }
+                _ => None,
+            }
+        }
+
         synast::Expr::ParenExpr(paren_expr) => from_paren_expr(paren_expr, context),
 
         synast::Expr::BinExpr(bin_expr) => {
@@ -469,7 +494,7 @@ fn from_literal(literal: &synast::Literal) -> Option<asg::TExpr> {
 
         synast::LiteralKind::IntNumber(int_num) => {
             let num = int_num.value_u128().unwrap(); // fn value_u128 is kind of a hack
-            asg::IntLiteral::new(num).to_texpr()
+            asg::IntLiteral::new(num, true).to_texpr() // `true` means positive literal.
         }
 
         synast::LiteralKind::FloatNumber(float_num) => {

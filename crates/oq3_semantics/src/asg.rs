@@ -782,19 +782,24 @@ impl BoolLiteral {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct IntLiteral {
     value: u128,
+    sign: bool,
 }
 
 impl IntLiteral {
-    pub fn new<T>(value: T) -> IntLiteral
+    pub fn new<T>(value: T, sign: bool) -> IntLiteral
     where
         T: Into<u128>,
     {
         let x: u128 = value.into();
-        IntLiteral { value: x }
+        IntLiteral { value: x, sign }
     }
 
     pub fn value(&self) -> &u128 {
         &self.value
+    }
+
+    pub fn sign(&self) -> &bool {
+        &self.sign
     }
 
     pub fn to_expr(self) -> Expr {

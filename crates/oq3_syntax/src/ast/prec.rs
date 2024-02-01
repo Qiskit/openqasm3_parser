@@ -137,7 +137,7 @@ impl Expr {
             }
             ArrayLiteral(_) => (0, 0), // These need to be checked
             MeasureExpression(_) => (0, 0),
-            BoxExpr(_) => (0, 27),
+            BoxExpr(_) | PrefixExpr(_) => (0, 27),
             GateCallExpr(_)
             | ModifiedGateCallExpr(_)
             | CallExpr(_)
@@ -191,6 +191,7 @@ impl Expr {
             // For non-paren-like operators: get the operator itself
             let token = match this {
                 RangeExpr(_) => None,
+                PrefixExpr(e) => e.op_token(),
                 BinExpr(e) => e.op_token(),
                 BoxExpr(e) => e.box_token(),
                 CallExpr(e) => e.arg_list().and_then(|args| args.l_paren_token()),
@@ -241,7 +242,7 @@ impl Expr {
             | ParenExpr(_) => false,
 
             // For BinExpr and RangeExpr this is technically wrong -- the child can be on the left...
-            BinExpr(_) | RangeExpr(_) | BoxExpr(_) | ReturnExpr(_) => self
+            PrefixExpr(_) | BinExpr(_) | RangeExpr(_) | BoxExpr(_) | ReturnExpr(_) => self
                 .syntax()
                 .parent()
                 .and_then(Expr::cast)
