@@ -664,6 +664,15 @@ impl ParenExpr {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct PrefixExpr {
+    pub(crate) syntax: SyntaxNode,
+}
+impl PrefixExpr {
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct RangeExpr {
     pub(crate) syntax: SyntaxNode,
 }
@@ -1058,6 +1067,7 @@ pub enum Expr {
     MeasureExpression(MeasureExpression),
     ModifiedGateCallExpr(ModifiedGateCallExpr),
     ParenExpr(ParenExpr),
+    PrefixExpr(PrefixExpr),
     RangeExpr(RangeExpr),
     ReturnExpr(ReturnExpr),
 }
@@ -1834,6 +1844,21 @@ impl AstNode for ParenExpr {
         &self.syntax
     }
 }
+impl AstNode for PrefixExpr {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == PREFIX_EXPR
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for RangeExpr {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == RANGE_EXPR
@@ -2425,6 +2450,11 @@ impl From<ParenExpr> for Expr {
         Expr::ParenExpr(node)
     }
 }
+impl From<PrefixExpr> for Expr {
+    fn from(node: PrefixExpr) -> Expr {
+        Expr::PrefixExpr(node)
+    }
+}
 impl From<RangeExpr> for Expr {
     fn from(node: RangeExpr) -> Expr {
         Expr::RangeExpr(node)
@@ -2455,6 +2485,7 @@ impl AstNode for Expr {
                 | MEASURE_EXPRESSION
                 | MODIFIED_GATE_CALL_EXPR
                 | PAREN_EXPR
+                | PREFIX_EXPR
                 | RANGE_EXPR
                 | RETURN_EXPR
         )
@@ -2477,6 +2508,7 @@ impl AstNode for Expr {
             MEASURE_EXPRESSION => Expr::MeasureExpression(MeasureExpression { syntax }),
             MODIFIED_GATE_CALL_EXPR => Expr::ModifiedGateCallExpr(ModifiedGateCallExpr { syntax }),
             PAREN_EXPR => Expr::ParenExpr(ParenExpr { syntax }),
+            PREFIX_EXPR => Expr::PrefixExpr(PrefixExpr { syntax }),
             RANGE_EXPR => Expr::RangeExpr(RangeExpr { syntax }),
             RETURN_EXPR => Expr::ReturnExpr(ReturnExpr { syntax }),
             _ => return None,
@@ -2501,6 +2533,7 @@ impl AstNode for Expr {
             Expr::MeasureExpression(it) => &it.syntax,
             Expr::ModifiedGateCallExpr(it) => &it.syntax,
             Expr::ParenExpr(it) => &it.syntax,
+            Expr::PrefixExpr(it) => &it.syntax,
             Expr::RangeExpr(it) => &it.syntax,
             Expr::ReturnExpr(it) => &it.syntax,
         }
@@ -2974,6 +3007,11 @@ impl std::fmt::Display for ModifiedGateCallExpr {
     }
 }
 impl std::fmt::Display for ParenExpr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for PrefixExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

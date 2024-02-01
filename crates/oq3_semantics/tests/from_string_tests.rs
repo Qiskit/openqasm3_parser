@@ -345,3 +345,114 @@ out[0] = measure $0;
     assert!(errors.is_empty());
     assert_eq!(program.len(), 2);
 }
+
+fn expr_from_expr_stmt(stmt: &asg::Stmt) -> asg::Expr {
+    match stmt {
+        asg::Stmt::ExprStmt(texpr) => texpr.expression().clone(),
+        _ => unreachable!(),
+    }
+}
+
+fn literal_value(stmt: &asg::Stmt) -> Option<String> {
+    match expr_from_expr_stmt(stmt) {
+        asg::Expr::Literal(lit) => match lit {
+            asg::Literal::Float(float) => Some(float.value().to_string()),
+            asg::Literal::Int(int) => {
+                if *int.sign() {
+                    Some(format!("{}", int.value()))
+                } else {
+                    Some(format!("-{}", int.value()))
+                }
+            }
+            _ => None,
+        },
+        _ => None,
+    }
+}
+
+#[test]
+fn test_from_string_pos_lit_float() {
+    let code = r##"
+1.23;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "1.23");
+}
+
+#[test]
+fn test_from_string_neg_lit_float() {
+    let code = r##"
+-1.23;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "-1.23");
+}
+
+#[test]
+fn test_from_string_pos_lit_int() {
+    let code = r##"
+123;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "123");
+}
+
+#[test]
+fn test_from_string_neg_lit_int() {
+    let code = r##"
+-123;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "-123");
+}
+
+#[test]
+fn test_from_string_neg_spc_lit_int() {
+    let code = r##"
+- 123;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "-123");
+}
+
+#[test]
+fn test_from_string_neg_spc_lit_float() {
+    let code = r##"
+-  1.23;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "-1.23");
+}
+
+// PR #91
+#[test]
+fn test_from_string_bin_expr_no_spc() {
+    let code = r##"
+a-1.23;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert_eq!(program.len(), 1);
+    assert!(matches!(
+        expr_from_expr_stmt(&program[0]),
+        asg::Expr::BinaryExpr(_)
+    ));
+}
