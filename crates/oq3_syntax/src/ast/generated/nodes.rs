@@ -33,7 +33,7 @@ impl Def {
     pub fn param_list(&self) -> Option<ParamList> {
         support::child(&self.syntax)
     }
-    pub fn ret_type(&self) -> Option<RetType> {
+    pub fn return_signature(&self) -> Option<ReturnSignature> {
         support::child(&self.syntax)
     }
     pub fn body(&self) -> Option<BlockExpr> {
@@ -77,7 +77,7 @@ impl DefCal {
     pub fn qubit_list(&self) -> Option<QubitList> {
         support::child(&self.syntax)
     }
-    pub fn ret_type(&self) -> Option<RetType> {
+    pub fn return_signature(&self) -> Option<ReturnSignature> {
         support::child(&self.syntax)
     }
     pub fn body(&self) -> Option<BlockExpr> {
@@ -216,6 +216,25 @@ impl AssignmentStmt {
     }
     pub fn eq_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![=])
+    }
+    pub fn semicolon_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![;])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct AliasDeclarationStatement {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ast::HasName for AliasDeclarationStatement {}
+impl AliasDeclarationStatement {
+    pub fn let_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![let])
+    }
+    pub fn eq_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![=])
+    }
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
     }
     pub fn semicolon_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![;])
@@ -449,10 +468,10 @@ impl ParamList {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct RetType {
+pub struct ReturnSignature {
     pub(crate) syntax: SyntaxNode,
 }
-impl RetType {
+impl ReturnSignature {
     pub fn thin_arrow_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![->])
     }
@@ -466,12 +485,6 @@ pub struct Param {
 }
 impl ast::HasName for Param {}
 impl Param {}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ExternItem {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ast::HasName for ExternItem {}
-impl ExternItem {}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExprStmt {
     pub(crate) syntax: SyntaxNode,
@@ -703,18 +716,6 @@ impl ReturnExpr {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ConcatenationExpr {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ConcatenationExpr {
-    pub fn expr(&self) -> Option<Expr> {
-        support::child(&self.syntax)
-    }
-    pub fn double_plus_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![++])
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct IndexOperator {
     pub(crate) syntax: SyntaxNode,
 }
@@ -907,46 +908,6 @@ impl QubitType {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ReturnSignature {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ReturnSignature {
-    pub fn thin_arrow_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![->])
-    }
-    pub fn scalar_type(&self) -> Option<ScalarType> {
-        support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct AliasDeclarationStatement {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ast::HasName for AliasDeclarationStatement {}
-impl AliasDeclarationStatement {
-    pub fn let_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![let])
-    }
-    pub fn eq_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![=])
-    }
-    pub fn alias_expression(&self) -> Option<AliasExpression> {
-        support::child(&self.syntax)
-    }
-    pub fn semicolon_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![;])
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct AliasExpression {
-    pub(crate) syntax: SyntaxNode,
-}
-impl AliasExpression {
-    pub fn expr(&self) -> Option<Expr> {
-        support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SetExpression {
     pub(crate) syntax: SyntaxNode,
 }
@@ -959,28 +920,6 @@ impl SetExpression {
     }
     pub fn r_curly_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T!['}'])
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ConstDeclarationStatement {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ast::HasName for ConstDeclarationStatement {}
-impl ConstDeclarationStatement {
-    pub fn const_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![const])
-    }
-    pub fn scalar_type(&self) -> Option<ScalarType> {
-        support::child(&self.syntax)
-    }
-    pub fn eq_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![=])
-    }
-    pub fn expr(&self) -> Option<Expr> {
-        support::child(&self.syntax)
-    }
-    pub fn semicolon_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![;])
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -1037,6 +976,7 @@ pub enum Item {
     GPhaseCallStmt(GPhaseCallStmt),
     LetStmt(LetStmt),
     AssignmentStmt(AssignmentStmt),
+    AliasDeclarationStatement(AliasDeclarationStatement),
     Include(Include),
     ForStmt(ForStmt),
     IfStmt(IfStmt),
@@ -1304,6 +1244,21 @@ impl AstNode for AssignmentStmt {
         &self.syntax
     }
 }
+impl AstNode for AliasDeclarationStatement {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == ALIAS_DECLARATION_STATEMENT
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for Include {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == INCLUDE
@@ -1559,9 +1514,9 @@ impl AstNode for ParamList {
         &self.syntax
     }
 }
-impl AstNode for RetType {
+impl AstNode for ReturnSignature {
     fn can_cast(kind: SyntaxKind) -> bool {
-        kind == RET_TYPE
+        kind == RETURN_SIGNATURE
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -1577,21 +1532,6 @@ impl AstNode for RetType {
 impl AstNode for Param {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == PARAM
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for ExternItem {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == EXTERN_ITEM
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -1889,21 +1829,6 @@ impl AstNode for ReturnExpr {
         &self.syntax
     }
 }
-impl AstNode for ConcatenationExpr {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == CONCATENATION_EXPR
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
 impl AstNode for IndexOperator {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == INDEX_OPERATOR
@@ -2069,69 +1994,9 @@ impl AstNode for QubitType {
         &self.syntax
     }
 }
-impl AstNode for ReturnSignature {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == RETURN_SIGNATURE
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for AliasDeclarationStatement {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == ALIAS_DECLARATION_STATEMENT
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for AliasExpression {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == ALIAS_EXPRESSION
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
 impl AstNode for SetExpression {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == SET_EXPRESSION
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for ConstDeclarationStatement {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == CONST_DECLARATION_STATEMENT
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2229,6 +2094,11 @@ impl From<AssignmentStmt> for Item {
         Item::AssignmentStmt(node)
     }
 }
+impl From<AliasDeclarationStatement> for Item {
+    fn from(node: AliasDeclarationStatement) -> Item {
+        Item::AliasDeclarationStatement(node)
+    }
+}
 impl From<Include> for Item {
     fn from(node: Include) -> Item {
         Item::Include(node)
@@ -2298,6 +2168,7 @@ impl AstNode for Item {
                 | G_PHASE_CALL_STMT
                 | LET_STMT
                 | ASSIGNMENT_STMT
+                | ALIAS_DECLARATION_STATEMENT
                 | INCLUDE
                 | FOR_STMT
                 | IF_STMT
@@ -2328,6 +2199,9 @@ impl AstNode for Item {
             G_PHASE_CALL_STMT => Item::GPhaseCallStmt(GPhaseCallStmt { syntax }),
             LET_STMT => Item::LetStmt(LetStmt { syntax }),
             ASSIGNMENT_STMT => Item::AssignmentStmt(AssignmentStmt { syntax }),
+            ALIAS_DECLARATION_STATEMENT => {
+                Item::AliasDeclarationStatement(AliasDeclarationStatement { syntax })
+            }
             INCLUDE => Item::Include(Include { syntax }),
             FOR_STMT => Item::ForStmt(ForStmt { syntax }),
             IF_STMT => Item::IfStmt(IfStmt { syntax }),
@@ -2356,6 +2230,7 @@ impl AstNode for Item {
             Item::GPhaseCallStmt(it) => &it.syntax,
             Item::LetStmt(it) => &it.syntax,
             Item::AssignmentStmt(it) => &it.syntax,
+            Item::AliasDeclarationStatement(it) => &it.syntax,
             Item::Include(it) => &it.syntax,
             Item::ForStmt(it) => &it.syntax,
             Item::IfStmt(it) => &it.syntax,
@@ -2717,14 +2592,12 @@ impl AstNode for AnyHasName {
                 | QUANTUM_DECLARATION_STATEMENT
                 | LET_STMT
                 | ASSIGNMENT_STMT
+                | ALIAS_DECLARATION_STATEMENT
                 | TYPE_SPEC
                 | PARAM
-                | EXTERN_ITEM
                 | GATE_CALL_EXPR
                 | HARDWARE_QUBIT
                 | INDEXED_IDENTIFIER
-                | ALIAS_DECLARATION_STATEMENT
-                | CONST_DECLARATION_STATEMENT
                 | I_O_DECLARATION_STATEMENT
                 | OLD_STYLE_DECLARATION_STATEMENT
         )
@@ -2831,6 +2704,11 @@ impl std::fmt::Display for AssignmentStmt {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
+impl std::fmt::Display for AliasDeclarationStatement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
 impl std::fmt::Display for Include {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
@@ -2916,17 +2794,12 @@ impl std::fmt::Display for ParamList {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
-impl std::fmt::Display for RetType {
+impl std::fmt::Display for ReturnSignature {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
 impl std::fmt::Display for Param {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for ExternItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -3026,11 +2899,6 @@ impl std::fmt::Display for ReturnExpr {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
-impl std::fmt::Display for ConcatenationExpr {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
 impl std::fmt::Display for IndexOperator {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
@@ -3086,27 +2954,7 @@ impl std::fmt::Display for QubitType {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
-impl std::fmt::Display for ReturnSignature {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for AliasDeclarationStatement {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for AliasExpression {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
 impl std::fmt::Display for SetExpression {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for ConstDeclarationStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

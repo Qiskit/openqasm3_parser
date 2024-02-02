@@ -1,4 +1,4 @@
-// This grammar specifies the structure of Rust's concrete syntax tree.
+// This grammar specifies the structure of the OpenQASM 3 concrete syntax tree.
 // It does not specify parsing rules (ambiguities, precedence, etc are out of scope).
 // Tokens are processed -- contextual keywords are recognised, compound operators glued.
 //
@@ -79,6 +79,7 @@ Item =
 | GPhaseCallStmt
 | LetStmt
 | AssignmentStmt
+| AliasDeclarationStatement
 | Include
 | ForStmt
 | IfStmt
@@ -142,12 +143,12 @@ TypeSpec =
 
 // Subroutine definition
 Def =
- 'def' Name ParamList RetType?
+ 'def' Name ParamList ReturnSignature?
  (body:BlockExpr | ';')
 
 // Defcal definition
 DefCal =
- 'defcal' Name ParamList QubitList RetType?
+ 'defcal' Name ParamList QubitList ReturnSignature?
  (body:BlockExpr | ';')
 
 // Gate definition
@@ -174,10 +175,6 @@ QubitList =
 Param =
    Name
 
-// extern is much different in oq3 than rust
-// This is a placeholder
-ExternItem =
-    Name
 
 //****************************//
 // Statements and Expressions //
@@ -228,16 +225,6 @@ Literal =
 
 LetStmt =
   'let' Name '=' Expr ';'
-
-// FIXME: Only this binary op is turned into a nary-ish op.
-// Perhaps this should be removed. Possible issues:
-// - Binding power is not expressed here.
-// - If this were repeated it might add more boiler plate. Compare BinExpr below.
-// So an op that might be considered nary is instead parsed as nested binary ops.
-// I recall that Julia's parser changed between nested bin and nary for some ops, perhaps even went back and forth
-// a couple times.
-ConcatenationExpr =
-   Expr '++' Expr concat:('++' Expr)*
 
 BlockExpr =
   '{'
@@ -375,18 +362,10 @@ ExpressionList =
 ReturnSignature =
   '->' ScalarType
 
-RetType =
-  '->' ScalarType
-
 // Primitive declaration statements.
 
 AliasDeclarationStatement =
-    'let' Name '=' AliasExpression ';'
-
-// label 'concat' is to work around what is probably a bug
-// Parsing this ungram fails with no good diagnostic without it.
-AliasExpression =
-   Expr concat:('++' Expr)*
+    'let' Name '=' Expr ';'
 
 MeasureExpression =
     'measure' GateOperand
@@ -419,11 +398,6 @@ HardwareQubit =
 
 ClassicalDeclarationStatement =
  'const'? (ScalarType | ArrayType) Name ('=' Expr)? ';'
-
-// We can just use ClassicalDeclarationStatement above.
-// Or split these into {Scalar,Array}DeclarationStatement, where former includes `const`.
-ConstDeclarationStatement =
-    'const' ScalarType Name '=' Expr ';'
 
 IODeclarationStatement =
     ('input' | 'output') (ScalarType | ArrayType) Name ';'

@@ -508,14 +508,6 @@ impl Default for Block {
     }
 }
 
-// #[test]
-// fn test_construct_block() {
-//     let mut block = Block::new();
-//     let id = make_ident_expr("x", false);
-//     let assign = Stmt::Assignment(Assignment { name: id, rhs: make_int_lit_expr(1) });
-//     block.insert_stmt(assign);
-// }
-
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct GateDeclaration {
     name: SymbolIdResult,

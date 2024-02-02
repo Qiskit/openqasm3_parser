@@ -94,28 +94,27 @@ impl BlockLike {
     }
 }
 
-fn plain_type(p: &mut Parser<'_>) {
-    assert!(p.current().is_type_name());
+fn scalar_type(p: &mut Parser<'_>) {
+    assert!(p.current().is_scalar_type());
     let r = p.start();
     p.bump_any();
-    r.complete(p, PATH_TYPE);
+    r.complete(p, SCALAR_TYPE);
 }
 
-/// Parse the optional return type of a `defcal` or `def` definition.
+/// Parse the optional return signature of a `defcal` or `def` definition.
 /// Return `true` if the return type was found, else `false.
 fn opt_ret_type(p: &mut Parser<'_>) -> bool {
     if p.at(T![->]) {
         let m = p.start();
         p.bump(T![->]);
-        //        types::type_no_bounds(p);
         if p.current().is_type_name() {
-            plain_type(p);
+            scalar_type(p);
         } else {
             p.error("Expected return type after ->");
             m.abandon(p);
             return false;
         }
-        m.complete(p, RET_TYPE);
+        m.complete(p, RETURN_SIGNATURE);
         true
     } else {
         false

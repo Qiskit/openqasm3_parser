@@ -171,8 +171,8 @@ fn print_defcal(defcal: ast::DefCal) {
         println!("parameters: '{}'", defcal.param_list().unwrap());
     }
     println!("qubits: '{}'", defcal.qubit_list().unwrap());
-    if defcal.ret_type().is_some() {
-        println!("return type: '{}'", defcal.ret_type().unwrap());
+    if defcal.return_signature().is_some() {
+        println!("return type: '{}'", defcal.return_signature().unwrap());
     }
     print!("body: '{}'", defcal.body().unwrap());
 }
@@ -182,8 +182,8 @@ fn print_def(def: ast::Def) {
     if def.param_list().is_some() {
         println!("parameters: '{}'", def.param_list().unwrap());
     }
-    if def.ret_type().is_some() {
-        println!("return type: '{}'", def.ret_type().unwrap());
+    if def.return_signature().is_some() {
+        println!("return type: '{}'", def.return_signature().unwrap());
     }
     print!("body: '{}'", def.body().unwrap());
 }
