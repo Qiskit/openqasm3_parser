@@ -7,7 +7,6 @@ mod ast_src;
 mod sourcegen_ast;
 
 use crate::ast;
-use crate::ast::HasModuleItem; // for file.items()
 use crate::ast::HasTextName; // for methods: text(), string()
                              //use oq3_syntax::ast;
                              // use std::{
@@ -22,11 +21,11 @@ use crate::ast::HasTextName; // for methods: text(), string()
                              //use crate::{ast, AstNode, SourceFile, SyntaxError};
 use crate::SourceFile;
 
-// fn collect_items(code: &str) -> (usize, Vec<ast::Item>){
+// fn collect_stmts(code: &str) -> (usize, Vec<ast::Stmt>){
 //     let parse = SourceFile::parse(code);
 //     let file : SourceFile = parse.tree();
-//     let items = file.items().collect::<Vec<_>>();
-//     return (parse.errors.len(), items)
+//     let stmts = file.statements().collect::<Vec<_>>();
+//     return (parse.errors.len(), stmts)
 // }
 
 #[test]
@@ -74,7 +73,6 @@ gate h q {
 }
     "##;
     let parse = SourceFile::parse(code);
-    // eprintln!("{:#?}", parse.syntax_node());
     assert!(parse.ok().is_ok());
 }
 
@@ -116,7 +114,6 @@ gate chpase(x) a, b {
     "##;
 
     let parse = SourceFile::parse(code);
-    // eprintln!("{:#?}", parse.syntax_node());
     assert!(parse.ok().is_ok());
 }
 
@@ -226,7 +223,7 @@ def xmeasure(q) -> bit {
 #[test]
 fn with_details_test() {
     use crate::ast;
-    use ast::{HasModuleItem, HasName};
+    use ast::HasName;
 
     let code = r##"
 defcal xmeasure(int a, int b) q, p -> bit {
@@ -242,8 +239,8 @@ defcal xmeasure(int a, int b) q, p -> bit {
     let file: SourceFile = parse.tree();
 
     let mut defcal = None;
-    for item in file.items() {
-        if let ast::Item::DefCal(f) = item {
+    for stmt in file.statements() {
+        if let ast::Stmt::DefCal(f) = stmt {
             defcal = Some(f)
         }
     }
@@ -260,32 +257,14 @@ int x;
    "##;
     let parse = SourceFile::parse(code);
     assert!(parse.errors().is_empty());
-    //    let file: SourceFile = parse.tree();
-    let mut items = parse.tree().items();
-    let decl = match items.next() {
-        Some(ast::Item::ClassicalDeclarationStatement(s)) => s,
+    let mut stmts = parse.tree().statements();
+    let decl = match stmts.next() {
+        Some(ast::Stmt::ClassicalDeclarationStatement(s)) => s,
         _ => unreachable!(),
     };
-    // println!("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS {:?}", decl);
-    // println!("scalar type {:?}", decl.scalar_type().unwrap());
     let scalar_type = decl.scalar_type().unwrap();
     assert_eq!(scalar_type.kind(), ast::ScalarTypeKind::Int);
     assert!(scalar_type.designator().is_none());
-    // println!(" name {:?}", scalar_type);
-    // println!(" syntax {:?}", scalar_type.kind());
-    // println!(" token {}", scalar_type.token());
-    // println!(" token {:?}", scalar_type.token());
-
-    //        Some(ast::Item::ClassicalDeclarationStatement(s)) => Some(s),
-    //    assert_eq!(0, 1);
-    // for item in items {
-    //     match item {
-    //         ast::Item::ClassicalDeclarationStatement(s) => decl = Some(s),
-    //         _ => unreachable!(),
-    //     }
-    // }
-    //    return item
-    //    let ast::Item::ClassicalDeclarationStatement(_)> =
 }
 
 #[test]

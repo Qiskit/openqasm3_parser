@@ -1,7 +1,7 @@
 // Copyright contributors to the openqasm-parser project
 // SPDX-License-Identifier: Apache-2.0
 
-use ast::{HasModuleItem, HasName};
+use ast::HasName;
 use oq3_syntax::ast;
 use oq3_syntax::SourceFile;
 
@@ -33,14 +33,14 @@ cal {
 }
 
    "#;
-    parse_print_items(code);
+    parse_print_stmts(code);
 }
 
 fn try_int_def() {
     let code = r##"
 int[64] x = 142;
 "##;
-    parse_print_items(code);
+    parse_print_stmts(code);
 }
 
 //use parser::syntax_kind::SyntaxKind;
@@ -50,49 +50,48 @@ fn main() {
     //    parse_some_code();
 }
 
-fn print_item(item: ast::Item) {
-    match item {
-        ast::Item::Gate(gate) => print_gate(gate),
-        ast::Item::Def(def) => print_def(def),
-        ast::Item::DefCal(defcal) => print_defcal(defcal),
-        ast::Item::DefCalGrammar(defcg) => print_defcalgrammar(defcg),
-        ast::Item::Cal(cal) => print_cal(cal),
-        ast::Item::VersionString(version_string) => print_version_string(version_string),
-        ast::Item::Include(include) => print_include(include),
-        ast::Item::ClassicalDeclarationStatement(type_decl) => {
+fn print_stmt(stmt: ast::Stmt) {
+    match stmt {
+        ast::Stmt::Gate(gate) => print_gate(gate),
+        ast::Stmt::Def(def) => print_def(def),
+        ast::Stmt::DefCal(defcal) => print_defcal(defcal),
+        ast::Stmt::DefCalGrammar(defcg) => print_defcalgrammar(defcg),
+        ast::Stmt::Cal(cal) => print_cal(cal),
+        ast::Stmt::VersionString(version_string) => print_version_string(version_string),
+        ast::Stmt::Include(include) => print_include(include),
+        ast::Stmt::ClassicalDeclarationStatement(type_decl) => {
             print_type_declaration_statement(type_decl)
         }
         _ => {
-            println!("unhandled item: {:?}", item)
+            println!("unhandled stmt: {:?}", stmt)
         }
     }
 }
 
-fn parse_print_items(code: &str) {
+fn parse_print_stmts(code: &str) {
     use oq3_syntax::AstNode;
     let parse = SourceFile::parse(code);
     let file: SourceFile = parse.tree();
-    println!("Found {} items", file.items().collect::<Vec<_>>().len());
-    for item in file.items() {
+    println!(
+        "Found {} stmts",
+        file.statements().collect::<Vec<_>>().len()
+    );
+    for stmt in file.statements() {
         print!(
             "desc {}: ",
-            item.syntax().descendants().collect::<Vec<_>>().len()
+            stmt.syntax().descendants().collect::<Vec<_>>().len()
         );
-        print_item(item.clone());
+        print_stmt(stmt.clone());
         println!();
-        //        println!("{:?}", item.syntax().descendants().collect::<Vec<_>>());
-        for d in item.syntax().descendants().collect::<Vec<_>>() {
-            //        for d in item.children().collect::<Vec<_>>() {
-            //            print_item(d.clone());
+        for d in stmt.syntax().descendants().collect::<Vec<_>>() {
             println!(" {}", d);
-            //            println!(" {:?}", d);
         }
         println!();
     }
 }
 
 //
-// Printing of each item
+// Printing of each stmt
 //
 
 #[allow(dead_code)]
@@ -105,14 +104,14 @@ gate mygate q {
     // let parse = SourceFile::parse(&code);
     // let file: SourceFile = parse.tree();
     let file: SourceFile = SourceFile::parse(code).tree();
-    let mut gateitem = None;
-    for item in file.items() {
-        if let ast::Item::Gate(gate) = item {
-            gateitem = Some(gate);
+    let mut gatestmt = None;
+    for stmt in file.statements() {
+        if let ast::Stmt::Gate(gate) = stmt {
+            gatestmt = Some(gate);
             break;
         };
     }
-    println!("{}", test_gate_def(gateitem.unwrap(), ("mygate", "q")));
+    println!("{}", test_gate_def(gatestmt.unwrap(), ("mygate", "q")));
 }
 
 #[allow(dead_code)]
@@ -130,30 +129,12 @@ fn print_type_declaration_statement(type_decl: ast::ClassicalDeclarationStatemen
     println!(" syntax {:?}", scalar_type.kind());
     println!(" token {}", scalar_type.token());
     println!(" token {:?}", scalar_type.token());
-    // let width = type_spec.expr();
-    // print!(" width ");
-    // if !width.is_none() {
-    //     println!("'{}'", width.unwrap());
-    // } else {
-    //     println!("none");
-    // }
-    // if ! type_decl.type_spec().is_none() {
-    //     println!("{:?}", type_decl.type_spec().unwrap());
-    // }
-    // else {
-    //     println!(" none");
-    // }
     print!(" initial value: ");
     if type_decl.expr().is_some() {
         print!("{}", type_decl.expr().unwrap());
     } else {
         print!(" none");
     }
-
-    // println!("Type declaration: declared_var.expr '{:?}'", type_decl.declared_var().unwrap().expr());
-    // println!(" eq_token {:?}", type_decl.eq_token());
-    // println!("        expr '{:?}'", type_decl.expr());
-    //    println!("Stub unhandled item: {:?}", type_decl);
 }
 
 fn print_gate(gate: ast::Gate) {

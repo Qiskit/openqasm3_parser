@@ -27,7 +27,7 @@ use crate::with_scope;
 use crate::utils::type_name_of; // for debugging
 
 // traits
-use synast::{HasArgList, HasModuleItem, HasName, HasTextName};
+use synast::{HasArgList, HasName, HasTextName};
 
 pub struct ParseResult<T: SourceTrait> {
     syntax_result: T, // syntax tree and errors
@@ -144,11 +144,11 @@ pub fn syntax_to_semantic<T: SourceTrait>(
     let parse_tree = parsed_source.syntax_ast().tree();
     let mut included_iter = parsed_source.included().iter();
     let save_errors = replace(&mut context.semantic_errors, errors);
-    for parse_item in parse_tree.statements() {
-        let stmt = match parse_item {
+    for parse_stmt in parse_tree.statements() {
+        let stmt = match parse_stmt {
             // Include does not go in the ASG, instead it is evaluated.
             // So we include the parsed code, collect errors, and return `None`.
-            synast::Stmt::Item(synast::Item::Include(include)) => {
+            synast::Stmt::Include(include) => {
                 // Get SourceFile object with syntax AST for the next included file.
                 let included_parsed_source = included_iter.next().unwrap();
                 // Empty list for possible semantic errors in the included file.
@@ -171,9 +171,9 @@ pub fn syntax_to_semantic<T: SourceTrait>(
                 None
             }
 
-            synast::Stmt::Item(item) => from_item(item, &mut context),
-
             synast::Stmt::ExprStmt(expr_stmt) => from_expr_stmt(expr_stmt, &mut context),
+
+            stmt => from_stmt(stmt, &mut context),
         };
         if let Some(stmt) = stmt {
             context.program.insert_stmt(stmt)
@@ -523,26 +523,26 @@ fn from_literal(literal: &synast::Literal) -> Option<asg::TExpr> {
     Some(literal_texpr)
 }
 
-fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
-    match item {
-        synast::Item::IfStmt(if_stmt) => {
+fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
+    match stmt {
+        synast::Stmt::IfStmt(if_stmt) => {
             let condition = from_expr(if_stmt.condition().unwrap(), context);
             let then_branch = from_block_expr(if_stmt.then_branch().unwrap(), context);
             let else_branch = if_stmt.else_branch().map(|ex| from_block_expr(ex, context));
             Some(asg::If::new(condition.unwrap(), then_branch, else_branch).to_stmt())
         }
 
-        synast::Item::WhileStmt(while_stmt) => {
+        synast::Stmt::WhileStmt(while_stmt) => {
             let condition = from_expr(while_stmt.condition().unwrap(), context);
             let loop_body = from_block_expr(while_stmt.body().unwrap(), context);
             Some(asg::While::new(condition.unwrap(), loop_body).to_stmt())
         }
 
-        synast::Item::ClassicalDeclarationStatement(type_decl) => {
+        synast::Stmt::ClassicalDeclarationStatement(type_decl) => {
             Some(from_classical_declaration_statement(&type_decl, context))
         }
 
-        synast::Item::QuantumDeclarationStatement(q_decl) => {
+        synast::Stmt::QuantumDeclarationStatement(q_decl) => {
             let qubit_type = q_decl.qubit_type().unwrap();
             let width = match qubit_type.designator().and_then(|x| x.expr()) {
                 Some(synast::Expr::Literal(ref literal)) => {
@@ -566,18 +566,18 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
             Some(asg::Stmt::DeclareQuantum(q_decl_ast))
         }
 
-        synast::Item::AssignmentStmt(assignment_stmt) => {
+        synast::Stmt::AssignmentStmt(assignment_stmt) => {
             from_assignment_stmt(&assignment_stmt, context)
         }
 
-        synast::Item::BreakStmt(_) => Some(asg::Stmt::Break),
+        synast::Stmt::BreakStmt(_) => Some(asg::Stmt::Break),
 
-        synast::Item::ContinueStmt(_) => Some(asg::Stmt::Continue),
+        synast::Stmt::ContinueStmt(_) => Some(asg::Stmt::Continue),
 
-        synast::Item::EndStmt(_) => Some(asg::Stmt::End),
+        synast::Stmt::EndStmt(_) => Some(asg::Stmt::End),
 
         // Gate definition
-        synast::Item::Gate(gate) => {
+        synast::Stmt::Gate(gate) => {
             let name_node = gate.name().unwrap();
             // Here are three ways to manage the context.
 
@@ -604,7 +604,7 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
             // context.symbol_table.exit_scope();
 
             // This might be kind of fragile. Currently, we should be able to handle
-            //    1. a sequnce of semicolon-separated items.
+            //    1. a sequnce of semicolon-separated stmts.
             // or 2. a single block. But the block has a scope of course.
             with_scope!(context,  ScopeType::Subroutine,
                           let params = bind_parameter_list(gate.angle_params(), &Type::Angle(None, IsConst::True), context);
@@ -627,7 +627,7 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
             Some(asg::GateDeclaration::new(gate_name_symbol_id, params, qubits, block).to_stmt())
         }
 
-        synast::Item::Barrier(barrier) => {
+        synast::Stmt::Barrier(barrier) => {
             let gate_operands = barrier.qubit_list().map(|operands| {
                 operands
                     .gate_operands()
@@ -637,7 +637,7 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
             Some(asg::Stmt::Barrier(asg::Barrier::new(gate_operands)))
         }
 
-        synast::Item::Include(include) => {
+        synast::Stmt::Include(include) => {
             if context.symbol_table().current_scope_type() != ScopeType::Global {
                 context.insert_error(IncludeNotInGlobalScopeError, &include);
                 None
@@ -647,13 +647,13 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
             }
         }
 
-        synast::Item::VersionString(version_string) => {
+        synast::Stmt::VersionString(version_string) => {
             let version = version_string.version().unwrap().version().unwrap();
             let _ = version.split_into_parts();
             None
         }
 
-        synast::Item::GPhaseCallStmt(gphase) => {
+        synast::Stmt::GPhaseCallStmt(gphase) => {
             let synarg = gphase.arg().unwrap();
             let arg = from_expr(synarg, context).unwrap();
             Some(asg::Stmt::GPhaseCall(asg::GPhaseCall::new(arg)))
@@ -666,10 +666,10 @@ fn from_item(item: synast::Item, context: &mut Context) -> Option<asg::Stmt> {
 fn from_block_expr(block_synast: synast::BlockExpr, context: &mut Context) -> asg::Block {
     let mut block = asg::Block::new();
 
-    for parse_item in block_synast.statements() {
-        let stmt = match parse_item {
-            synast::Stmt::Item(item) => from_item(item, context),
+    for parse_stmt in block_synast.statements() {
+        let stmt = match parse_stmt {
             synast::Stmt::ExprStmt(expr_stmt) => from_expr_stmt(expr_stmt, context),
+            stmt => from_stmt(stmt, context),
         };
         if let Some(stmt) = stmt {
             block.insert_stmt(stmt)

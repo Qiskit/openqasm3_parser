@@ -29,7 +29,7 @@ pub use self::{
     node_ext::HasTextName,
     operators::{ArithOp, BinaryOp, CmpOp, LogicOp, Ordering, RangeOp, UnaryOp},
     token_ext::{CommentKind, CommentShape, IsString, QuoteOffsets, Radix},
-    traits::{HasArgList, HasLoopBody, HasModuleItem, HasName},
+    traits::{HasArgList, HasLoopBody, HasName},
     type_ext::ScalarTypeKind, // need a better name, one that does not clash
 };
 

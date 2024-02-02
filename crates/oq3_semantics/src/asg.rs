@@ -93,7 +93,7 @@ impl Default for Program {
     }
 }
 
-// One way to forward methods for Iterator to Program items.
+// One way to forward methods for Iterator to Program statements.
 impl std::ops::Deref for Program {
     type Target = Vec<Stmt>;
 

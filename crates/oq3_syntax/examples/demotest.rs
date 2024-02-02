@@ -49,7 +49,6 @@ enum Commands {
 }
 
 fn main() {
-    use oq3_syntax::ast::HasModuleItem;
     let cli = Cli::parse();
 
     // You can check for the existence of subcommands, and if found use their
@@ -59,8 +58,8 @@ fn main() {
             let parsed_source = SourceFile::parse(&read_example_source(filename));
             let parse_tree: SourceFile = parsed_source.tree();
             println!(
-                "Found {} items",
-                parse_tree.items().collect::<Vec<_>>().len()
+                "Found {} statements",
+                parse_tree.statements().collect::<Vec<_>>().len()
             );
             let syntax_errors = parsed_source.errors();
             println!(

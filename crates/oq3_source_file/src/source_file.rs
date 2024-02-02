@@ -1,17 +1,13 @@
 // Copyright contributors to the openqasm-parser project
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::api::{inner_print_compiler_errors, parse_source_file, print_compiler_errors};
 use oq3_syntax::ast as synast; // Syntactic AST
 use oq3_syntax::Parse;
 use oq3_syntax::TextRange;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
-
-// traits
-use oq3_syntax::ast::HasModuleItem;
-
-use crate::api::{inner_print_compiler_errors, parse_source_file, print_compiler_errors};
 
 pub(crate) fn parse_source_and_includes<P: AsRef<Path>>(
     source: &str,
@@ -28,7 +24,6 @@ pub(crate) type ParsedSource = Parse<synast::SourceFile>;
 
 pub trait ErrorTrait {
     fn message(&self) -> String;
-
     fn range(&self) -> TextRange;
 }
 
@@ -166,8 +161,8 @@ pub(crate) fn parse_included_files<P: AsRef<Path>>(
     syntax_ast
         .tree()
         .statements()
-        .filter_map(|parse_item| match parse_item {
-            synast::Stmt::Item(synast::Item::Include(include)) => {
+        .filter_map(|parse_stmt| match parse_stmt {
+            synast::Stmt::Include(include) => {
                 let file: synast::FilePath = include.file().unwrap();
                 let file_path = file.to_string().unwrap();
                 Some(parse_source_file(file_path, search_path_list))

@@ -20,7 +20,7 @@ impl Expr {
         match_ast! {
             match parent {
                 ast::Expr(e) => self.needs_parens_in_expr(&e),
-                ast::Stmt(e) => self.needs_parens_in_stmt(Some(&e)),
+                ast::Stmt(e) =>      self.needs_parens_in_stmt(Some(&e)),
                 ast::BlockExpr(_) => self.needs_parens_in_stmt(None),
                 ast::ArgList(_) => false,
                 _ => false,

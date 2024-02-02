@@ -78,7 +78,7 @@ pub(crate) fn stmt(p: &mut Parser<'_>, semicolon: Semicolon) {
     if !(p.current().is_classical_type() && (p.nth(1) == T!['('] || p.nth(1) == T!['[']))
         && !p.at_ts(EXPR_FIRST)
     {
-        p.err_and_bump("stmt: expected expression, item, type declaration, or let statement");
+        p.err_and_bump("stmt: expected expression, type declaration, or let statement");
         m.abandon(p);
         return;
     };
