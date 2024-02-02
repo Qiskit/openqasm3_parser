@@ -512,11 +512,6 @@ impl Cursor<'_> {
         // }
     }
 
-    // I think that in rust items that can be separated by arbitrary whitespace are
-    // considered tokens. (Some tokens, like identifiers, obviously must have some whitespace separate,
-    // otherwise two in a row would be ambiguous.
-    // On the other hand, a literal like `1u32` cannot be written `1 u32` in Rust. So `1u32` is a single
-    // token.
     // In OQ3, whitespace *is* allowed between an imaginary literal and `im`. So to be consistent, these
     // must each be a separate token. Furthermore, if we continue with the way this lexer works for rust,
     // `im` will not be recognized as reserved at this stage, just as `for`, `if`, etc. are not. The distinction

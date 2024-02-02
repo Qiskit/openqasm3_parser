@@ -89,7 +89,7 @@ impl ast::IfStmt {
     }
 }
 
-// FIXME: These tests broke now that IfExpr is a Stmt (Item really)
+// FIXME: These tests broke now that IfExpr is a Stmt
 // But they should be fixed.
 // #[test]
 // fn if_block_condition() {

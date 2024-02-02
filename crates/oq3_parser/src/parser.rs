@@ -256,7 +256,6 @@ impl<'t> Parser<'t> {
         if self.eat(kind) {
             return true;
         }
-        //        println!("------------ will error with 'expected {kind:?}"); // GJL debug
         self.error(format!("expected {kind:?}"));
         false
     }

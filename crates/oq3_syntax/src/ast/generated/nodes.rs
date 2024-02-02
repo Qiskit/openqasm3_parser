@@ -19,8 +19,11 @@ impl Name {
 pub struct SourceFile {
     pub(crate) syntax: SyntaxNode,
 }
-impl ast::HasModuleItem for SourceFile {}
-impl SourceFile {}
+impl SourceFile {
+    pub fn statements(&self) -> AstChildren<Stmt> {
+        support::children(&self.syntax)
+    }
+}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Def {
     pub(crate) syntax: SyntaxNode,
@@ -403,6 +406,18 @@ impl EndStmt {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct ExprStmt {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ExprStmt {
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
+    pub fn semicolon_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![;])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Version {
     pub(crate) syntax: SyntaxNode,
 }
@@ -485,18 +500,6 @@ pub struct Param {
 }
 impl ast::HasName for Param {}
 impl Param {}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ExprStmt {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ExprStmt {
-    pub fn expr(&self) -> Option<Expr> {
-        support::child(&self.syntax)
-    }
-    pub fn semicolon_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![;])
-    }
-}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ArrayExpr {
     pub(crate) syntax: SyntaxNode,
@@ -964,7 +967,7 @@ impl OldStyleDeclarationStatement {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum Item {
+pub enum Stmt {
     Def(Def),
     Gate(Gate),
     DefCal(DefCal),
@@ -988,6 +991,7 @@ pub enum Item {
     BreakStmt(BreakStmt),
     ContinueStmt(ContinueStmt),
     EndStmt(EndStmt),
+    ExprStmt(ExprStmt),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Expr {
@@ -1018,11 +1022,6 @@ pub enum GateOperand {
     HardwareQubit(HardwareQubit),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum Stmt {
-    ExprStmt(ExprStmt),
-    Item(Item),
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Modifier {
     InvModifier(InvModifier),
     PowModifier(PowModifier),
@@ -1039,11 +1038,6 @@ pub struct AnyHasArgList {
     pub(crate) syntax: SyntaxNode,
 }
 impl ast::HasArgList for AnyHasArgList {}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct AnyHasModuleItem {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ast::HasModuleItem for AnyHasModuleItem {}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct AnyHasName {
     pub(crate) syntax: SyntaxNode,
@@ -1424,6 +1418,21 @@ impl AstNode for EndStmt {
         &self.syntax
     }
 }
+impl AstNode for ExprStmt {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == EXPR_STMT
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for Version {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == VERSION
@@ -1532,21 +1541,6 @@ impl AstNode for ReturnSignature {
 impl AstNode for Param {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == PARAM
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for ExprStmt {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == EXPR_STMT
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2039,122 +2033,127 @@ impl AstNode for OldStyleDeclarationStatement {
         &self.syntax
     }
 }
-impl From<Def> for Item {
-    fn from(node: Def) -> Item {
-        Item::Def(node)
+impl From<Def> for Stmt {
+    fn from(node: Def) -> Stmt {
+        Stmt::Def(node)
     }
 }
-impl From<Gate> for Item {
-    fn from(node: Gate) -> Item {
-        Item::Gate(node)
+impl From<Gate> for Stmt {
+    fn from(node: Gate) -> Stmt {
+        Stmt::Gate(node)
     }
 }
-impl From<DefCal> for Item {
-    fn from(node: DefCal) -> Item {
-        Item::DefCal(node)
+impl From<DefCal> for Stmt {
+    fn from(node: DefCal) -> Stmt {
+        Stmt::DefCal(node)
     }
 }
-impl From<Cal> for Item {
-    fn from(node: Cal) -> Item {
-        Item::Cal(node)
+impl From<Cal> for Stmt {
+    fn from(node: Cal) -> Stmt {
+        Stmt::Cal(node)
     }
 }
-impl From<DefCalGrammar> for Item {
-    fn from(node: DefCalGrammar) -> Item {
-        Item::DefCalGrammar(node)
+impl From<DefCalGrammar> for Stmt {
+    fn from(node: DefCalGrammar) -> Stmt {
+        Stmt::DefCalGrammar(node)
     }
 }
-impl From<TypeDeclarationStmt> for Item {
-    fn from(node: TypeDeclarationStmt) -> Item {
-        Item::TypeDeclarationStmt(node)
+impl From<TypeDeclarationStmt> for Stmt {
+    fn from(node: TypeDeclarationStmt) -> Stmt {
+        Stmt::TypeDeclarationStmt(node)
     }
 }
-impl From<ClassicalDeclarationStatement> for Item {
-    fn from(node: ClassicalDeclarationStatement) -> Item {
-        Item::ClassicalDeclarationStatement(node)
+impl From<ClassicalDeclarationStatement> for Stmt {
+    fn from(node: ClassicalDeclarationStatement) -> Stmt {
+        Stmt::ClassicalDeclarationStatement(node)
     }
 }
-impl From<QuantumDeclarationStatement> for Item {
-    fn from(node: QuantumDeclarationStatement) -> Item {
-        Item::QuantumDeclarationStatement(node)
+impl From<QuantumDeclarationStatement> for Stmt {
+    fn from(node: QuantumDeclarationStatement) -> Stmt {
+        Stmt::QuantumDeclarationStatement(node)
     }
 }
-impl From<GPhaseCallStmt> for Item {
-    fn from(node: GPhaseCallStmt) -> Item {
-        Item::GPhaseCallStmt(node)
+impl From<GPhaseCallStmt> for Stmt {
+    fn from(node: GPhaseCallStmt) -> Stmt {
+        Stmt::GPhaseCallStmt(node)
     }
 }
-impl From<LetStmt> for Item {
-    fn from(node: LetStmt) -> Item {
-        Item::LetStmt(node)
+impl From<LetStmt> for Stmt {
+    fn from(node: LetStmt) -> Stmt {
+        Stmt::LetStmt(node)
     }
 }
-impl From<AssignmentStmt> for Item {
-    fn from(node: AssignmentStmt) -> Item {
-        Item::AssignmentStmt(node)
+impl From<AssignmentStmt> for Stmt {
+    fn from(node: AssignmentStmt) -> Stmt {
+        Stmt::AssignmentStmt(node)
     }
 }
-impl From<AliasDeclarationStatement> for Item {
-    fn from(node: AliasDeclarationStatement) -> Item {
-        Item::AliasDeclarationStatement(node)
+impl From<AliasDeclarationStatement> for Stmt {
+    fn from(node: AliasDeclarationStatement) -> Stmt {
+        Stmt::AliasDeclarationStatement(node)
     }
 }
-impl From<Include> for Item {
-    fn from(node: Include) -> Item {
-        Item::Include(node)
+impl From<Include> for Stmt {
+    fn from(node: Include) -> Stmt {
+        Stmt::Include(node)
     }
 }
-impl From<ForStmt> for Item {
-    fn from(node: ForStmt) -> Item {
-        Item::ForStmt(node)
+impl From<ForStmt> for Stmt {
+    fn from(node: ForStmt) -> Stmt {
+        Stmt::ForStmt(node)
     }
 }
-impl From<IfStmt> for Item {
-    fn from(node: IfStmt) -> Item {
-        Item::IfStmt(node)
+impl From<IfStmt> for Stmt {
+    fn from(node: IfStmt) -> Stmt {
+        Stmt::IfStmt(node)
     }
 }
-impl From<WhileStmt> for Item {
-    fn from(node: WhileStmt) -> Item {
-        Item::WhileStmt(node)
+impl From<WhileStmt> for Stmt {
+    fn from(node: WhileStmt) -> Stmt {
+        Stmt::WhileStmt(node)
     }
 }
-impl From<Reset> for Item {
-    fn from(node: Reset) -> Item {
-        Item::Reset(node)
+impl From<Reset> for Stmt {
+    fn from(node: Reset) -> Stmt {
+        Stmt::Reset(node)
     }
 }
-impl From<Measure> for Item {
-    fn from(node: Measure) -> Item {
-        Item::Measure(node)
+impl From<Measure> for Stmt {
+    fn from(node: Measure) -> Stmt {
+        Stmt::Measure(node)
     }
 }
-impl From<Barrier> for Item {
-    fn from(node: Barrier) -> Item {
-        Item::Barrier(node)
+impl From<Barrier> for Stmt {
+    fn from(node: Barrier) -> Stmt {
+        Stmt::Barrier(node)
     }
 }
-impl From<VersionString> for Item {
-    fn from(node: VersionString) -> Item {
-        Item::VersionString(node)
+impl From<VersionString> for Stmt {
+    fn from(node: VersionString) -> Stmt {
+        Stmt::VersionString(node)
     }
 }
-impl From<BreakStmt> for Item {
-    fn from(node: BreakStmt) -> Item {
-        Item::BreakStmt(node)
+impl From<BreakStmt> for Stmt {
+    fn from(node: BreakStmt) -> Stmt {
+        Stmt::BreakStmt(node)
     }
 }
-impl From<ContinueStmt> for Item {
-    fn from(node: ContinueStmt) -> Item {
-        Item::ContinueStmt(node)
+impl From<ContinueStmt> for Stmt {
+    fn from(node: ContinueStmt) -> Stmt {
+        Stmt::ContinueStmt(node)
     }
 }
-impl From<EndStmt> for Item {
-    fn from(node: EndStmt) -> Item {
-        Item::EndStmt(node)
+impl From<EndStmt> for Stmt {
+    fn from(node: EndStmt) -> Stmt {
+        Stmt::EndStmt(node)
     }
 }
-impl AstNode for Item {
+impl From<ExprStmt> for Stmt {
+    fn from(node: ExprStmt) -> Stmt {
+        Stmt::ExprStmt(node)
+    }
+}
+impl AstNode for Stmt {
     fn can_cast(kind: SyntaxKind) -> bool {
         matches!(
             kind,
@@ -2180,68 +2179,71 @@ impl AstNode for Item {
                 | BREAK_STMT
                 | CONTINUE_STMT
                 | END_STMT
+                | EXPR_STMT
         )
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         let res = match syntax.kind() {
-            DEF => Item::Def(Def { syntax }),
-            GATE => Item::Gate(Gate { syntax }),
-            DEF_CAL => Item::DefCal(DefCal { syntax }),
-            CAL => Item::Cal(Cal { syntax }),
-            DEF_CAL_GRAMMAR => Item::DefCalGrammar(DefCalGrammar { syntax }),
-            TYPE_DECLARATION_STMT => Item::TypeDeclarationStmt(TypeDeclarationStmt { syntax }),
+            DEF => Stmt::Def(Def { syntax }),
+            GATE => Stmt::Gate(Gate { syntax }),
+            DEF_CAL => Stmt::DefCal(DefCal { syntax }),
+            CAL => Stmt::Cal(Cal { syntax }),
+            DEF_CAL_GRAMMAR => Stmt::DefCalGrammar(DefCalGrammar { syntax }),
+            TYPE_DECLARATION_STMT => Stmt::TypeDeclarationStmt(TypeDeclarationStmt { syntax }),
             CLASSICAL_DECLARATION_STATEMENT => {
-                Item::ClassicalDeclarationStatement(ClassicalDeclarationStatement { syntax })
+                Stmt::ClassicalDeclarationStatement(ClassicalDeclarationStatement { syntax })
             }
             QUANTUM_DECLARATION_STATEMENT => {
-                Item::QuantumDeclarationStatement(QuantumDeclarationStatement { syntax })
+                Stmt::QuantumDeclarationStatement(QuantumDeclarationStatement { syntax })
             }
-            G_PHASE_CALL_STMT => Item::GPhaseCallStmt(GPhaseCallStmt { syntax }),
-            LET_STMT => Item::LetStmt(LetStmt { syntax }),
-            ASSIGNMENT_STMT => Item::AssignmentStmt(AssignmentStmt { syntax }),
+            G_PHASE_CALL_STMT => Stmt::GPhaseCallStmt(GPhaseCallStmt { syntax }),
+            LET_STMT => Stmt::LetStmt(LetStmt { syntax }),
+            ASSIGNMENT_STMT => Stmt::AssignmentStmt(AssignmentStmt { syntax }),
             ALIAS_DECLARATION_STATEMENT => {
-                Item::AliasDeclarationStatement(AliasDeclarationStatement { syntax })
+                Stmt::AliasDeclarationStatement(AliasDeclarationStatement { syntax })
             }
-            INCLUDE => Item::Include(Include { syntax }),
-            FOR_STMT => Item::ForStmt(ForStmt { syntax }),
-            IF_STMT => Item::IfStmt(IfStmt { syntax }),
-            WHILE_STMT => Item::WhileStmt(WhileStmt { syntax }),
-            RESET => Item::Reset(Reset { syntax }),
-            MEASURE => Item::Measure(Measure { syntax }),
-            BARRIER => Item::Barrier(Barrier { syntax }),
-            VERSION_STRING => Item::VersionString(VersionString { syntax }),
-            BREAK_STMT => Item::BreakStmt(BreakStmt { syntax }),
-            CONTINUE_STMT => Item::ContinueStmt(ContinueStmt { syntax }),
-            END_STMT => Item::EndStmt(EndStmt { syntax }),
+            INCLUDE => Stmt::Include(Include { syntax }),
+            FOR_STMT => Stmt::ForStmt(ForStmt { syntax }),
+            IF_STMT => Stmt::IfStmt(IfStmt { syntax }),
+            WHILE_STMT => Stmt::WhileStmt(WhileStmt { syntax }),
+            RESET => Stmt::Reset(Reset { syntax }),
+            MEASURE => Stmt::Measure(Measure { syntax }),
+            BARRIER => Stmt::Barrier(Barrier { syntax }),
+            VERSION_STRING => Stmt::VersionString(VersionString { syntax }),
+            BREAK_STMT => Stmt::BreakStmt(BreakStmt { syntax }),
+            CONTINUE_STMT => Stmt::ContinueStmt(ContinueStmt { syntax }),
+            END_STMT => Stmt::EndStmt(EndStmt { syntax }),
+            EXPR_STMT => Stmt::ExprStmt(ExprStmt { syntax }),
             _ => return None,
         };
         Some(res)
     }
     fn syntax(&self) -> &SyntaxNode {
         match self {
-            Item::Def(it) => &it.syntax,
-            Item::Gate(it) => &it.syntax,
-            Item::DefCal(it) => &it.syntax,
-            Item::Cal(it) => &it.syntax,
-            Item::DefCalGrammar(it) => &it.syntax,
-            Item::TypeDeclarationStmt(it) => &it.syntax,
-            Item::ClassicalDeclarationStatement(it) => &it.syntax,
-            Item::QuantumDeclarationStatement(it) => &it.syntax,
-            Item::GPhaseCallStmt(it) => &it.syntax,
-            Item::LetStmt(it) => &it.syntax,
-            Item::AssignmentStmt(it) => &it.syntax,
-            Item::AliasDeclarationStatement(it) => &it.syntax,
-            Item::Include(it) => &it.syntax,
-            Item::ForStmt(it) => &it.syntax,
-            Item::IfStmt(it) => &it.syntax,
-            Item::WhileStmt(it) => &it.syntax,
-            Item::Reset(it) => &it.syntax,
-            Item::Measure(it) => &it.syntax,
-            Item::Barrier(it) => &it.syntax,
-            Item::VersionString(it) => &it.syntax,
-            Item::BreakStmt(it) => &it.syntax,
-            Item::ContinueStmt(it) => &it.syntax,
-            Item::EndStmt(it) => &it.syntax,
+            Stmt::Def(it) => &it.syntax,
+            Stmt::Gate(it) => &it.syntax,
+            Stmt::DefCal(it) => &it.syntax,
+            Stmt::Cal(it) => &it.syntax,
+            Stmt::DefCalGrammar(it) => &it.syntax,
+            Stmt::TypeDeclarationStmt(it) => &it.syntax,
+            Stmt::ClassicalDeclarationStatement(it) => &it.syntax,
+            Stmt::QuantumDeclarationStatement(it) => &it.syntax,
+            Stmt::GPhaseCallStmt(it) => &it.syntax,
+            Stmt::LetStmt(it) => &it.syntax,
+            Stmt::AssignmentStmt(it) => &it.syntax,
+            Stmt::AliasDeclarationStatement(it) => &it.syntax,
+            Stmt::Include(it) => &it.syntax,
+            Stmt::ForStmt(it) => &it.syntax,
+            Stmt::IfStmt(it) => &it.syntax,
+            Stmt::WhileStmt(it) => &it.syntax,
+            Stmt::Reset(it) => &it.syntax,
+            Stmt::Measure(it) => &it.syntax,
+            Stmt::Barrier(it) => &it.syntax,
+            Stmt::VersionString(it) => &it.syntax,
+            Stmt::BreakStmt(it) => &it.syntax,
+            Stmt::ContinueStmt(it) => &it.syntax,
+            Stmt::EndStmt(it) => &it.syntax,
+            Stmt::ExprStmt(it) => &it.syntax,
         }
     }
 }
@@ -2450,16 +2452,6 @@ impl AstNode for GateOperand {
         }
     }
 }
-impl From<ExprStmt> for Stmt {
-    fn from(node: ExprStmt) -> Stmt {
-        Stmt::ExprStmt(node)
-    }
-}
-impl From<Item> for Stmt {
-    fn from(node: Item) -> Stmt {
-        Stmt::Item(node)
-    }
-}
 impl From<InvModifier> for Modifier {
     fn from(node: InvModifier) -> Modifier {
         Modifier::InvModifier(node)
@@ -2554,25 +2546,6 @@ impl AstNode for AnyHasArgList {
         &self.syntax
     }
 }
-impl AnyHasModuleItem {
-    #[inline]
-    pub fn new<T: ast::HasModuleItem>(node: T) -> AnyHasModuleItem {
-        AnyHasModuleItem {
-            syntax: node.syntax().clone(),
-        }
-    }
-}
-impl AstNode for AnyHasModuleItem {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        matches!(kind, SOURCE_FILE)
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        Self::can_cast(syntax.kind()).then_some(AnyHasModuleItem { syntax })
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
 impl AnyHasName {
     #[inline]
     pub fn new<T: ast::HasName>(node: T) -> AnyHasName {
@@ -2609,7 +2582,7 @@ impl AstNode for AnyHasName {
         &self.syntax
     }
 }
-impl std::fmt::Display for Item {
+impl std::fmt::Display for Stmt {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -2620,11 +2593,6 @@ impl std::fmt::Display for Expr {
     }
 }
 impl std::fmt::Display for GateOperand {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for Stmt {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -2764,6 +2732,11 @@ impl std::fmt::Display for EndStmt {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
+impl std::fmt::Display for ExprStmt {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
 impl std::fmt::Display for Version {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
@@ -2800,11 +2773,6 @@ impl std::fmt::Display for ReturnSignature {
     }
 }
 impl std::fmt::Display for Param {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for ExprStmt {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

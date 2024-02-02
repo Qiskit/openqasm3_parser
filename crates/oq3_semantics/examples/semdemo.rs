@@ -73,7 +73,6 @@ enum Commands {
 }
 
 fn main() {
-    use oq3_syntax::ast::HasModuleItem;
     let cli = Cli::parse();
 
     // You can check for the existence of subcommands, and if found use their
@@ -113,17 +112,12 @@ fn main() {
             result.program().print_asg_debug_pretty();
         }
 
-        // Some(Commands::SemanticDbg { file_name }) => {
-        //     let context = syntax_to_semantics::string_to_semantic(&read_example_source(file_name));
-        //     println!("ERRORS {:?}", context.errors());
-        //     context.program().print_asg_debug_pretty();
-        // }
         Some(Commands::Parse { file_name }) => {
             let parsed_source = oq3_source_file::parse_source_file(file_name, None::<&[PathBuf]>);
             let parse_tree = parsed_source.syntax_ast().tree();
             println!(
-                "Found {} items",
-                parse_tree.items().collect::<Vec<_>>().len()
+                "Found {} stmts",
+                parse_tree.statements().collect::<Vec<_>>().len()
             );
             let syntax_errors = parsed_source.syntax_ast().errors();
             println!(

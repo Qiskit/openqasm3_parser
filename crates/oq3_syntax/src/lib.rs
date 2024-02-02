@@ -212,7 +212,7 @@ macro_rules! match_ast {
 // /// API.
 #[test]
 fn api_walkthrough() {
-    use ast::{HasModuleItem, HasName};
+    use ast::HasName;
 
     let source_code = "
         def foo() {
@@ -230,12 +230,12 @@ fn api_walkthrough() {
     // Owned nodes are cheap: inside, they are `Rc` handles to the underling data.
     let file: SourceFile = parse.tree();
 
-    // `SourceFile` is the root of the syntax tree. We can iterate file's items.
+    // `SourceFile` is the root of the syntax tree. We can iterate file's stmts.
     // Let's fetch the `foo` function.
     let mut func = None;
-    for item in file.items() {
-        match item {
-            ast::Item::Def(f) => func = Some(f),
+    for stmt in file.statements() {
+        match stmt {
+            ast::Stmt::Def(f) => func = Some(f),
             _ => unreachable!(),
         }
     }

@@ -70,8 +70,6 @@ if (true) {
 // }
 // "##;
 //     let (program, errors, _symbol_table) = parse_string(code);
-//     dbg!(program.clone());
-//     dbg!(errors.clone());
 //     assert_eq!(errors.len(), 1);
 //     assert_eq!(program.len(), 0);
 // }

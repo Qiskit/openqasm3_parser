@@ -54,20 +54,14 @@ Name =
   'ident'
 
 //*************************//
-//          Items          //
+//          [Stmt]s          //
 //*************************//
 
 SourceFile =
-  Item*
+  statements:(Stmt*)
 
-// FIXME: Stmt vs Statement
-// [Item]s are apparently top-level statements and expressions.
-// In OQ3, I think most things can occur at the top level.
-// In Rust, this list of [Item]s is more limited.
-// We may want to reorganize the hierarchy of SyntaxKind.
-// Otherwise, everything will have to be an [Item] and the hierarchy becomes
-// less useful.
-Item =
+// FIXME: Stmt vs Statement ?
+Stmt =
   Def
 | Gate
 | DefCal
@@ -91,6 +85,8 @@ Item =
 | BreakStmt
 | ContinueStmt
 | EndStmt
+| ExprStmt
+| ';'
 
 BreakStmt =
   'break' ';'
@@ -179,11 +175,6 @@ Param =
 //****************************//
 // Statements and Expressions //
 //****************************//
-
-Stmt =
-  ';'
-| ExprStmt
-| Item
 
 ExprStmt =
   Expr ';'?

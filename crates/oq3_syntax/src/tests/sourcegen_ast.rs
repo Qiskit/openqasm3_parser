@@ -41,9 +41,7 @@ fn _generate_ast() -> AstSrc {
     let grammar = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/openqasm3.ungram"))
         .parse()
         .unwrap();
-    let ast = lower(&grammar);
-    println!("AST: {:?}", ast);
-    ast
+    lower(&grammar)
 }
 
 /// Generate the code destined for nodes.rs, but write to temp file _new_nodes.rs.
@@ -205,7 +203,8 @@ fn generate_nodes(kinds: KindsSrc<'_>, grammar: &AstSrc) -> String {
                 quote!(impl ast::#trait_name for #name {})
             });
 
-            let ast_node = if en.name == "Stmt" {
+            let ast_node = if en.name == "DisableStmt" {
+                // No longer want to skip Stmt
                 quote! {}
             } else {
                 quote! {
@@ -673,11 +672,9 @@ fn lower(grammar: &Grammar) -> AstSrc {
 
     let nodes = grammar.iter().collect::<Vec<_>>();
 
-    //    println!("lower:    let nodes = grammar.iter().collect::<Vec<_>>();");
     for &node in &nodes {
         let name = grammar[node].name.clone();
         let rule = &grammar[node].rule;
-        //        println!("lower: name rule");
         match lower_enum(grammar, rule) {
             Some(variants) => {
                 let enum_src = AstEnumSrc {
@@ -740,7 +737,6 @@ fn lower_rule(acc: &mut Vec<Field>, grammar: &Grammar, label: Option<&String>, r
         Rule::Node(node) => {
             let ty = grammar[*node].name.clone();
             let name = label.cloned().unwrap_or_else(|| to_lower_snake_case(&ty));
-            //            println!("Node name {:?}", name);
             let field = Field::Node {
                 name,
                 ty,
@@ -783,11 +779,6 @@ fn lower_rule(acc: &mut Vec<Field>, grammar: &Grammar, label: Option<&String>, r
             // Note that the restriction on inner is not part of the grammar of ungrammar, but rather
             // what is implemented here.
             if let Rule::Seq(_rules) = &**inner {
-                println!("!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Seq in Rep");
-                // for rule in rules {
-                //     lower_rule(acc, grammar, label, rule)
-                // }
-                // return;
                 panic!("Inner rule in Rule::Rep (repeated with '*') must be a Node, got a Seq.\nNode{:?}\nInner: {:?}", rule, inner);
             }
             // FIXME: This desperately needs better diagnostics.
@@ -934,10 +925,9 @@ fn extract_struct_traits(ast: &mut AstSrc) {
         ("HasAttrs", &["attrs"]),
         ("HasName", &["name"]),
         //        ("HasTypeBounds", &["type_bound_list", "colon_token"]),
-        ("HasModuleItem", &["items"]),
+        //        ("HasModuleItem", &["items"]), No longer needed now that Item is removed
         ("HasLoopBody", &["label", "loop_body"]),
         ("HasArgList", &["arg_list"]),
-        //        ("HasGateArgList", &["gate_arg_list"]),
     ];
 
     for node in &mut ast.nodes {
@@ -963,7 +953,8 @@ fn extract_struct_trait(node: &mut AstNodeSrc, trait_name: &str, methods: &[&str
 
 fn extract_enum_traits(ast: &mut AstSrc) {
     for enm in &mut ast.enums {
-        if enm.name == "Stmt" {
+        if enm.name == "DisableStmt" {
+            // No longer want to skip Stmt
             continue;
         }
         let nodes = &ast.nodes;

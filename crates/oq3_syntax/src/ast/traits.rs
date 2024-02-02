@@ -10,7 +10,7 @@
 
 use either::Either;
 
-use crate::ast::{self, support, AstChildren, AstNode};
+use crate::ast::{self, support, AstNode};
 
 pub trait HasName: AstNode {
     fn name(&self) -> Option<ast::Name> {
@@ -27,17 +27,6 @@ pub trait HasLoopBody: AstNode {
 pub trait HasArgList: AstNode {
     fn arg_list(&self) -> Option<ast::ArgList> {
         support::child(self.syntax())
-    }
-}
-
-pub trait HasModuleItem: AstNode {
-    fn items(&self) -> AstChildren<ast::Item> {
-        println!("fn items in traits.rs");
-        support::children(self.syntax())
-    }
-
-    fn statements(&self) -> AstChildren<ast::Stmt> {
-        support::children(self.syntax())
     }
 }
 
