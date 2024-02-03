@@ -189,6 +189,7 @@ Expr =
 | CallExpr
 | CastExpression
 | GateCallExpr
+| GPhaseCallExpr
 | HardwareQubit
 | Identifier
 | IndexExpr
@@ -265,6 +266,9 @@ CastExpression =
   (ScalarType | ArrayType) '(' Expr ')'
 
 GPhaseCallStmt =
+ 'gphase' arg:Expr
+
+GPhaseCallExpr =
  'gphase' arg:Expr
 
 // FIXME: Explain why head of call expression is Expr and not Name

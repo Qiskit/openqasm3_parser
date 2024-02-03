@@ -138,15 +138,12 @@ impl Expr {
             ArrayLiteral(_) => (0, 0), // These need to be checked
             MeasureExpression(_) => (0, 0),
             BoxExpr(_) | PrefixExpr(_) => (0, 27),
-            GateCallExpr(_)
+            GPhaseCallExpr(_)
+            | GateCallExpr(_)
             | ModifiedGateCallExpr(_)
             | CallExpr(_)
             | CastExpression(_)
             | IndexExpr(_)
-            // | CtrlGateCallExpr(_)
-            // | NegCtrlGateCallExpr(_)
-            // | InvGateCallExpr(_)
-            // | PowGateCallExpr(_)
             | IndexedIdentifier(_) => (29, 0),
             ArrayExpr(_) | Literal(_) | ParenExpr(_) | Identifier(_) | HardwareQubit(_)
             | BlockExpr(_) => (0, 0),
@@ -196,12 +193,9 @@ impl Expr {
                 BoxExpr(e) => e.box_token(),
                 CallExpr(e) => e.arg_list().and_then(|args| args.l_paren_token()),
                 // FIXME: next line is quick fix, likely wrong
+                GPhaseCallExpr(_) => None,
                 GateCallExpr(_) => None,
                 ModifiedGateCallExpr(_) => None,
-                // InvGateCallExpr(_) => None,
-                // PowGateCallExpr(_) => None,
-                // CtrlGateCallExpr(_) => None,
-                // NegCtrlGateCallExpr(_) => None,
                 CastExpression(e) => e.l_paren_token(),
                 //                IndexExpr(e) => e.l_brack_token(),
                 // The bracket in IndexExpr is now absorbed in IndexOperator
@@ -226,14 +220,11 @@ impl Expr {
         match self {
             ArrayExpr(_)
             | BlockExpr(_)
-            | CallExpr(_)
+                | CallExpr(_)
+                | GPhaseCallExpr(_)
                 | GateCallExpr(_)
                 | ModifiedGateCallExpr(_)
             | CastExpression(_)
-            // | InvGateCallExpr(_)
-            // | CtrlGateCallExpr(_)
-            // | NegCtrlGateCallExpr(_)
-            // | PowGateCallExpr(_)
             | IndexExpr(_)
             | IndexedIdentifier(_)
             | Literal(_)

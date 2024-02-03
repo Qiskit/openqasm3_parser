@@ -596,6 +596,18 @@ impl GateCallExpr {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct GPhaseCallExpr {
+    pub(crate) syntax: SyntaxNode,
+}
+impl GPhaseCallExpr {
+    pub fn gphase_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![gphase])
+    }
+    pub fn arg(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct HardwareQubit {
     pub(crate) syntax: SyntaxNode,
 }
@@ -1003,6 +1015,7 @@ pub enum Expr {
     CallExpr(CallExpr),
     CastExpression(CastExpression),
     GateCallExpr(GateCallExpr),
+    GPhaseCallExpr(GPhaseCallExpr),
     HardwareQubit(HardwareQubit),
     Identifier(Identifier),
     IndexExpr(IndexExpr),
@@ -1658,6 +1671,21 @@ impl AstNode for GateCallExpr {
         &self.syntax
     }
 }
+impl AstNode for GPhaseCallExpr {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == G_PHASE_CALL_EXPR
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for HardwareQubit {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == HARDWARE_QUBIT
@@ -2287,6 +2315,11 @@ impl From<GateCallExpr> for Expr {
         Expr::GateCallExpr(node)
     }
 }
+impl From<GPhaseCallExpr> for Expr {
+    fn from(node: GPhaseCallExpr) -> Expr {
+        Expr::GPhaseCallExpr(node)
+    }
+}
 impl From<HardwareQubit> for Expr {
     fn from(node: HardwareQubit) -> Expr {
         Expr::HardwareQubit(node)
@@ -2354,6 +2387,7 @@ impl AstNode for Expr {
                 | CALL_EXPR
                 | CAST_EXPRESSION
                 | GATE_CALL_EXPR
+                | G_PHASE_CALL_EXPR
                 | HARDWARE_QUBIT
                 | IDENTIFIER
                 | INDEX_EXPR
@@ -2377,6 +2411,7 @@ impl AstNode for Expr {
             CALL_EXPR => Expr::CallExpr(CallExpr { syntax }),
             CAST_EXPRESSION => Expr::CastExpression(CastExpression { syntax }),
             GATE_CALL_EXPR => Expr::GateCallExpr(GateCallExpr { syntax }),
+            G_PHASE_CALL_EXPR => Expr::GPhaseCallExpr(GPhaseCallExpr { syntax }),
             HARDWARE_QUBIT => Expr::HardwareQubit(HardwareQubit { syntax }),
             IDENTIFIER => Expr::Identifier(Identifier { syntax }),
             INDEX_EXPR => Expr::IndexExpr(IndexExpr { syntax }),
@@ -2402,6 +2437,7 @@ impl AstNode for Expr {
             Expr::CallExpr(it) => &it.syntax,
             Expr::CastExpression(it) => &it.syntax,
             Expr::GateCallExpr(it) => &it.syntax,
+            Expr::GPhaseCallExpr(it) => &it.syntax,
             Expr::HardwareQubit(it) => &it.syntax,
             Expr::Identifier(it) => &it.syntax,
             Expr::IndexExpr(it) => &it.syntax,
@@ -2808,6 +2844,11 @@ impl std::fmt::Display for CastExpression {
     }
 }
 impl std::fmt::Display for GateCallExpr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for GPhaseCallExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

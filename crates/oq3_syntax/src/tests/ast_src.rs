@@ -163,6 +163,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "CALL_EXPR",
         "GATE_CALL_EXPR",
         "MODIFIED_GATE_CALL_EXPR",
+        "G_PHASE_CALL_EXPR",
         "G_PHASE_CALL_STMT",
         "CAST_EXPRESSION",
         "INDEX_EXPR",
