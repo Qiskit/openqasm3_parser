@@ -456,16 +456,14 @@ fn from_expression_list(
     asg::ExpressionList::new(inner_expression_list(expression_list, context))
 }
 
-#[allow(clippy::filter_map_identity)]
 fn inner_expression_list(
     expression_list: synast::ExpressionList,
     context: &mut Context,
 ) -> Vec<asg::TExpr> {
     expression_list
         .exprs()
-        .map(|x| from_expr(x, context))
-        .filter_map(|x| x) // filter None and unwrap
-        .collect::<Vec<_>>()
+        .filter_map(|x| from_expr(x, context))
+        .collect()
 }
 
 fn from_binary_op(synast_op: synast::BinaryOp) -> asg::BinaryOp {
