@@ -178,18 +178,6 @@ impl QuantumDeclarationStatement {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct GPhaseCallStmt {
-    pub(crate) syntax: SyntaxNode,
-}
-impl GPhaseCallStmt {
-    pub fn gphase_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![gphase])
-    }
-    pub fn arg(&self) -> Option<Expr> {
-        support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct LetStmt {
     pub(crate) syntax: SyntaxNode,
 }
@@ -988,7 +976,6 @@ pub enum Stmt {
     TypeDeclarationStmt(TypeDeclarationStmt),
     ClassicalDeclarationStatement(ClassicalDeclarationStatement),
     QuantumDeclarationStatement(QuantumDeclarationStatement),
-    GPhaseCallStmt(GPhaseCallStmt),
     LetStmt(LetStmt),
     AssignmentStmt(AssignmentStmt),
     AliasDeclarationStatement(AliasDeclarationStatement),
@@ -1194,21 +1181,6 @@ impl AstNode for ClassicalDeclarationStatement {
 impl AstNode for QuantumDeclarationStatement {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == QUANTUM_DECLARATION_STATEMENT
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for GPhaseCallStmt {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == G_PHASE_CALL_STMT
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2101,11 +2073,6 @@ impl From<QuantumDeclarationStatement> for Stmt {
         Stmt::QuantumDeclarationStatement(node)
     }
 }
-impl From<GPhaseCallStmt> for Stmt {
-    fn from(node: GPhaseCallStmt) -> Stmt {
-        Stmt::GPhaseCallStmt(node)
-    }
-}
 impl From<LetStmt> for Stmt {
     fn from(node: LetStmt) -> Stmt {
         Stmt::LetStmt(node)
@@ -2192,7 +2159,6 @@ impl AstNode for Stmt {
                 | TYPE_DECLARATION_STMT
                 | CLASSICAL_DECLARATION_STATEMENT
                 | QUANTUM_DECLARATION_STATEMENT
-                | G_PHASE_CALL_STMT
                 | LET_STMT
                 | ASSIGNMENT_STMT
                 | ALIAS_DECLARATION_STATEMENT
@@ -2224,7 +2190,6 @@ impl AstNode for Stmt {
             QUANTUM_DECLARATION_STATEMENT => {
                 Stmt::QuantumDeclarationStatement(QuantumDeclarationStatement { syntax })
             }
-            G_PHASE_CALL_STMT => Stmt::GPhaseCallStmt(GPhaseCallStmt { syntax }),
             LET_STMT => Stmt::LetStmt(LetStmt { syntax }),
             ASSIGNMENT_STMT => Stmt::AssignmentStmt(AssignmentStmt { syntax }),
             ALIAS_DECLARATION_STATEMENT => {
@@ -2256,7 +2221,6 @@ impl AstNode for Stmt {
             Stmt::TypeDeclarationStmt(it) => &it.syntax,
             Stmt::ClassicalDeclarationStatement(it) => &it.syntax,
             Stmt::QuantumDeclarationStatement(it) => &it.syntax,
-            Stmt::GPhaseCallStmt(it) => &it.syntax,
             Stmt::LetStmt(it) => &it.syntax,
             Stmt::AssignmentStmt(it) => &it.syntax,
             Stmt::AliasDeclarationStatement(it) => &it.syntax,
@@ -2689,11 +2653,6 @@ impl std::fmt::Display for ClassicalDeclarationStatement {
     }
 }
 impl std::fmt::Display for QuantumDeclarationStatement {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for GPhaseCallStmt {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

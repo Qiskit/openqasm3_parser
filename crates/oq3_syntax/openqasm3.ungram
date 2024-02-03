@@ -70,7 +70,6 @@ Stmt =
 | TypeDeclarationStmt
 | ClassicalDeclarationStatement
 | QuantumDeclarationStatement
-| GPhaseCallStmt
 | LetStmt
 | AssignmentStmt
 | AliasDeclarationStatement
@@ -265,8 +264,8 @@ ArgList =
 CastExpression =
   (ScalarType | ArrayType) '(' Expr ')'
 
-GPhaseCallStmt =
- 'gphase' arg:Expr
+// GPhaseCallStmt =
+//  'gphase' arg:Expr
 
 GPhaseCallExpr =
  'gphase' arg:Expr

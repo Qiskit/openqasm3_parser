@@ -48,6 +48,7 @@ pub(super) const ATOM_EXPR_FIRST: TokenSet =
         T![ctrl],
         T![negctrl],
         T![pow],
+        T![gphase],
     ]));
 
 pub(super) const EXPR_RECOVERY_SET: TokenSet = TokenSet::new(&[T![')'], T![']']]);
@@ -82,6 +83,7 @@ pub(super) fn atom_expr(
         T!['{'] => block_expr(p),
         T![for] => for_expr(p, None),
         T![inv] | T![pow] | T![ctrl] | T![negctrl] => modified_gate_call_expr(p),
+        T![gphase] => gphase_call_expr(p),
         IDENT if (la == IDENT || la == HARDWAREIDENT) => gate_call_expr(p),
         IDENT if (la == T![=] && p.nth(2) != T![=]) => grammar::items::assignment_statement(p),
         // FIXME: An identifer bound by the user in the program.
@@ -99,6 +101,14 @@ pub(super) fn atom_expr(
         BlockLike::NotBlock
     };
     Some((done, blocklike))
+}
+
+fn gphase_call_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    assert!(p.at(T![gphase]));
+    let m = p.start();
+    p.bump(T![gphase]);
+    expressions::expr(p);
+    m.complete(p, G_PHASE_CALL_EXPR)
 }
 
 fn modified_gate_call_expr(p: &mut Parser<'_>) -> CompletedMarker {

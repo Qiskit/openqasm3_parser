@@ -21,7 +21,6 @@ pub(super) const ITEM_RECOVERY_SET: TokenSet = TokenSet::new(&[
     T![include],
     T![cal],
     T![reset],
-    //    T![measure],
     T![barrier],
     T![const],
     T![let],
@@ -118,20 +117,9 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         T![barrier] => barrier_(p, m),
         T![OPENQASM] => version_string(p, m),
         T![include] => include(p, m),
-        T![gphase] => gphase_call(p, m),
-        // This is already done elsewhere
-        //            T![let] => let_stmt(p, m),
         _ => return Err(m),
     }
     Ok(())
-}
-
-fn gphase_call(p: &mut Parser<'_>, m: Marker) {
-    assert!(p.at(T![gphase]));
-    p.bump(T![gphase]);
-    expressions::expr(p);
-    p.expect(SEMICOLON);
-    m.complete(p, G_PHASE_CALL_STMT);
 }
 
 fn if_stmt(p: &mut Parser<'_>, m: Marker) {

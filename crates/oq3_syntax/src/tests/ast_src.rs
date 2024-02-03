@@ -164,7 +164,6 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "GATE_CALL_EXPR",
         "MODIFIED_GATE_CALL_EXPR",
         "G_PHASE_CALL_EXPR",
-        "G_PHASE_CALL_STMT",
         "CAST_EXPRESSION",
         "INDEX_EXPR",
         // unary
