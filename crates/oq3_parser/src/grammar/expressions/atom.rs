@@ -175,7 +175,11 @@ fn modified_gate_call_expr(p: &mut Parser<'_>) -> CompletedMarker {
             _ => break,
         }
     }
-    gate_call_expr(p);
+    if p.at(T![gphase]) {
+        gphase_call_expr(p);
+    } else {
+        gate_call_expr(p);
+    }
     m.complete(p, MODIFIED_GATE_CALL_EXPR)
 }
 

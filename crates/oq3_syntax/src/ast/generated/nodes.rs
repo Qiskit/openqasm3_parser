@@ -663,6 +663,9 @@ impl ModifiedGateCallExpr {
     pub fn gate_call_expr(&self) -> Option<GateCallExpr> {
         support::child(&self.syntax)
     }
+    pub fn g_phase_call_expr(&self) -> Option<GPhaseCallExpr> {
+        support::child(&self.syntax)
+    }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ParenExpr {

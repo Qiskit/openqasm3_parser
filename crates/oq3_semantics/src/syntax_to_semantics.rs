@@ -229,7 +229,18 @@ fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<
                 })
                 .collect();
 
-            from_gate_call_expr(mod_gate_call.gate_call_expr().unwrap(), modifiers, context)
+            // `synast::ModifiedGateCallExpr` may wrap either gate call or gphase call,
+            // which is treated separately.
+            if let Some(gate_call) = mod_gate_call.gate_call_expr() {
+                from_gate_call_expr(gate_call, modifiers, context)
+            } else {
+                let gphase = mod_gate_call.g_phase_call_expr().unwrap();
+                let synarg = gphase.arg().unwrap();
+                let arg = from_expr(synarg, context).unwrap();
+                Some(asg::Stmt::ModifiedGPhaseCall(asg::ModifiedGPhaseCall::new(
+                    arg, modifiers,
+                )))
+            }
         }
 
         GPhaseCallExpr(gphase) => {

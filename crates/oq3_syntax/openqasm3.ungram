@@ -264,9 +264,6 @@ ArgList =
 CastExpression =
   (ScalarType | ArrayType) '(' Expr ')'
 
-// GPhaseCallStmt =
-//  'gphase' arg:Expr
-
 GPhaseCallExpr =
  'gphase' arg:Expr
 
@@ -293,7 +290,7 @@ Modifier =
     InvModifier | PowModifier | CtrlModifier | NegCtrlModifier
 
 ModifiedGateCallExpr =
-    (Modifier Modifier*) GateCallExpr
+    (Modifier Modifier*) (GateCallExpr | GPhaseCallExpr)
 
 // label 'then_branch' is handled manually in expr_ext.rs
 IfStmt =
