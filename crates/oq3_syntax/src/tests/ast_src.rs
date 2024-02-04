@@ -96,6 +96,9 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "return",
         "break",
         "end",
+        "switch",
+        "case",
+        "default",
         // Types
         "input",
         "output",
@@ -159,6 +162,8 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "RETURN_EXPR",
         "LET_STMT",
         "BOX_EXPR",
+        "SWITCH_CASE_STMT",
+        "CASE_EXPR",
         // postfix
         "CALL_EXPR",
         "GATE_CALL_EXPR",
