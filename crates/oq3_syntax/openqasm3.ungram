@@ -89,7 +89,7 @@ Stmt =
 | WhileStmt
 
 SwitchCaseStmt =
-    'switch' '(' control:Expr ')' (CaseExpr*) ('default' default_block:BlockExpr)?
+    'switch' '(' control:Expr ')' '{' (CaseExpr*) ('default' default_block:BlockExpr)? '}'
 
 // Not in `Expr` tree
 CaseExpr =

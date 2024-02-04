@@ -370,6 +370,9 @@ impl SwitchCaseStmt {
     pub fn r_paren_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![')'])
     }
+    pub fn l_curly_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['{'])
+    }
     pub fn case_exprs(&self) -> AstChildren<CaseExpr> {
         support::children(&self.syntax)
     }
@@ -378,6 +381,9 @@ impl SwitchCaseStmt {
     }
     pub fn default_block(&self) -> Option<BlockExpr> {
         support::child(&self.syntax)
+    }
+    pub fn r_curly_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['}'])
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

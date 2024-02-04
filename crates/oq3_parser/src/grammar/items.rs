@@ -93,14 +93,32 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         T![barrier] => barrier_(p, m),
         T![OPENQASM] => version_string(p, m),
         T![include] => include(p, m),
+        T![switch] => switch_case_stmt(p, m),
         _ => return Err(m),
     }
     Ok(())
 }
 
+fn switch_case_stmt(p: &mut Parser<'_>, m: Marker) {
+    assert!(p.at(T![switch]));
+    p.bump(T![switch]);
+    p.expect(T!['(']);
+    expressions::expr_no_struct(p);
+    p.expect(T![')']);
+    p.expect(T!['{']);
+    while p.at(T![case]) {
+        let m1 = p.start();
+        p.bump(T![case]);
+        params::expression_list(p);
+        expressions::block_expr(p);
+        m1.complete(p, CASE_EXPR);
+    }
+    p.expect(T!['}']);
+    m.complete(p, SWITCH_CASE_STMT);
+}
+
 fn if_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![if]));
-    //    let m = p.start();
     p.bump(T![if]);
     p.expect(T!['(']);
     expressions::expr_no_struct(p);
