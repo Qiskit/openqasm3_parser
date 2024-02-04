@@ -188,6 +188,7 @@ pub enum Stmt {
     GateDeclaration(GateDeclaration),
     GateCall(GateCall), // A statement because a gate call does not return anything
     GPhaseCall(GPhaseCall),
+    ModifiedGPhaseCall(ModifiedGPhaseCall),
     IODeclaration, // stub
     If(If),
     Include(Include),
@@ -683,6 +684,24 @@ impl GPhaseCall {
     }
     pub fn arg(&self) -> &TExpr {
         &self.arg
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ModifiedGPhaseCall {
+    arg: TExpr,
+    modifiers: Vec<GateModifier>,
+}
+
+impl ModifiedGPhaseCall {
+    pub fn new(arg: TExpr, modifiers: Vec<GateModifier>) -> ModifiedGPhaseCall {
+        ModifiedGPhaseCall { arg, modifiers }
+    }
+    pub fn arg(&self) -> &TExpr {
+        &self.arg
+    }
+    pub fn modifiers(&self) -> &[GateModifier] {
+        &self.modifiers
     }
 }
 

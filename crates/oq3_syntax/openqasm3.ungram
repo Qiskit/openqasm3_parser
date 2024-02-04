@@ -70,7 +70,6 @@ Stmt =
 | TypeDeclarationStmt
 | ClassicalDeclarationStatement
 | QuantumDeclarationStatement
-| GPhaseCallStmt
 | LetStmt
 | AssignmentStmt
 | AliasDeclarationStatement
@@ -189,6 +188,7 @@ Expr =
 | CallExpr
 | CastExpression
 | GateCallExpr
+| GPhaseCallExpr
 | HardwareQubit
 | Identifier
 | IndexExpr
@@ -264,7 +264,7 @@ ArgList =
 CastExpression =
   (ScalarType | ArrayType) '(' Expr ')'
 
-GPhaseCallStmt =
+GPhaseCallExpr =
  'gphase' arg:Expr
 
 // FIXME: Explain why head of call expression is Expr and not Name
@@ -290,7 +290,7 @@ Modifier =
     InvModifier | PowModifier | CtrlModifier | NegCtrlModifier
 
 ModifiedGateCallExpr =
-    (Modifier Modifier*) GateCallExpr
+    (Modifier Modifier*) (GateCallExpr | GPhaseCallExpr)
 
 // label 'then_branch' is handled manually in expr_ext.rs
 IfStmt =

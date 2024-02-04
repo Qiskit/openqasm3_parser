@@ -190,16 +190,17 @@ pub fn syntax_to_semantic<T: SourceTrait>(
 }
 
 fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<asg::Stmt> {
-    use synast::Expr::{GateCallExpr, ModifiedGateCallExpr};
+    use synast::Expr::{GPhaseCallExpr, GateCallExpr, ModifiedGateCallExpr};
     let syn_expr = expr_stmt.expr().unwrap();
 
-    // At present, two expressions, those for gate calls, are handled specially. In oq3_syntax, gate calls
+    // At present, three expressions, those for gate calls, are handled specially. In oq3_syntax, gate calls
     // are expressions wrapped in `ExprStmt`. But in the ASG, gate calls are are variant of `Stmt`. All
     // other `synast::ExprStmt` are translated to `asg::ExprStmt`.
     match syn_expr {
         GateCallExpr(gate_call) => {
             from_gate_call_expr(gate_call, Vec::<asg::GateModifier>::new(), context)
         }
+
         ModifiedGateCallExpr(mod_gate_call) => {
             let modifiers = mod_gate_call
                 .modifiers()
@@ -228,8 +229,26 @@ fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<
                 })
                 .collect();
 
-            from_gate_call_expr(mod_gate_call.gate_call_expr().unwrap(), modifiers, context)
+            // `synast::ModifiedGateCallExpr` may wrap either gate call or gphase call,
+            // which is treated separately.
+            if let Some(gate_call) = mod_gate_call.gate_call_expr() {
+                from_gate_call_expr(gate_call, modifiers, context)
+            } else {
+                let gphase = mod_gate_call.g_phase_call_expr().unwrap();
+                let synarg = gphase.arg().unwrap();
+                let arg = from_expr(synarg, context).unwrap();
+                Some(asg::Stmt::ModifiedGPhaseCall(asg::ModifiedGPhaseCall::new(
+                    arg, modifiers,
+                )))
+            }
         }
+
+        GPhaseCallExpr(gphase) => {
+            let synarg = gphase.arg().unwrap();
+            let arg = from_expr(synarg, context).unwrap();
+            Some(asg::Stmt::GPhaseCall(asg::GPhaseCall::new(arg)))
+        }
+
         _ => {
             let expr = from_expr(syn_expr, context);
             expr.map_or_else(
@@ -650,13 +669,6 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             let _ = version.split_into_parts();
             None
         }
-
-        synast::Stmt::GPhaseCallStmt(gphase) => {
-            let synarg = gphase.arg().unwrap();
-            let arg = from_expr(synarg, context).unwrap();
-            Some(asg::Stmt::GPhaseCall(asg::GPhaseCall::new(arg)))
-        }
-
         _ => None,
     }
 }
