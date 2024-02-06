@@ -241,9 +241,8 @@ impl Annotation {
         self.kind.as_ref()
     }
 
-    // Various ways to do this. But the troglodyte way, with `match` is clear.
     pub fn body(&self) -> Option<&str> {
-        Some(self.body.as_ref()?)
+        self.body.as_deref()
     }
 }
 
@@ -1151,7 +1150,29 @@ impl While {
 pub struct SwitchCaseStmt {
     control: TExpr,
     cases: Vec<CaseExpr>,
-    default_block: Vec<Stmt>,
+    default_block: Option<Vec<Stmt>>,
+}
+
+impl SwitchCaseStmt {
+    pub fn new(control: TExpr, cases: Vec<CaseExpr>, default_block: Option<Vec<Stmt>>) -> SwitchCaseStmt {
+        SwitchCaseStmt { control, cases, default_block }
+    }
+
+    pub fn control(&self) -> &TExpr {
+        &self.control
+    }
+
+    pub fn cases(&self) -> &[CaseExpr] {
+        &self.cases
+    }
+
+    pub fn default_block(&self) -> Option<&[Stmt]> {
+        self.default_block.as_deref()
+    }
+
+    pub fn to_stmt(self) -> Stmt {
+        Stmt::SwitchCaseStmt(self)
+    }
 }
 
 // Not in `enum Expr`

@@ -213,6 +213,23 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             Some(asg::While::new(condition.unwrap(), loop_body).to_stmt())
         }
 
+        // Note: The outer curlies do not entail a new scope. But the inner curlies do entail a
+        // new scope, one for each case.
+        synast::Stmt::SwitchCaseStmt(switch_case_stmt) => {
+            let control = from_expr(switch_case_stmt.control().unwrap(), context);
+            let case_exprs = switch_case_stmt.case_exprs().map(|case_expr| {
+                let int_exprs = inner_expression_list(case_expr.expression_list().unwrap(), context);
+                with_scope!(context,  ScopeType::Local,
+                            let statements = statement_list_from_block(case_expr.block_expr().unwrap(), context);
+                );
+                asg::CaseExpr::new(int_exprs, statements)
+            }).collect::<Vec<_>>();
+            with_scope!(context,  ScopeType::Local,
+                        let default_statements = switch_case_stmt.default_block().map(|block| statement_list_from_block(block, context));
+            );
+            Some(asg::SwitchCaseStmt::new(control.unwrap(), case_exprs, default_statements).to_stmt())
+        }
+
         synast::Stmt::ClassicalDeclarationStatement(type_decl) => {
             Some(from_classical_declaration_statement(&type_decl, context))
         }
@@ -684,13 +701,17 @@ fn from_literal(literal: &synast::Literal) -> Option<asg::TExpr> {
     Some(literal_texpr)
 }
 
+
+// Convert a block of statements in the AST to a list of ASG statements
+// We don't convert to asg::Block, because these lists of statements go into
+// other block-like structures as well.
+fn statement_list_from_block(block: synast::BlockExpr, context: &mut Context) -> Vec<asg::Stmt> {
+    block.statements().map(|syn_stmt| from_stmt(syn_stmt, context).unwrap())
+        .collect::<Vec<_>>()
+}
+
 fn from_block_expr(block_synast: synast::BlockExpr, context: &mut Context) -> asg::Block {
-    asg::Block::new(
-        block_synast
-            .statements()
-            .map(|syn_stmt| from_stmt(syn_stmt, context).unwrap())
-            .collect::<Vec<_>>(),
-    )
+    asg::Block::new(statement_list_from_block(block_synast, context))
 }
 
 fn from_classical_declaration_statement(
