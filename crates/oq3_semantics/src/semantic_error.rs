@@ -131,6 +131,10 @@ impl SemanticError {
         self.node.text_range()
     }
 
+    pub fn kind(&self) -> &SemanticErrorKind {
+        &self.error_kind
+    }
+
     pub fn message(&self) -> String {
         format!("{:?}", self.error_kind)
     }

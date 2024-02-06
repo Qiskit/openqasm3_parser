@@ -196,14 +196,20 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
     match stmt {
         synast::Stmt::IfStmt(if_stmt) => {
             let condition = from_expr(if_stmt.condition().unwrap(), context);
-            let then_branch = from_block_expr(if_stmt.then_branch().unwrap(), context);
-            let else_branch = if_stmt.else_branch().map(|ex| from_block_expr(ex, context));
+            with_scope!(context,  ScopeType::Local,
+                        let then_branch = from_block_expr(if_stmt.then_branch().unwrap(), context);
+            );
+            with_scope!(context,  ScopeType::Local,
+                        let else_branch = if_stmt.else_branch().map(|ex| from_block_expr(ex, context));
+            );
             Some(asg::If::new(condition.unwrap(), then_branch, else_branch).to_stmt())
         }
 
         synast::Stmt::WhileStmt(while_stmt) => {
             let condition = from_expr(while_stmt.condition().unwrap(), context);
-            let loop_body = from_block_expr(while_stmt.body().unwrap(), context);
+            with_scope!(context,  ScopeType::Local,
+                        let loop_body = from_block_expr(while_stmt.body().unwrap(), context);
+            );
             Some(asg::While::new(condition.unwrap(), loop_body).to_stmt())
         }
 
