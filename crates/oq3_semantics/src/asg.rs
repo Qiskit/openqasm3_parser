@@ -489,24 +489,12 @@ pub struct Block {
 }
 
 impl Block {
-    pub fn new() -> Block {
-        Block {
-            statements: Vec::<Stmt>::new(),
-        }
-    }
-
-    pub fn insert_stmt(&mut self, stmt: Stmt) {
-        self.statements.push(stmt);
+    pub fn new(statements: Vec<Stmt>) -> Block {
+        Block { statements }
     }
 
     pub fn statements(&self) -> &[Stmt] {
         &self.statements
-    }
-}
-
-impl Default for Block {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
