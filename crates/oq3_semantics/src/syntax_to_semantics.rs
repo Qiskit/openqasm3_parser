@@ -135,19 +135,22 @@ fn analyze_source<T: SourceTrait>(parsed_source: T) -> ParseResult<T> {
     }
 }
 
-// FIXME: it is probably possible to encapsulate the manipulations of (context, errors).
 pub fn syntax_to_semantic<T: SourceTrait>(
     parsed_source: &T,
     mut context: Context,
     errors: SemanticErrorList,
 ) -> (Context, SemanticErrorList) {
-    let parse_tree = parsed_source.syntax_ast().tree();
     let mut included_iter = parsed_source.included().iter();
     let save_errors = replace(&mut context.semantic_errors, errors);
-    for parse_stmt in parse_tree.statements() {
+    for parse_stmt in parsed_source.syntax_ast().tree().statements() {
         let stmt = match parse_stmt {
             // Include does not go in the ASG, instead it is evaluated.
             // So we include the parsed code, collect errors, and return `None`.
+            // It would be convenient to treat include in `from_stmt` as we do all other statements.
+            // But the arm below for Stmt::Include manipulates context and depends on
+            // included_iter in ways that no other match arm does.
+            // It is probably possible to encapsulate the manipulations of (context, errors).
+            // But I have not made much of an attempt to do so.
             synast::Stmt::Include(include) => {
                 // Get SourceFile object with syntax AST for the next included file.
                 let included_parsed_source = included_iter.next().unwrap();
@@ -171,8 +174,7 @@ pub fn syntax_to_semantic<T: SourceTrait>(
                 None
             }
 
-            synast::Stmt::ExprStmt(expr_stmt) => from_expr_stmt(expr_stmt, &mut context),
-
+            // Everything other than `include` only needs `context`.
             stmt => from_stmt(stmt, &mut context),
         };
         if let Some(stmt) = stmt {
@@ -184,9 +186,145 @@ pub fn syntax_to_semantic<T: SourceTrait>(
     // This `errors` was also passed in, in the current call.
     // Now retrieve `errors` from `context` and restore `saved_errors` to `context`.
     // And return `errors`, which was populated during the current call.
-    // Suppose the current call to `syntax_to_semantic` was made while processing an `include` statement....
+    // Suppose the current call to `syntax_to_semantic` was made while processing an `include` statement...
     let errors = replace(&mut context.semantic_errors, save_errors);
     (context, errors)
+}
+
+// Main entry point for converting statements in AST to ASG
+fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
+    match stmt {
+        synast::Stmt::IfStmt(if_stmt) => {
+            let condition = from_expr(if_stmt.condition().unwrap(), context);
+            let then_branch = from_block_expr(if_stmt.then_branch().unwrap(), context);
+            let else_branch = if_stmt.else_branch().map(|ex| from_block_expr(ex, context));
+            Some(asg::If::new(condition.unwrap(), then_branch, else_branch).to_stmt())
+        }
+
+        synast::Stmt::WhileStmt(while_stmt) => {
+            let condition = from_expr(while_stmt.condition().unwrap(), context);
+            let loop_body = from_block_expr(while_stmt.body().unwrap(), context);
+            Some(asg::While::new(condition.unwrap(), loop_body).to_stmt())
+        }
+
+        synast::Stmt::ClassicalDeclarationStatement(type_decl) => {
+            Some(from_classical_declaration_statement(&type_decl, context))
+        }
+
+        synast::Stmt::QuantumDeclarationStatement(q_decl) => {
+            let qubit_type = q_decl.qubit_type().unwrap();
+            let width = match qubit_type.designator().and_then(|x| x.expr()) {
+                Some(synast::Expr::Literal(ref literal)) => {
+                    match literal.kind() {
+                        synast::LiteralKind::IntNumber(int_num) => {
+                            Some(int_num.value().unwrap() as u32)
+                        }
+                        _ => todo!(), // error. can/should be caught at syntax level, obviously
+                    }
+                }
+                None => None,
+                _ => todo!(), // only literals supported
+            };
+            let typ = match width {
+                Some(width) => Type::QubitArray(ArrayDims::D1(width as usize)),
+                None => Type::Qubit,
+            };
+            let name_str = q_decl.name().unwrap().string();
+            let symbol_id = context.new_binding(name_str.as_ref(), &typ, &q_decl);
+            let q_decl_ast = asg::DeclareQuantum::new(symbol_id);
+            Some(asg::Stmt::DeclareQuantum(q_decl_ast))
+        }
+
+        synast::Stmt::AssignmentStmt(assignment_stmt) => {
+            from_assignment_stmt(&assignment_stmt, context)
+        }
+
+        synast::Stmt::BreakStmt(_) => Some(asg::Stmt::Break),
+
+        synast::Stmt::ContinueStmt(_) => Some(asg::Stmt::Continue),
+
+        synast::Stmt::EndStmt(_) => Some(asg::Stmt::End),
+
+        // Gate definition
+        synast::Stmt::Gate(gate) => {
+            let name_node = gate.name().unwrap();
+            // Here are three ways to manage the context.
+
+            // Make some bindings and push and pop the scope automatically.
+            // Clumsy. There must be a better way.
+            // Alternative is the doing in manually as in commented out code below.
+            // let mut params = None;
+            // let mut qubits = None;
+            // with_scope(context, ScopeType::Subroutine,
+            //            |cxt| {
+            //                params = Some(bind_parameter_list(gate.angle_params(), &Type::Angle(None, IsConst::True), cxt));
+            //                qubits = bind_parameter_list(gate.qubit_params(), &Type::Qubit, cxt);
+            //            }
+            // );
+            // let params = params.unwrap();
+            // let qubits = qubits.unwrap();
+
+            // Manage the scope manually. This is more readable.
+
+            // context.symbol_table.enter_scope(ScopeType::Subroutine);
+            // let params = bind_parameter_list(gate.angle_params(), &Type::Angle(None, IsConst::True), context);
+            // let qubits = bind_parameter_list(gate.qubit_params(), &Type::Qubit, context).unwrap();
+            // let block = from_block_expr(gate.body().unwrap(), context);
+            // context.symbol_table.exit_scope();
+
+            // This might be kind of fragile. Currently, we should be able to handle
+            //    1. a sequnce of semicolon-separated stmts.
+            // or 2. a single block. But the block has a scope of course.
+            with_scope!(context,  ScopeType::Subroutine,
+                          let params = bind_parameter_list(gate.angle_params(), &Type::Angle(None, IsConst::True), context);
+                          let qubits = bind_parameter_list(gate.qubit_params(), &Type::Qubit, context).unwrap();
+                          let block = from_block_expr(gate.body().unwrap(), context);
+            );
+            let num_params = match params {
+                Some(ref params) => params.len(),
+                None => 0,
+            };
+            let gate_name_symbol_id = context.new_binding(
+                name_node.string().as_ref(),
+                &Type::Gate(
+                    num_params.try_into().unwrap(),
+                    qubits.len().try_into().unwrap(),
+                ),
+                &name_node,
+            );
+
+            Some(asg::GateDeclaration::new(gate_name_symbol_id, params, qubits, block).to_stmt())
+        }
+
+        synast::Stmt::Barrier(barrier) => {
+            let gate_operands = barrier.qubit_list().map(|operands| {
+                operands
+                    .gate_operands()
+                    .map(|qubit| from_gate_operand(qubit, context))
+                    .collect()
+            });
+            Some(asg::Stmt::Barrier(asg::Barrier::new(gate_operands)))
+        }
+
+        synast::Stmt::Include(include) => {
+            if context.symbol_table().current_scope_type() != ScopeType::Global {
+                context.insert_error(IncludeNotInGlobalScopeError, &include);
+                None
+            } else {
+                // `include`s are read and included when parsing to AST
+                unreachable!()
+            }
+        }
+
+        synast::Stmt::ExprStmt(expr_stmt) => from_expr_stmt(expr_stmt, context),
+
+        synast::Stmt::VersionString(version_string) => {
+            let version = version_string.version().unwrap().version().unwrap();
+            let _ = version.split_into_parts();
+            None
+        }
+        _ => None,
+    }
 }
 
 fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<asg::Stmt> {
@@ -538,139 +676,6 @@ fn from_literal(literal: &synast::Literal) -> Option<asg::TExpr> {
         _ => todo!(), // error. can/should be caught at syntax level, obviously
     };
     Some(literal_texpr)
-}
-
-fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
-    match stmt {
-        synast::Stmt::IfStmt(if_stmt) => {
-            let condition = from_expr(if_stmt.condition().unwrap(), context);
-            let then_branch = from_block_expr(if_stmt.then_branch().unwrap(), context);
-            let else_branch = if_stmt.else_branch().map(|ex| from_block_expr(ex, context));
-            Some(asg::If::new(condition.unwrap(), then_branch, else_branch).to_stmt())
-        }
-
-        synast::Stmt::WhileStmt(while_stmt) => {
-            let condition = from_expr(while_stmt.condition().unwrap(), context);
-            let loop_body = from_block_expr(while_stmt.body().unwrap(), context);
-            Some(asg::While::new(condition.unwrap(), loop_body).to_stmt())
-        }
-
-        synast::Stmt::ClassicalDeclarationStatement(type_decl) => {
-            Some(from_classical_declaration_statement(&type_decl, context))
-        }
-
-        synast::Stmt::QuantumDeclarationStatement(q_decl) => {
-            let qubit_type = q_decl.qubit_type().unwrap();
-            let width = match qubit_type.designator().and_then(|x| x.expr()) {
-                Some(synast::Expr::Literal(ref literal)) => {
-                    match literal.kind() {
-                        synast::LiteralKind::IntNumber(int_num) => {
-                            Some(int_num.value().unwrap() as u32)
-                        }
-                        _ => todo!(), // error. can/should be caught at syntax level, obviously
-                    }
-                }
-                None => None,
-                _ => todo!(), // only literals supported
-            };
-            let typ = match width {
-                Some(width) => Type::QubitArray(ArrayDims::D1(width as usize)),
-                None => Type::Qubit,
-            };
-            let name_str = q_decl.name().unwrap().string();
-            let symbol_id = context.new_binding(name_str.as_ref(), &typ, &q_decl);
-            let q_decl_ast = asg::DeclareQuantum::new(symbol_id);
-            Some(asg::Stmt::DeclareQuantum(q_decl_ast))
-        }
-
-        synast::Stmt::AssignmentStmt(assignment_stmt) => {
-            from_assignment_stmt(&assignment_stmt, context)
-        }
-
-        synast::Stmt::BreakStmt(_) => Some(asg::Stmt::Break),
-
-        synast::Stmt::ContinueStmt(_) => Some(asg::Stmt::Continue),
-
-        synast::Stmt::EndStmt(_) => Some(asg::Stmt::End),
-
-        // Gate definition
-        synast::Stmt::Gate(gate) => {
-            let name_node = gate.name().unwrap();
-            // Here are three ways to manage the context.
-
-            // Make some bindings and push and pop the scope automatically.
-            // Clumsy. There must be a better way.
-            // Alternative is the doing in manually as in commented out code below.
-            // let mut params = None;
-            // let mut qubits = None;
-            // with_scope(context, ScopeType::Subroutine,
-            //            |cxt| {
-            //                params = Some(bind_parameter_list(gate.angle_params(), &Type::Angle(None, IsConst::True), cxt));
-            //                qubits = bind_parameter_list(gate.qubit_params(), &Type::Qubit, cxt);
-            //            }
-            // );
-            // let params = params.unwrap();
-            // let qubits = qubits.unwrap();
-
-            // Manage the scope manually. This is more readable.
-
-            // context.symbol_table.enter_scope(ScopeType::Subroutine);
-            // let params = bind_parameter_list(gate.angle_params(), &Type::Angle(None, IsConst::True), context);
-            // let qubits = bind_parameter_list(gate.qubit_params(), &Type::Qubit, context).unwrap();
-            // let block = from_block_expr(gate.body().unwrap(), context);
-            // context.symbol_table.exit_scope();
-
-            // This might be kind of fragile. Currently, we should be able to handle
-            //    1. a sequnce of semicolon-separated stmts.
-            // or 2. a single block. But the block has a scope of course.
-            with_scope!(context,  ScopeType::Subroutine,
-                          let params = bind_parameter_list(gate.angle_params(), &Type::Angle(None, IsConst::True), context);
-                          let qubits = bind_parameter_list(gate.qubit_params(), &Type::Qubit, context).unwrap();
-                          let block = from_block_expr(gate.body().unwrap(), context);
-            );
-            let num_params = match params {
-                Some(ref params) => params.len(),
-                None => 0,
-            };
-            let gate_name_symbol_id = context.new_binding(
-                name_node.string().as_ref(),
-                &Type::Gate(
-                    num_params.try_into().unwrap(),
-                    qubits.len().try_into().unwrap(),
-                ),
-                &name_node,
-            );
-
-            Some(asg::GateDeclaration::new(gate_name_symbol_id, params, qubits, block).to_stmt())
-        }
-
-        synast::Stmt::Barrier(barrier) => {
-            let gate_operands = barrier.qubit_list().map(|operands| {
-                operands
-                    .gate_operands()
-                    .map(|qubit| from_gate_operand(qubit, context))
-                    .collect()
-            });
-            Some(asg::Stmt::Barrier(asg::Barrier::new(gate_operands)))
-        }
-
-        synast::Stmt::Include(include) => {
-            if context.symbol_table().current_scope_type() != ScopeType::Global {
-                context.insert_error(IncludeNotInGlobalScopeError, &include);
-                None
-            } else {
-                // `include`s are read and included when parsing to AST
-                unreachable!()
-            }
-        }
-
-        synast::Stmt::VersionString(version_string) => {
-            let version = version_string.version().unwrap().version().unwrap();
-            let _ = version.split_into_parts();
-            None
-        }
-        _ => None,
-    }
 }
 
 fn from_block_expr(block_synast: synast::BlockExpr, context: &mut Context) -> asg::Block {
