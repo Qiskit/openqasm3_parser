@@ -308,47 +308,6 @@ fn array_expr(p: &mut Parser<'_>) -> CompletedMarker {
 //     m.complete(p, SET_EXPR)
 // }
 
-// test if_expr
-// fn foo() {
-//     if true {};
-//     if true {} else {};
-//     if true {} else if false {} else {};
-//     if S {};
-//     if { true } { } else { };
-// }
-// moved to items.rs
-// fn if_expr(p: &mut Parser<'_>) -> CompletedMarker {
-//     assert!(p.at(T![if]));
-//     let m = p.start();
-//     p.bump(T![if]);
-//     expr_no_struct(p);
-//     block_expr(p);
-//     if p.at(T![else]) {
-//         p.bump(T![else]);
-//         if p.at(T![if]) {
-//             if_expr(p);
-//         } else {
-//             block_expr(p);
-//         }
-//     }
-//     m.complete(p, IF_STMT)
-// }
-
-// test while_expr
-// fn foo() {
-//     while true {};
-//     while let Some(x) = it.next() {};
-//     while { true } {};
-// }
-// fn while_expr(p: &mut Parser<'_>, m: Option<Marker>) -> CompletedMarker {
-//     assert!(p.at(T![while]));
-//     let m = m.unwrap_or_else(|| p.start());
-//     p.bump(T![while]);
-//     expr_no_struct(p);
-//     block_expr(p);
-//     m.complete(p, WHILE_STMT)
-// }
-
 // test for_expr
 // fn foo() {
 //     for x in [] {};
@@ -364,6 +323,14 @@ fn for_expr(p: &mut Parser<'_>, m: Option<Marker>) -> CompletedMarker {
     m.complete(p, FOR_STMT)
 }
 
+pub(crate) fn try_block_expr(p: &mut Parser<'_>) {
+    if !p.at(T!['{']) {
+        p.error("expected a block");
+        return;
+    }
+    let _ = block_expr(p);
+}
+
 pub(crate) fn block_expr(p: &mut Parser<'_>) -> CompletedMarker {
     // FIXME: can't use this check in refactor.
     // get this working again.
@@ -374,7 +341,6 @@ pub(crate) fn block_expr(p: &mut Parser<'_>) -> CompletedMarker {
     assert!(p.at(T!['{']));
     let m = p.start();
     p.bump(T!['{']);
-    // read until T!['}']
     expr_block_contents(p);
     p.expect(T!['}']);
     m.complete(p, BLOCK_EXPR)

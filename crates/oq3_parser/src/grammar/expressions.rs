@@ -5,7 +5,7 @@ pub mod atom;
 
 use super::*;
 
-pub(crate) use atom::block_expr;
+pub(crate) use atom::try_block_expr;
 pub(super) use atom::LITERAL_FIRST;
 // Pretty sure semicolon is always required in OQ3
 #[derive(PartialEq, Eq)]
