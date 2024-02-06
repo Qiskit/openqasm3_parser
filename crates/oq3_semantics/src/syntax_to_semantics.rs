@@ -685,18 +685,12 @@ fn from_literal(literal: &synast::Literal) -> Option<asg::TExpr> {
 }
 
 fn from_block_expr(block_synast: synast::BlockExpr, context: &mut Context) -> asg::Block {
-    let mut block = asg::Block::new();
-
-    for parse_stmt in block_synast.statements() {
-        let stmt = match parse_stmt {
-            synast::Stmt::ExprStmt(expr_stmt) => from_expr_stmt(expr_stmt, context),
-            stmt => from_stmt(stmt, context),
-        };
-        if let Some(stmt) = stmt {
-            block.insert_stmt(stmt)
-        }
-    }
-    block
+    asg::Block::new(
+        block_synast
+            .statements()
+            .map(|syn_stmt| from_stmt(syn_stmt, context).unwrap())
+            .collect::<Vec<_>>(),
+    )
 }
 
 fn from_classical_declaration_statement(
