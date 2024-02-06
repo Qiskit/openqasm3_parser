@@ -62,30 +62,38 @@ SourceFile =
 
 // FIXME: Stmt vs Statement ?
 Stmt =
-  Def
-| Gate
-| DefCal
-| Cal
-| DefCalGrammar
-| TypeDeclarationStmt
-| ClassicalDeclarationStatement
-| QuantumDeclarationStatement
-| LetStmt
-| AssignmentStmt
+ ';'
 | AliasDeclarationStatement
-| Include
-| ForStmt
-| IfStmt
-| WhileStmt
-| Reset
-| Measure
+| AssignmentStmt
 | Barrier
-| VersionString
 | BreakStmt
+| Cal
+| ClassicalDeclarationStatement
 | ContinueStmt
+| Def
+| DefCal
+| DefCalGrammar
 | EndStmt
 | ExprStmt
-| ';'
+| ForStmt
+| Gate
+| IfStmt
+| Include
+| LetStmt
+| Measure
+| QuantumDeclarationStatement
+| Reset
+| SwitchCaseStmt
+| TypeDeclarationStmt
+| VersionString
+| WhileStmt
+
+SwitchCaseStmt =
+    'switch' '(' control:Expr ')' '{' (CaseExpr*) ('default' default_block:BlockExpr)? '}'
+
+// Not in `Expr` tree
+CaseExpr =
+    'case' ExpressionList BlockExpr
 
 BreakStmt =
   'break' ';'

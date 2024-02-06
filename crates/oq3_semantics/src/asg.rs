@@ -178,6 +178,7 @@ pub enum Stmt {
     Cal, // stub
     Continue,
     DeclareClassical(DeclareClassical),
+    DeclareQuantum(DeclareQuantum),
     Def,    // stub
     DefCal, // stub
     Delay,  // stub
@@ -185,19 +186,19 @@ pub enum Stmt {
     ExprStmt(TExpr),
     Extern, // stub
     For,    // stub
-    GateDeclaration(GateDeclaration),
-    GateCall(GateCall), // A statement because a gate call does not return anything
     GPhaseCall(GPhaseCall),
-    ModifiedGPhaseCall(ModifiedGPhaseCall),
+    GateCall(GateCall), // A statement because a gate call does not return anything
+    GateDeclaration(GateDeclaration),
     IODeclaration, // stub
     If(If),
     Include(Include),
+    ModifiedGPhaseCall(ModifiedGPhaseCall),
     NullStmt,            // for testing
     OldStyleDeclaration, // stub
     Pragma(Pragma),
-    DeclareQuantum(DeclareQuantum),
     Reset,  // stub
     Return, // stub
+    SwitchCaseStmt(SwitchCaseStmt),
     While(While),
 }
 
@@ -498,7 +499,7 @@ impl Block {
         self.statements.push(stmt);
     }
 
-    pub fn statements(&self) -> &Vec<Stmt> {
+    pub fn statements(&self) -> &[Stmt] {
         &self.statements
     }
 }
@@ -1155,6 +1156,37 @@ impl While {
 
     pub fn to_stmt(self) -> Stmt {
         Stmt::While(self)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct SwitchCaseStmt {
+    control: TExpr,
+    cases: Vec<CaseExpr>,
+    default_block: Vec<Stmt>,
+}
+
+// Not in `enum Expr`
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct CaseExpr {
+    control_values: Vec<TExpr>, // Const integer expressions
+    statements: Vec<Stmt>,
+}
+
+impl CaseExpr {
+    pub fn new(control_values: Vec<TExpr>, statements: Vec<Stmt>) -> CaseExpr {
+        CaseExpr {
+            control_values,
+            statements,
+        }
+    }
+
+    pub fn control_values(&self) -> &[TExpr] {
+        &self.control_values
+    }
+
+    pub fn statements(&self) -> &[Stmt] {
+        &self.statements
     }
 }
 

@@ -30,19 +30,12 @@ pub(super) const ITEM_RECOVERY_SET: TokenSet = TokenSet::new(&[
 
 // This is called in a loop from the top level. From `fn source_file_contents` above.
 pub(super) fn item(p: &mut Parser<'_>, stop_on_r_curly: bool) {
-    // GJL: Not the correct place for this.
-    // But where then ?
-    // if false {
-    // } else {
-    // if p.current() == IDENT && p.nth(1) == T![=] {
-    //     assignment_statement(p);
-    // } else {
     let m = p.start();
     let m = match opt_item(p, m) {
         Ok(()) => {
             if p.at(T![;]) {
                 p.err_and_bump(
-                    "expected item, found `;`\n\
+                    "expected statement, found `;`\n\
                      consider removing this semicolon",
                 );
             }
@@ -60,7 +53,6 @@ pub(super) fn item(p: &mut Parser<'_>, stop_on_r_curly: bool) {
         }
         EOF | T!['}'] => {
             m.abandon(p);
-            p.error("expected an item GJL 2")
         }
         // Parse (semicolon terminated) statements until EOF or '}'.
         // I'm pretty sure there is no open '{' at this point, so this means stop at EOF only.
@@ -70,7 +62,6 @@ pub(super) fn item(p: &mut Parser<'_>, stop_on_r_curly: bool) {
             expr_block_contents(p);
         }
     }
-    //    }
 }
 
 /// Try to parse an item, completing `m` in case of success.
@@ -83,19 +74,6 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         expressions::classical_declaration_stmt(p, m);
         return Ok(());
     };
-    // if p.at(HARDWAREIDENT) {
-    //     p.bump(HARDWAREIDENT);
-    //     m.complete(p, HARDWARE_QUBIT);
-    //     return Ok(())
-    // }
-    // if p.current().is_classical_type() {
-    //     // we should not be handling expressions here, only statements.
-    //     if la == T!['('] {
-    //         expressions::cast_expr(p, m);
-    //     } else {
-    //         expressions::classical_declaration_stmt(p, m);
-    //     }
-    // } else {
 
     match p.current() {
         T![qubit] => qubit_declaration_stmt(p, m),
@@ -112,19 +90,35 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         T![cal] => cal_(p, m),
         T![defcalgrammar] => defcalgrammar_(p, m),
         T![reset] => reset_(p, m),
-        // measure is not a statement, does not belong here.
-        //            T![measure] => measure_(p, m),
         T![barrier] => barrier_(p, m),
         T![OPENQASM] => version_string(p, m),
         T![include] => include(p, m),
+        T![switch] => switch_case_stmt(p, m),
         _ => return Err(m),
     }
     Ok(())
 }
 
+fn switch_case_stmt(p: &mut Parser<'_>, m: Marker) {
+    assert!(p.at(T![switch]));
+    p.bump(T![switch]);
+    p.expect(T!['(']);
+    expressions::expr_no_struct(p);
+    p.expect(T![')']);
+    p.expect(T!['{']);
+    while p.at(T![case]) {
+        let m1 = p.start();
+        p.bump(T![case]);
+        params::expression_list(p);
+        expressions::block_expr(p);
+        m1.complete(p, CASE_EXPR);
+    }
+    p.expect(T!['}']);
+    m.complete(p, SWITCH_CASE_STMT);
+}
+
 fn if_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![if]));
-    //    let m = p.start();
     p.bump(T![if]);
     p.expect(T!['(']);
     expressions::expr_no_struct(p);
@@ -142,7 +136,6 @@ fn if_stmt(p: &mut Parser<'_>, m: Marker) {
     m.complete(p, IF_STMT);
 }
 
-//fn while_stmt(p: &mut Parser<'_>, m: Option<Marker>) -> CompletedMarker {
 fn while_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![while]));
     p.bump(T![while]);
@@ -181,16 +174,6 @@ fn qubit_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
     p.expect(SEMICOLON);
     m.complete(p, QUANTUM_DECLARATION_STATEMENT);
 }
-
-// unused I hope
-// fn opt_const_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
-//     let la = p.nth(1);
-//     match p.current() {
-//         T![const] if la == IDENT => konst(p, m),
-//         _ => return Err(m),
-//     };
-//     Ok(())
-// }
 
 // We call index_expr, which backtracks. So we have to
 // complete the first IDENT.
