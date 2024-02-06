@@ -106,18 +106,18 @@ fn switch_case_stmt(p: &mut Parser<'_>, m: Marker) {
     expressions::expr_no_struct(p);
     p.expect(T![')']);
     p.expect(T!['{']);
-    if ! p.at(T![case]) {
+    if !p.at(T![case]) {
         p.error("expecting `case` keyword");
     }
     while p.at(T![case]) {
         let m1 = p.start();
         p.bump(T![case]);
         params::expression_list(p);
-        expressions::block_expr(p);
+        expressions::try_block_expr(p);
         m1.complete(p, CASE_EXPR);
     }
     if p.eat(T![default]) {
-        expressions::block_expr(p);
+        expressions::try_block_expr(p);
     }
     p.expect(T!['}']);
     m.complete(p, SWITCH_CASE_STMT);
@@ -129,14 +129,14 @@ fn if_stmt(p: &mut Parser<'_>, m: Marker) {
     p.expect(T!['(']);
     expressions::expr_no_struct(p);
     p.expect(T![')']);
-    expressions::block_expr(p);
+    expressions::try_block_expr(p);
     if p.at(T![else]) {
         p.bump(T![else]);
         if p.at(T![if]) {
             let m = p.start();
             if_stmt(p, m);
         } else {
-            expressions::block_expr(p);
+            expressions::try_block_expr(p);
         }
     }
     m.complete(p, IF_STMT);
@@ -148,7 +148,7 @@ fn while_stmt(p: &mut Parser<'_>, m: Marker) {
     p.expect(T!['(']);
     expressions::expr_no_struct(p);
     p.expect(T![')']);
-    expressions::block_expr(p);
+    expressions::try_block_expr(p);
     m.complete(p, WHILE_STMT);
 }
 
@@ -284,7 +284,7 @@ fn gate_definition(p: &mut Parser<'_>, m: Marker) {
     // Read the list of qubit parameters
     params::param_list_gate_qubits(p);
     // Read the code block.
-    expressions::block_expr(p);
+    expressions::try_block_expr(p);
     // Mark this attempt at reading an item as complete.
     m.complete(p, GATE);
 }
@@ -305,7 +305,7 @@ fn defcal_(p: &mut Parser<'_>, m: Marker) {
 
     opt_ret_type(p);
     // Read the code block.
-    expressions::block_expr(p);
+    expressions::try_block_expr(p);
     // Mark this attempt at reading an item as complete.
     m.complete(p, DEF_CAL);
 }
@@ -324,7 +324,7 @@ fn def_(p: &mut Parser<'_>, m: Marker) {
     }
     opt_ret_type(p);
     // Read the code block.
-    expressions::block_expr(p);
+    expressions::try_block_expr(p);
     // Mark this attempt at reading an item as complete.
     m.complete(p, DEF);
 }
@@ -358,7 +358,7 @@ fn include(p: &mut Parser<'_>, m: Marker) {
 // Should we implement recovery?
 fn cal_(p: &mut Parser<'_>, m: Marker) {
     p.bump(T![cal]);
-    expressions::block_expr(p);
+    expressions::try_block_expr(p);
     m.complete(p, CAL);
 }
 

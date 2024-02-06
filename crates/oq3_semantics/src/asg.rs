@@ -1154,8 +1154,16 @@ pub struct SwitchCaseStmt {
 }
 
 impl SwitchCaseStmt {
-    pub fn new(control: TExpr, cases: Vec<CaseExpr>, default_block: Option<Vec<Stmt>>) -> SwitchCaseStmt {
-        SwitchCaseStmt { control, cases, default_block }
+    pub fn new(
+        control: TExpr,
+        cases: Vec<CaseExpr>,
+        default_block: Option<Vec<Stmt>>,
+    ) -> SwitchCaseStmt {
+        SwitchCaseStmt {
+            control,
+            cases,
+            default_block,
+        }
     }
 
     pub fn control(&self) -> &TExpr {

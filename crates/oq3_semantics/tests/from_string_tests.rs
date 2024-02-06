@@ -532,10 +532,7 @@ switch(c) {
     let (program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
-    assert!(matches!(
-        &program[1],
-        asg::Stmt::SwitchCaseStmt(_)
-    ));
+    assert!(matches!(&program[1], asg::Stmt::SwitchCaseStmt(_)));
 }
 
 #[test]
@@ -555,8 +552,5 @@ int x = 3;
     let (program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 3);
-    assert!(matches!(
-        &program[1],
-        asg::Stmt::SwitchCaseStmt(_)
-    ));
+    assert!(matches!(&program[1], asg::Stmt::SwitchCaseStmt(_)));
 }
