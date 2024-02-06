@@ -512,3 +512,51 @@ a-1.23;
         asg::Expr::BinaryExpr(_)
     ));
 }
+
+#[test]
+fn test_from_string_switch() {
+    let code = r##"
+int c = 1;
+switch(c) {
+   case 1 {
+    1;
+   }
+   case 2 {
+    2;
+   }
+   default {
+    3;
+   }
+}
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 2);
+    assert!(matches!(
+        &program[1],
+        asg::Stmt::SwitchCaseStmt(_)
+    ));
+}
+
+#[test]
+fn test_from_string_switch_scope() {
+    let code = r##"
+int c = 1;
+switch(c) {
+   case 1 {
+      int x = 1;
+    }
+   case 2 {
+      int x = 2;
+    }
+}
+int x = 3;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 3);
+    assert!(matches!(
+        &program[1],
+        asg::Stmt::SwitchCaseStmt(_)
+    ));
+}

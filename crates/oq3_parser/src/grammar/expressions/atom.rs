@@ -371,6 +371,7 @@ pub(crate) fn block_expr(p: &mut Parser<'_>) -> CompletedMarker {
     //     p.error("expected a block");
     //     return;
     // }
+    assert!(p.at(T!['{']));
     let m = p.start();
     p.bump(T!['{']);
     // read until T!['}']
