@@ -39,7 +39,7 @@ impl<T: SymTrait> WalkSymbols<T> for Program {
     }
 }
 
-impl<V, T: SymTrait> WalkSymbols<T> for &Vec<V>
+impl<V, T: SymTrait> WalkSymbols<T> for &[V]
 where
     V: WalkSymbols<T>,
 {
@@ -59,7 +59,7 @@ where
     }
 }
 
-impl<V, T: SymTrait> WalkSymbols<T> for Box<V>
+impl<V, T: SymTrait> WalkSymbols<T> for &Box<V>
 where
     V: WalkSymbols<T>,
 {
@@ -68,7 +68,7 @@ where
     }
 }
 
-impl<T: SymTrait> WalkSymbols<T> for TExpr {
+impl<T: SymTrait> WalkSymbols<T> for &TExpr {
     fn walk_symbols(&self, context: &mut SymContext<T>) {
         self.expression().walk_symbols(context);
     }

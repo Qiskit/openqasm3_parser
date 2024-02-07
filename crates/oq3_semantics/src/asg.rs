@@ -47,7 +47,7 @@ impl Program {
         }
     }
 
-    pub fn stmts(&self) -> &Vec<Stmt> {
+    pub fn stmts(&self) -> &[Stmt] {
         &self.stmts
     }
 
@@ -67,8 +67,8 @@ impl Program {
         self.version = Some(version);
     }
 
-    pub fn version(&self) -> &Option<OpenQASMVersion> {
-        &self.version
+    pub fn version(&self) -> Option<&OpenQASMVersion> {
+        self.version.as_ref()
     }
 
     // FIXME: must exist idiomatic rust for managing these modes
@@ -158,11 +158,11 @@ impl TExpr {
     }
 
     pub fn get_type(&self) -> &Type {
-        &(self.ty)
+        &self.ty
     }
 
     pub fn expression(&self) -> &Expr {
-        &(self.expression)
+        &self.expression
     }
 }
 
@@ -270,7 +270,7 @@ impl AnnotatedStmt {
         &self.stmt
     }
 
-    pub fn annotations(&self) -> &Vec<Annotation> {
+    pub fn annotations(&self) -> &[Annotation] {
         &self.annotations
     }
 }
@@ -344,6 +344,10 @@ impl HardwareQubit {
         HardwareQubit {
             identifier: identifier.to_string(),
         }
+    }
+
+    pub fn identifier(&self) -> &str {
+        &self.identifier
     }
 
     pub fn to_texpr(self) -> TExpr {
@@ -458,8 +462,8 @@ impl DeclareClassical {
         &self.name
     }
 
-    pub fn initializer(&self) -> &Option<Box<TExpr>> {
-        &self.initializer
+    pub fn initializer(&self) -> Option<&TExpr> {
+        self.initializer.as_deref()
     }
 
     pub fn to_stmt(self) -> Stmt {
@@ -536,11 +540,11 @@ impl GateDeclaration {
         &self.name
     }
 
-    pub fn params(&self) -> &Option<Vec<SymbolIdResult>> {
-        &self.params
+    pub fn params(&self) -> Option<&[SymbolIdResult]> {
+        self.params.as_deref()
     }
 
-    pub fn qubits(&self) -> &Vec<SymbolIdResult> {
+    pub fn qubits(&self) -> &[SymbolIdResult] {
         &self.qubits
     }
 
@@ -586,8 +590,8 @@ impl Barrier {
         Barrier { qubits }
     }
 
-    pub fn qubits(&self) -> &Option<Vec<TExpr>> {
-        &self.qubits
+    pub fn qubits(&self) -> Option<&[TExpr]> {
+        self.qubits.as_deref()
     }
 }
 
@@ -648,12 +652,12 @@ impl GateCall {
         &self.name
     }
 
-    pub fn qubits(&self) -> &Vec<TExpr> {
+    pub fn qubits(&self) -> &[TExpr] {
         &self.qubits
     }
 
-    pub fn params(&self) -> &Option<Vec<TExpr>> {
-        &self.params
+    pub fn params(&self) -> Option<&[TExpr]> {
+        self.params.as_deref()
     }
 
     pub fn modifiers(&self) -> &[GateModifier] {
@@ -1110,8 +1114,8 @@ impl If {
         &self.then_branch
     }
 
-    pub fn else_branch(&self) -> &Option<Block> {
-        &self.else_branch
+    pub fn else_branch(&self) -> Option<&Block> {
+        self.else_branch.as_ref()
     }
 
     pub fn to_stmt(self) -> Stmt {
