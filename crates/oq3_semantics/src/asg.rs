@@ -524,14 +524,6 @@ impl GateDeclaration {
         }
     }
 
-    pub fn new_empty_qubit_list() -> Vec<SymbolIdResult> {
-        Vec::<SymbolIdResult>::new()
-    }
-
-    pub fn new_empty_param_list() -> Vec<SymbolIdResult> {
-        Vec::<SymbolIdResult>::new()
-    }
-
     pub fn to_stmt(self) -> Stmt {
         Stmt::GateDeclaration(self)
     }
