@@ -22,6 +22,6 @@ rowan = "0.15.11"
 boolenum = "0.1"
 
 [dev-dependencies]
-clap = { version = "4.0", features = ["derive"] }
+clap = { version = "4.4", features = ["derive"] }
 oq3_lexer.workspace = true
 oq3_parser.workspace = true
