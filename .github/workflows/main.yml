@@ -41,4 +41,4 @@ jobs:
     - name: Build
       run: cargo build --release --verbose
     - name: Run tests
-      run: cargo test --verbose -- --skip sourcegen_ast --skip sourcegen_ast_nodes
+      run: cargo test --verbose --lib --tests -- --skip sourcegen_ast --skip sourcegen_ast_nodes

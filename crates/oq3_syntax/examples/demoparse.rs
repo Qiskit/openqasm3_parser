@@ -11,7 +11,7 @@ use oq3_syntax::{ast, parse_text, GreenNode, SourceFile};
 use rowan::NodeOrToken; // TODO: this can be accessed from a higher level
 
 #[derive(Parser)]
-#[command(name = "demotest")]
+#[command(name = "demoparse")]
 #[command(about = "Demo of parser that parses and prints tokens or trees to stdout.")]
 #[command(long_about = "
 Demo of parser that parses and prints tokens or trees to stdout.

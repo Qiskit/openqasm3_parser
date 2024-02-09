@@ -6,4 +6,4 @@
 cargo fmt --all -- --check || exit 1
 cargo build --release --verbose || exit 1
 cargo clippy --all-targets -- -D warnings -D clippy::dbg_macro || exit 1
-cargo test --verbose -- --skip sourcegen_ast --skip sourcegen_ast_nodes || exit 1
+cargo test --verbose --lib --tests -- --skip sourcegen_ast --skip sourcegen_ast_nodes || exit 1

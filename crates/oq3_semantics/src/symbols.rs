@@ -53,14 +53,6 @@ impl Default for SymbolId {
     }
 }
 
-// I'd rather keep the implementation and value secret.
-// But Python. This is useful for the pyo3 consumer.
-impl From<SymbolId> for usize {
-    fn from(symid: SymbolId) -> usize {
-        symid.0
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum SymbolError {
     MissingBinding,

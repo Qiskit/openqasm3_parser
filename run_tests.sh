@@ -7,4 +7,4 @@
 # are breaking the source. Or may break it.
 # r-a uses some system to control this that we have not, and may never, set up.
 
-cargo test -- --skip sourcegen_ast --skip sourcegen_ast_nodes
+cargo test --lib --tests -- --skip sourcegen_ast --skip sourcegen_ast_nodes
