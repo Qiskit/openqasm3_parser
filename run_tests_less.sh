@@ -9,4 +9,4 @@
 # are breaking the source. Or may break it.
 # r-a uses some system to control this that we have not, and may never, set up.
 
-cargo test --color always -- --skip sourcegen_ast --skip sourcegen_ast_nodes |& less -R
+cargo test --lib --tests --color always -- --skip sourcegen_ast --skip sourcegen_ast_nodes |& less -R

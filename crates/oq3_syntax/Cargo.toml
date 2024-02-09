@@ -37,5 +37,5 @@ expect-test = "1.4.0"
 proc-macro2 = "1.0.47"
 quote = "1.0.20"
 ungrammar = "1.16.1"
-clap = { version = "4.4.15", features = ["derive"] }
+clap = { version = "~4.4", features = ["derive"] }
 
