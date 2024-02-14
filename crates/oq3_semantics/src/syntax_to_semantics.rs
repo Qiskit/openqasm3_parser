@@ -710,7 +710,7 @@ fn from_literal(literal: &synast::Literal) -> Option<asg::TExpr> {
 fn statement_list_from_block(block: synast::BlockExpr, context: &mut Context) -> Vec<asg::Stmt> {
     block
         .statements()
-        .map(|syn_stmt| from_stmt(syn_stmt, context).unwrap())
+        .filter_map(|syn_stmt| from_stmt(syn_stmt, context))
         .collect::<Vec<_>>()
 }
 
