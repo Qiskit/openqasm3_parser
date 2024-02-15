@@ -24,6 +24,9 @@ pub(crate) fn literal(p: &mut Parser<'_>) -> Option<CompletedMarker> {
     if !p.at_ts(LITERAL_FIRST) {
         return None;
     }
+    if p.at(STRING) {
+        p.error("Unexpected string literal");
+    }
     let m = p.start();
     p.bump_any();
     Some(m.complete(p, LITERAL))
