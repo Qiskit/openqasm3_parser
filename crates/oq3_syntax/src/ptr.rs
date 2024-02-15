@@ -32,6 +32,14 @@ pub struct AstPtr<N: AstNode> {
 }
 
 impl<N: AstNode> Clone for AstPtr<N> {
+    #[rustversion::before(1.74)]
+    fn clone(&self) -> AstPtr<N> {
+        AstPtr {
+            raw: self.raw.clone(),
+            _ty: PhantomData,
+        }
+    }
+    #[rustversion::since(1.74)]
     fn clone(&self) -> AstPtr<N> {
         AstPtr {
             raw: self.raw,
@@ -67,8 +75,14 @@ impl<N: AstNode> AstPtr<N> {
         N::cast(syntax_node).unwrap()
     }
 
+    #[rustversion::since(1.74)]
     pub fn syntax_node_ptr(&self) -> SyntaxNodePtr {
         self.raw
+    }
+
+    #[rustversion::before(1.74)]
+    pub fn syntax_node_ptr(&self) -> SyntaxNodePtr {
+        self.raw.clone()
     }
 
     pub fn text_range(&self) -> TextRange {
