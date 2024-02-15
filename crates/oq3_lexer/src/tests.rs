@@ -4,13 +4,13 @@
 use super::*;
 
 use expect_test::{expect, Expect};
+use std::fmt::Write;
 
-// FIXME: Probably do what clippy asks for here
-#[allow(clippy::format_collect)]
 fn check_lexing(src: &str, expect: Expect) {
-    let actual: String = tokenize(src)
-        .map(|token| format!("{:?}\n", token))
-        .collect();
+    let actual: String = tokenize(src).fold(String::new(), |mut output, token| {
+        let _ = writeln!(output, "{token:?}");
+        output
+    });
     expect.assert_eq(&actual)
 }
 

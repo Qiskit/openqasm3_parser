@@ -27,6 +27,7 @@ smol_str = "0.2.0"
 stdx = { version = "0.0.188", package = "ra_ap_stdx"}
 triomphe = { version = "0.1.8", default-features = false, features = ["std"] }
 xshell = "0.2.2"
+rustversion = "1.0"
 # local crates
 oq3_lexer.workspace = true
 oq3_parser.workspace = true
