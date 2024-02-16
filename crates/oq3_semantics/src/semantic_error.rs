@@ -21,6 +21,7 @@ pub enum SemanticErrorKind {
     IncompatibleTypesError,
     MutateConstError,
     IncludeNotInGlobalScopeError,
+    ReturnInGlobalScopeError,
     NumGateParamsError,
     NumGateQubitsError,
 }

@@ -520,6 +520,9 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
 
         synast::Expr::ReturnExpr(ref return_expr) => {
             let expr_asg = from_expr(return_expr.expr(), context);
+            if context.symbol_table().current_scope_type() == ScopeType::Global {
+                context.insert_error(ReturnInGlobalScopeError, &expr);
+            }
             Some(asg::ReturnExpression::new(expr_asg).to_texpr())
         }
 
