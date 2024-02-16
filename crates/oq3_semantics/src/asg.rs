@@ -305,7 +305,11 @@ impl ReturnExpression {
     }
 
     pub fn to_texpr(self) -> TExpr {
-        TExpr::new(Expr::Return(Box::new(self)), Type::ToDo)
+        let return_type = match self.value() {
+            Some(expr) => expr.get_type().clone(),
+            _ => Type::Void,
+        };
+        TExpr::new(Expr::Return(Box::new(self)), return_type)
     }
 
     pub fn value(&self) -> Option<&TExpr> {
