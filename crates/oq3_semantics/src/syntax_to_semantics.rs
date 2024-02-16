@@ -195,7 +195,7 @@ pub fn syntax_to_semantic<T: SourceTrait>(
 fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
     match stmt {
         synast::Stmt::IfStmt(if_stmt) => {
-            let condition = from_expr(if_stmt.condition().unwrap(), context);
+            let condition = from_expr(if_stmt.condition(), context);
             with_scope!(context,  ScopeType::Local,
                         let then_branch = from_block_expr(if_stmt.then_branch().unwrap(), context);
             );
@@ -206,7 +206,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         }
 
         synast::Stmt::WhileStmt(while_stmt) => {
-            let condition = from_expr(while_stmt.condition().unwrap(), context);
+            let condition = from_expr(while_stmt.condition(), context);
             with_scope!(context,  ScopeType::Local,
                         let loop_body = from_block_expr(while_stmt.body().unwrap(), context);
             );
@@ -216,7 +216,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         // Note: The outer curlies do not entail a new scope. But the inner curlies do entail a
         // new scope, one for each case.
         synast::Stmt::SwitchCaseStmt(switch_case_stmt) => {
-            let control = from_expr(switch_case_stmt.control().unwrap(), context);
+            let control = from_expr(switch_case_stmt.control(), context);
             let case_exprs = switch_case_stmt.case_exprs().map(|case_expr| {
                 let int_exprs = inner_expression_list(case_expr.expression_list().unwrap(), context);
                 with_scope!(context,  ScopeType::Local,
@@ -362,17 +362,15 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
 
 fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<asg::Stmt> {
     use synast::Expr::{GPhaseCallExpr, GateCallExpr, ModifiedGateCallExpr};
-    let syn_expr = expr_stmt.expr().unwrap();
-
     // At present, three expressions, those for gate calls, are handled specially. In oq3_syntax, gate calls
     // are expressions wrapped in `ExprStmt`. But in the ASG, gate calls are are variant of `Stmt`. All
     // other `synast::ExprStmt` are translated to `asg::ExprStmt`.
-    match syn_expr {
-        GateCallExpr(gate_call) => {
+    match expr_stmt.expr() {
+        Some(GateCallExpr(gate_call)) => {
             from_gate_call_expr(gate_call, Vec::<asg::GateModifier>::new(), context)
         }
 
-        ModifiedGateCallExpr(mod_gate_call) => {
+        Some(ModifiedGateCallExpr(mod_gate_call)) => {
             let modifiers = mod_gate_call
                 .modifiers()
                 .map(|modifier| match modifier {
@@ -406,21 +404,19 @@ fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<
                 from_gate_call_expr(gate_call, modifiers, context)
             } else {
                 let gphase = mod_gate_call.g_phase_call_expr().unwrap();
-                let synarg = gphase.arg().unwrap();
-                let arg = from_expr(synarg, context).unwrap();
+                let arg = from_expr(gphase.arg(), context).unwrap();
                 Some(asg::Stmt::ModifiedGPhaseCall(asg::ModifiedGPhaseCall::new(
                     arg, modifiers,
                 )))
             }
         }
 
-        GPhaseCallExpr(gphase) => {
-            let synarg = gphase.arg().unwrap();
-            let arg = from_expr(synarg, context).unwrap();
+        Some(GPhaseCallExpr(gphase)) => {
+            let arg = from_expr(gphase.arg(), context).unwrap();
             Some(asg::Stmt::GPhaseCall(asg::GPhaseCall::new(arg)))
         }
 
-        _ => {
+        syn_expr => {
             let expr = from_expr(syn_expr, context);
             expr.map_or_else(
                 || panic!("expr::ExprStmt is None. Expression not implemented in the ASG."),
@@ -431,10 +427,11 @@ fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<
 }
 
 fn from_paren_expr(paren_expr: synast::ParenExpr, context: &mut Context) -> Option<asg::TExpr> {
-    from_expr(paren_expr.expr().unwrap(), context)
+    from_expr(paren_expr.expr(), context)
 }
 
-fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
+fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<asg::TExpr> {
+    let expr = expr_maybe?;
     match expr {
         // FIXME: Ugh. could clean up logic here
         synast::Expr::PrefixExpr(prefix_expr) => {
@@ -460,7 +457,7 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
                         Some(synexpr) => Some(
                             asg::UnaryExpr::new(
                                 asg::UnaryOp::Minus,
-                                from_expr(synexpr, context).unwrap(),
+                                from_expr(Some(synexpr), context).unwrap(),
                             )
                             .to_texpr(),
                         ),
@@ -476,8 +473,8 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
 
         synast::Expr::BinExpr(bin_expr) => {
             let synast_op = bin_expr.op_kind().unwrap();
-            let left_syn = bin_expr.lhs().unwrap();
-            let right_syn = bin_expr.rhs().unwrap();
+            let left_syn = bin_expr.lhs();
+            let right_syn = bin_expr.rhs();
 
             let op = from_binary_op(synast_op);
             let left = from_expr(left_syn, context).unwrap();
@@ -497,15 +494,15 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
 
         synast::Expr::RangeExpr(range_expr) => {
             let (start, step, stop) = range_expr.start_step_stop();
-            let start = from_expr(start.unwrap(), context).unwrap();
-            let stop = from_expr(stop.unwrap(), context).unwrap();
-            let step = step.and_then(|step| from_expr(step, context));
+            let start = from_expr(start, context).unwrap();
+            let stop = from_expr(stop, context).unwrap();
+            let step = from_expr(step, context);
             let range = asg::Range::new(start, step, stop);
             Some(range.to_texpr(Type::Range))
         }
 
         synast::Expr::IndexExpr(index_expr) => {
-            let expr = from_expr(index_expr.expr().unwrap(), context);
+            let expr = from_expr(index_expr.expr(), context);
             let index = from_index_operator(index_expr.index_operator().unwrap(), context);
             Some(asg::IndexExpression::new(expr.unwrap(), index).to_texpr())
         }
@@ -519,6 +516,11 @@ fn from_expr(expr: synast::Expr, context: &mut Context) -> Option<asg::TExpr> {
             let gate_operand = measure_expr.gate_operand().unwrap(); // FIXME: check this
             let gate_operand_asg = from_gate_operand(gate_operand, context);
             Some(asg::MeasureExpression::new(gate_operand_asg).to_texpr())
+        }
+
+        synast::Expr::ReturnExpr(ref return_expr) => {
+            let expr_asg = from_expr(return_expr.expr(), context);
+            Some(asg::ReturnExpression::new(expr_asg).to_texpr())
         }
 
         // Everything else is not yet implemented
@@ -652,7 +654,7 @@ fn inner_expression_list(
 ) -> Vec<asg::TExpr> {
     expression_list
         .exprs()
-        .filter_map(|x| from_expr(x, context))
+        .filter_map(|x| from_expr(Some(x), context))
         .collect()
 }
 
@@ -762,10 +764,7 @@ fn from_classical_declaration_statement(
     };
 
     let name_str = type_decl.name().unwrap().string();
-    let initializer = type_decl
-        .expr()
-        .and_then(|initializer| from_expr(initializer, context));
-
+    let initializer = from_expr(type_decl.expr(), context);
     // FIXME: This error and several others can and should be moved to a subsequent pass.
     // However, we would lose the information in `text_range` unless we do something to preserve it.
     let symbol_id = context.new_binding(name_str.as_ref(), &typ, type_decl);
@@ -786,7 +785,7 @@ fn from_assignment_stmt(
     if nameb.is_some() {
         let name = nameb.as_ref().unwrap();
         let name_str = name.string();
-        let expr = from_expr(assignment_stmt.rhs().unwrap(), context); // rhs of `=` operator
+        let expr = from_expr(assignment_stmt.rhs(), context); // rhs of `=` operator
 
         let (symbol_id, typ) = context.lookup_symbol(name_str.as_str(), name).as_tuple();
         let is_mutating_const = symbol_id.is_ok() && typ.is_const();
@@ -800,8 +799,8 @@ fn from_assignment_stmt(
     let indexed_identifier_ast = assignment_stmt.indexed_identifier();
     let (indexed_identifier, _typ) =
         ast_indexed_identifier(&indexed_identifier_ast.unwrap(), context);
-    let expr = from_expr(assignment_stmt.rhs().unwrap(), context); // rhs of `=` operator
-                                                                   //    let is_mutating_const = symbol_id.is_ok() && typ.is_const();
+    let expr = from_expr(assignment_stmt.rhs(), context); // rhs of `=` operator
+                                                          //    let is_mutating_const = symbol_id.is_ok() && typ.is_const();
     let lvalue = asg::LValue::IndexedIdentifier(indexed_identifier);
     Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt())
 }

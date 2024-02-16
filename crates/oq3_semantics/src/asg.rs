@@ -130,6 +130,7 @@ pub enum Expr {
     // But we need to handle these in a consistent way. Is there any situation where the "type" of Range is meaningful or useful?
     // For example, in syntax_to_semantics, have a routine that handles out-of-tree expressions.
     Range(Range),
+    Return(Box<ReturnExpression>),
     Call, // stub function (def) call
     Set,  // stub
     MeasureExpression(MeasureExpression),
@@ -197,7 +198,6 @@ pub enum Stmt {
     OldStyleDeclaration, // stub
     Pragma(Pragma),
     Reset(Reset),
-    Return, // stub
     SwitchCaseStmt(SwitchCaseStmt),
     While(While),
 }
@@ -291,6 +291,25 @@ impl IndexExpression {
 
     pub fn to_texpr(self) -> TExpr {
         TExpr::new(Expr::IndexExpression(self), Type::ToDo)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ReturnExpression {
+    value: Option<TExpr>,
+}
+
+impl ReturnExpression {
+    pub fn new(value: Option<TExpr>) -> ReturnExpression {
+        ReturnExpression { value }
+    }
+
+    pub fn to_texpr(self) -> TExpr {
+        TExpr::new(Expr::Return(Box::new(self)), Type::ToDo)
+    }
+
+    pub fn value(&self) -> Option<&TExpr> {
+        self.value.as_ref()
     }
 }
 
