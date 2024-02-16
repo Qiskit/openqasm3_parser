@@ -116,7 +116,7 @@ Version =
 // TODO: make this more precise.
 // I was getting errors when trying
 Reset =
-  'reset' qubit:Expr
+  'reset' GateOperand
 
 Measure =
   'measure' qubit:Expr ';'

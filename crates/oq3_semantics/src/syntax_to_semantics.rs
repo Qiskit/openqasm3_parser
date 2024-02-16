@@ -332,6 +332,12 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             Some(asg::Stmt::Barrier(asg::Barrier::new(gate_operands)))
         }
 
+        synast::Stmt::Reset(reset) => {
+            let gate_operand = reset.gate_operand().unwrap(); // FIXME: check this
+            let gate_operand_asg = from_gate_operand(gate_operand, context);
+            Some(asg::Stmt::Reset(asg::Reset::new(gate_operand_asg)))
+        }
+
         synast::Stmt::Include(include) => {
             if context.symbol_table().current_scope_type() != ScopeType::Global {
                 context.insert_error(IncludeNotInGlobalScopeError, &include);
@@ -349,6 +355,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             let _ = version.split_into_parts();
             None
         }
+
         _ => None,
     }
 }

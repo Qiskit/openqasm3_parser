@@ -89,7 +89,7 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         T![defcal] => defcal_(p, m),
         T![cal] => cal_(p, m),
         T![defcalgrammar] => defcalgrammar_(p, m),
-        T![reset] => reset_(p, m),
+        T![reset] => reset_stmt(p, m),
         T![barrier] => barrier_(p, m),
         T![OPENQASM] => version_string(p, m),
         T![include] => include(p, m),
@@ -191,43 +191,46 @@ fn qubit_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
 // can be used in so many places in Rust. Eg. `myfunc(arg1, arg2)[ind1]`.
 // But in OQ3, a qubit needs to
 // Be an identifier or an identifier followed by '[', etc.
-pub(crate) fn ident_or_index_expr(p: &mut Parser<'_>) {
-    let m = p.start();
-    match p.current() {
-        IDENT => {
-            p.bump(IDENT);
-            match p.current() {
-                T!['['] => {
-                    let newm = m.complete(p, IDENTIFIER);
-                    expressions::index_expr(p, newm);
-                }
-                _ => {
-                    // FIXME: m.complete(p, IDENT) is valid, but it should not be
-                    // it is a source of bugs!
-                    m.complete(p, IDENTIFIER);
-                }
-            }
-        }
-        HARDWAREIDENT => {
-            p.bump(HARDWAREIDENT);
-            m.complete(p, HARDWARE_QUBIT);
-        }
-        _ => panic!(),
-    }
-}
+// pub(crate) fn ident_or_index_expr(p: &mut Parser<'_>) {
+//     let m = p.start();
+//     match p.current() {
+//         IDENT => {
+//             p.bump(IDENT);
+//             match p.current() {
+//                 T!['['] => {
+//                     let newm = m.complete(p, IDENTIFIER);
+//                     expressions::index_expr(p, newm);
+//                 }
+//                 _ => {
+//                     // FIXME: m.complete(p, IDENT) is valid, but it should not be
+//                     // it is a source of bugs!
+//                     m.complete(p, IDENTIFIER);
+//                 }
+//             }
+//         }
+//         HARDWAREIDENT => {
+//             p.bump(HARDWAREIDENT);
+//             m.complete(p, HARDWARE_QUBIT);
+//         }
+//         _ => panic!(),
+//     }
+// }
 
-fn reset_(p: &mut Parser<'_>, m: Marker) {
+fn reset_stmt(p: &mut Parser<'_>, m: Marker) {
     p.bump(T![reset]);
     match p.current() {
         IDENT | HARDWAREIDENT => {
-            ident_or_index_expr(p);
+            let m1 = p.start();
+            // Parses elements that can be cast to GateOperand
+            params::arg_gate_call_qubit(p, m1);
         }
         _ => {
-            p.error("expecting name of qubit to reset");
+            p.error("expecting name of qubit or register to reset");
             m.abandon(p);
             return;
         }
     }
+    p.expect(SEMICOLON);
     m.complete(p, RESET);
 }
 

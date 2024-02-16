@@ -196,7 +196,7 @@ pub enum Stmt {
     NullStmt,            // for testing
     OldStyleDeclaration, // stub
     Pragma(Pragma),
-    Reset,  // stub
+    Reset(Reset),
     Return, // stub
     SwitchCaseStmt(SwitchCaseStmt),
     While(While),
@@ -686,6 +686,21 @@ impl ModifiedGPhaseCall {
     }
     pub fn modifiers(&self) -> &[GateModifier] {
         &self.modifiers
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct Reset {
+    gate_operand: TExpr,
+}
+
+impl Reset {
+    pub fn new(gate_operand: TExpr) -> Reset {
+        Reset { gate_operand }
+    }
+
+    pub fn gate_operand(&self) -> &TExpr {
+        &self.gate_operand
     }
 }
 

@@ -349,7 +349,7 @@ impl Reset {
     pub fn reset_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![reset])
     }
-    pub fn qubit(&self) -> Option<Expr> {
+    pub fn gate_operand(&self) -> Option<GateOperand> {
         support::child(&self.syntax)
     }
 }
