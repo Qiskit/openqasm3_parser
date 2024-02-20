@@ -306,9 +306,18 @@ IfStmt =
   ('else' else_branch:Expr)?
 
 // label 'iterable' is handled manually in node_ext.rs
+// ForStmt =
+//   'for' loop_var:Name 'in' iterable:Expr
+//   loop_body:Expr
+
 ForStmt =
-  'for' loop_var:Name 'in' iterable:Expr
-  loop_body:Expr
+  'for' ScalarType loop_var:Name 'in' ForIterable
+  body:BlockExpr | stmt:Stmt
+
+// Recall, the label prevents code generation from implementing this alternation
+// as an `enum`. Leaving out the label would cause an error during codegen.
+ForIterable =
+  SetExpression | RangeExpr | for_iterable_expr:Expr
 
 WhileStmt =
   'while' '(' condition:Expr ')'

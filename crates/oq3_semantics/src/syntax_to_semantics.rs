@@ -213,6 +213,28 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             Some(asg::While::new(condition.unwrap(), loop_body).to_stmt())
         }
 
+        synast::Stmt::ForStmt(for_stmt) => {
+            let loop_var = for_stmt.loop_var().unwrap();
+            let ty = from_scalar_type(&for_stmt.scalar_type().unwrap(), false, context);
+            let iterable_ast = for_stmt.for_iterable().unwrap();
+            let iterable = if let Some(set_expression) = iterable_ast.set_expression() {
+                asg::ForIterable::SetExpression(from_set_expression(set_expression, context))
+            } else if let Some(range_expression) = iterable_ast.range_expr() {
+                asg::ForIterable::RangeExpression(from_range_expression(range_expression, context))
+            } else if let Some(expression) = iterable_ast.for_iterable_expr() {
+                asg::ForIterable::Expr(from_expr(Some(expression), context).unwrap())
+            } else {
+                // It would be nice to use an enum on the other side.
+                // This error should be caught before semantic analysis. Eg in validation of the AST
+                unreachable!() // probably is reachable
+            };
+            with_scope!(context,  ScopeType::Local,
+                        let loop_var_symbol_id = context.new_binding(loop_var.string().as_ref(), &ty, &loop_var);
+                        let loop_body = from_block_expr(for_stmt.body().unwrap(), context);
+            );
+            Some(asg::ForStmt::new(loop_var_symbol_id, iterable, loop_body).to_stmt())
+        }
+
         // Note: The outer curlies do not entail a new scope. But the inner curlies do entail a
         // new scope, one for each case.
         synast::Stmt::SwitchCaseStmt(switch_case_stmt) => {
@@ -493,12 +515,8 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
         synast::Expr::HardwareQubit(hwq) => Some(ast_hardware_qubit(&hwq).to_texpr()),
 
         synast::Expr::RangeExpr(range_expr) => {
-            let (start, step, stop) = range_expr.start_step_stop();
-            let start = from_expr(start, context).unwrap();
-            let stop = from_expr(stop, context).unwrap();
-            let step = from_expr(step, context);
-            let range = asg::Range::new(start, step, stop);
-            Some(range.to_texpr(Type::Range))
+            context.insert_error(IncompatibleTypesError, &range_expr);
+            None
         }
 
         synast::Expr::IndexExpr(index_expr) => {
@@ -532,6 +550,27 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
             None
         }
     }
+}
+
+fn from_set_expression(
+    set_expression: synast::SetExpression,
+    context: &mut Context,
+) -> asg::SetExpression {
+    asg::SetExpression::new(inner_expression_list(
+        set_expression.expression_list().unwrap(),
+        context,
+    ))
+}
+
+fn from_range_expression(
+    range_expr: synast::RangeExpr,
+    context: &mut Context,
+) -> asg::RangeExpression {
+    let (start, step, stop) = range_expr.start_step_stop();
+    let start = from_expr(start, context).unwrap();
+    let stop = from_expr(stop, context).unwrap();
+    let step = from_expr(step, context);
+    asg::RangeExpression::new(start, step, stop)
 }
 
 fn from_gate_call_expr(
@@ -634,16 +673,6 @@ fn from_index_operator(
     }
 }
 
-fn from_set_expression(
-    set_expression: synast::SetExpression,
-    context: &mut Context,
-) -> asg::SetExpression {
-    asg::SetExpression::new(inner_expression_list(
-        set_expression.expression_list().unwrap(),
-        context,
-    ))
-}
-
 fn from_expression_list(
     expression_list: synast::ExpressionList,
     context: &mut Context,
@@ -730,13 +759,12 @@ fn from_block_expr(block_synast: synast::BlockExpr, context: &mut Context) -> as
     asg::Block::new(statement_list_from_block(block_synast, context))
 }
 
-fn from_classical_declaration_statement(
-    type_decl: &synast::ClassicalDeclarationStatement,
+// Convert AST scalar type to a `types::Type`
+fn from_scalar_type(
+    scalar_type: &synast::ScalarType,
+    isconst: bool,
     context: &mut Context,
-) -> asg::Stmt {
-    let scalar_type = type_decl.scalar_type().unwrap();
-    let isconst = type_decl.const_token().is_some();
-
+) -> Type {
     // We only support literal integer designators at the moment.
     let width = match scalar_type.designator().and_then(|desg| desg.expr()) {
         Some(synast::Expr::Literal(ref literal)) => {
@@ -753,8 +781,7 @@ fn from_classical_declaration_statement(
         Some(expr) => panic!("Unsupported designator type: {:?}", type_name_of(expr)),
         None => None,
     };
-
-    let typ = match scalar_type.kind() {
+    match scalar_type.kind() {
         synast::ScalarTypeKind::Int => Type::Int(width, isconst.into()),
         synast::ScalarTypeKind::Float => Type::Float(width, isconst.into()),
         synast::ScalarTypeKind::Angle => Type::Angle(width, isconst.into()),
@@ -764,7 +791,15 @@ fn from_classical_declaration_statement(
         },
         synast::ScalarTypeKind::Bool => Type::Bool(isconst.into()),
         _ => todo!(),
-    };
+    }
+}
+
+fn from_classical_declaration_statement(
+    type_decl: &synast::ClassicalDeclarationStatement,
+    context: &mut Context,
+) -> asg::Stmt {
+    let scalar_type = type_decl.scalar_type().unwrap();
+    let typ = from_scalar_type(&scalar_type, type_decl.const_token().is_some(), context);
 
     let name_str = type_decl.name().unwrap().string();
     let initializer = from_expr(type_decl.expr(), context);

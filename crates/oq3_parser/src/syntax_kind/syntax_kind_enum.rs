@@ -151,6 +151,7 @@ pub enum SyntaxKind {
     IF_STMT,
     WHILE_STMT,
     FOR_STMT,
+    FOR_ITERABLE,
     END_STMT,
     CONTINUE_STMT,
     BREAK_STMT,
