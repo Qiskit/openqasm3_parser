@@ -84,7 +84,6 @@ pub(super) fn atom_expr(
         T![measure] => measure_expression(p),
         T![return] => return_expr(p),
         T!['{'] => block_expr(p),
-        T![for] => for_expr(p, None),
         T![inv] | T![pow] | T![ctrl] | T![negctrl] => modified_gate_call_expr(p),
         T![gphase] => gphase_call_expr(p),
         IDENT if (la == IDENT || la == HARDWAREIDENT) => gate_call_expr(p),
@@ -94,7 +93,7 @@ pub(super) fn atom_expr(
         // Also `NAME` is probably not correct.
         IDENT => identifier(p),
         _ => {
-            p.err_and_bump("expected expression");
+            p.err_and_bump("atom_expr: expected expression");
             return None;
         }
     };
@@ -235,7 +234,7 @@ fn tuple_expr(p: &mut Parser<'_>) -> CompletedMarker {
     let mut saw_expr = false;
 
     if p.eat(T![,]) {
-        p.error("expected expression");
+        p.error("expected expression, found comma instead");
         saw_comma = true;
     }
 
@@ -290,40 +289,6 @@ fn array_expr(p: &mut Parser<'_>) -> CompletedMarker {
     }
     p.expect(T![']']);
     m.complete(p, ARRAY_EXPR)
-}
-
-// FIXME: finish this. need to disambiguate from block of statments
-// fn set_expr(p: &mut Parser<'_>) -> CompletedMarker {
-//     assert!(p.at(T!['{']));
-//     if p.at(INT_NUMBER) {
-//         p.bump(INT_NUMBER)
-//     } else if p.at(T!['}']) {
-//         p.bump(T!['}']);
-//         m.complete(p, SET_EXPR);
-//         return ();
-//     }
-//     // FIXME find ,
-//     p.error("expecting an integer or '}'");
-//     // todo eat until ';' maybe,  for recovery
-//     m.abandon(p);
-//     return ();
-//     p.expect(T!['}']);
-//     m.complete(p, SET_EXPR)
-// }
-
-// test for_expr
-// fn foo() {
-//     for x in [] {};
-// }
-fn for_expr(p: &mut Parser<'_>, m: Option<Marker>) -> CompletedMarker {
-    assert!(p.at(T![for]));
-    let m = m.unwrap_or_else(|| p.start());
-    p.bump(T![for]);
-    p.expect(IDENT);
-    p.expect(T![in]);
-    expr_no_struct(p);
-    block_expr(p);
-    m.complete(p, FOR_STMT)
 }
 
 pub(crate) fn try_block_expr(p: &mut Parser<'_>) {

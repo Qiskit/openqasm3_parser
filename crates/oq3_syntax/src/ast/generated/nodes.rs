@@ -232,13 +232,22 @@ impl ForStmt {
     pub fn for_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![for])
     }
+    pub fn scalar_type(&self) -> Option<ScalarType> {
+        support::child(&self.syntax)
+    }
     pub fn loop_var(&self) -> Option<Name> {
         support::child(&self.syntax)
     }
     pub fn in_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![in])
     }
-    pub fn loop_body(&self) -> Option<Expr> {
+    pub fn for_iterable(&self) -> Option<ForIterable> {
+        support::child(&self.syntax)
+    }
+    pub fn body(&self) -> Option<BlockExpr> {
+        support::child(&self.syntax)
+    }
+    pub fn stmt(&self) -> Option<Stmt> {
         support::child(&self.syntax)
     }
 }
@@ -935,6 +944,36 @@ impl NegCtrlModifier {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct ForIterable {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ForIterable {
+    pub fn set_expression(&self) -> Option<SetExpression> {
+        support::child(&self.syntax)
+    }
+    pub fn range_expr(&self) -> Option<RangeExpr> {
+        support::child(&self.syntax)
+    }
+    pub fn for_iterable_expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct SetExpression {
+    pub(crate) syntax: SyntaxNode,
+}
+impl SetExpression {
+    pub fn l_curly_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['{'])
+    }
+    pub fn expression_list(&self) -> Option<ExpressionList> {
+        support::child(&self.syntax)
+    }
+    pub fn r_curly_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['}'])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Designator {
     pub(crate) syntax: SyntaxNode,
 }
@@ -959,21 +998,6 @@ impl QubitType {
     }
     pub fn designator(&self) -> Option<Designator> {
         support::child(&self.syntax)
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct SetExpression {
-    pub(crate) syntax: SyntaxNode,
-}
-impl SetExpression {
-    pub fn l_curly_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T!['{'])
-    }
-    pub fn expression_list(&self) -> Option<ExpressionList> {
-        support::child(&self.syntax)
-    }
-    pub fn r_curly_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T!['}'])
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -2040,6 +2064,36 @@ impl AstNode for NegCtrlModifier {
         &self.syntax
     }
 }
+impl AstNode for ForIterable {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == FOR_ITERABLE
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for SetExpression {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == SET_EXPRESSION
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for Designator {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == DESIGNATOR
@@ -2058,21 +2112,6 @@ impl AstNode for Designator {
 impl AstNode for QubitType {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == QUBIT_TYPE
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for SetExpression {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == SET_EXPRESSION
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -3014,17 +3053,22 @@ impl std::fmt::Display for NegCtrlModifier {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
+impl std::fmt::Display for ForIterable {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for SetExpression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
 impl std::fmt::Display for Designator {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
 impl std::fmt::Display for QubitType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for SetExpression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

@@ -85,6 +85,7 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         T![end] => end_(p, m),
         T![if] => if_stmt(p, m),
         T![while] => while_stmt(p, m),
+        T![for] => for_stmt(p, m),
         T![def] => def_(p, m),
         T![defcal] => defcal_(p, m),
         T![cal] => cal_(p, m),
@@ -150,6 +151,33 @@ fn while_stmt(p: &mut Parser<'_>, m: Marker) {
     p.expect(T![')']);
     expressions::try_block_expr(p);
     m.complete(p, WHILE_STMT);
+}
+
+fn for_stmt(p: &mut Parser<'_>, m: Marker) {
+    assert!(p.at(T![for]));
+    p.bump(T![for]);
+    // Type specifier of the loop variable.
+    expressions::type_spec(p);
+    // The loop variable.
+    name(p);
+    p.expect(T![in]);
+    // The "iterator"
+    let m1 = p.start();
+    if p.at(T!['{']) {
+        expressions::set_expression(p);
+    } else if p.at(T!['[']) {
+        expressions::range_expr(p);
+    } else {
+        expressions::expr(p);
+    }
+    m1.complete(p, FOR_ITERABLE);
+    // The body of the for loop
+    if p.at(T!['{']) {
+        expressions::block_expr(p);
+    } else {
+        expressions::stmt(p, expressions::Semicolon::Required);
+    }
+    m.complete(p, FOR_STMT);
 }
 
 // Called from atom::atom_expr

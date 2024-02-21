@@ -48,10 +48,6 @@ pub(super) fn param_list_defcal_qubits(p: &mut Parser<'_>) {
     _param_list_openqasm(p, DefFlavor::DefCalQubits, None);
 }
 
-// pub(super) fn set_expression(p: &mut Parser<'_>) {
-//     _param_list_openqasm(p, DefFlavor::SetExpression, None);
-// }
-
 pub(super) fn expression_list(p: &mut Parser<'_>) {
     _param_list_openqasm(p, DefFlavor::ExpressionList, None);
 }
@@ -69,7 +65,6 @@ enum DefFlavor {
     DefParams,      // parens,    type
     DefCalParams,   // parens,    opt type
     DefCalQubits,   // no parens, no type, '{' or '->' terminates
-    //    SetExpression,
     ExpressionList,
 }
 
@@ -81,7 +76,6 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
     let want_parens = matches!(flavor, GateParams | DefParams | DefCalParams);
     match flavor {
         GateParams | DefParams | DefCalParams => p.bump(T!['(']),
-        //        SetExpression => p.bump(T!['{']),
         _ => (),
     }
     // FIXME: find implementation that does not require [T![')'], T![')']]
@@ -97,7 +91,6 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         GateQubits => [T!['{'], T!['{']],
         GateCallQubits => [SEMICOLON, SEMICOLON],
         DefCalQubits => [T!['{'], T![->]],
-        //        SetExpression => [T!['}'], T!['}']],
     };
     let mut param_marker = m;
     // let mut param_marker = None;
@@ -119,6 +112,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
             }
             GateCallQubits => arg_gate_call_qubit(p, m),
             DefParams | DefCalParams => param_typed(p, m),
+            // The following is pretty ugly. Probably inefficient as well
             _ => param_untyped(p, m),
         };
         if !found_param {
@@ -158,11 +152,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
     if want_parens {
         p.expect(T![')']);
     }
-    // if matches!(flavor, SetExpression) {
-    //     p.expect(T!['}']);
-    // }
     let kind = match flavor {
-        //        SetExpression => SET_EXPRESSION,
         GateQubits => PARAM_LIST,
         DefCalQubits => QUBIT_LIST,
         GateCallQubits => QUBIT_LIST,
@@ -241,7 +231,7 @@ pub(crate) fn arg_gate_call_qubit(p: &mut Parser<'_>, m: Marker) -> bool {
     }
 
     if !p.at(IDENT) {
-        p.error("Expected parameter name");
+        p.error("Expected name in qubit argument");
         m.abandon(p);
         return false;
     }

@@ -63,18 +63,40 @@ fn text_of_first_token(node: &SyntaxNode) -> TokenText<'_> {
     }
 }
 
-impl ast::ForStmt {
-    pub fn iterable(&self) -> Option<ast::Expr> {
-        // If the iterable is a BlockExpr, check if the body is missing.
-        // If it is assume the iterable is the expression that is missing instead.
-        let mut exprs = support::children(self.syntax());
-        let first = exprs.next();
-        match first {
-            Some(ast::Expr::BlockExpr(_)) => exprs.next().and(first),
-            first => first,
-        }
-    }
-}
+// TODO: Implementing something like this would be useful.
+// Determining which kind of for iterable we have is done in semantic
+// analysis by querying via methods on ast::ForIterable
+// We could construct an enum here and expose it to consumers.
+// #[derive(Clone, Debug, PartialEq, Eq, Hash)]
+// pub enum ForIterable {
+//     SetExpression(ast::SetExpression),
+//     RangeExpression(ast::RangeExpr),
+//     Expr(ast::Expr),
+// }
+
+// This was carried over from rust. It seems we do not need this any
+// longer for disambiguation.
+// impl ast::ForStmt {
+// //    pub fn iterable(&self) -> Option<ForIterable> {
+//     pub fn iterable(&self) -> Option<ast::Expr> {
+//         // If the iterable is a BlockExpr, check if the body is missing.
+//         // If it is, assume the iterable is the expression that is missing instead.
+//         // let token = self.token();
+//         // if let Some(t) = ast::SetExpression::cast(token.clone()) {
+//         //     return ForIterable::SetExpression(t);
+//         // }
+//         // if let Some(t) = ast::RangeExpr::cast(token.clone()) {
+//         //     return ForIterable::RangeExpression(t);
+//         // }
+//         // None
+//         let mut exprs = support::children(self.syntax());
+//         let first = exprs.next();
+//         match first {
+//             Some(ast::Expr::BlockExpr(_)) => exprs.next().and(first),
+//             first => first,
+//         }
+//     }
+// }
 
 impl ast::HasLoopBody for ast::ForStmt {
     fn loop_body(&self) -> Option<ast::BlockExpr> {

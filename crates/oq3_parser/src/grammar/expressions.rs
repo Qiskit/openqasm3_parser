@@ -5,6 +5,7 @@ pub mod atom;
 
 use super::*;
 
+pub(crate) use atom::block_expr;
 pub(crate) use atom::try_block_expr;
 pub(super) use atom::LITERAL_FIRST;
 // Pretty sure semicolon is always required in OQ3
@@ -20,6 +21,27 @@ const EXPR_FIRST: TokenSet = LHS_FIRST;
 pub(super) fn expr(p: &mut Parser<'_>) -> Option<CompletedMarker> {
     let r = Restrictions { prefer_stmt: false };
     expr_bp(p, None, r, 1).map(|(m, _)| m)
+}
+
+// This inlcudes square brackets
+pub(crate) fn range_expr(p: &mut Parser<'_>) -> Option<CompletedMarker> {
+    let r = Restrictions { prefer_stmt: false };
+    let m = p.start();
+    assert!(p.at(T!['[']));
+    p.bump(T!['[']);
+    expr_bp(p, None, r, 1).map(|(m, _)| m);
+    if p.at(COLON) {
+        p.bump(COLON);
+        expr_bp(p, None, r, 1).map(|(m, _)| m);
+        if p.at(COLON) {
+            p.bump(COLON);
+            expr_bp(p, None, r, 1).map(|(m, _)| m);
+        }
+    } else {
+        p.error("Expecting colon in range expression.");
+    }
+    p.expect(T![']']);
+    Some(m.complete(p, RANGE_EXPR))
 }
 
 pub(super) fn expr_or_range_expr(p: &mut Parser<'_>) -> Option<CompletedMarker> {
@@ -460,16 +482,21 @@ pub(crate) fn indexed_identifer(p: &mut Parser<'_>, lhs: CompletedMarker) -> Com
     m.complete(p, INDEXED_IDENTIFIER)
 }
 
+pub(crate) fn set_expression(p: &mut Parser<'_>) {
+    assert!(p.at(T!['{']));
+    let m = p.start();
+    p.bump(T!['{']);
+    params::expression_list(p);
+    p.bump(T!['}']);
+    m.complete(p, SET_EXPRESSION);
+}
+
 pub(crate) fn index_operator(p: &mut Parser<'_>) {
     assert!(p.at(T!['[']));
     let m = p.start();
     p.expect(T!['[']);
     if p.at(T!['{']) {
-        let m1 = p.start();
-        p.bump(T!['{']);
-        params::expression_list(p);
-        p.bump(T!['}']);
-        m1.complete(p, SET_EXPRESSION);
+        set_expression(p);
     } else {
         params::expression_list(p);
     }
