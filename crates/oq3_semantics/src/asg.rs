@@ -221,24 +221,18 @@ impl Include {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Annotation {
-    kind: String,
-    body: Option<String>,
+    annotation_text: String,
 }
 
 impl Annotation {
-    pub fn new<T: ToString>(kind: T, body: Option<String>) -> Annotation {
+    pub fn new<T: ToString>(annotation_text: T) -> Annotation {
         Annotation {
-            kind: kind.to_string(),
-            body,
+            annotation_text: annotation_text.to_string(),
         }
     }
 
-    pub fn kind(&self) -> &str {
-        self.kind.as_ref()
-    }
-
-    pub fn body(&self) -> Option<&str> {
-        self.body.as_deref()
+    pub fn annotation_text(&self) -> &str {
+        self.annotation_text.as_ref()
     }
 }
 
@@ -268,6 +262,10 @@ impl AnnotatedStmt {
 
     pub fn annotations(&self) -> &[Annotation] {
         &self.annotations
+    }
+
+    pub fn to_stmt(self) -> Stmt {
+        Stmt::AnnotatedStmt(self)
     }
 }
 

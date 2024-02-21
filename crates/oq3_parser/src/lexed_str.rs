@@ -260,6 +260,7 @@ fn inner_extend_token<'a>(
             }
 
             oq3_lexer::TokenKind::Pragma => PRAGMA,
+            oq3_lexer::TokenKind::Annotation => ANNOTATION,
 
             oq3_lexer::TokenKind::Literal { kind, .. } => {
                 //                    self.extend_literal(token_text.len(), kind);

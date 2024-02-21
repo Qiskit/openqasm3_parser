@@ -88,6 +88,11 @@ Stmt =
 | VersionString
 | WhileStmt
 | PragmaStatement
+| AnnotationStatement
+
+// "thelabel" is in the list of manually implemented elements.
+AnnotationStatement =
+    thelabel:'fakekw'
 
 // Like 'ident' the remainder is manually coded
 PragmaStatement =

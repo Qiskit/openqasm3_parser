@@ -457,6 +457,11 @@ impl PragmaStatement {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct AnnotationStatement {
+    pub(crate) syntax: SyntaxNode,
+}
+impl AnnotationStatement {}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct CaseExpr {
     pub(crate) syntax: SyntaxNode,
 }
@@ -1077,6 +1082,7 @@ pub enum Stmt {
     VersionString(VersionString),
     WhileStmt(WhileStmt),
     PragmaStatement(PragmaStatement),
+    AnnotationStatement(AnnotationStatement),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Expr {
@@ -1522,6 +1528,21 @@ impl AstNode for WhileStmt {
 impl AstNode for PragmaStatement {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == PRAGMA_STATEMENT
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for AnnotationStatement {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == ANNOTATION_STATEMENT
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2304,6 +2325,11 @@ impl From<PragmaStatement> for Stmt {
         Stmt::PragmaStatement(node)
     }
 }
+impl From<AnnotationStatement> for Stmt {
+    fn from(node: AnnotationStatement) -> Stmt {
+        Stmt::AnnotationStatement(node)
+    }
+}
 impl AstNode for Stmt {
     fn can_cast(kind: SyntaxKind) -> bool {
         matches!(
@@ -2333,6 +2359,7 @@ impl AstNode for Stmt {
                 | VERSION_STRING
                 | WHILE_STMT
                 | PRAGMA_STATEMENT
+                | ANNOTATION_STATEMENT
         )
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
@@ -2368,6 +2395,7 @@ impl AstNode for Stmt {
             VERSION_STRING => Stmt::VersionString(VersionString { syntax }),
             WHILE_STMT => Stmt::WhileStmt(WhileStmt { syntax }),
             PRAGMA_STATEMENT => Stmt::PragmaStatement(PragmaStatement { syntax }),
+            ANNOTATION_STATEMENT => Stmt::AnnotationStatement(AnnotationStatement { syntax }),
             _ => return None,
         };
         Some(res)
@@ -2399,6 +2427,7 @@ impl AstNode for Stmt {
             Stmt::VersionString(it) => &it.syntax,
             Stmt::WhileStmt(it) => &it.syntax,
             Stmt::PragmaStatement(it) => &it.syntax,
+            Stmt::AnnotationStatement(it) => &it.syntax,
         }
     }
 }
@@ -2902,6 +2931,11 @@ impl std::fmt::Display for WhileStmt {
     }
 }
 impl std::fmt::Display for PragmaStatement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for AnnotationStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

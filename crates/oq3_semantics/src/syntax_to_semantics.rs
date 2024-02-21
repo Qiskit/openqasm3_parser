@@ -178,7 +178,12 @@ pub fn syntax_to_semantic<T: SourceTrait>(
             stmt => from_stmt(stmt, &mut context),
         };
         if let Some(stmt) = stmt {
-            context.program.insert_stmt(stmt)
+            if context.annotations_is_empty() {
+                context.program.insert_stmt(stmt);
+            } else {
+                let anstmt = asg::AnnotatedStmt::new(stmt, context.take_annotations()).to_stmt();
+                context.program.insert_stmt(anstmt);
+            }
         }
     }
 
@@ -382,6 +387,15 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             Some(asg::Pragma::new(pragma.pragma_text()).to_stmt())
         }
 
+        // Annotations are accumulated and attached to the following statement.
+        // So we return None here.
+        // It would be more convenient to return the annotation and handle
+        // attaching, clearing etc. in one spot. But we have to return a Stmt.
+        // And asg::Annotation is not a Stmt.
+        synast::Stmt::AnnotationStatement(annotation) => {
+            context.push_annotation(asg::Annotation::new(annotation.annotation_text()));
+            None
+        }
         _ => None,
     }
 }

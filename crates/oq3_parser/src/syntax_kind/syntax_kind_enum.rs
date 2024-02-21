@@ -135,6 +135,7 @@ pub enum SyntaxKind {
     WHITESPACE,
     COMMENT,
     PRAGMA,
+    ANNOTATION,
     #[doc = r" nodes"]
     SOURCE_FILE,
     GATE,
@@ -147,6 +148,7 @@ pub enum SyntaxKind {
     RESET,
     CONST,
     PRAGMA_STATEMENT,
+    ANNOTATION_STATEMENT,
     TUPLE_EXPR,
     ARRAY_EXPR,
     PAREN_EXPR,

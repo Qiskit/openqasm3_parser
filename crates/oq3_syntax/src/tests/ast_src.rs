@@ -142,6 +142,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "WHITESPACE",
         "COMMENT",
         "PRAGMA",
+        "ANNOTATION",
     ],
     nodes: &[
         "SOURCE_FILE",
@@ -155,6 +156,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "RESET",
         "CONST",
         "PRAGMA_STATEMENT",
+        "ANNOTATION_STATEMENT",
         // atoms
         "TUPLE_EXPR",
         "ARRAY_EXPR",

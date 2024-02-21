@@ -94,6 +94,13 @@ pub(crate) fn stmt(p: &mut Parser<'_>) {
         m.complete(p, PRAGMA_STATEMENT);
         return;
     }
+    if p.at(ANNOTATION) {
+        p.bump_any();
+        // Note this is a single annotation, not an annotated statement.
+        m.complete(p, ANNOTATION_STATEMENT);
+        return;
+    }
+
     // FIXME: straighten out logic
     if !(p.current().is_classical_type() && (p.nth(1) == T!['('] || p.nth(1) == T!['[']))
         && !p.at_ts(EXPR_FIRST)

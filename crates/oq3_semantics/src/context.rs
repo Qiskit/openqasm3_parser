@@ -14,6 +14,7 @@ pub struct Context {
     pub program: asg::Program,
     pub semantic_errors: SemanticErrorList,
     pub symbol_table: SymbolTable,
+    pub annotations: Vec<asg::Annotation>,
 }
 
 impl Context {
@@ -22,6 +23,7 @@ impl Context {
             program: asg::Program::new(),
             semantic_errors: SemanticErrorList::new(file_path),
             symbol_table: SymbolTable::new(),
+            annotations: Vec::<asg::Annotation>::new(),
         }
     }
 
@@ -43,6 +45,24 @@ impl Context {
 
     pub fn as_tuple(self) -> (asg::Program, SemanticErrorList, SymbolTable) {
         (self.program, self.semantic_errors, self.symbol_table)
+    }
+
+    pub fn push_annotation(&mut self, annotation: asg::Annotation) {
+        self.annotations.push(annotation);
+    }
+
+    pub fn clear_annotations(&mut self) {
+        self.annotations.clear();
+    }
+
+    pub fn annotations_is_empty(&self) -> bool {
+        self.annotations.is_empty()
+    }
+
+    pub fn take_annotations(&mut self) -> Vec<asg::Annotation> {
+        let outvec = self.annotations.clone();
+        self.annotations.clear();
+        outvec
     }
 
     // fn as_tuple_mut(&mut self) -> (&mut asg::Program, &mut SemanticErrorList, &mut SymbolTable) {
