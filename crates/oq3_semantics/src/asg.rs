@@ -1295,7 +1295,8 @@ impl Pragma {
         }
     }
 
-    pub fn pragma(&self) -> &str {
+    /// Return the pragma line omitting the directive "pragma" or "#pragma"
+    pub fn pragma_text(&self) -> &str {
         self.pragma_text.as_ref()
     }
 
