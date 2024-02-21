@@ -71,6 +71,8 @@ pub enum TokenKind {
 
     Pragma,
 
+    Annotation,
+
     /// Needed for OpenQASM 3 ?
     /// An unknown prefix, like `foo#`, `foo'`, `foo"`.
     ///
@@ -385,6 +387,15 @@ impl Cursor<'_> {
                 InvalidIdent
             }
 
+            '@' => {
+                if is_id_start(self.first()) {
+                    self.eat_while(|c| c != '\n');
+                    Annotation
+                } else {
+                    At
+                }
+            }
+
             '$' => self.hardware_ident(),
             // One-symbol tokens.
             ';' => Semi,
@@ -396,7 +407,6 @@ impl Cursor<'_> {
             '}' => CloseBrace,
             '[' => OpenBracket,
             ']' => CloseBracket,
-            '@' => At,
             '~' => Tilde,
             '?' => Question,
             ':' => Colon,

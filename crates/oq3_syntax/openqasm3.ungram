@@ -88,6 +88,10 @@ Stmt =
 | VersionString
 | WhileStmt
 | PragmaStatement
+| AnnotationStatement
+
+AnnotationStatement =
+    thelabel:'fakekw'
 
 // Like 'ident' the remainder is manually coded
 PragmaStatement =

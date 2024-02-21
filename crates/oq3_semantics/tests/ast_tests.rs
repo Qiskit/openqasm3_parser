@@ -107,15 +107,11 @@ fn test_ident() {
 fn test_binary_expr_add() {
     // use asg::{BinaryExpr, Identifier};
     // use asg::{BinaryOp::*};
-
     //    let expr = BinaryExpr::new(Add,
 }
 
 #[test]
 fn test_annotation() {
-    let a = asg::Annotation::new("ann".to_string(), Some("details".to_string()));
-    let b = asg::Annotation::new("ann".to_string(), None);
-
-    assert_eq!(a.body(), Some("details"));
-    assert_eq!(b.body(), None);
+    let a = asg::Annotation::new("ann details".to_string());
+    assert_eq!(a.annotation_text(), "ann details");
 }

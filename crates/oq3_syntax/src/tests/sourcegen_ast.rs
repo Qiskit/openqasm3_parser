@@ -812,6 +812,7 @@ fn lower_rule(acc: &mut Vec<Field>, grammar: &Grammar, label: Option<&String>, r
                     | "condition"
                     | "angle_params"
                     | "qubit_params"
+                    | "thelabel"
             );
             if manually_implemented {
                 return;

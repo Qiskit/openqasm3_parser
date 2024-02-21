@@ -152,3 +152,13 @@ impl ast::PragmaStatement {
         }
     }
 }
+
+impl ast::AnnotationStatement {
+    fn text(&self) -> TokenText<'_> {
+        text_of_first_token(self.syntax())
+    }
+
+    pub fn annotation_text(&self) -> String {
+        self.text().to_string()
+    }
+}
