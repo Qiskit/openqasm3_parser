@@ -175,7 +175,7 @@ fn for_stmt(p: &mut Parser<'_>, m: Marker) {
     if p.at(T!['{']) {
         expressions::block_expr(p);
     } else {
-        expressions::stmt(p, expressions::Semicolon::Required);
+        expressions::stmt(p);
     }
     m.complete(p, FOR_STMT);
 }
