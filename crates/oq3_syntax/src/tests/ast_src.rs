@@ -71,6 +71,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
     keywords: &[
         "OPENQASM",
         "include",
+        "pragma",
         "def",
         "defcalgrammar",
         "cal",
@@ -79,7 +80,6 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "delay",
         "reset",
         "measure",
-        "pragma",
         "let",
         "box",
         "extern",
@@ -135,7 +135,14 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "TIMING_FLOAT_NUMBER",
         "TIMING_INT_NUMBER",
     ],
-    tokens: &["ERROR", "IDENT", "HARDWAREIDENT", "WHITESPACE", "COMMENT"],
+    tokens: &[
+        "ERROR",
+        "IDENT",
+        "HARDWAREIDENT",
+        "WHITESPACE",
+        "COMMENT",
+        "PRAGMA",
+    ],
     nodes: &[
         "SOURCE_FILE",
         "GATE",
@@ -147,6 +154,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "DEF",
         "RESET",
         "CONST",
+        "PRAGMA_STATEMENT",
         // atoms
         "TUPLE_EXPR",
         "ARRAY_EXPR",

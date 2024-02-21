@@ -795,17 +795,6 @@ fn lower_rule(acc: &mut Vec<Field>, grammar: &Grammar, label: Option<&String>, r
             // This is a list of labels that are used in openqasm3.ungram (modified from list in in rust-analyzer)
             // There are typically functions with the same name as the label that are defined in files named
             // *_ext.rs.
-            // Consider this fragment of an ungram rule:
-            //
-            // IfExpr =
-            //    Attr* 'if' condition:Expr then_branch:BlockExpr
-            //
-            // This is handled in expr_ext.rs by
-            //
-            // impl ast::IfExpr {
-            //    pub fn condition(... ...
-            //    pub fn then_branch(...
-            //
             let manually_implemented = matches!(
                 l.as_str(),
                 "lhs"

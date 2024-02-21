@@ -136,3 +136,19 @@ impl ast::HasLoopBody for ast::WhileStmt {
         second.or(first)
     }
 }
+
+impl ast::PragmaStatement {
+    fn text(&self) -> TokenText<'_> {
+        text_of_first_token(self.syntax())
+    }
+
+    // return the pragma line omitting the word "pragma"
+    pub fn pragma_text(&self) -> String {
+        let text = self.text();
+        if text.starts_with('#') {
+            text[7..].to_string()
+        } else {
+            text[6..].to_string()
+        }
+    }
+}

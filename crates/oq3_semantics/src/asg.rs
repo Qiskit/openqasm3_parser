@@ -721,6 +721,10 @@ impl Reset {
     pub fn gate_operand(&self) -> &TExpr {
         &self.gate_operand
     }
+
+    pub fn to_stmt(self) -> Stmt {
+        Stmt::Reset(self)
+    }
 }
 
 // This is one of several examples where instead of `enum Literal`
@@ -1281,17 +1285,21 @@ impl CaseExpr {
 // Might make sense for this, and others to be like `struct Pragma(String)`.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Pragma {
-    pragma: String,
+    pragma_text: String,
 }
 
 impl Pragma {
     pub fn new<T: ToString>(pragma: T) -> Pragma {
         Pragma {
-            pragma: pragma.to_string(),
+            pragma_text: pragma.to_string(),
         }
     }
 
     pub fn pragma(&self) -> &str {
-        self.pragma.as_ref()
+        self.pragma_text.as_ref()
+    }
+
+    pub fn to_stmt(self) -> Stmt {
+        Stmt::Pragma(self)
     }
 }
