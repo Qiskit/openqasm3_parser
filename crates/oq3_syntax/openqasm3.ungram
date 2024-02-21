@@ -48,7 +48,7 @@
 // Names  //
 //********//
 
-// Some apparent tokes, such as 'ident' are intercepted in sourcegen_ast.rs and are
+// Some apparent tokens, such as 'ident' are intercepted in sourcegen_ast.rs and are
 // treated specially.
 Name =
   'ident'
@@ -87,6 +87,11 @@ Stmt =
 | TypeDeclarationStmt
 | VersionString
 | WhileStmt
+| PragmaStatement
+
+// Like 'ident' the remainder is manually coded
+PragmaStatement =
+   'pragma'
 
 SwitchCaseStmt =
     'switch' '(' control:Expr ')' '{' (CaseExpr*) ('default' default_block:BlockExpr)? '}'

@@ -448,6 +448,15 @@ impl WhileStmt {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct PragmaStatement {
+    pub(crate) syntax: SyntaxNode,
+}
+impl PragmaStatement {
+    pub fn pragma_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![pragma])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct CaseExpr {
     pub(crate) syntax: SyntaxNode,
 }
@@ -1067,6 +1076,7 @@ pub enum Stmt {
     TypeDeclarationStmt(TypeDeclarationStmt),
     VersionString(VersionString),
     WhileStmt(WhileStmt),
+    PragmaStatement(PragmaStatement),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Expr {
@@ -1497,6 +1507,21 @@ impl AstNode for VersionString {
 impl AstNode for WhileStmt {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == WHILE_STMT
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for PragmaStatement {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == PRAGMA_STATEMENT
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2274,6 +2299,11 @@ impl From<WhileStmt> for Stmt {
         Stmt::WhileStmt(node)
     }
 }
+impl From<PragmaStatement> for Stmt {
+    fn from(node: PragmaStatement) -> Stmt {
+        Stmt::PragmaStatement(node)
+    }
+}
 impl AstNode for Stmt {
     fn can_cast(kind: SyntaxKind) -> bool {
         matches!(
@@ -2302,6 +2332,7 @@ impl AstNode for Stmt {
                 | TYPE_DECLARATION_STMT
                 | VERSION_STRING
                 | WHILE_STMT
+                | PRAGMA_STATEMENT
         )
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
@@ -2336,6 +2367,7 @@ impl AstNode for Stmt {
             TYPE_DECLARATION_STMT => Stmt::TypeDeclarationStmt(TypeDeclarationStmt { syntax }),
             VERSION_STRING => Stmt::VersionString(VersionString { syntax }),
             WHILE_STMT => Stmt::WhileStmt(WhileStmt { syntax }),
+            PRAGMA_STATEMENT => Stmt::PragmaStatement(PragmaStatement { syntax }),
             _ => return None,
         };
         Some(res)
@@ -2366,6 +2398,7 @@ impl AstNode for Stmt {
             Stmt::TypeDeclarationStmt(it) => &it.syntax,
             Stmt::VersionString(it) => &it.syntax,
             Stmt::WhileStmt(it) => &it.syntax,
+            Stmt::PragmaStatement(it) => &it.syntax,
         }
     }
 }
@@ -2864,6 +2897,11 @@ impl std::fmt::Display for VersionString {
     }
 }
 impl std::fmt::Display for WhileStmt {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for PragmaStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

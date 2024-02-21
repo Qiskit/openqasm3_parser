@@ -8,13 +8,6 @@ use super::*;
 pub(crate) use atom::block_expr;
 pub(crate) use atom::try_block_expr;
 pub(super) use atom::LITERAL_FIRST;
-// Pretty sure semicolon is always required in OQ3
-#[derive(PartialEq, Eq)]
-pub(crate) enum Semicolon {
-    Required,
-    // Optional,
-    // Forbidden,
-}
 
 const EXPR_FIRST: TokenSet = LHS_FIRST;
 
@@ -77,13 +70,13 @@ pub(crate) fn expr_no_struct(p: &mut Parser<'_>) {
 }
 
 // GJL made public. remove visibility
-pub(crate) fn stmt(p: &mut Parser<'_>, semicolon: Semicolon) {
+pub(crate) fn stmt(p: &mut Parser<'_>) {
     if p.eat(T![;]) {
         return;
     }
     if p.at(T![let]) {
         let m = p.start();
-        let_stmt(p, m, semicolon);
+        let_stmt(p, m);
         return;
     }
     // if p.current().is_type_name() {
@@ -96,6 +89,11 @@ pub(crate) fn stmt(p: &mut Parser<'_>, semicolon: Semicolon) {
         Ok(()) => return,
         Err(m) => m,
     };
+    if p.at(PRAGMA) {
+        p.bump_any();
+        m.complete(p, PRAGMA_STATEMENT);
+        return;
+    }
     // FIXME: straighten out logic
     if !(p.current().is_classical_type() && (p.nth(1) == T!['('] || p.nth(1) == T!['[']))
         && !p.at_ts(EXPR_FIRST)
@@ -113,17 +111,6 @@ pub(crate) fn stmt(p: &mut Parser<'_>, semicolon: Semicolon) {
             } else {
                 p.expect(T![;]);
             }
-            // Can we use the following for pragmas in OQ3?
-            // In the rest of OQ3, semicolons are always required.
-            // match semicolon {
-            //     Semicolon::Required => {
-            //         if blocklike.is_block() {
-            //             p.eat(T![;]);
-            //         } else {
-            //             p.expect(T![;]);
-            //         }
-            //     }
-            // }
             // Assignment is a statement, not an expression.
             // So we do not wrap it in EXPR_STMT.
             if cm_kind == ASSIGNMENT_STMT {
@@ -140,16 +127,12 @@ pub(crate) fn stmt(p: &mut Parser<'_>, semicolon: Semicolon) {
     // But OQ3 only supports let as statment.
     // FIXME: "fn let_expr" is implemented in atom.rs as well. I think this is a mistake.
     // It should appear once.
-    fn let_stmt(p: &mut Parser<'_>, m: Marker, with_semi: Semicolon) {
+    fn let_stmt(p: &mut Parser<'_>, m: Marker) {
         p.bump(T![let]);
         p.expect(IDENT);
         p.expect(T![=]);
         expressions::expr(p);
-        match with_semi {
-            Semicolon::Required => {
-                p.expect(T![;]);
-            }
-        }
+        p.expect(T![;]);
         m.complete(p, LET_STMT);
     }
 }
@@ -160,7 +143,7 @@ pub(crate) fn stmt(p: &mut Parser<'_>, semicolon: Semicolon) {
 // This function exists in r-a, but it is not called without having read a {
 pub(super) fn expr_block_contents(p: &mut Parser<'_>) {
     while !p.at(EOF) && !p.at(T!['}']) {
-        stmt(p, Semicolon::Required);
+        stmt(p);
     }
 }
 

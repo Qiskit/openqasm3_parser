@@ -357,7 +357,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         synast::Stmt::Reset(reset) => {
             let gate_operand = reset.gate_operand().unwrap(); // FIXME: check this
             let gate_operand_asg = from_gate_operand(gate_operand, context);
-            Some(asg::Stmt::Reset(asg::Reset::new(gate_operand_asg)))
+            Some(asg::Reset::new(gate_operand_asg).to_stmt())
         }
 
         synast::Stmt::Include(include) => {
@@ -376,6 +376,10 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             let version = version_string.version().unwrap().version().unwrap();
             let _ = version.split_into_parts();
             None
+        }
+
+        synast::Stmt::PragmaStatement(pragma) => {
+            Some(asg::Pragma::new(pragma.pragma_text()).to_stmt())
         }
 
         _ => None,

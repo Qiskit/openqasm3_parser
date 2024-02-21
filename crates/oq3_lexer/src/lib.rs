@@ -69,6 +69,8 @@ pub enum TokenKind {
     /// Like the above, but containing invalid unicode codepoints.
     InvalidIdent,
 
+    Pragma,
+
     /// Needed for OpenQASM 3 ?
     /// An unknown prefix, like `foo#`, `foo'`, `foo"`.
     ///
@@ -358,6 +360,31 @@ impl Cursor<'_> {
                 }
             }
 
+            '#' => {
+                if self.first() == 'p' {
+                    self.bump();
+                    if self.first() == 'r' {
+                        self.bump();
+                        if self.first() == 'a' {
+                            self.bump();
+                            if self.first() == 'g' {
+                                self.bump();
+                                if self.first() == 'm' {
+                                    self.bump();
+                                    if self.first() == 'a' {
+                                        self.eat_while(|c| c != '\n');
+                                        let res = Token::new(Pragma, self.pos_within_token());
+                                        self.reset_pos_within_token();
+                                        return res;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                InvalidIdent
+            }
+
             '$' => self.hardware_ident(),
             // One-symbol tokens.
             ';' => Semi,
@@ -370,12 +397,9 @@ impl Cursor<'_> {
             '[' => OpenBracket,
             ']' => CloseBracket,
             '@' => At,
-            '#' => Pound,
             '~' => Tilde,
             '?' => Question,
             ':' => Colon,
-            // FIXME! GJL disabled this ?
-            //            '$' => Dollar,
             '=' => Eq,
             '!' => Bang,
             '<' => Lt,
@@ -465,6 +489,24 @@ impl Cursor<'_> {
 
     fn ident_or_unknown_prefix(&mut self) -> TokenKind {
         debug_assert!(is_id_start(self.prev()));
+
+        if self.prev() == 'p' && self.first() == 'r' {
+            self.bump();
+            if self.first() == 'a' {
+                self.bump();
+                if self.first() == 'g' {
+                    self.bump();
+                    if self.first() == 'm' {
+                        self.bump();
+                        if self.first() == 'a' {
+                            self.eat_while(|c| c != '\n');
+                            return Pragma;
+                        }
+                    }
+                }
+            }
+        }
+
         // Start is already eaten, eat the rest of identifier.
         self.eat_while(is_id_continue);
         // Known prefixes must have been handled earlier. So if
