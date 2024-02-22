@@ -59,14 +59,11 @@ pub(super) fn expr_stmt(
     p: &mut Parser<'_>,
     m: Option<Marker>,
 ) -> Option<(CompletedMarker, BlockLike)> {
+    // The restriction `prefer_stmt: true` tells `expr_bp` that we are looking
+    // for an expression statement. Some expressions can only occur at the top
+    // level of a statement.
     let r = Restrictions { prefer_stmt: true };
     expr_bp(p, m, r, 1)
-}
-
-// forbid_structs has been removed. So this is a misnomer
-pub(crate) fn expr_no_struct(p: &mut Parser<'_>) {
-    let r = Restrictions { prefer_stmt: false };
-    expr_bp(p, None, r, 1);
 }
 
 // GJL made public. remove visibility
@@ -79,11 +76,6 @@ pub(crate) fn stmt(p: &mut Parser<'_>) {
         let_stmt(p, m);
         return;
     }
-    // if p.current().is_type_name() {
-    //     let m = p.start();
-    //     type_declaration_stmt(p, m);
-    //     return;
-    // }
     let m = p.start();
     let m = match items::opt_item(p, m) {
         Ok(()) => return,
@@ -110,30 +102,26 @@ pub(crate) fn stmt(p: &mut Parser<'_>) {
         return;
     };
     if let Some((cm, blocklike)) = expr_stmt(p, Some(m)) {
+        if cm.kind() == ASSIGNMENT_STMT {
+            // The expression is about to be wrapped in `EXPR_STMT`. But
+            // Assignment is really a statement by itself. So we exit before wrapping.
+            // The trailing semicolon has already been parsed.
+            return;
+        }
         if !p.at(T!['}']) {
-            let cm_kind = cm.kind();
+            // The last completed Marker for `p` was an `EXPR`. We want to wrap it
+            // in `EXPR_STMT`, so we create new marker at the beginning of this `EXPR`.
+            // Then we parse just a semicolon.
             let m = cm.precede(p);
             if blocklike.is_block() {
                 p.eat(T![;]);
-            } else {
-                p.expect(T![;]);
+            } else if !p.eat(T![;]) {
+                p.error("Expecting semicolon terminating statement");
             }
-            // Assignment is a statement, not an expression.
-            // So we do not wrap it in EXPR_STMT.
-            if cm_kind == ASSIGNMENT_STMT {
-                m.abandon(p);
-            } else {
-                m.complete(p, EXPR_STMT);
-            }
+            m.complete(p, EXPR_STMT);
         }
     }
 
-    // This should actually be let_stmt.
-    // r-a had both let_stmt and let_expr because let functions in a generic expr env in rust.
-    // The expr version was handled in atom.rs.
-    // But OQ3 only supports let as statment.
-    // FIXME: "fn let_expr" is implemented in atom.rs as well. I think this is a mistake.
-    // It should appear once.
     fn let_stmt(p: &mut Parser<'_>, m: Marker) {
         p.bump(T![let]);
         p.expect(IDENT);
@@ -147,7 +135,7 @@ pub(crate) fn stmt(p: &mut Parser<'_>) {
 // Careful, this reads til } *or* EOF. And this may be called without having read a
 // {. In a way, this is an implicit block expression. Or else it is inadvertent.
 // YES: inadvertent when adpating code for OQ3.
-// This function exists in r-a, but it is not called without having read a {
+// This function exists in r-a, but it is not called without having read a `{`
 pub(super) fn expr_block_contents(p: &mut Parser<'_>) {
     while !p.at(EOF) && !p.at(T!['}']) {
         stmt(p);
@@ -156,7 +144,7 @@ pub(super) fn expr_block_contents(p: &mut Parser<'_>) {
 
 #[derive(Clone, Copy)]
 struct Restrictions {
-    //    forbid_structs: bool,
+    // Set to true in `expr_stmt` to mark top-level expression.
     prefer_stmt: bool,
 }
 
@@ -191,14 +179,19 @@ fn current_op(p: &Parser<'_>) -> (u8, SyntaxKind, Associativity) {
         T![>]                  => (5,  T![>],   Left),
         T![=] if p.at(T![=>])  => NOT_AN_OP,
         T![=] if p.at(T![==])  => (5,  T![==],  Left),
-        T![=]                  => (1,  T![=],   Right),
+        // r-a had 1 as the bp here. But this attempts to parse
+        // `x + y = 3`; as `(x + y) = 3;` which is probably not what the user meant.
+        // Putting 12 as the bp instead of 1 parses this as
+        // `x + (y = 3)`. In OQ3, this is still illegal, but the user will get a more
+        // informative error message. That an assignment statement is not allowed here.
+        // This may have unintended consequences and we will need to replace the 12 with 1.
+        T![=]                  => (12,  T![=],   Right),
         T![<] if p.at(T![<=])  => (5,  T![<=],  Left),
         T![<] if p.at(T![<<=]) => (1,  T![<<=], Right),
         T![<] if p.at(T![<<])  => (9,  T![<<],  Left),
         T![<]                  => (5,  T![<],   Left),
         T![+] if p.at(T![+=])  => (1,  T![+=],  Right),
-        // FIXME For OQ3. Note! `++` is *not* like C increment op
-        // Rather, `++` is a concatenation op and should have some low value for bp.
+        // `++` is the concatenation op and should have some low value for bp.
         T![+] if p.at(T![++])  => (2,  T![++],  Left),
         T![+]                  => (10, T![+],   Left),
         T![^] if p.at(T![^=])  => (1,  T![^=],  Right),
@@ -206,7 +199,6 @@ fn current_op(p: &Parser<'_>) -> (u8, SyntaxKind, Associativity) {
         T![%] if p.at(T![%=])  => (1,  T![%=],  Right),
         T![%]                  => (11, T![%],   Left),
         T![&] if p.at(T![&=])  => (1,  T![&=],  Right),
-        // If you update this, remember to update `expr_let()` too.
         T![&] if p.at(T![&&])  => (4,  T![&&],  Left),
         T![&]                  => (8,  T![&],   Left),
         T![/] if p.at(T![/=])  => (1,  T![/=],  Right),
@@ -260,20 +252,31 @@ fn expr_bp(
         let m = lhs.precede(p);
         p.bump(op);
 
-        // test binop_resets_statementness
-        // fn f() { v = {1}&2; }
-        //        r = Restrictions { prefer_stmt: false, ..r };
-
         let op_bp = match associativity {
             Associativity::Left => op_bp + 1,
             Associativity::Right => op_bp,
         };
-        //        expr_bp(p, None, Restrictions { prefer_stmt: false, ..r }, op_bp);
-        expr_bp(p, None, r, op_bp);
+        // If we enter `expr_bp` from `expr_stmt` we want `prefer_stmt = true`,
+        // because we are looking for an expression statement. But when we call
+        // it recursively in the following line, we are no longer at the top-level expression
+        // in the statement, so we set it to `false`.
+        expr_bp(p, None, Restrictions { prefer_stmt: false }, op_bp);
+        // If the op is `=` then it looks like an assignment.
         if matches!(op, T![=]) {
+            if !r.prefer_stmt {
+                // We are not a statement-level expression, rather a subexpression.
+                p.error("Assignment statement found where expression expected");
+            }
             if matches!(lhs_kind, IDENTIFIER | INDEXED_IDENTIFIER) {
+                if r.prefer_stmt {
+                    // This only happens if the assignment is in an illegal place.  We
+                    // choose not to log an additional syntax error asking for a semicolon
+                    p.expect(SEMICOLON);
+                }
                 lhs = m.complete(p, ASSIGNMENT_STMT);
             } else {
+                // If LHS is not an identifier or indexed identifier, parse it as a binary
+                // expression, but log error.
                 p.error("Illegal LHS in assignment");
                 lhs = m.complete(p, BIN_EXPR);
             }
@@ -290,7 +293,7 @@ const LHS_FIRST: TokenSet =
 // Handles only prefix and postfix expressions?? Not binary infix?
 fn lhs(p: &mut Parser<'_>, r: Restrictions) -> Option<(CompletedMarker, BlockLike)> {
     let m;
-    // Unary operators. In OQ3 should be ~ ! -, In r-a this is * ! -
+    // Unary operators.
     let kind = match p.current() {
         T![~] | T![!] | T![-] => {
             m = p.start();
@@ -313,6 +316,7 @@ fn lhs(p: &mut Parser<'_>, r: Restrictions) -> Option<(CompletedMarker, BlockLik
 fn postfix_expr(
     p: &mut Parser<'_>,
     mut lhs: CompletedMarker,
+    // r-a comment, probably irrelevant to OQ3
     // Calls are disallowed if the type is a block and we prefer statements because the call cannot be disambiguated from a tuple
     // E.g. `while true {break}();` is parsed as
     // `while true {break}; ();`
@@ -321,17 +325,10 @@ fn postfix_expr(
 ) -> (CompletedMarker, BlockLike) {
     loop {
         lhs = match p.current() {
-            // test stmt_postfix_expr_ambiguity
-            // fn foo() {
-            //     match () {
-            //         _ => {}
-            //         () => {}
-            //         [] => {}
-            //     }
-            // }
             T!['('] if allow_calls => call_expr(p, lhs),
             T!['['] if allow_calls => match lhs.kind() {
-                IDENTIFIER => indexed_identifer(p, lhs),
+                IDENTIFIER => indexed_identifier(p, lhs),
+                // The previous token was not `IDENTIFIER`, so we are indexing an expression.
                 _ => index_expr(p, lhs),
             },
             _ => break,
@@ -456,14 +453,11 @@ pub(crate) fn classical_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
 pub(crate) fn index_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     assert!(p.at(T!['[']));
     let m = lhs.precede(p);
-    // while p.at(T!['[']) {
-    //     index_operator(p);
-    // }
     index_operator(p);
     m.complete(p, INDEX_EXPR)
 }
 
-pub(crate) fn indexed_identifer(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
+pub(crate) fn indexed_identifier(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     assert!(p.at(T!['[']));
     let m = lhs.precede(p);
     while p.at(T!['[']) && !p.at(EOF) {

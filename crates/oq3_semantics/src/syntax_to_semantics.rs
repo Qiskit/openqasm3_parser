@@ -409,7 +409,6 @@ fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<
         Some(GateCallExpr(gate_call)) => {
             from_gate_call_expr(gate_call, Vec::<asg::GateModifier>::new(), context)
         }
-
         Some(ModifiedGateCallExpr(mod_gate_call)) => {
             let modifiers = mod_gate_call
                 .modifiers()
@@ -838,7 +837,7 @@ fn from_assignment_stmt(
     assignment_stmt: &synast::AssignmentStmt,
     context: &mut Context,
 ) -> Option<asg::Stmt> {
-    let nameb = assignment_stmt.name(); // LHS of assignment
+    let nameb = assignment_stmt.identifier(); // LHS of assignment
     if nameb.is_some() {
         let name = nameb.as_ref().unwrap();
         let name_str = name.string();

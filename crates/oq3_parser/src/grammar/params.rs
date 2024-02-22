@@ -240,7 +240,7 @@ pub(crate) fn arg_gate_call_qubit(p: &mut Parser<'_>, m: Marker) -> bool {
     let mcomp = m.complete(p, IDENTIFIER);
     if p.at(T!['[']) {
         //        expressions::index_expr(p, mcomp);
-        expressions::indexed_identifer(p, mcomp);
+        expressions::indexed_identifier(p, mcomp);
         return true;
     }
     true
