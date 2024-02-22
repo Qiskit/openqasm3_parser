@@ -733,6 +733,7 @@ fn from_binary_op(synast_op: synast::BinaryOp) -> asg::BinaryOp {
                 _ => todo!(),
             }
         }
+        synast::BinaryOp::ConcatenationOp => asg::BinaryOp::ConcatenationOp,
         _ => {
             todo!()
         }

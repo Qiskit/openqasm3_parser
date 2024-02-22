@@ -1,6 +1,9 @@
 // Copyright contributors to the openqasm-parser project
 // SPDX-License-Identifier: Apache-2.0
 
+// Note the following comment was written for r-a
+// It is tempting to reuse these structures, but that creates one
+// more entanglement between crates.
 //! Defines a bunch of data-less enums for unary and binary operators.
 //!
 //! Types here don't know about AST, this allows re-using them for both AST and
@@ -30,6 +33,8 @@ pub enum BinaryOp {
     LogicOp(LogicOp),
     ArithOp(ArithOp),
     CmpOp(CmpOp),
+    ConcatenationOp,
+    // FIXME: Don't we want to remove this?
     Assignment { op: Option<ArithOp> },
 }
 
@@ -39,6 +44,8 @@ pub enum LogicOp {
     Or,
 }
 
+// FIXME: This is the way r-a did it. IDK, might be simpler
+// to just have four individal variants to replace `Ord`.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum CmpOp {
     Eq { negated: bool },
@@ -125,6 +132,7 @@ impl fmt::Display for BinaryOp {
             BinaryOp::LogicOp(op) => fmt::Display::fmt(op, f),
             BinaryOp::ArithOp(op) => fmt::Display::fmt(op, f),
             BinaryOp::CmpOp(op) => fmt::Display::fmt(op, f),
+            BinaryOp::ConcatenationOp => fmt::Display::fmt("++", f),
             BinaryOp::Assignment { op } => {
                 if let Some(op) = op {
                     fmt::Display::fmt(op, f)?;
