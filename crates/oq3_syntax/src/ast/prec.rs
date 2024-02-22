@@ -124,6 +124,7 @@ impl Expr {
                         Or => (7, 8),
                         And => (9, 10),
                     },
+                    ConcatenationOp => (11, 11),
                     CmpOp(_) => (11, 11),
                     ArithOp(op) => match op {
                         BitOr => (13, 14),

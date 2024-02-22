@@ -975,6 +975,7 @@ pub struct BinaryExpr {
 pub enum BinaryOp {
     ArithOp(ArithOp),
     CmpOp(CmpOp),
+    ConcatenationOp,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
