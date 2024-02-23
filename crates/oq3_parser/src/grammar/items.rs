@@ -78,7 +78,6 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
     match p.current() {
         T![qubit] => qubit_declaration_stmt(p, m),
         T![const] => expressions::classical_declaration_stmt(p, m),
-        IDENT if (la == T![=] && p.nth(2) != T![=]) => assignment_statement_with_marker(p, m),
         T![gate] => gate_definition(p, m),
         T![break] => break_(p, m),
         T![continue] => continue_(p, m),
@@ -104,7 +103,7 @@ fn switch_case_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![switch]));
     p.bump(T![switch]);
     p.expect(T!['(']);
-    expressions::expr_no_struct(p);
+    expressions::expr(p);
     p.expect(T![')']);
     p.expect(T!['{']);
     if !p.at(T![case]) {
@@ -128,7 +127,7 @@ fn if_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![if]));
     p.bump(T![if]);
     p.expect(T!['(']);
-    expressions::expr_no_struct(p);
+    expressions::expr(p);
     p.expect(T![')']);
     expressions::try_block_expr(p);
     if p.at(T![else]) {
@@ -147,7 +146,7 @@ fn while_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![while]));
     p.bump(T![while]);
     p.expect(T!['(']);
-    expressions::expr_no_struct(p);
+    expressions::expr(p);
     p.expect(T![')']);
     expressions::try_block_expr(p);
     m.complete(p, WHILE_STMT);
@@ -180,27 +179,6 @@ fn for_stmt(p: &mut Parser<'_>, m: Marker) {
     m.complete(p, FOR_STMT);
 }
 
-// Called from atom::atom_expr
-// FIXME: return CompletedMarker because this is called from `atom_expr`
-// Where functions are called and what they return should be made more uniform.
-pub(crate) fn assignment_statement(p: &mut Parser<'_>) -> CompletedMarker {
-    let m = p.start();
-    name(p);
-    p.bump(T![=]);
-    expressions::expr(p);
-    p.expect(SEMICOLON);
-    m.complete(p, ASSIGNMENT_STMT)
-}
-
-// Called from items::opt_item
-pub(crate) fn assignment_statement_with_marker(p: &mut Parser<'_>, m: Marker) {
-    name(p);
-    p.bump(T![=]);
-    expressions::expr(p);
-    p.expect(SEMICOLON);
-    m.complete(p, ASSIGNMENT_STMT);
-}
-
 fn qubit_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![qubit]));
     expressions::quantum_type_spec(p);
@@ -208,41 +186,6 @@ fn qubit_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
     p.expect(SEMICOLON);
     m.complete(p, QUANTUM_DECLARATION_STATEMENT);
 }
-
-// We call index_expr, which backtracks. So we have to
-// complete the first IDENT.
-// An alternative would be to do the logic here and
-// avoid backtracking.
-//
-// I don't know why this kind of thing is evidently used for parsing rust.
-// It should be used heavily for OQ3. This could be because expressions
-// can be used in so many places in Rust. Eg. `myfunc(arg1, arg2)[ind1]`.
-// But in OQ3, a qubit needs to
-// Be an identifier or an identifier followed by '[', etc.
-// pub(crate) fn ident_or_index_expr(p: &mut Parser<'_>) {
-//     let m = p.start();
-//     match p.current() {
-//         IDENT => {
-//             p.bump(IDENT);
-//             match p.current() {
-//                 T!['['] => {
-//                     let newm = m.complete(p, IDENTIFIER);
-//                     expressions::index_expr(p, newm);
-//                 }
-//                 _ => {
-//                     // FIXME: m.complete(p, IDENT) is valid, but it should not be
-//                     // it is a source of bugs!
-//                     m.complete(p, IDENTIFIER);
-//                 }
-//             }
-//         }
-//         HARDWAREIDENT => {
-//             p.bump(HARDWAREIDENT);
-//             m.complete(p, HARDWARE_QUBIT);
-//         }
-//         _ => panic!(),
-//     }
-// }
 
 fn reset_stmt(p: &mut Parser<'_>, m: Marker) {
     p.bump(T![reset]);
@@ -401,7 +344,6 @@ fn version_string(p: &mut Parser<'_>, m: Marker) {
 
 fn version_(p: &mut Parser<'_>) -> bool {
     let m = p.start();
-    //    if ! p.expect(SIMPLE_FLOAT_NUMBER) && ! p.at(SEMICOLON) {
     if !p.expect(FLOAT_NUMBER) && !p.at(SEMICOLON) {
         p.bump_any(); // FIXME eat til semicolon
     }

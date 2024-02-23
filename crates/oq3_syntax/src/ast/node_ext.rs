@@ -98,6 +98,12 @@ fn text_of_first_token(node: &SyntaxNode) -> TokenText<'_> {
 //     }
 // }
 
+impl ast::AssignmentStmt {
+    pub fn identifier(&self) -> Option<ast::Identifier> {
+        support::child(&self.syntax)
+    }
+}
+
 impl ast::HasLoopBody for ast::ForStmt {
     fn loop_body(&self) -> Option<ast::BlockExpr> {
         let mut exprs = support::children(self.syntax());

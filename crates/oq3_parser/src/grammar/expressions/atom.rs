@@ -3,9 +3,6 @@
 
 use super::*;
 
-use crate::grammar;
-use crate::grammar::expressions;
-
 pub(crate) const PATH_FIRST: TokenSet = TokenSet::new(&[IDENT, HARDWAREIDENT, T![:], T![<]]);
 
 pub(crate) const LITERAL_FIRST: TokenSet = TokenSet::new(&[
@@ -78,19 +75,14 @@ pub(super) fn atom_expr(
         // Ugh. this is needed for `int[32]` for example. But it prevents array indexing `v[1:3]` from working
         // Need to distinguish these
         T!['['] => array_expr(p),
-        //        T![if] => if_expr(p),
         T![box] => box_expr(p, None),
-        //        T![while] => while_expr(p, None),
         T![measure] => measure_expression(p),
         T![return] => return_expr(p),
         T!['{'] => block_expr(p),
         T![inv] | T![pow] | T![ctrl] | T![negctrl] => modified_gate_call_expr(p),
         T![gphase] => gphase_call_expr(p),
         IDENT if (la == IDENT || la == HARDWAREIDENT) => gate_call_expr(p),
-        IDENT if (la == T![=] && p.nth(2) != T![=]) => grammar::items::assignment_statement(p),
-        // FIXME: An identifer bound by the user in the program.
-        // Need to handle more than identifier.
-        // Also `NAME` is probably not correct.
+        // This may be wrapped in INDEXED_IDENTIFIER later
         IDENT => identifier(p),
         _ => {
             p.err_and_bump("atom_expr: expected expression");
@@ -335,12 +327,6 @@ fn return_expr(p: &mut Parser<'_>) -> CompletedMarker {
     m.complete(p, RETURN_EXPR)
 }
 
-// test box_expr
-// fn foo() {
-//     let x = box 1i32;
-//     let y = (box 1i32, box 2i32);
-//     let z = Foo(box 1i32, box 2i32);
-// }
 fn box_expr(p: &mut Parser<'_>, m: Option<Marker>) -> CompletedMarker {
     assert!(p.at(T![box]));
     let m = m.unwrap_or_else(|| p.start());
