@@ -63,9 +63,10 @@ pub(super) fn atom_expr(
         return Some((m, BlockLike::NotBlock));
     }
     let la = p.nth(1);
-    // Do we need to check la == T!['('] ?
+    // Do we need to check `la == T!['(']` ?
+    // If the type spec has a width (designator), then `la` will not be `(` in any case.
     if p.current().is_classical_type() {
-        let m = expressions::cast_expr(p);
+        let m = cast_expr(p);
         return Some((m, BlockLike::NotBlock));
     }
     let done = match p.current() {
@@ -95,6 +96,17 @@ pub(super) fn atom_expr(
         BlockLike::NotBlock
     };
     Some((done, blocklike))
+}
+
+// Note: `CAST_EXPR` also parsed in `classical_declaration_stmt` in items.rs
+// FIXME. Do we need to worry about precedence here, as in call_expr ?
+pub(crate) fn cast_expr(p: &mut Parser<'_>) -> CompletedMarker {
+    let m = p.start();
+    type_spec(p);
+    p.expect(T!['(']);
+    expr(p);
+    p.expect(T![')']);
+    m.complete(p, CAST_EXPRESSION)
 }
 
 fn gphase_call_expr(p: &mut Parser<'_>) -> CompletedMarker {

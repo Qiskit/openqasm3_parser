@@ -354,16 +354,6 @@ fn call_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     m.complete(p, CALL_EXPR)
 }
 
-// FIXME. Do we need to worry about precedence here, as in call_expr ?
-pub(crate) fn cast_expr(p: &mut Parser<'_>) -> CompletedMarker {
-    let m = p.start();
-    type_spec(p);
-    p.expect(T!['(']);
-    expr(p);
-    p.expect(T![')']);
-    m.complete(p, CAST_EXPRESSION)
-}
-
 fn type_name(p: &mut Parser<'_>) {
     if !p.current().is_type_name() {
         p.error("Expected name of type");
@@ -404,44 +394,6 @@ pub(crate) fn var_name(p: &mut Parser<'_>) {
     let m = p.start();
     p.expect(IDENT); // The declared identifier, ie variable name
     m.complete(p, NAME);
-}
-
-pub(crate) fn _returns_bool_classical_declaration_stmt(p: &mut Parser<'_>, m: Marker) -> bool {
-    p.eat(T![const]); // FIXME. Fix this in ungram and then move this to type_spec
-    let mstmt = p.start();
-    type_spec(p);
-    if p.current() == T!['('] {
-        p.expect(T!['(']);
-        expr(p);
-        p.expect(T![')']);
-        m.complete(p, CAST_EXPRESSION);
-        if p.at(SEMICOLON) {
-            p.expect(SEMICOLON);
-            mstmt.complete(p, EXPR_STMT);
-        } else {
-            mstmt.abandon(p);
-        }
-        return true;
-    } else {
-        mstmt.abandon(p);
-    }
-    var_name(p);
-    if p.eat(T![;]) {
-        m.complete(p, CLASSICAL_DECLARATION_STATEMENT);
-        return true;
-    }
-    if !p.expect(T![=]) {
-        m.abandon(p);
-        return false;
-    }
-    expr(p);
-    p.expect(T![;]); // why did I suddenly have to include this?
-    m.complete(p, CLASSICAL_DECLARATION_STATEMENT);
-    true
-}
-
-pub(crate) fn classical_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
-    _returns_bool_classical_declaration_stmt(p, m);
 }
 
 // This includes a previously parsed expression as the first argument of `INDEX_EXPR`.
