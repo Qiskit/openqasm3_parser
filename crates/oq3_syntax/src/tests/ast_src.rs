@@ -189,9 +189,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "LITERAL",
         "NAME",
         "EXPR_STMT",
-        "TYPE_SPEC", // "SPEC" to avoid the word "type"
         "TYPE",
-        "TYPE_DECLARATION_STMT",
         "PARAM_LIST",
         "QUBIT_LIST",
         "FILE_PATH",
