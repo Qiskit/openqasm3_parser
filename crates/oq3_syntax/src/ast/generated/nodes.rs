@@ -396,25 +396,6 @@ impl SwitchCaseStmt {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct TypeDeclarationStmt {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ast::HasName for TypeDeclarationStmt {}
-impl TypeDeclarationStmt {
-    pub fn type_spec(&self) -> Option<TypeSpec> {
-        support::child(&self.syntax)
-    }
-    pub fn eq_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![=])
-    }
-    pub fn expr(&self) -> Option<Expr> {
-        support::child(&self.syntax)
-    }
-    pub fn semicolon_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![;])
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct VersionString {
     pub(crate) syntax: SyntaxNode,
 }
@@ -519,22 +500,6 @@ pub struct FilePath {
     pub(crate) syntax: SyntaxNode,
 }
 impl FilePath {}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct TypeSpec {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ast::HasName for TypeSpec {}
-impl TypeSpec {
-    pub fn l_brack_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T!['['])
-    }
-    pub fn expr(&self) -> Option<Expr> {
-        support::child(&self.syntax)
-    }
-    pub fn r_brack_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![']'])
-    }
-}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ParamList {
     pub(crate) syntax: SyntaxNode,
@@ -1078,7 +1043,6 @@ pub enum Stmt {
     QuantumDeclarationStatement(QuantumDeclarationStatement),
     Reset(Reset),
     SwitchCaseStmt(SwitchCaseStmt),
-    TypeDeclarationStmt(TypeDeclarationStmt),
     VersionString(VersionString),
     WhileStmt(WhileStmt),
     PragmaStatement(PragmaStatement),
@@ -1480,21 +1444,6 @@ impl AstNode for SwitchCaseStmt {
         &self.syntax
     }
 }
-impl AstNode for TypeDeclarationStmt {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == TYPE_DECLARATION_STMT
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
 impl AstNode for VersionString {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == VERSION_STRING
@@ -1633,21 +1582,6 @@ impl AstNode for QubitList {
 impl AstNode for FilePath {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == FILE_PATH
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for TypeSpec {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == TYPE_SPEC
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2305,11 +2239,6 @@ impl From<SwitchCaseStmt> for Stmt {
         Stmt::SwitchCaseStmt(node)
     }
 }
-impl From<TypeDeclarationStmt> for Stmt {
-    fn from(node: TypeDeclarationStmt) -> Stmt {
-        Stmt::TypeDeclarationStmt(node)
-    }
-}
 impl From<VersionString> for Stmt {
     fn from(node: VersionString) -> Stmt {
         Stmt::VersionString(node)
@@ -2355,7 +2284,6 @@ impl AstNode for Stmt {
                 | QUANTUM_DECLARATION_STATEMENT
                 | RESET
                 | SWITCH_CASE_STMT
-                | TYPE_DECLARATION_STMT
                 | VERSION_STRING
                 | WHILE_STMT
                 | PRAGMA_STATEMENT
@@ -2391,7 +2319,6 @@ impl AstNode for Stmt {
             }
             RESET => Stmt::Reset(Reset { syntax }),
             SWITCH_CASE_STMT => Stmt::SwitchCaseStmt(SwitchCaseStmt { syntax }),
-            TYPE_DECLARATION_STMT => Stmt::TypeDeclarationStmt(TypeDeclarationStmt { syntax }),
             VERSION_STRING => Stmt::VersionString(VersionString { syntax }),
             WHILE_STMT => Stmt::WhileStmt(WhileStmt { syntax }),
             PRAGMA_STATEMENT => Stmt::PragmaStatement(PragmaStatement { syntax }),
@@ -2423,7 +2350,6 @@ impl AstNode for Stmt {
             Stmt::QuantumDeclarationStatement(it) => &it.syntax,
             Stmt::Reset(it) => &it.syntax,
             Stmt::SwitchCaseStmt(it) => &it.syntax,
-            Stmt::TypeDeclarationStmt(it) => &it.syntax,
             Stmt::VersionString(it) => &it.syntax,
             Stmt::WhileStmt(it) => &it.syntax,
             Stmt::PragmaStatement(it) => &it.syntax,
@@ -2758,8 +2684,6 @@ impl AstNode for AnyHasName {
                 | GATE
                 | LET_STMT
                 | QUANTUM_DECLARATION_STATEMENT
-                | TYPE_DECLARATION_STMT
-                | TYPE_SPEC
                 | PARAM
                 | GATE_CALL_EXPR
                 | HARDWARE_QUBIT
@@ -2915,11 +2839,6 @@ impl std::fmt::Display for SwitchCaseStmt {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
-impl std::fmt::Display for TypeDeclarationStmt {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
 impl std::fmt::Display for VersionString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
@@ -2966,11 +2885,6 @@ impl std::fmt::Display for QubitList {
     }
 }
 impl std::fmt::Display for FilePath {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for TypeSpec {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

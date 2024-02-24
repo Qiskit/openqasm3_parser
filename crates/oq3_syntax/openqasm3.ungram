@@ -84,7 +84,6 @@ Stmt =
 | QuantumDeclarationStatement
 | Reset
 | SwitchCaseStmt
-| TypeDeclarationStmt
 | VersionString
 | WhileStmt
 | PragmaStatement
@@ -148,12 +147,6 @@ Include =
 FilePath =
  'string'
 
-TypeDeclarationStmt =
-   TypeSpec Name ('=' Expr)? ';'
-
-TypeSpec =
-   Name ('[' Expr ']')?
-
 // Subroutine definition
 Def =
  'def' Name ParamList ReturnSignature?
@@ -187,7 +180,6 @@ QubitList =
 
 Param =
    Name
-
 
 //****************************//
 // Statements and Expressions //
