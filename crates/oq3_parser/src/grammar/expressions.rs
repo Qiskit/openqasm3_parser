@@ -363,6 +363,22 @@ fn type_name(p: &mut Parser<'_>) {
 
 pub(crate) fn type_spec(p: &mut Parser<'_>) -> bool {
     let m = p.start();
+    if p.at(T![array]) {
+        p.bump_any();
+        p.expect(T!['[']);
+        type_spec(p); // the scalar base type
+        p.expect(COMMA);
+        loop {
+            expr(p);
+            if p.at(T![']']) {
+                p.bump_any();
+                break;
+            }
+            p.expect(COMMA);
+        }
+        m.complete(p, ARRAY_TYPE);
+        return true;
+    }
     type_name(p);
     if p.at(T!['[']) {
         designator(p);

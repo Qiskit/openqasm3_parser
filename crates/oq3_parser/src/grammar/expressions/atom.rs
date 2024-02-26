@@ -229,6 +229,10 @@ pub(crate) fn hardware_qubit(p: &mut Parser<'_>) -> CompletedMarker {
     m.complete(p, HARDWARE_QUBIT)
 }
 
+// Parses either a `PAREN_EXPR` or a `TUPLE_EXPR`.
+// The `TUPLE_EXPR` is not part of OQ3. At most, it may be
+// a quasi-expression. If it does not appear at all, we
+// need to log an error here instead of parsing it.
 fn tuple_expr(p: &mut Parser<'_>) -> CompletedMarker {
     assert!(p.at(T!['(']));
     let m = p.start();

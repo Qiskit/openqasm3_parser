@@ -822,6 +822,9 @@ fn from_classical_declaration_statement(
     type_decl: &synast::ClassicalDeclarationStatement,
     context: &mut Context,
 ) -> asg::Stmt {
+    if type_decl.array_type().is_some() {
+        panic!("Array types are not supported yet in the ASG");
+    }
     let scalar_type = type_decl.scalar_type().unwrap();
     let typ = from_scalar_type(&scalar_type, type_decl.const_token().is_some(), context);
 

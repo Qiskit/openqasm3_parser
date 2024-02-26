@@ -288,6 +288,7 @@ fn defcal_(p: &mut Parser<'_>, m: Marker) {
     m.complete(p, DEF_CAL);
 }
 
+// Parse either a declaration statement or a cast expression (and possible surrounding EXPR_STMT)
 pub(crate) fn _returns_bool_classical_declaration_stmt(p: &mut Parser<'_>, m: Marker) -> bool {
     p.eat(T![const]);
     // To prepare for the possibility that this is a cast expression rather than a
