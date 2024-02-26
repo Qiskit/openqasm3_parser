@@ -82,7 +82,7 @@ impl Program {
     /// Print the ASG using the `Debug` trait.
     pub fn print_asg_debug(&self) {
         for stmt in self.iter() {
-            println!("{:?}", stmt);
+            println!("{:?}\n", stmt);
         }
     }
 }
@@ -116,7 +116,6 @@ impl std::ops::Deref for Program {
 // Note the variant Ident(Ident)
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Expr {
-    ArraySlice(ArraySlice),
     BinaryExpr(BinaryExpr),
     UnaryExpr(UnaryExpr),
     Literal(Literal),
@@ -128,8 +127,9 @@ pub enum Expr {
     GateOperand(GateOperand),
     Return(Box<ReturnExpression>),
     Call, // stub function (def) call
-    Set,  // stub
     MeasureExpression(MeasureExpression),
+    SetExpression(SetExpression),
+    RangeExpression(Box<RangeExpression>),
 }
 
 /// Typed expression implemented by tagging an `Expr` with a `Type`.
@@ -165,7 +165,7 @@ impl TExpr {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Stmt {
-    Alias, // stub
+    Alias(Alias),
     AnnotatedStmt(AnnotatedStmt),
     Assignment(Assignment),
     Barrier(Barrier),
@@ -181,8 +181,8 @@ pub enum Stmt {
     Delay,  // stub
     End,
     ExprStmt(TExpr),
-    Extern,           // stub
-    ForStmt(ForStmt), // stub
+    Extern, // stub
+    ForStmt(ForStmt),
     GPhaseCall(GPhaseCall),
     GateCall(GateCall), // A statement because a gate call does not return anything
     GateDeclaration(GateDeclaration),
@@ -344,7 +344,6 @@ pub enum IndexOperator {
     ExpressionList(ExpressionList),
 }
 
-// FIXME: probably want an interface on this.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ExpressionList {
     pub expressions: Vec<TExpr>,
@@ -381,45 +380,7 @@ impl ExpressionList {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum LValue {
     Identifier(SymbolIdResult),
-    // We want to remove IndexedIdentifier in favor of more precise types below.
     IndexedIdentifier(IndexedIdentifier),
-    // FIXME: We really want the following which carry more semantic content.
-    // We have to check types to determine which of these we have. They
-    // also have (sometimes) differing syntax.
-    // ArraySlice(ArraySlice),
-    // RegisterSlice(RegisterSlice),
-}
-
-// For example `expr` in `v[expr]`, or `1:3` in `v[1:3]`
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub enum ArraySliceIndex {
-    Expr(TExpr),
-    RangeExpression(RangeExpression),
-}
-
-// FIXME: Is this the slice, or just the index ???
-// Same form as ArraySliceIndex, but they have different semantics.
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub enum RegisterSlice {
-    Expr(TExpr),
-    RangeExpression(RangeExpression),
-}
-
-// example: v[3:4]. Includes multidimensional index
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct ArraySlice {
-    name: SymbolIdResult,
-    pub indices: Vec<ArraySliceIndex>,
-}
-
-impl ArraySlice {
-    pub fn new(name: SymbolIdResult, indices: Vec<ArraySliceIndex>) -> ArraySlice {
-        ArraySlice { name, indices }
-    }
-
-    pub fn to_texpr(self, base_type: Type) -> TExpr {
-        TExpr::new(Expr::ArraySlice(self), base_type)
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -500,6 +461,33 @@ impl DeclareQuantum {
 
     pub fn name(&self) -> &SymbolIdResult {
         &self.name
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct Alias {
+    name: SymbolIdResult, // The name and type can be retrieved from SymbolId
+    rhs: Box<TExpr>,
+}
+
+impl Alias {
+    pub fn new(name: SymbolIdResult, rhs: TExpr) -> Alias {
+        Alias {
+            name,
+            rhs: Box::new(rhs),
+        }
+    }
+
+    pub fn name(&self) -> &SymbolIdResult {
+        &self.name
+    }
+
+    pub fn rhs(&self) -> &TExpr {
+        self.rhs.as_ref()
+    }
+
+    pub fn to_stmt(self) -> Stmt {
+        Stmt::Alias(self)
     }
 }
 
@@ -618,15 +606,6 @@ pub enum GateModifier {
     Pow(TExpr),
     Ctrl(Option<TExpr>),
     NegCtrl(Option<TExpr>),
-}
-
-// Following naming in ref parser instead
-// We ~~will~~ should try to use the distinction between "parameter", which appears in the signature,
-// and "argument", which appears in the call expression.
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub enum QubitArgument {
-    Identifier(SymbolIdResult),
-    ArraySlice(ArraySlice),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -1086,25 +1065,16 @@ impl Identifier {
     }
 }
 
-// RangeExpression has been moved in and out of the expression tree. It is now out.
-//   Advantages: 1) I think it's maybe just as easy or easier to move RangeExpression out of the tree. 2) Increases correctness.
-//   Disadvantage: No type. Having a type associated with RangeExpression will probably be useful even if it doesn't mesh perfectly
-//      with the larger type system. We can probably do type checking compating to the declared iterator.
-// So implement this out of the tree and implement type information later if needed.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RangeExpression {
-    start: Box<TExpr>,
-    step: Box<Option<TExpr>>,
-    stop: Box<TExpr>,
+    start: TExpr,
+    step: Option<TExpr>,
+    stop: TExpr,
 }
 
 impl RangeExpression {
     pub fn new(start: TExpr, step: Option<TExpr>, stop: TExpr) -> RangeExpression {
-        RangeExpression {
-            start: Box::new(start),
-            step: Box::new(step),
-            stop: Box::new(stop),
-        }
+        RangeExpression { start, step, stop }
     }
 
     pub fn start(&self) -> &TExpr {
@@ -1112,11 +1082,19 @@ impl RangeExpression {
     }
 
     pub fn step(&self) -> Option<&TExpr> {
-        self.step.as_ref().as_ref()
+        self.step.as_ref()
     }
 
     pub fn stop(&self) -> &TExpr {
         &self.stop
+    }
+
+    pub fn to_expr(self) -> Expr {
+        Expr::RangeExpression(Box::new(self))
+    }
+
+    pub fn to_texpr(self) -> TExpr {
+        TExpr::new(self.to_expr(), Type::Range)
     }
 }
 

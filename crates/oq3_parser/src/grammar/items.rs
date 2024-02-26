@@ -98,6 +98,7 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         T![OPENQASM] => version_string(p, m),
         T![include] => include(p, m),
         T![switch] => switch_case_stmt(p, m),
+        T![let] => alias_stmt(p, m),
         _ => return Err(m),
     }
     Ok(())
@@ -409,4 +410,15 @@ fn barrier_(p: &mut Parser<'_>, m: Marker) {
     }
     p.expect(SEMICOLON);
     m.complete(p, BARRIER);
+}
+
+// alias or `let` statement
+fn alias_stmt(p: &mut Parser<'_>, m: Marker) {
+    assert!(p.at(T![let]));
+    p.bump_any(); // we know it is `let`.
+    name_r(p, ITEM_RECOVERY_SET);
+    p.expect(T![=]);
+    expressions::expr(p);
+    p.expect(SEMICOLON);
+    m.complete(p, ALIAS_DECLARATION_STATEMENT);
 }

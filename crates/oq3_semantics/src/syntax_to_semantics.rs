@@ -396,6 +396,15 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             context.push_annotation(asg::Annotation::new(annotation.annotation_text()));
             None
         }
+
+        synast::Stmt::AliasDeclarationStatement(alias_stmt) => {
+            let name_str = alias_stmt.name().unwrap().string();
+            let rhs = from_expr(alias_stmt.expr(), context).unwrap();
+            // Bind the name to the RHS, giving it the same type as the RHS.
+            let symbol_id = context.new_binding(name_str.as_ref(), rhs.get_type(), &alias_stmt);
+            Some(asg::Alias::new(symbol_id, rhs).to_stmt())
+        }
+
         _ => None,
     }
 }
@@ -531,9 +540,9 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
 
         synast::Expr::HardwareQubit(hwq) => Some(ast_hardware_qubit(&hwq).to_texpr()),
 
+        // Range expressions are not allowed everywhere. Maybe remove from expr tree
         synast::Expr::RangeExpr(range_expr) => {
-            context.insert_error(IncompatibleTypesError, &range_expr);
-            None
+            Some(from_range_expression(range_expr, context).to_texpr())
         }
 
         synast::Expr::IndexExpr(index_expr) => {
@@ -703,6 +712,7 @@ fn from_expression_list(
     asg::ExpressionList::new(inner_expression_list(expression_list, context))
 }
 
+// Return a Vec of TExpr.
 fn inner_expression_list(
     expression_list: synast::ExpressionList,
     context: &mut Context,
@@ -876,6 +886,10 @@ fn from_assignment_stmt(
 // These functions exist because some of these ast structs will be wrapped into the
 // ast tree in different ways. So their construction is abstracted out.
 //
+// It seems like it would be a good idea to use these functions as much as possible. However,
+// Sometimes construction of the object on the one hand and wrapping it in a type and in an
+// `enum` variant on the other are not so easily separated into two parts. See for example
+// asg::BinaryExpr.new_texpr_with_cast.
 
 fn ast_hardware_qubit(hwq: &synast::HardwareQubit) -> asg::HardwareQubit {
     asg::HardwareQubit::new(hwq.string())

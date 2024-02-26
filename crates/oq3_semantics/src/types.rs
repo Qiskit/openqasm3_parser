@@ -73,6 +73,7 @@ pub enum Type {
     // Other
     Gate(i32, i32), // (num classical args, num quantum args)
     Range,          // temporary placeholder, perhaps
+    Set,
     Void,
     ToDo, // not yet implemented
     // Undefined means a type that is erroneously non-existent. This is not the same as unknown.
