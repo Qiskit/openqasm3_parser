@@ -561,6 +561,12 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
             Some(asg::ReturnExpression::new(expr_asg).to_texpr())
         }
 
+        synast::Expr::CastExpression(cast) => {
+            let typ = from_scalar_type(&cast.scalar_type().unwrap(), true, context);
+            let expr = from_expr(cast.expr(), context);
+            Some(asg::Cast::new(expr.unwrap(), typ).to_texpr())
+        }
+
         // Everything else is not yet implemented
         _ => {
             println!("Expression not supported {:?}", expr);

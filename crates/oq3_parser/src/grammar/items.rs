@@ -70,14 +70,18 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
     // is_classical_type() is generated code that looks for single tokens.
     // This messy interface is error prone.
     let la = p.nth(1);
+    // The check that `ls` is not `(` filters out cast expressions if the type spec has
+    // no designator (no width). The cast expression will be parsed later in atom.rs.
+    // But if a width is present, this simple filter does not work. So we also parse
+    // cast expressions in `classical_declaration_stmt`.
     if p.current().is_classical_type() && la != T!['('] {
-        expressions::classical_declaration_stmt(p, m);
+        classical_declaration_stmt(p, m);
         return Ok(());
     };
 
     match p.current() {
         T![qubit] => qubit_declaration_stmt(p, m),
-        T![const] => expressions::classical_declaration_stmt(p, m),
+        T![const] => classical_declaration_stmt(p, m),
         T![gate] => gate_definition(p, m),
         T![break] => break_(p, m),
         T![continue] => continue_(p, m),
@@ -282,6 +286,51 @@ fn defcal_(p: &mut Parser<'_>, m: Marker) {
     expressions::try_block_expr(p);
     // Mark this attempt at reading an item as complete.
     m.complete(p, DEF_CAL);
+}
+
+pub(crate) fn _returns_bool_classical_declaration_stmt(p: &mut Parser<'_>, m: Marker) -> bool {
+    p.eat(T![const]);
+    // To prepare for the possibility that this is a cast expression rather than a
+    // declaration statement, we start a new marker `mexpr` and parse the type
+    // specificiation. If it is in fact not a cast expression, we abandon `mexpr`, and the
+    // type spec is still contained in the surrounding marker `m`.
+    let mexpr = p.start();
+    // parse type
+    expressions::type_spec(p);
+    // An opening paren means this is actually a cast
+    if p.current() == T!['('] {
+        p.expect(T!['(']);
+        expressions::expr(p);
+        p.expect(T![')']);
+        mexpr.complete(p, CAST_EXPRESSION);
+        if p.at(SEMICOLON) {
+            p.expect(SEMICOLON);
+            m.complete(p, EXPR_STMT);
+        } else {
+            // This is not a statement, just an expression.
+            m.abandon(p);
+        }
+        return true; // return because it's not a declaration statement.
+    } else {
+        mexpr.abandon(p);
+    }
+    expressions::var_name(p);
+    if p.eat(T![;]) {
+        m.complete(p, CLASSICAL_DECLARATION_STATEMENT);
+        return true;
+    }
+    if !p.expect(T![=]) {
+        m.abandon(p);
+        return false;
+    }
+    expressions::expr(p);
+    p.expect(T![;]);
+    m.complete(p, CLASSICAL_DECLARATION_STATEMENT);
+    true
+}
+
+pub(crate) fn classical_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
+    _returns_bool_classical_declaration_stmt(p, m);
 }
 
 fn def_(p: &mut Parser<'_>, m: Marker) {
