@@ -92,22 +92,28 @@ fn main() {
         #[allow(clippy::dbg_macro)]
         Some(Commands::Semantic { file_name }) => {
             let result = syntax_to_semantics::parse_source_file(file_name, None::<&[PathBuf]>);
-            let have_errors = result.any_errors();
-            if have_errors {
-                println!("Found errors: {}", have_errors);
+            if result.any_errors() {
+                println!("Found errors:");
                 result.print_errors();
+            } else {
+                println!("No errors found.");
             }
+            println!("{} statements in program:", result.program().len());
             result.program().print_asg_debug();
             dbg!(oq3_semantics::validate::count_symbol_errors(
                 result.program(),
                 result.symbol_table()
             ));
-            //            dbg!(semantics::validate::count_symbol_errors(&result.program().stmts, &result.symbol_table()));
         }
 
         Some(Commands::SemanticPretty { file_name }) => {
             let result = syntax_to_semantics::parse_source_file(file_name, None::<&[PathBuf]>);
-            println!("Found errors: {}", result.any_errors());
+            if result.any_errors() {
+                println!("Found errors:");
+                result.print_errors();
+            } else {
+                println!("No errors found.");
+            }
             result.print_errors();
             result.program().print_asg_debug_pretty();
         }
