@@ -327,6 +327,28 @@ impl Include {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct IODeclarationStatement {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ast::HasName for IODeclarationStatement {}
+impl IODeclarationStatement {
+    pub fn input_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![input])
+    }
+    pub fn output_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![output])
+    }
+    pub fn scalar_type(&self) -> Option<ScalarType> {
+        support::child(&self.syntax)
+    }
+    pub fn array_type(&self) -> Option<ArrayType> {
+        support::child(&self.syntax)
+    }
+    pub fn semicolon_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![;])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct LetStmt {
     pub(crate) syntax: SyntaxNode,
 }
@@ -1010,28 +1032,6 @@ impl QubitType {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct IODeclarationStatement {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ast::HasName for IODeclarationStatement {}
-impl IODeclarationStatement {
-    pub fn input_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![input])
-    }
-    pub fn output_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![output])
-    }
-    pub fn scalar_type(&self) -> Option<ScalarType> {
-        support::child(&self.syntax)
-    }
-    pub fn array_type(&self) -> Option<ArrayType> {
-        support::child(&self.syntax)
-    }
-    pub fn semicolon_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![;])
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct OldStyleDeclarationStatement {
     pub(crate) syntax: SyntaxNode,
 }
@@ -1070,6 +1070,7 @@ pub enum Stmt {
     Gate(Gate),
     IfStmt(IfStmt),
     Include(Include),
+    IODeclarationStatement(IODeclarationStatement),
     LetStmt(LetStmt),
     Measure(Measure),
     PragmaStatement(PragmaStatement),
@@ -1419,6 +1420,21 @@ impl AstNode for IfStmt {
 impl AstNode for Include {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == INCLUDE
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for IODeclarationStatement {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == I_O_DECLARATION_STATEMENT
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2166,21 +2182,6 @@ impl AstNode for QubitType {
         &self.syntax
     }
 }
-impl AstNode for IODeclarationStatement {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == I_O_DECLARATION_STATEMENT
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
 impl AstNode for OldStyleDeclarationStatement {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == OLD_STYLE_DECLARATION_STATEMENT
@@ -2286,6 +2287,11 @@ impl From<Include> for Stmt {
         Stmt::Include(node)
     }
 }
+impl From<IODeclarationStatement> for Stmt {
+    fn from(node: IODeclarationStatement) -> Stmt {
+        Stmt::IODeclarationStatement(node)
+    }
+}
 impl From<LetStmt> for Stmt {
     fn from(node: LetStmt) -> Stmt {
         Stmt::LetStmt(node)
@@ -2348,6 +2354,7 @@ impl AstNode for Stmt {
                 | GATE
                 | IF_STMT
                 | INCLUDE
+                | I_O_DECLARATION_STATEMENT
                 | LET_STMT
                 | MEASURE
                 | PRAGMA_STATEMENT
@@ -2382,6 +2389,9 @@ impl AstNode for Stmt {
             GATE => Stmt::Gate(Gate { syntax }),
             IF_STMT => Stmt::IfStmt(IfStmt { syntax }),
             INCLUDE => Stmt::Include(Include { syntax }),
+            I_O_DECLARATION_STATEMENT => {
+                Stmt::IODeclarationStatement(IODeclarationStatement { syntax })
+            }
             LET_STMT => Stmt::LetStmt(LetStmt { syntax }),
             MEASURE => Stmt::Measure(Measure { syntax }),
             PRAGMA_STATEMENT => Stmt::PragmaStatement(PragmaStatement { syntax }),
@@ -2416,6 +2426,7 @@ impl AstNode for Stmt {
             Stmt::Gate(it) => &it.syntax,
             Stmt::IfStmt(it) => &it.syntax,
             Stmt::Include(it) => &it.syntax,
+            Stmt::IODeclarationStatement(it) => &it.syntax,
             Stmt::LetStmt(it) => &it.syntax,
             Stmt::Measure(it) => &it.syntax,
             Stmt::PragmaStatement(it) => &it.syntax,
@@ -2760,13 +2771,13 @@ impl AstNode for AnyHasName {
                 | DEF
                 | DEF_CAL
                 | GATE
+                | I_O_DECLARATION_STATEMENT
                 | LET_STMT
                 | QUANTUM_DECLARATION_STATEMENT
                 | PARAM
                 | GATE_CALL_EXPR
                 | HARDWARE_QUBIT
                 | INDEXED_IDENTIFIER
-                | I_O_DECLARATION_STATEMENT
                 | OLD_STYLE_DECLARATION_STATEMENT
         )
     }
@@ -2898,6 +2909,11 @@ impl std::fmt::Display for IfStmt {
     }
 }
 impl std::fmt::Display for Include {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for IODeclarationStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -3143,11 +3159,6 @@ impl std::fmt::Display for SetExpression {
     }
 }
 impl std::fmt::Display for QubitType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for IODeclarationStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

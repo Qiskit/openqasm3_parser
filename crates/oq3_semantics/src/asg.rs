@@ -186,7 +186,8 @@ pub enum Stmt {
     GPhaseCall(GPhaseCall),
     GateCall(GateCall), // A statement because a gate call does not return anything
     GateDeclaration(GateDeclaration),
-    IODeclaration, // stub
+    InputDeclaration(InputDeclaration),
+    OutputDeclaration(OutputDeclaration),
     If(If),
     Include(Include),
     ModifiedGPhaseCall(ModifiedGPhaseCall),
@@ -446,6 +447,44 @@ impl DeclareClassical {
 
     pub fn to_stmt(self) -> Stmt {
         Stmt::DeclareClassical(self)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct InputDeclaration {
+    name: SymbolIdResult, // The name and type can be retrieved from SymbolId
+}
+
+impl InputDeclaration {
+    pub fn new(name: SymbolIdResult) -> InputDeclaration {
+        InputDeclaration { name }
+    }
+
+    pub fn name(&self) -> &SymbolIdResult {
+        &self.name
+    }
+
+    pub fn to_stmt(self) -> Stmt {
+        Stmt::InputDeclaration(self)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct OutputDeclaration {
+    name: SymbolIdResult, // The name and type can be retrieved from SymbolId
+}
+
+impl OutputDeclaration {
+    pub fn new(name: SymbolIdResult) -> OutputDeclaration {
+        OutputDeclaration { name }
+    }
+
+    pub fn name(&self) -> &SymbolIdResult {
+        &self.name
+    }
+
+    pub fn to_stmt(self) -> Stmt {
+        Stmt::OutputDeclaration(self)
     }
 }
 

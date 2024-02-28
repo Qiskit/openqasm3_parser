@@ -100,6 +100,7 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         T![switch] => switch_case_stmt(p, m),
         T![let] => alias_stmt(p, m),
         T![delay] => delay_stmt(p, m),
+        T![input] | T![output] => io_declaration_stmt(p, m),
         _ => return Err(m),
     }
     Ok(())
@@ -334,6 +335,18 @@ pub(crate) fn _returns_bool_classical_declaration_stmt(p: &mut Parser<'_>, m: Ma
 
 pub(crate) fn classical_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
     _returns_bool_classical_declaration_stmt(p, m);
+}
+
+fn io_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
+    // Parse `input` or `output` keyword.
+    p.bump_any();
+    if !p.current().is_classical_type() {
+        p.error("Quantum type found in input/output declaration.");
+    }
+    expressions::type_spec(p);
+    expressions::var_name(p);
+    p.expect(T![;]);
+    m.complete(p, I_O_DECLARATION_STATEMENT);
 }
 
 fn def_(p: &mut Parser<'_>, m: Marker) {

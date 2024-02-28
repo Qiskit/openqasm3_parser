@@ -179,3 +179,17 @@ fn delimited(
         p.expect(ket);
     }
 }
+
+impl SyntaxKind {
+    pub fn is_classical_type(&self) -> bool {
+        self.is_scalar_type() || matches!(self, ARRAY_KW)
+    }
+
+    pub fn is_quantum_type(&self) -> bool {
+        matches!(self, QUBIT_TYPE | HARDWARE_QUBIT)
+    }
+
+    pub fn is_type_name(&self) -> bool {
+        self.is_classical_type() || matches!(self, QUBIT_KW | HARDWARE_QUBIT)
+    }
+}
