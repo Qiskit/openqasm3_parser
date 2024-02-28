@@ -21,15 +21,16 @@ impl ast::ScalarType {
     pub fn kind(&self) -> ScalarTypeKind {
         use ScalarTypeKind::*;
         match self.token().kind() {
-            T![int] => ScalarTypeKind::Int,
-            T![uint] => ScalarTypeKind::UInt,
-            T![float] => ScalarTypeKind::Float,
-            T![bit] => ScalarTypeKind::Bit,
-            T![bool] => ScalarTypeKind::Bool,
-            T![angle] => ScalarTypeKind::Angle,
-            T![stretch] => Stretch,
+            T![angle] => Angle,
+            T![bit] => Bit,
+            T![bool] => Bool,
             T![complex] => Complex,
-            _ => ScalarTypeKind::None, // record an error ?
+            T![duration] => Duration,
+            T![float] => Float,
+            T![int] => Int,
+            T![stretch] => Stretch,
+            T![uint] => UInt,
+            _ => None, // record an error ?
         }
     }
 
