@@ -13,13 +13,13 @@ use crate::symbols::SymbolIdResult; // SymbolIdResult = Result<SymbolId, SymbolE
 use crate::types;
 use crate::types::{ArrayDims, IsConst, Type};
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Program {
     pub version: Option<OpenQASMVersion>,
     pub stmts: Vec<Stmt>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct OpenQASMVersion {
     major: usize,
     minor: usize,
@@ -114,7 +114,7 @@ impl std::ops::Deref for Program {
 // > have a "type for an enum variant", but is annoying and inconvenient.
 //
 // Note the variant Ident(Ident)
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Expr {
     BinaryExpr(BinaryExpr),
     UnaryExpr(UnaryExpr),
@@ -143,7 +143,7 @@ pub enum Expr {
 /// (or more precisely, the class of representable invalid programs is much smaller.)
 /// But that would increase complexity. The link above and several like it discuss this problem.
 /// Here is a link that sketches several solutions in Rust: https://lukasatkinson.de/dump/2023-09-02-ast-phases/
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct TExpr {
     expression: Expr,
     ty: Type,
@@ -163,7 +163,7 @@ impl TExpr {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Stmt {
     Alias(Alias),
     AnnotatedStmt(AnnotatedStmt),
@@ -198,7 +198,7 @@ pub enum Stmt {
     While(While),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Include {
     file_path: String,
 }
@@ -219,7 +219,7 @@ impl Include {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Annotation {
     annotation_text: String,
 }
@@ -236,7 +236,7 @@ impl Annotation {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct AnnotatedStmt {
     stmt: Box<Stmt>,
     annotations: Vec<Annotation>,
@@ -269,7 +269,7 @@ impl AnnotatedStmt {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct IndexExpression {
     expr: Box<TExpr>,
     index: IndexOperator,
@@ -288,7 +288,7 @@ impl IndexExpression {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ReturnExpression {
     value: Option<TExpr>,
 }
@@ -311,7 +311,7 @@ impl ReturnExpression {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct IndexedIdentifier {
     identifier: SymbolIdResult,
     indexes: Vec<IndexOperator>,
@@ -338,19 +338,19 @@ impl IndexedIdentifier {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum IndexOperator {
     SetExpression(SetExpression),
     ExpressionList(ExpressionList),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ExpressionList {
     pub expressions: Vec<TExpr>,
 }
 
 // The rules regarding hardware qubits are not clear
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct HardwareQubit {
     identifier: String,
 }
@@ -377,13 +377,13 @@ impl ExpressionList {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum LValue {
     Identifier(SymbolIdResult),
     IndexedIdentifier(IndexedIdentifier),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct SetExpression {
     expressions: Vec<TExpr>,
 }
@@ -398,7 +398,7 @@ impl SetExpression {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Assignment {
     lvalue: LValue,
     rvalue: TExpr,
@@ -422,7 +422,7 @@ impl Assignment {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct DeclareClassical {
     name: SymbolIdResult, // The name and type can be retrieved from SymbolId
     initializer: Option<Box<TExpr>>,
@@ -449,7 +449,7 @@ impl DeclareClassical {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct DeclareQuantum {
     name: SymbolIdResult,
 }
@@ -464,7 +464,7 @@ impl DeclareQuantum {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Alias {
     name: SymbolIdResult, // The name and type can be retrieved from SymbolId
     rhs: Box<TExpr>,
@@ -491,7 +491,7 @@ impl Alias {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Block {
     statements: Vec<Stmt>,
 }
@@ -506,7 +506,7 @@ impl Block {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct GateDeclaration {
     name: SymbolIdResult,
     params: Option<Vec<SymbolIdResult>>,
@@ -550,7 +550,7 @@ impl GateDeclaration {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct MeasureExpression {
     operand: Box<TExpr>,
 }
@@ -577,7 +577,7 @@ impl MeasureExpression {
 }
 
 // qubits == None represents `barrier;`
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Barrier {
     qubits: Option<Vec<TExpr>>,
 }
@@ -592,7 +592,7 @@ impl Barrier {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct GateCall {
     name: SymbolIdResult,
     params: Option<Vec<TExpr>>,
@@ -600,7 +600,7 @@ pub struct GateCall {
     modifiers: Vec<GateModifier>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum GateModifier {
     Inv,
     Pow(TExpr),
@@ -608,7 +608,7 @@ pub enum GateModifier {
     NegCtrl(Option<TExpr>),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum GateOperand {
     Identifier(Identifier),
     HardwareQubit(HardwareQubit),
@@ -653,7 +653,7 @@ impl GateCall {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct GPhaseCall {
     arg: TExpr,
 }
@@ -667,7 +667,7 @@ impl GPhaseCall {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ModifiedGPhaseCall {
     arg: TExpr,
     modifiers: Vec<GateModifier>,
@@ -685,7 +685,7 @@ impl ModifiedGPhaseCall {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Reset {
     gate_operand: TExpr,
 }
@@ -721,16 +721,18 @@ impl Reset {
 
 // BitStringLiteral and ArrayLiteral have data of size that can't be known at compile time.
 // What effect does this have on the size of the enum.
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Literal {
     Bool(BoolLiteral),
     Int(IntLiteral),
     Float(FloatLiteral),
     BitString(BitStringLiteral),
+    TimingIntLiteral(TimingIntLiteral),
+    TimingFloatLiteral(TimingFloatLiteral),
     Array, // stub
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Cast {
     operand: Box<TExpr>,
     typ: Type,
@@ -762,7 +764,7 @@ impl Cast {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct BoolLiteral {
     value: bool,
 }
@@ -789,7 +791,7 @@ impl BoolLiteral {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct IntLiteral {
     value: u128,
     sign: bool,
@@ -821,10 +823,102 @@ impl IntLiteral {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub enum TimeUnit {
+    Second,
+    MilliSecond,
+    MicroSecond,
+    NanoSecond,
+    Cycle,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct TimingIntLiteral {
+    value: u128,
+    sign: bool,
+    time_unit: TimeUnit,
+}
+
+impl TimingIntLiteral {
+    pub fn new<T>(value: T, sign: bool, time_unit: TimeUnit) -> TimingIntLiteral
+    where
+        T: Into<u128>,
+    {
+        let x: u128 = value.into();
+        TimingIntLiteral {
+            value: x,
+            sign,
+            time_unit,
+        }
+    }
+
+    pub fn value(&self) -> &u128 {
+        &self.value
+    }
+
+    pub fn sign(&self) -> &bool {
+        &self.sign
+    }
+
+    pub fn time_unit(&self) -> &TimeUnit {
+        &self.time_unit
+    }
+
+    pub fn to_expr(self) -> Expr {
+        Expr::Literal(Literal::TimingIntLiteral(self))
+    }
+
+    pub fn to_texpr(self) -> TExpr {
+        TExpr::new(self.to_expr(), Type::Duration(IsConst::True))
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct TimingFloatLiteral {
+    value: f64,
+    sign: bool,
+    time_unit: TimeUnit,
+}
+
+impl TimingFloatLiteral {
+    pub fn new<T>(value: T, sign: bool, time_unit: TimeUnit) -> TimingFloatLiteral
+    where
+        T: Into<f64>,
+    {
+        //        let x: String = format!("{}", value.into());
+        let x = value.into();
+        TimingFloatLiteral {
+            value: x,
+            sign,
+            time_unit,
+        }
+    }
+
+    pub fn value(&self) -> &f64 {
+        &self.value
+    }
+
+    pub fn sign(&self) -> &bool {
+        &self.sign
+    }
+
+    pub fn time_unit(&self) -> &TimeUnit {
+        &self.time_unit
+    }
+
+    pub fn to_expr(self) -> Expr {
+        Expr::Literal(Literal::TimingFloatLiteral(self))
+    }
+
+    pub fn to_texpr(self) -> TExpr {
+        TExpr::new(self.to_expr(), Type::Duration(IsConst::True))
+    }
+}
+
 // FIXME: Floats are ok-ish here, but broken in lexer/parser/syntax
 // This is float as a string.
 // For example, trait Eq is implemented here, but not for actual f64.
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct FloatLiteral {
     value: String,
 }
@@ -854,7 +948,7 @@ impl FloatLiteral {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct BitStringLiteral {
     value: String,
 }
@@ -884,7 +978,7 @@ impl BitStringLiteral {
 }
 
 // String literal appears in restricted contexts. It is not in the expression tree.
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct StringLiteral {
     value: String,
 }
@@ -903,14 +997,14 @@ impl StringLiteral {
 
 // Unary Expressions
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum UnaryOp {
     Minus,
     Not,
     BitNot,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct UnaryExpr {
     op: UnaryOp,
     operand: Box<TExpr>,
@@ -943,21 +1037,21 @@ impl UnaryExpr {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct BinaryExpr {
     pub(crate) op: BinaryOp,
     pub(crate) left: Box<TExpr>,
     pub(crate) right: Box<TExpr>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum BinaryOp {
     ArithOp(ArithOp),
     CmpOp(CmpOp),
     ConcatenationOp,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ArithOp {
     Add,
     Sub,
@@ -971,7 +1065,7 @@ pub enum ArithOp {
     BitAnd,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum CmpOp {
     Eq,
 }
@@ -1034,7 +1128,7 @@ impl BinaryExpr {
 // error. But we have not concrete plan for this. So the field `name` below may be removed.
 // And in that case, the variant `Ident(Ident)` in `enum Expr` above could be replaced with
 // `Ident(SymbolId)`.
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Identifier {
     name: String,
     symbol: SymbolIdResult,
@@ -1065,7 +1159,7 @@ impl Identifier {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct RangeExpression {
     start: TExpr,
     step: Option<TExpr>,
@@ -1098,7 +1192,7 @@ impl RangeExpression {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct If {
     condition: TExpr,
     then_branch: Block,
@@ -1131,7 +1225,7 @@ impl If {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct While {
     condition: TExpr,
     loop_body: Block,
@@ -1158,14 +1252,14 @@ impl While {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ForIterable {
     SetExpression(SetExpression),
     RangeExpression(RangeExpression),
     Expr(TExpr),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ForStmt {
     loop_var: SymbolIdResult,
     iterable: ForIterable,
@@ -1198,7 +1292,7 @@ impl ForStmt {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct SwitchCaseStmt {
     control: TExpr,
     cases: Vec<CaseExpr>,
@@ -1236,7 +1330,7 @@ impl SwitchCaseStmt {
 }
 
 // Not in `enum Expr`
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct CaseExpr {
     control_values: Vec<TExpr>, // Const integer expressions
     statements: Vec<Stmt>,
@@ -1260,7 +1354,7 @@ impl CaseExpr {
 }
 
 // Might make sense for this, and others to be like `struct Pragma(String)`.
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Pragma {
     pragma_text: String,
 }

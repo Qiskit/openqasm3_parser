@@ -11,20 +11,40 @@ pub(crate) const LITERAL_FIRST: TokenSet = TokenSet::new(&[
     INT_NUMBER,
     FLOAT_NUMBER,
     SIMPLE_FLOAT_NUMBER,
+    TIMING_INT_NUMBER,
     BYTE,
     CHAR,
     STRING,
     BIT_STRING,
 ]);
 
+const TIMING_LITERAL_FIRST: TokenSet = TokenSet::new(&[INT_NUMBER, FLOAT_NUMBER]);
+
 pub(crate) fn literal(p: &mut Parser<'_>) -> Option<CompletedMarker> {
     if !p.at_ts(LITERAL_FIRST) {
         return None;
     }
+    // There is no string literal in the OQ3 grammar.
     if p.at(STRING) {
         p.error("Unexpected string literal");
     }
     let m = p.start();
+    // If the first token after the current one is an identifer, then the only
+    // syntactically correct construct is a timing literal.  Note that `s` is a
+    // valid suffix for both a timing literal and a variable identifier, we
+    // can't make `s` a keyword token.  This is because, in the parser, I don't
+    // know how to make a string either an identifer or "keyword"
+    // depending on context. So we parse an identifier and validate in validate.rs.
+    if matches!(p.nth(1), IDENT) {
+        if !p.at_ts(TIMING_LITERAL_FIRST) {
+            p.error("Timing literal must begin with an integer or float literal");
+        }
+        let m2 = p.start(); // TIMING_LITERAL
+        p.bump_any(); // The numeric literal
+        m.complete(p, LITERAL);
+        identifier(p); // The time unit suffix, or quasi-suffix.
+        return Some(m2.complete(p, TIMING_LITERAL));
+    }
     p.bump_any();
     Some(m.complete(p, LITERAL))
 }

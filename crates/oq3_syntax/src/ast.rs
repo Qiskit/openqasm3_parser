@@ -24,7 +24,7 @@ use crate::{
 };
 
 pub use self::{
-    expr_ext::{ArrayExprKind, ElseBranch, LiteralKind},
+    expr_ext::{ArrayExprKind, ElseBranch, LiteralKind, TimeUnit},
     generated::{nodes::*, tokens::*},
     node_ext::HasTextName,
     operators::{ArithOp, BinaryOp, CmpOp, LogicOp, Ordering, RangeOp, UnaryOp},

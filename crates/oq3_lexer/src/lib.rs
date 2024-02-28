@@ -170,39 +170,18 @@ pub enum TokenKind {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum LiteralKind {
     /// "12_u8", "0o100", "0b120i99", "1f32".
-    Int {
-        base: Base,
-        empty_int: bool,
-    },
+    Int { base: Base, empty_int: bool },
     /// "12.34f32", "1e3", but not "1f32".
-    Float {
-        base: Base,
-        empty_exponent: bool,
-    },
+    Float { base: Base, empty_exponent: bool },
     /// "b'a'", "b'\\'", "b'''", "b';"
-    Byte {
-        terminated: bool,
-    },
+    Byte { terminated: bool },
     /// ""abc"", ""abc"
-    Str {
-        terminated: bool,
-    },
+    Str { terminated: bool },
     /// "10011" "100_11"
     BitStr {
         terminated: bool,
         consecutive_underscores: bool,
     },
-    /// Int Timing literal
-    TimingInt {
-        base: Base,
-        empty_int: bool,
-    },
-    /// Float Timing literal
-    TimingFloat {
-        base: Base,
-        empty_exponent: bool,
-    },
-    SimpleFloat,
 }
 
 /// Base of numeric literal encoding according to its prefix.
@@ -263,6 +242,7 @@ pub fn is_whitespace(c: char) -> bool {
     )
 }
 
+/// For OQ3 we take Rust's rules on valid identifiers as a starting point.
 /// True if `c` is valid as a first character of an identifier.
 /// See [Rust language reference](https://doc.rust-lang.org/reference/identifiers.html) for
 /// a formal definition of valid identifier name.
@@ -272,13 +252,7 @@ pub fn is_id_start(c: char) -> bool {
     c == '_' || unicode_xid::UnicodeXID::is_xid_start(c)
 }
 
-// GJL OQ3
-// pub fn is_hardware_id_start(c: char) -> bool {
-//     // This is XID_Start OR '_' (which formally is not a XID_Start).
-// //    c == '_' || c == '$' || unicode_xid::UnicodeXID::is_xid_start(c)
-//     c == '$'
-// }
-
+/// For OQ3 we take Rust's rules on valid identifiers as a starting point.
 /// True if `c` is valid as a non-first character of an identifier.
 /// See [Rust language reference](https://doc.rust-lang.org/reference/identifiers.html) for
 /// a formal definition of valid identifier name.
@@ -320,45 +294,17 @@ impl Cursor<'_> {
 
             // Numeric literal.
             c @ '0'..='9' => {
-                // n.b. floating point literals must have an integer part. e.g. .123 is not valid
                 let literal_kind = self.number(c);
                 let suffix_start = self.pos_within_token();
-                // Eat suffix, and return true if it is a timing suffix.
-                if self.timing_suffix() {
-                    match literal_kind {
-                        Float {
-                            base: baseval,
-                            empty_exponent: emptyval,
-                        } => TokenKind::Literal {
-                            kind: TimingFloat {
-                                base: baseval,
-                                empty_exponent: emptyval,
-                            },
-                            suffix_start,
-                        },
-                        Int {
-                            base: baseval,
-                            empty_int: emptyval,
-                        } => TokenKind::Literal {
-                            kind: TimingInt {
-                                base: baseval,
-                                empty_int: emptyval,
-                            },
-                            suffix_start,
-                        },
-                        _ => {
-                            // This is unreachable
-                            TokenKind::Literal {
-                                kind: literal_kind,
-                                suffix_start,
-                            }
-                        }
-                    }
-                } else {
-                    TokenKind::Literal {
-                        kind: literal_kind,
-                        suffix_start,
-                    }
+                // If this a timing (or duration) literal, we will parse the
+                // time unit as another token.  So we don't eat the suffix if it
+                // is a time unit.
+                if !self.has_timing_suffix() {
+                    self.eat_literal_suffix();
+                }
+                TokenKind::Literal {
+                    kind: literal_kind,
+                    suffix_start,
                 }
             }
 
@@ -530,7 +476,6 @@ impl Cursor<'_> {
     }
 
     fn hardware_ident(&mut self) -> TokenKind {
-        // debug_assert!(is_id_start(self.prev()));
         // Start is already eaten, eat the rest of identifier.
         match self.first() {
             c if !c.is_ascii() && c.is_emoji_char() => {
@@ -814,31 +759,17 @@ impl Cursor<'_> {
         self.eat_identifier();
     }
 
-    // Eat a timing suffix if found and returns true.
-    // Otherwise eat suffix if present and return false.
-    fn timing_suffix(&mut self) -> bool {
-        let mut timing = false;
+    fn has_timing_suffix(&mut self) -> bool {
         if self.first() == 's' {
-            self.bump();
-            timing = true;
+            return true;
         } else {
             // TODO: greek mu is encoded in more than one way. We only get one here.
             for (f, s) in [('d', 't'), ('n', 's'), ('u', 's'), ('m', 's'), ('µ', 's')] {
                 if self.first() == f && self.second() == s {
-                    self.bump();
-                    self.bump();
-                    timing = true;
+                    return true;
                 }
             }
         }
-        if timing {
-            if is_id_continue(self.first()) {
-                self.eat_while(is_id_continue);
-                return false;
-            }
-            return true;
-        }
-        self.eat_literal_suffix();
         false
     }
 

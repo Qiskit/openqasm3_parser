@@ -137,17 +137,23 @@ fn literal_suffixes() {
             Token { kind: Whitespace, len: 1 }
             Token { kind: Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 6 }, len: 6 }
             Token { kind: Whitespace, len: 1 }
-            Token { kind: Literal { kind: TimingInt { base: Decimal, empty_int: false }, suffix_start: 1 }, len: 3 }
+            Token { kind: Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 }, len: 1 }
+            Token { kind: Ident, len: 2 }
             Token { kind: Whitespace, len: 1 }
-            Token { kind: Literal { kind: TimingInt { base: Decimal, empty_int: false }, suffix_start: 1 }, len: 3 }
+            Token { kind: Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 }, len: 1 }
+            Token { kind: Ident, len: 2 }
             Token { kind: Whitespace, len: 1 }
-            Token { kind: Literal { kind: TimingInt { base: Decimal, empty_int: false }, suffix_start: 1 }, len: 3 }
+            Token { kind: Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 }, len: 1 }
+            Token { kind: Ident, len: 2 }
             Token { kind: Whitespace, len: 1 }
-            Token { kind: Literal { kind: TimingInt { base: Decimal, empty_int: false }, suffix_start: 1 }, len: 3 }
+            Token { kind: Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 }, len: 1 }
+            Token { kind: Ident, len: 2 }
             Token { kind: Whitespace, len: 1 }
-            Token { kind: Literal { kind: TimingInt { base: Decimal, empty_int: false }, suffix_start: 1 }, len: 2 }
+            Token { kind: Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 }, len: 1 }
+            Token { kind: Ident, len: 1 }
             Token { kind: Whitespace, len: 1 }
-            Token { kind: Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 }, len: 4 }
+            Token { kind: Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 }, len: 1 }
+            Token { kind: Ident, len: 3 }
             Token { kind: Whitespace, len: 1 }
         "#]],
     )

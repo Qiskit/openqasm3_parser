@@ -204,6 +204,7 @@ Expr =
 | IndexExpr
 | IndexedIdentifier
 | Literal
+| TimingLiteral
 | MeasureExpression
 | ModifiedGateCallExpr
 | ParenExpr
@@ -217,12 +218,13 @@ Identifier =
 Literal =
   value:(
     'int_number' | 'float_number'
-    | 'timing_int_number'
-    | 'timing_float_number'
     | 'string'
     | 'bit_string'
     | 'true' | 'false'
     )
+
+TimingLiteral =
+   Literal Identifier
 
 LetStmt =
   'let' Name '=' Expr ';'

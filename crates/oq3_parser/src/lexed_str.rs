@@ -170,28 +170,6 @@ fn extend_literal_func(len: usize, kind: &oq3_lexer::LiteralKind) -> (&str, Synt
             }
             FLOAT_NUMBER
         }
-        oq3_lexer::LiteralKind::TimingInt { empty_int, base } => {
-            if empty_int {
-                err = "Missing digits after the integer base prefix";
-            }
-            if base != oq3_lexer::Base::Decimal {
-                err = "Base of timing integer literal is not decimal";
-            }
-            TIMING_INT_NUMBER
-        }
-        oq3_lexer::LiteralKind::TimingFloat {
-            empty_exponent,
-            base,
-        } => {
-            if empty_exponent {
-                err = "Missing digits after the exponent symbol";
-            }
-            if base != oq3_lexer::Base::Decimal {
-                err = "Base of timing integer literal is not decimal";
-            }
-            TIMING_FLOAT_NUMBER
-        }
-        oq3_lexer::LiteralKind::SimpleFloat => SIMPLE_FLOAT_NUMBER,
         oq3_lexer::LiteralKind::Byte { terminated } => {
             if !terminated {
                 err = "Missing trailing `'` symbol to terminate the byte literal";

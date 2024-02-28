@@ -533,6 +533,28 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
 
         synast::Expr::Literal(ref literal) => from_literal(literal),
 
+        synast::Expr::TimingLiteral(ref timing_literal) => {
+            let time_unit = match timing_literal.time_unit().unwrap() {
+                synast::TimeUnit::Second => asg::TimeUnit::Second,
+                synast::TimeUnit::MilliSecond => asg::TimeUnit::MilliSecond,
+                synast::TimeUnit::MicroSecond => asg::TimeUnit::MicroSecond,
+                synast::TimeUnit::NanoSecond => asg::TimeUnit::NanoSecond,
+                synast::TimeUnit::Cycle => asg::TimeUnit::Cycle,
+            };
+            match timing_literal.literal().unwrap().kind() {
+                synast::LiteralKind::IntNumber(int_num) => {
+                    let num = int_num.value_u128().unwrap();
+                    Some(asg::TimingIntLiteral::new(num, true, time_unit).to_texpr())
+                }
+                synast::LiteralKind::FloatNumber(float_num) => {
+                    let num = float_num.value().unwrap();
+                    Some(asg::TimingFloatLiteral::new(num, true, time_unit).to_texpr())
+                }
+
+                _ => panic!("You have found a bug in oq3_syntax or oq3_parser"),
+            }
+        }
+
         synast::Expr::Identifier(identifier) => {
             let (astidentifier, typ) = ast_identifier(&identifier, context);
             Some(astidentifier.to_texpr(typ))
