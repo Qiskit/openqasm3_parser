@@ -166,7 +166,6 @@ impl Parse<SourceFile> {
 /// `SourceFile` represents a parse tree for a single Rust file.
 pub use crate::ast::SourceFile;
 
-// FIXME. GJL. rust-specific validation is disabled. We probably want to fix this.
 impl SourceFile {
     pub fn parse(text: &str) -> Parse<SourceFile> {
         let (green, mut errors) = parsing::parse_text(text);

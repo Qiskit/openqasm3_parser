@@ -683,6 +683,18 @@ pub struct Literal {
 }
 impl Literal {}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct TimingLiteral {
+    pub(crate) syntax: SyntaxNode,
+}
+impl TimingLiteral {
+    pub fn literal(&self) -> Option<Literal> {
+        support::child(&self.syntax)
+    }
+    pub fn identifier(&self) -> Option<Identifier> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct MeasureExpression {
     pub(crate) syntax: SyntaxNode,
 }
@@ -1064,6 +1076,7 @@ pub enum Expr {
     IndexExpr(IndexExpr),
     IndexedIdentifier(IndexedIdentifier),
     Literal(Literal),
+    TimingLiteral(TimingLiteral),
     MeasureExpression(MeasureExpression),
     ModifiedGateCallExpr(ModifiedGateCallExpr),
     ParenExpr(ParenExpr),
@@ -1834,6 +1847,21 @@ impl AstNode for Literal {
         &self.syntax
     }
 }
+impl AstNode for TimingLiteral {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == TIMING_LITERAL
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for MeasureExpression {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == MEASURE_EXPRESSION
@@ -2427,6 +2455,11 @@ impl From<Literal> for Expr {
         Expr::Literal(node)
     }
 }
+impl From<TimingLiteral> for Expr {
+    fn from(node: TimingLiteral) -> Expr {
+        Expr::TimingLiteral(node)
+    }
+}
 impl From<MeasureExpression> for Expr {
     fn from(node: MeasureExpression) -> Expr {
         Expr::MeasureExpression(node)
@@ -2475,6 +2508,7 @@ impl AstNode for Expr {
                 | INDEX_EXPR
                 | INDEXED_IDENTIFIER
                 | LITERAL
+                | TIMING_LITERAL
                 | MEASURE_EXPRESSION
                 | MODIFIED_GATE_CALL_EXPR
                 | PAREN_EXPR
@@ -2499,6 +2533,7 @@ impl AstNode for Expr {
             INDEX_EXPR => Expr::IndexExpr(IndexExpr { syntax }),
             INDEXED_IDENTIFIER => Expr::IndexedIdentifier(IndexedIdentifier { syntax }),
             LITERAL => Expr::Literal(Literal { syntax }),
+            TIMING_LITERAL => Expr::TimingLiteral(TimingLiteral { syntax }),
             MEASURE_EXPRESSION => Expr::MeasureExpression(MeasureExpression { syntax }),
             MODIFIED_GATE_CALL_EXPR => Expr::ModifiedGateCallExpr(ModifiedGateCallExpr { syntax }),
             PAREN_EXPR => Expr::ParenExpr(ParenExpr { syntax }),
@@ -2525,6 +2560,7 @@ impl AstNode for Expr {
             Expr::IndexExpr(it) => &it.syntax,
             Expr::IndexedIdentifier(it) => &it.syntax,
             Expr::Literal(it) => &it.syntax,
+            Expr::TimingLiteral(it) => &it.syntax,
             Expr::MeasureExpression(it) => &it.syntax,
             Expr::ModifiedGateCallExpr(it) => &it.syntax,
             Expr::ParenExpr(it) => &it.syntax,
@@ -2965,6 +3001,11 @@ impl std::fmt::Display for IndexedIdentifier {
     }
 }
 impl std::fmt::Display for Literal {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for TimingLiteral {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

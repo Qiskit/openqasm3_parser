@@ -157,6 +157,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "CONST",
         "PRAGMA_STATEMENT",
         "ANNOTATION_STATEMENT",
+        "TIMING_LITERAL",
         // atoms
         "TUPLE_EXPR",
         "ARRAY_EXPR",

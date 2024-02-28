@@ -14,7 +14,7 @@ use oq3_lexer::unescape::{self, unescape_literal, Mode};
 
 use crate::{
     ast::{self, IsString},
-    match_ast, AstNode, SyntaxError, SyntaxNode, TextSize,
+    match_ast, AstNode, HasTextName, SyntaxError, SyntaxNode, TextSize,
 };
 
 // FIXME: GJL, I think I disabled many of these. Some should be used.
@@ -28,6 +28,7 @@ pub(crate) fn validate(root: &SyntaxNode) -> Vec<SyntaxError> {
         match_ast! {
             match node {
                 ast::Literal(it) => validate_literal(it, &mut errors),
+                ast::TimingLiteral(it) => validate_timing_literal(it, &mut errors),
                 // ast::Const(it) => validate_const(it, &mut errors),
                 // ast::BlockExpr(it) => block::validate_block_expr(it, &mut errors),
                 // ast::FieldExpr(it) => validate_numeric_name(it.name_ref(), &mut errors),
@@ -175,8 +176,21 @@ fn validate_literal(literal: ast::Literal, acc: &mut Vec<SyntaxError>) {
         ast::LiteralKind::IntNumber(_)
         | ast::LiteralKind::FloatNumber(_)
         | ast::LiteralKind::TimingFloatNumber(_)
+        | ast::LiteralKind::TimingIntNumber(_)
         | ast::LiteralKind::SimpleFloatNumber(_)
         | ast::LiteralKind::Bool(_) => {}
+    }
+}
+
+fn validate_timing_literal(timing_literal: ast::TimingLiteral, errors: &mut Vec<SyntaxError>) {
+    if !matches!(
+        timing_literal.identifier().unwrap().text().as_str(),
+        "s" | "ms" | "us" | "µs" | "ns" | "dt"
+    ) {
+        errors.push(SyntaxError::new(
+            "Time unit must be one of 's', 'ms', 'us', 'µs', 'ns', or 'dt'",
+            timing_literal.syntax().text_range(),
+        ));
     }
 }
 

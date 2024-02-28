@@ -146,8 +146,8 @@ impl Expr {
             | CastExpression(_)
             | IndexExpr(_)
             | IndexedIdentifier(_) => (29, 0),
-            ArrayExpr(_) | Literal(_) | ParenExpr(_) | Identifier(_) | HardwareQubit(_)
-            | BlockExpr(_) => (0, 0),
+            ArrayExpr(_) | Literal(_) | TimingLiteral(_) | ParenExpr(_) | Identifier(_)
+            | HardwareQubit(_) | BlockExpr(_) => (0, 0),
         }
     }
 
@@ -205,8 +205,8 @@ impl Expr {
                 ReturnExpr(e) => e.return_token(),
                 ArrayLiteral(_) => todo!(),
                 MeasureExpression(_) => todo!(),
-                ArrayExpr(_) | Literal(_) | ParenExpr(_) | Identifier(_) | HardwareQubit(_)
-                | BlockExpr(_) => None,
+                ArrayExpr(_) | Literal(_) | TimingLiteral(_) | ParenExpr(_) | Identifier(_)
+                | HardwareQubit(_) | BlockExpr(_) => None,
             };
             token
                 .map(|t| t.text_range())
@@ -229,6 +229,7 @@ impl Expr {
             | IndexExpr(_)
             | IndexedIdentifier(_)
             | Literal(_)
+            | TimingLiteral(_)
             | Identifier(_)
             | HardwareQubit(_)
             | ParenExpr(_) => false,

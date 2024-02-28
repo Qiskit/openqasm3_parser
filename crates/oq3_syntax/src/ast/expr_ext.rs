@@ -11,7 +11,7 @@ use crate::{
         operators::{ArithOp, BinaryOp, CmpOp, LogicOp, Ordering, UnaryOp},
         support, AstChildren, AstNode,
     },
-    AstToken,
+    AstToken, HasTextName,
     SyntaxKind::*,
     SyntaxToken, T,
 };
@@ -293,6 +293,7 @@ pub enum LiteralKind {
     FloatNumber(ast::FloatNumber),
     SimpleFloatNumber(ast::SimpleFloatNumber),
     TimingFloatNumber(ast::TimingFloatNumber),
+    TimingIntNumber(ast::TimingIntNumber),
     Char(ast::Char),
     Byte(ast::Byte),
     Bool(bool),
@@ -360,6 +361,9 @@ impl ast::Literal {
         if let Some(t) = ast::TimingFloatNumber::cast(token.clone()) {
             return LiteralKind::TimingFloatNumber(t);
         }
+        if let Some(t) = ast::TimingIntNumber::cast(token.clone()) {
+            return LiteralKind::TimingIntNumber(t);
+        }
         if let Some(t) = ast::String::cast(token.clone()) {
             return LiteralKind::String(t);
         }
@@ -377,6 +381,28 @@ impl ast::Literal {
             T![true] => LiteralKind::Bool(true),
             T![false] => LiteralKind::Bool(false),
             _ => unreachable!(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub enum TimeUnit {
+    NanoSecond,
+    MilliSecond,
+    MicroSecond,
+    Second,
+    Cycle,
+}
+
+impl ast::TimingLiteral {
+    pub fn time_unit(&self) -> Option<TimeUnit> {
+        match self.identifier()?.text().as_str() {
+            "s" => Some(TimeUnit::Second),
+            "ms" => Some(TimeUnit::MilliSecond),
+            "us" | "µs" => Some(TimeUnit::MicroSecond),
+            "ns" => Some(TimeUnit::NanoSecond),
+            "dt" => Some(TimeUnit::Cycle),
+            _ => None,
         }
     }
 }
