@@ -846,6 +846,7 @@ fn from_scalar_type(
             None => Type::Bit(isconst.into()),
         },
         synast::ScalarTypeKind::Bool => Type::Bool(isconst.into()),
+        synast::ScalarTypeKind::Duration => Type::Duration(isconst.into()),
         _ => todo!(),
     }
 }

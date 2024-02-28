@@ -575,3 +575,24 @@ let r = q[0:3] ++ q[5:9];
     assert_eq!(program.len(), 2);
     assert!(matches!(&program[1], asg::Stmt::Alias(_)));
 }
+
+#[test]
+fn test_from_string_duration_decl() {
+    let code = r##"
+duration x = 100 ns;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 1);
+    let stmt = &program[0];
+    let decl = match stmt {
+        asg::Stmt::DeclareClassical(decl) => decl,
+        _ => unreachable!(),
+    };
+    let tlit = match decl.initializer().unwrap().expression() {
+        asg::Expr::Literal(asg::Literal::TimingIntLiteral(x)) => x,
+        _ => unreachable!(),
+    };
+    assert_eq!(*tlit.value(), 100);
+    assert_eq!(tlit.time_unit(), &asg::TimeUnit::NanoSecond);
+}
