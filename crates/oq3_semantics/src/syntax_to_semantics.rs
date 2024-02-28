@@ -359,6 +359,23 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             Some(asg::Stmt::Barrier(asg::Barrier::new(gate_operands)))
         }
 
+        synast::Stmt::DelayStmt(delay_stmt) => {
+            let gate_operands = delay_stmt.qubit_list().map(|operands| {
+                operands
+                    .gate_operands()
+                    .map(|qubit| from_gate_operand(qubit, context))
+                    .collect()
+            });
+            let duration = from_expr(delay_stmt.designator().unwrap().expr(), context).unwrap();
+            if !matches!(duration.get_type(), Type::Duration(_)) {
+                context.insert_error(IncompatibleTypesError, &delay_stmt.designator().unwrap());
+            }
+            Some(asg::Stmt::Delay(asg::DelayStmt::new(
+                duration,
+                gate_operands.unwrap(),
+            )))
+        }
+
         synast::Stmt::Reset(reset) => {
             let gate_operand = reset.gate_operand().unwrap(); // FIXME: check this
             let gate_operand_asg = from_gate_operand(gate_operand, context);

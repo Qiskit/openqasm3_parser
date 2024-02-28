@@ -178,7 +178,7 @@ pub enum Stmt {
     DeclareQuantum(DeclareQuantum),
     Def,    // stub
     DefCal, // stub
-    Delay,  // stub
+    Delay(DelayStmt),
     End,
     ExprStmt(TExpr),
     Extern, // stub
@@ -589,6 +589,26 @@ impl Barrier {
 
     pub fn qubits(&self) -> Option<&[TExpr]> {
         self.qubits.as_deref()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct DelayStmt {
+    duration: TExpr,
+    qubits: Vec<TExpr>,
+}
+
+impl DelayStmt {
+    pub fn new(duration: TExpr, qubits: Vec<TExpr>) -> DelayStmt {
+        DelayStmt { duration, qubits }
+    }
+
+    pub fn duration(&self) -> &TExpr {
+        &self.duration
+    }
+
+    pub fn qubits(&self) -> &[TExpr] {
+        self.qubits.as_ref()
     }
 }
 

@@ -64,6 +64,7 @@ SourceFile =
 Stmt =
  ';'
 | AliasDeclarationStatement
+| AnnotationStatement
 | AssignmentStmt
 | Barrier
 | BreakStmt
@@ -73,6 +74,7 @@ Stmt =
 | Def
 | DefCal
 | DefCalGrammar
+| DelayStmt
 | EndStmt
 | ExprStmt
 | ForStmt
@@ -81,13 +83,12 @@ Stmt =
 | Include
 | LetStmt
 | Measure
+| PragmaStatement
 | QuantumDeclarationStatement
 | Reset
 | SwitchCaseStmt
 | VersionString
 | WhileStmt
-| PragmaStatement
-| AnnotationStatement
 
 // "thelabel" is in the list of manually implemented elements.
 AnnotationStatement =
@@ -109,6 +110,9 @@ BreakStmt =
 
 ContinueStmt =
   'continue' ';'
+
+DelayStmt =
+  'delay' Designator QubitList ';'
 
 EndStmt =
   'end' ';'

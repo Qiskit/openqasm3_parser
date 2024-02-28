@@ -140,6 +140,7 @@ pub enum SyntaxKind {
     SOURCE_FILE,
     GATE,
     DEF_CAL,
+    DELAY_STMT,
     CAL,
     DEF_CAL_GRAMMAR,
     MEASURE,
