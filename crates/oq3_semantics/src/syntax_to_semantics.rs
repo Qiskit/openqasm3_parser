@@ -264,6 +264,10 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             Some(from_classical_declaration_statement(&type_decl, context))
         }
 
+        synast::Stmt::IODeclarationStatement(type_decl) => {
+            Some(from_io_declaration_statement(&type_decl, context))
+        }
+
         synast::Stmt::QuantumDeclarationStatement(q_decl) => {
             let qubit_type = q_decl.qubit_type().unwrap();
             let width = match qubit_type.designator().and_then(|x| x.expr()) {
@@ -889,6 +893,25 @@ fn from_classical_declaration_statement(
         }
     }
     asg::DeclareClassical::new(symbol_id, initializer).to_stmt()
+}
+
+fn from_io_declaration_statement(
+    type_decl: &synast::IODeclarationStatement,
+    context: &mut Context,
+) -> asg::Stmt {
+    if type_decl.array_type().is_some() {
+        panic!("Array types are not supported yet in the ASG");
+    }
+    let scalar_type = type_decl.scalar_type().unwrap();
+    // Assume that input / ouput variables are not constant.
+    let typ = from_scalar_type(&scalar_type, false, context);
+    let name_str = type_decl.name().unwrap().string();
+    let symbol_id = context.new_binding(name_str.as_ref(), &typ, &type_decl.name().unwrap());
+    if type_decl.input_token().is_some() {
+        asg::InputDeclaration::new(symbol_id).to_stmt()
+    } else {
+        asg::OutputDeclaration::new(symbol_id).to_stmt()
+    }
 }
 
 // FIXME: Refactor this. It was done in a hurry.

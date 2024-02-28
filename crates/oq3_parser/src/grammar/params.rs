@@ -3,30 +3,6 @@
 
 use super::*;
 
-// use self::SyntaxKind::{INT_KW, BIT_KW, QUBIT_KW};
-impl SyntaxKind {
-    // This is now is_classical_type, written in codegen.
-    // pub fn is_scalar_type_name(self) -> bool {
-    //     matches!(self,
-    //              BIT_KW
-    //              | INT_KW
-    //              | UINT_KW
-    //              | FLOAT_KW
-    //              | ANGLE_KW
-    //              | BOOL_KW
-    //              | DURATION_KW
-    //              | STRETCH_KW
-    //              | COMPLEX_KW
-    //     )
-    // }
-    pub fn is_classical_type(self) -> bool {
-        self.is_scalar_type() || matches!(self, ARRAY_KW)
-    }
-    pub fn is_type_name(self) -> bool {
-        self.is_classical_type() || matches!(self, QUBIT_KW)
-    }
-}
-
 pub(super) fn param_list_gate_params(p: &mut Parser<'_>) {
     _param_list_openqasm(p, DefFlavor::GateParams, None);
 }

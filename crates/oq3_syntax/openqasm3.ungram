@@ -81,6 +81,7 @@ Stmt =
 | Gate
 | IfStmt
 | Include
+| IODeclarationStatement
 | LetStmt
 | Measure
 | PragmaStatement

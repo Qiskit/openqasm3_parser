@@ -172,7 +172,10 @@ impl Type {
 
     /// Return `true` if the type is a qubit or qubit register.
     pub fn is_quantum(&self) -> bool {
-        matches!(self, Type::Qubit | Type::QubitArray(..))
+        matches!(
+            self,
+            Type::Qubit | Type::QubitArray(..) | Type::HardwareQubit
+        )
     }
 
     pub fn dims(&self) -> Option<Vec<usize>> {
