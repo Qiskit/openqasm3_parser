@@ -596,3 +596,26 @@ duration x = 100 ns;
     assert_eq!(*tlit.value(), 100);
     assert_eq!(tlit.time_unit(), &asg::TimeUnit::NanoSecond);
 }
+
+#[test]
+fn test_from_string_delay_1() {
+    let code = r##"
+qubit q;
+delay[100ms] q;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 2);
+}
+
+#[test]
+fn test_from_string_delay_2() {
+    let code = r##"
+qubit q;
+int x;
+delay[x] q;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert_eq!(program.len(), 3);
+}

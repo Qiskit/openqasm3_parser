@@ -397,7 +397,7 @@ pub(crate) fn quantum_type_spec(p: &mut Parser<'_>) -> bool {
     true
 }
 
-fn designator(p: &mut Parser<'_>) -> bool {
+pub(crate) fn designator(p: &mut Parser<'_>) -> bool {
     let m = p.start();
     p.eat(T!['[']);
     expr(p);

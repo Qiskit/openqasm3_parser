@@ -148,6 +148,7 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
         "SOURCE_FILE",
         "GATE",
         "DEF_CAL",
+        "DELAY_STMT",
         "CAL",
         "DEF_CAL_GRAMMAR",
         "MEASURE",

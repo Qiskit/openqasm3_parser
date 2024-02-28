@@ -99,6 +99,7 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         T![include] => include(p, m),
         T![switch] => switch_case_stmt(p, m),
         T![let] => alias_stmt(p, m),
+        T![delay] => delay_stmt(p, m),
         _ => return Err(m),
     }
     Ok(())
@@ -410,6 +411,14 @@ fn barrier_(p: &mut Parser<'_>, m: Marker) {
     }
     p.expect(SEMICOLON);
     m.complete(p, BARRIER);
+}
+
+fn delay_stmt(p: &mut Parser<'_>, m: Marker) {
+    p.bump(T![delay]);
+    expressions::designator(p);
+    params::arg_list_gate_call_qubits(p);
+    p.expect(SEMICOLON);
+    m.complete(p, DELAY_STMT);
 }
 
 // alias or `let` statement

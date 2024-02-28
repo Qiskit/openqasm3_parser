@@ -44,6 +44,11 @@ impl AliasDeclarationStatement {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct AnnotationStatement {
+    pub(crate) syntax: SyntaxNode,
+}
+impl AnnotationStatement {}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct AssignmentStmt {
     pub(crate) syntax: SyntaxNode,
 }
@@ -201,6 +206,24 @@ impl DefCalGrammar {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct DelayStmt {
+    pub(crate) syntax: SyntaxNode,
+}
+impl DelayStmt {
+    pub fn delay_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![delay])
+    }
+    pub fn designator(&self) -> Option<Designator> {
+        support::child(&self.syntax)
+    }
+    pub fn qubit_list(&self) -> Option<QubitList> {
+        support::child(&self.syntax)
+    }
+    pub fn semicolon_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![;])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct EndStmt {
     pub(crate) syntax: SyntaxNode,
 }
@@ -338,6 +361,15 @@ impl Measure {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct PragmaStatement {
+    pub(crate) syntax: SyntaxNode,
+}
+impl PragmaStatement {
+    pub fn pragma_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![pragma])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct QuantumDeclarationStatement {
     pub(crate) syntax: SyntaxNode,
 }
@@ -429,20 +461,6 @@ impl WhileStmt {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct PragmaStatement {
-    pub(crate) syntax: SyntaxNode,
-}
-impl PragmaStatement {
-    pub fn pragma_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![pragma])
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct AnnotationStatement {
-    pub(crate) syntax: SyntaxNode,
-}
-impl AnnotationStatement {}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct CaseExpr {
     pub(crate) syntax: SyntaxNode,
 }
@@ -482,10 +500,20 @@ impl ExpressionList {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Version {
+pub struct Designator {
     pub(crate) syntax: SyntaxNode,
 }
-impl Version {}
+impl Designator {
+    pub fn l_brack_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['['])
+    }
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
+    pub fn r_brack_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![']'])
+    }
+}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct QubitList {
     pub(crate) syntax: SyntaxNode,
@@ -495,6 +523,11 @@ impl QubitList {
         support::children(&self.syntax)
     }
 }
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Version {
+    pub(crate) syntax: SyntaxNode,
+}
+impl Version {}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct FilePath {
     pub(crate) syntax: SyntaxNode,
@@ -965,21 +998,6 @@ impl SetExpression {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Designator {
-    pub(crate) syntax: SyntaxNode,
-}
-impl Designator {
-    pub fn l_brack_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T!['['])
-    }
-    pub fn expr(&self) -> Option<Expr> {
-        support::child(&self.syntax)
-    }
-    pub fn r_brack_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![']'])
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct QubitType {
     pub(crate) syntax: SyntaxNode,
 }
@@ -1035,6 +1053,7 @@ impl OldStyleDeclarationStatement {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Stmt {
     AliasDeclarationStatement(AliasDeclarationStatement),
+    AnnotationStatement(AnnotationStatement),
     AssignmentStmt(AssignmentStmt),
     Barrier(Barrier),
     BreakStmt(BreakStmt),
@@ -1044,6 +1063,7 @@ pub enum Stmt {
     Def(Def),
     DefCal(DefCal),
     DefCalGrammar(DefCalGrammar),
+    DelayStmt(DelayStmt),
     EndStmt(EndStmt),
     ExprStmt(ExprStmt),
     ForStmt(ForStmt),
@@ -1052,13 +1072,12 @@ pub enum Stmt {
     Include(Include),
     LetStmt(LetStmt),
     Measure(Measure),
+    PragmaStatement(PragmaStatement),
     QuantumDeclarationStatement(QuantumDeclarationStatement),
     Reset(Reset),
     SwitchCaseStmt(SwitchCaseStmt),
     VersionString(VersionString),
     WhileStmt(WhileStmt),
-    PragmaStatement(PragmaStatement),
-    AnnotationStatement(AnnotationStatement),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Expr {
@@ -1145,6 +1164,21 @@ impl AstNode for SourceFile {
 impl AstNode for AliasDeclarationStatement {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == ALIAS_DECLARATION_STATEMENT
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for AnnotationStatement {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == ANNOTATION_STATEMENT
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -1292,6 +1326,21 @@ impl AstNode for DefCalGrammar {
         &self.syntax
     }
 }
+impl AstNode for DelayStmt {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == DELAY_STMT
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for EndStmt {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == END_STMT
@@ -1412,6 +1461,21 @@ impl AstNode for Measure {
         &self.syntax
     }
 }
+impl AstNode for PragmaStatement {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == PRAGMA_STATEMENT
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for QuantumDeclarationStatement {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == QUANTUM_DECLARATION_STATEMENT
@@ -1487,36 +1551,6 @@ impl AstNode for WhileStmt {
         &self.syntax
     }
 }
-impl AstNode for PragmaStatement {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == PRAGMA_STATEMENT
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for AnnotationStatement {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == ANNOTATION_STATEMENT
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
 impl AstNode for CaseExpr {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == CASE_EXPR
@@ -1562,9 +1596,9 @@ impl AstNode for ExpressionList {
         &self.syntax
     }
 }
-impl AstNode for Version {
+impl AstNode for Designator {
     fn can_cast(kind: SyntaxKind) -> bool {
-        kind == VERSION
+        kind == DESIGNATOR
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -1580,6 +1614,21 @@ impl AstNode for Version {
 impl AstNode for QubitList {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == QUBIT_LIST
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for Version {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == VERSION
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2102,21 +2151,6 @@ impl AstNode for SetExpression {
         &self.syntax
     }
 }
-impl AstNode for Designator {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == DESIGNATOR
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
 impl AstNode for QubitType {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == QUBIT_TYPE
@@ -2167,6 +2201,11 @@ impl From<AliasDeclarationStatement> for Stmt {
         Stmt::AliasDeclarationStatement(node)
     }
 }
+impl From<AnnotationStatement> for Stmt {
+    fn from(node: AnnotationStatement) -> Stmt {
+        Stmt::AnnotationStatement(node)
+    }
+}
 impl From<AssignmentStmt> for Stmt {
     fn from(node: AssignmentStmt) -> Stmt {
         Stmt::AssignmentStmt(node)
@@ -2212,6 +2251,11 @@ impl From<DefCalGrammar> for Stmt {
         Stmt::DefCalGrammar(node)
     }
 }
+impl From<DelayStmt> for Stmt {
+    fn from(node: DelayStmt) -> Stmt {
+        Stmt::DelayStmt(node)
+    }
+}
 impl From<EndStmt> for Stmt {
     fn from(node: EndStmt) -> Stmt {
         Stmt::EndStmt(node)
@@ -2252,6 +2296,11 @@ impl From<Measure> for Stmt {
         Stmt::Measure(node)
     }
 }
+impl From<PragmaStatement> for Stmt {
+    fn from(node: PragmaStatement) -> Stmt {
+        Stmt::PragmaStatement(node)
+    }
+}
 impl From<QuantumDeclarationStatement> for Stmt {
     fn from(node: QuantumDeclarationStatement) -> Stmt {
         Stmt::QuantumDeclarationStatement(node)
@@ -2277,21 +2326,12 @@ impl From<WhileStmt> for Stmt {
         Stmt::WhileStmt(node)
     }
 }
-impl From<PragmaStatement> for Stmt {
-    fn from(node: PragmaStatement) -> Stmt {
-        Stmt::PragmaStatement(node)
-    }
-}
-impl From<AnnotationStatement> for Stmt {
-    fn from(node: AnnotationStatement) -> Stmt {
-        Stmt::AnnotationStatement(node)
-    }
-}
 impl AstNode for Stmt {
     fn can_cast(kind: SyntaxKind) -> bool {
         matches!(
             kind,
             ALIAS_DECLARATION_STATEMENT
+                | ANNOTATION_STATEMENT
                 | ASSIGNMENT_STMT
                 | BARRIER
                 | BREAK_STMT
@@ -2301,6 +2341,7 @@ impl AstNode for Stmt {
                 | DEF
                 | DEF_CAL
                 | DEF_CAL_GRAMMAR
+                | DELAY_STMT
                 | END_STMT
                 | EXPR_STMT
                 | FOR_STMT
@@ -2309,13 +2350,12 @@ impl AstNode for Stmt {
                 | INCLUDE
                 | LET_STMT
                 | MEASURE
+                | PRAGMA_STATEMENT
                 | QUANTUM_DECLARATION_STATEMENT
                 | RESET
                 | SWITCH_CASE_STMT
                 | VERSION_STRING
                 | WHILE_STMT
-                | PRAGMA_STATEMENT
-                | ANNOTATION_STATEMENT
         )
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
@@ -2323,6 +2363,7 @@ impl AstNode for Stmt {
             ALIAS_DECLARATION_STATEMENT => {
                 Stmt::AliasDeclarationStatement(AliasDeclarationStatement { syntax })
             }
+            ANNOTATION_STATEMENT => Stmt::AnnotationStatement(AnnotationStatement { syntax }),
             ASSIGNMENT_STMT => Stmt::AssignmentStmt(AssignmentStmt { syntax }),
             BARRIER => Stmt::Barrier(Barrier { syntax }),
             BREAK_STMT => Stmt::BreakStmt(BreakStmt { syntax }),
@@ -2334,6 +2375,7 @@ impl AstNode for Stmt {
             DEF => Stmt::Def(Def { syntax }),
             DEF_CAL => Stmt::DefCal(DefCal { syntax }),
             DEF_CAL_GRAMMAR => Stmt::DefCalGrammar(DefCalGrammar { syntax }),
+            DELAY_STMT => Stmt::DelayStmt(DelayStmt { syntax }),
             END_STMT => Stmt::EndStmt(EndStmt { syntax }),
             EXPR_STMT => Stmt::ExprStmt(ExprStmt { syntax }),
             FOR_STMT => Stmt::ForStmt(ForStmt { syntax }),
@@ -2342,6 +2384,7 @@ impl AstNode for Stmt {
             INCLUDE => Stmt::Include(Include { syntax }),
             LET_STMT => Stmt::LetStmt(LetStmt { syntax }),
             MEASURE => Stmt::Measure(Measure { syntax }),
+            PRAGMA_STATEMENT => Stmt::PragmaStatement(PragmaStatement { syntax }),
             QUANTUM_DECLARATION_STATEMENT => {
                 Stmt::QuantumDeclarationStatement(QuantumDeclarationStatement { syntax })
             }
@@ -2349,8 +2392,6 @@ impl AstNode for Stmt {
             SWITCH_CASE_STMT => Stmt::SwitchCaseStmt(SwitchCaseStmt { syntax }),
             VERSION_STRING => Stmt::VersionString(VersionString { syntax }),
             WHILE_STMT => Stmt::WhileStmt(WhileStmt { syntax }),
-            PRAGMA_STATEMENT => Stmt::PragmaStatement(PragmaStatement { syntax }),
-            ANNOTATION_STATEMENT => Stmt::AnnotationStatement(AnnotationStatement { syntax }),
             _ => return None,
         };
         Some(res)
@@ -2358,6 +2399,7 @@ impl AstNode for Stmt {
     fn syntax(&self) -> &SyntaxNode {
         match self {
             Stmt::AliasDeclarationStatement(it) => &it.syntax,
+            Stmt::AnnotationStatement(it) => &it.syntax,
             Stmt::AssignmentStmt(it) => &it.syntax,
             Stmt::Barrier(it) => &it.syntax,
             Stmt::BreakStmt(it) => &it.syntax,
@@ -2367,6 +2409,7 @@ impl AstNode for Stmt {
             Stmt::Def(it) => &it.syntax,
             Stmt::DefCal(it) => &it.syntax,
             Stmt::DefCalGrammar(it) => &it.syntax,
+            Stmt::DelayStmt(it) => &it.syntax,
             Stmt::EndStmt(it) => &it.syntax,
             Stmt::ExprStmt(it) => &it.syntax,
             Stmt::ForStmt(it) => &it.syntax,
@@ -2375,13 +2418,12 @@ impl AstNode for Stmt {
             Stmt::Include(it) => &it.syntax,
             Stmt::LetStmt(it) => &it.syntax,
             Stmt::Measure(it) => &it.syntax,
+            Stmt::PragmaStatement(it) => &it.syntax,
             Stmt::QuantumDeclarationStatement(it) => &it.syntax,
             Stmt::Reset(it) => &it.syntax,
             Stmt::SwitchCaseStmt(it) => &it.syntax,
             Stmt::VersionString(it) => &it.syntax,
             Stmt::WhileStmt(it) => &it.syntax,
-            Stmt::PragmaStatement(it) => &it.syntax,
-            Stmt::AnnotationStatement(it) => &it.syntax,
         }
     }
 }
@@ -2775,6 +2817,11 @@ impl std::fmt::Display for AliasDeclarationStatement {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
+impl std::fmt::Display for AnnotationStatement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
 impl std::fmt::Display for AssignmentStmt {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
@@ -2820,6 +2867,11 @@ impl std::fmt::Display for DefCalGrammar {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
+impl std::fmt::Display for DelayStmt {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
 impl std::fmt::Display for EndStmt {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
@@ -2860,6 +2912,11 @@ impl std::fmt::Display for Measure {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
+impl std::fmt::Display for PragmaStatement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
 impl std::fmt::Display for QuantumDeclarationStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
@@ -2885,16 +2942,6 @@ impl std::fmt::Display for WhileStmt {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
-impl std::fmt::Display for PragmaStatement {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for AnnotationStatement {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
 impl std::fmt::Display for CaseExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
@@ -2910,12 +2957,17 @@ impl std::fmt::Display for ExpressionList {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
-impl std::fmt::Display for Version {
+impl std::fmt::Display for Designator {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
 impl std::fmt::Display for QubitList {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for Version {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -3086,11 +3138,6 @@ impl std::fmt::Display for ForIterable {
     }
 }
 impl std::fmt::Display for SetExpression {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for Designator {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
