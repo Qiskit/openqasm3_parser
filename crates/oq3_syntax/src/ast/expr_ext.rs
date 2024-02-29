@@ -287,16 +287,16 @@ impl ast::ArrayExpr {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum LiteralKind {
-    String(ast::String),
     BitString(ast::BitString),
-    IntNumber(ast::IntNumber),
+    Bool(bool),
+    Byte(ast::Byte),
+    Char(ast::Char),
     FloatNumber(ast::FloatNumber),
+    IntNumber(ast::IntNumber),
     SimpleFloatNumber(ast::SimpleFloatNumber),
+    String(ast::String),
     TimingFloatNumber(ast::TimingFloatNumber),
     TimingIntNumber(ast::TimingIntNumber),
-    Char(ast::Char),
-    Byte(ast::Byte),
-    Bool(bool),
 }
 
 // Literal strings in OQ3 occur only in a few contexts.

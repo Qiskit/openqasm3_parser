@@ -297,7 +297,7 @@ impl ReturnExpression {
     pub fn to_texpr(self) -> TExpr {
         let return_type = match self.value() {
             Some(expr) => expr.get_type().clone(),
-            _ => Type::Void,
+            None => Type::Void,
         };
         TExpr::new(Expr::Return(Box::new(self)), return_type)
     }
@@ -596,6 +596,8 @@ impl MeasureExpression {
         let out_type = match self.operand.get_type() {
             Type::Qubit | Type::HardwareQubit => Type::Bit(IsConst::False),
             Type::QubitArray(dims) => Type::BitArray(dims.clone(), IsConst::False),
+            // syntax_to_semantics.from_gate_operand logs an error for non-quantum types.
+            // Here, we give type `Undefined` to these illegal operands.
             _ => Type::Undefined,
         };
         TExpr::new(Expr::MeasureExpression(Box::new(self)), out_type)
@@ -1068,8 +1070,10 @@ impl UnaryExpr {
 
     pub fn to_texpr(self) -> TExpr {
         match self.op() {
+            // Logical not returns bool
             UnaryOp::Not => TExpr::new(Expr::UnaryExpr(Box::new(self)), Type::Bool(IsConst::False)),
-            _ => {
+            // Assume Minus and BitNot return the same type a operand.
+            UnaryOp::Minus | UnaryOp::BitNot => {
                 let ty = self.operand.get_type().clone();
                 TExpr::new(Expr::UnaryExpr(Box::new(self)), ty)
             }
@@ -1108,6 +1112,7 @@ pub enum ArithOp {
 #[derive(Clone, Debug, PartialEq)]
 pub enum CmpOp {
     Eq,
+    Neq,
 }
 
 impl BinaryExpr {
@@ -1132,21 +1137,32 @@ impl BinaryExpr {
         TExpr::new(self.to_expr(), typ)
     }
 
+    // Determine:
+    // 1 If either the lhs or rhs needs to be cast, and to which type
+    // 2 The return type
+    // Construct a `BinaryExpr` with possible appropriate casts and types.
     pub fn new_texpr_with_cast(op: BinaryOp, left: TExpr, right: TExpr) -> TExpr {
         let left_type = left.get_type();
         let right_type = right.get_type();
-        let promoted_type = types::promote_types(left_type, right_type);
-        let new_left = if &promoted_type == left_type {
-            left
-        } else {
-            Cast::new(left, promoted_type.clone()).to_texpr()
-        };
-        let new_right = if &promoted_type == right_type {
-            right
-        } else {
-            Cast::new(right, promoted_type.clone()).to_texpr()
-        };
-        BinaryExpr::new(op, new_left, new_right).to_texpr(promoted_type)
+        match &op {
+            BinaryOp::ArithOp(arith_op) => {
+                let promoted_type = implicit_cast_type(arith_op, left_type, right_type);
+                let new_left = if &promoted_type == left_type {
+                    left
+                } else {
+                    Cast::new(left, promoted_type.clone()).to_texpr()
+                };
+                let new_right = if &promoted_type == right_type {
+                    right
+                } else {
+                    Cast::new(right, promoted_type.clone()).to_texpr()
+                };
+                BinaryExpr::new(op, new_left, new_right).to_texpr(promoted_type)
+            }
+            BinaryOp::CmpOp(_) | BinaryOp::ConcatenationOp => {
+                BinaryExpr::new(op, left, right).to_texpr(Type::ToDo)
+            }
+        }
     }
 }
 
@@ -1407,5 +1423,25 @@ impl Pragma {
 
     pub fn to_stmt(self) -> Stmt {
         Stmt::Pragma(self)
+    }
+}
+
+// Return a common type for implicit casting
+// Values of both types `ty1` and `ty2` should be cast to this
+// type and passed as operands to `op`.
+pub fn implicit_cast_type(op: &ArithOp, ty1: &Type, ty2: &Type) -> Type {
+    use ArithOp::*;
+    match op {
+        Add | Sub | Mul => types::promote_types(ty1, ty2),
+
+        Div => {
+            if matches!(ty1, Type::Float(..)) || matches!(ty2, Type::Float(..)) {
+                types::promote_types(ty1, ty2)
+            } else {
+                Type::Float(None, IsConst::False)
+            }
+        }
+
+        Mod | Rem | Shl | Shr | BitXOr | BitAnd => todo!(),
     }
 }

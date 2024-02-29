@@ -276,11 +276,13 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
                         synast::LiteralKind::IntNumber(int_num) => {
                             Some(int_num.value().unwrap() as u32)
                         }
-                        _ => todo!(), // error. can/should be caught at syntax level, obviously
+                        // Non-integer literals cause a syntax error to be logged in `fn designator` in expressions.rs.
+                        // Semantic analysis (eg in the present function) is not performed if there is a syntax error.
+                        _ => panic!("You have found a bug in oq3_parser. A literal type designator must be an integer."),
                     }
                 }
                 None => None,
-                _ => todo!(), // only literals supported
+                _ => panic!("Only literal designators are supported."),
             };
             let typ = match width {
                 Some(width) => Type::QubitArray(ArrayDims::D1(width as usize)),
@@ -426,7 +428,14 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             Some(asg::Alias::new(symbol_id, rhs).to_stmt())
         }
 
-        _ => None,
+        synast::Stmt::Cal(_)
+            | synast::Stmt::Def(_)
+            | synast::Stmt::DefCal(_)
+            | synast::Stmt::DefCalGrammar(_)
+            // The following two should probably be removed from the syntax parser.
+            | synast::Stmt::LetStmt(_)
+            | synast::Stmt::Measure(_)
+            => panic!("Unsupported statement {stmt}"),
     }
 }
 
@@ -519,7 +528,7 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
                                     Some(asg::IntLiteral::new(num, false).to_texpr())
                                     // `false` means negative
                                 }
-                                _ => todo!(),
+                                _ => panic!("Only integers and floats are supported as operands to unary minus."),
                             }
                         }
 
@@ -531,10 +540,18 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
                             .to_texpr(),
                         ),
 
-                        _ => todo!(),
+                        None => panic!(
+                            "You have found a bug in oq3_parser. No operand to unary minus found."
+                        ),
                     }
                 }
-                _ => todo!(),
+                Some(op) => panic!(
+                    "Unary operators other than minus are not supported. Found '{:?}.'",
+                    op
+                ),
+                _ => panic!(
+                    "You have found a bug in oq3_parser. No operand to unary operator found."
+                ),
             }
         }
 
@@ -548,7 +565,15 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
             let op = from_binary_op(synast_op);
             let left = from_expr(left_syn, context).unwrap();
             let right = from_expr(right_syn, context).unwrap();
-
+            // There are no binary ops that accept quantum operands.
+            if left.get_type().is_quantum() {
+                // Generate the ast node again, for the borrow checker. But we are already
+                // on the sad path.
+                context.insert_error(IncompatibleTypesError, &bin_expr.lhs().unwrap());
+            }
+            if right.get_type().is_quantum() {
+                context.insert_error(IncompatibleTypesError, &bin_expr.rhs().unwrap());
+            }
             Some(asg::BinaryExpr::new_texpr_with_cast(op, left, right))
         }
 
@@ -619,13 +644,19 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
             Some(asg::Cast::new(expr.unwrap(), typ).to_texpr())
         }
 
-        // Everything else is not yet implemented
-        _ => {
-            println!("Expression not supported {:?}", expr);
-            None
-        }
+        // Followng may be a parser error. But I think we will need to support BlockExpr anywhere here.
+        synast::Expr::BlockExpr(_) => panic!("BlockExpr not supported."),
+
+        synast::Expr::ArrayExpr(_)
+        | synast::Expr::ArrayLiteral(_)
+        | synast::Expr::BoxExpr(_)
+        | synast::Expr::CallExpr(_) => panic!("Expression not supported {:?}", expr),
+
+        synast::Expr::GateCallExpr(_)
+        | synast::Expr::GPhaseCallExpr(_)
+        | synast::Expr::ModifiedGateCallExpr(_) => panic!("You have found a bug in oq3_parser."),
     }
-}
+} // fn from_expr(
 
 fn from_set_expression(
     set_expression: synast::SetExpression,
@@ -675,6 +706,8 @@ fn from_gate_call_expr(
     let (symbol_result, gate_type) = context
         .lookup_gate_symbol(gate_name.as_ref(), gate_id.as_ref().unwrap())
         .as_tuple();
+    // FIXME: I think we can use if-let with a pattern here. But
+    // arm with (0, 0) looks like it can never be taken.
     if matches!(gate_type, Type::Gate(_, _)) {
         let (def_num_params, def_num_qubits) = match gate_type {
             Type::Gate(np, nq) => (np, nq),
@@ -776,11 +809,7 @@ fn from_binary_op(synast_op: synast::BinaryOp) -> asg::BinaryOp {
                 Mul => ArithOp(asg::ArithOp::Mul),
                 Sub => ArithOp(asg::ArithOp::Sub),
                 Div => ArithOp(asg::ArithOp::Div),
-                // variant synast::ArithOp::Mod does not exist
-                // Mod => asg::BinaryOp::Mod,
-                // Shl => Shl,
-                // Shr => Shr,
-                _ => todo!(),
+                Rem | Shl | Shr | BitOr | BitXor | BitAnd => panic!("Unsupported binary operator"),
             }
         }
         synast::BinaryOp::CmpOp(cmp_op) => {
@@ -788,13 +817,15 @@ fn from_binary_op(synast_op: synast::BinaryOp) -> asg::BinaryOp {
             use synast::CmpOp::*;
             match cmp_op {
                 Eq { negated: false } => CmpOp(asg::CmpOp::Eq),
-                _ => todo!(),
+                Eq { negated: true } => CmpOp(asg::CmpOp::Neq),
+                Ord { .. } => {
+                    panic!("Comparision operators other than `=` and `!=` are not supported.")
+                }
             }
         }
         synast::BinaryOp::ConcatenationOp => asg::BinaryOp::ConcatenationOp,
-        _ => {
-            todo!()
-        }
+        synast::BinaryOp::LogicOp(_) => panic!("Binary logic operators unsupported."),
+        synast::BinaryOp::Assignment { .. } => panic!("Unsupported binary operator"),
     }
 }
 
@@ -817,7 +848,12 @@ fn from_literal(literal: &synast::Literal) -> Option<asg::TExpr> {
             asg::BitStringLiteral::new(bit_string.str()?).to_texpr()
         }
 
-        _ => todo!(), // error. can/should be caught at syntax level, obviously
+        synast::LiteralKind::Byte(_)
+        | synast::LiteralKind::Char(_)
+        | synast::LiteralKind::SimpleFloatNumber(_)
+        | synast::LiteralKind::String(_)
+        | synast::LiteralKind::TimingFloatNumber(_)
+        | synast::LiteralKind::TimingIntNumber(_) => todo!(),
     };
     Some(literal_texpr)
 }
@@ -859,16 +895,19 @@ fn from_scalar_type(
         None => None,
     };
     match scalar_type.kind() {
-        synast::ScalarTypeKind::Int => Type::Int(width, isconst.into()),
-        synast::ScalarTypeKind::Float => Type::Float(width, isconst.into()),
         synast::ScalarTypeKind::Angle => Type::Angle(width, isconst.into()),
         synast::ScalarTypeKind::Bit => match width {
             Some(width) => Type::BitArray(ArrayDims::D1(width as usize), isconst.into()),
             None => Type::Bit(isconst.into()),
         },
         synast::ScalarTypeKind::Bool => Type::Bool(isconst.into()),
+        synast::ScalarTypeKind::Complex => Type::Complex(width, isconst.into()),
         synast::ScalarTypeKind::Duration => Type::Duration(isconst.into()),
-        _ => todo!(),
+        synast::ScalarTypeKind::Float => Type::Float(width, isconst.into()),
+        synast::ScalarTypeKind::Int => Type::Int(width, isconst.into()),
+        synast::ScalarTypeKind::None => panic!("You have found a bug in oq3_parser"),
+        synast::ScalarTypeKind::Stretch => Type::Stretch(isconst.into()),
+        synast::ScalarTypeKind::UInt => Type::UInt(width, isconst.into()),
     }
 }
 
