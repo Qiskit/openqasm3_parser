@@ -116,18 +116,18 @@ impl std::ops::Deref for Program {
 // Note the variant Ident(Ident)
 #[derive(Clone, Debug, PartialEq)]
 pub enum Expr {
-    BinaryExpr(BinaryExpr),
-    UnaryExpr(UnaryExpr),
+    BinaryExpr(Box<BinaryExpr>),
+    UnaryExpr(Box<UnaryExpr>),
     Literal(Literal),
-    Cast(Cast),
+    Cast(Box<Cast>),
     Identifier(Identifier),
     HardwareQubit(HardwareQubit),
-    IndexExpression(IndexExpression),
+    IndexExpression(Box<IndexExpression>),
     IndexedIdentifier(IndexedIdentifier),
     GateOperand(GateOperand),
     Return(Box<ReturnExpression>),
     Call, // stub function (def) call
-    MeasureExpression(MeasureExpression),
+    MeasureExpression(Box<MeasureExpression>),
     SetExpression(SetExpression),
     RangeExpression(Box<RangeExpression>),
 }
@@ -165,8 +165,8 @@ impl TExpr {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Stmt {
-    Alias(Alias),
-    AnnotatedStmt(AnnotatedStmt),
+    Alias(Box<Alias>),
+    AnnotatedStmt(Box<AnnotatedStmt>),
     Assignment(Assignment),
     Barrier(Barrier),
     Block(Block),
@@ -174,7 +174,7 @@ pub enum Stmt {
     Break,
     Cal, // stub
     Continue,
-    DeclareClassical(DeclareClassical),
+    DeclareClassical(Box<DeclareClassical>),
     DeclareQuantum(DeclareQuantum),
     Def,    // stub
     DefCal, // stub
@@ -239,24 +239,18 @@ impl Annotation {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct AnnotatedStmt {
-    stmt: Box<Stmt>,
+    stmt: Stmt,
     annotations: Vec<Annotation>,
 }
 
 impl AnnotatedStmt {
-    // For convenience, we violate the prinicple of making semantic errors
-    // unexpressible.
     pub fn new(stmt: Stmt, annotations: Vec<Annotation>) -> AnnotatedStmt {
         if matches!(stmt, Stmt::AnnotatedStmt(..)) {
             panic!("Annotation of annotated statement is not allowed.");
         }
-        AnnotatedStmt {
-            stmt: Box::new(stmt),
-            annotations,
-        }
+        AnnotatedStmt { stmt, annotations }
     }
 
-    // stmt or statement. Should be uniform.
     pub fn statement(&self) -> &Stmt {
         &self.stmt
     }
@@ -266,26 +260,27 @@ impl AnnotatedStmt {
     }
 
     pub fn to_stmt(self) -> Stmt {
-        Stmt::AnnotatedStmt(self)
+        Stmt::AnnotatedStmt(Box::new(self))
     }
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct IndexExpression {
-    expr: Box<TExpr>,
+    expr: TExpr,
     index: IndexOperator,
 }
 
 impl IndexExpression {
     pub fn new(expr: TExpr, index: IndexOperator) -> IndexExpression {
-        IndexExpression {
-            expr: Box::new(expr),
-            index,
-        }
+        IndexExpression { expr, index }
+    }
+
+    pub fn to_expr(self) -> Expr {
+        Expr::IndexExpression(Box::new(self))
     }
 
     pub fn to_texpr(self) -> TExpr {
-        TExpr::new(Expr::IndexExpression(self), Type::ToDo)
+        TExpr::new(self.to_expr(), Type::ToDo)
     }
 }
 
@@ -426,15 +421,12 @@ impl Assignment {
 #[derive(Clone, Debug, PartialEq)]
 pub struct DeclareClassical {
     name: SymbolIdResult, // The name and type can be retrieved from SymbolId
-    initializer: Option<Box<TExpr>>,
+    initializer: Option<TExpr>,
 }
 
 impl DeclareClassical {
     pub fn new(name: SymbolIdResult, initializer: Option<TExpr>) -> DeclareClassical {
-        DeclareClassical {
-            name,
-            initializer: initializer.map(Box::new),
-        }
+        DeclareClassical { name, initializer }
     }
 
     pub fn name(&self) -> &SymbolIdResult {
@@ -442,11 +434,11 @@ impl DeclareClassical {
     }
 
     pub fn initializer(&self) -> Option<&TExpr> {
-        self.initializer.as_deref()
+        self.initializer.as_ref()
     }
 
     pub fn to_stmt(self) -> Stmt {
-        Stmt::DeclareClassical(self)
+        Stmt::DeclareClassical(Box::new(self))
     }
 }
 
@@ -506,15 +498,12 @@ impl DeclareQuantum {
 #[derive(Clone, Debug, PartialEq)]
 pub struct Alias {
     name: SymbolIdResult, // The name and type can be retrieved from SymbolId
-    rhs: Box<TExpr>,
+    rhs: TExpr,
 }
 
 impl Alias {
     pub fn new(name: SymbolIdResult, rhs: TExpr) -> Alias {
-        Alias {
-            name,
-            rhs: Box::new(rhs),
-        }
+        Alias { name, rhs }
     }
 
     pub fn name(&self) -> &SymbolIdResult {
@@ -522,11 +511,11 @@ impl Alias {
     }
 
     pub fn rhs(&self) -> &TExpr {
-        self.rhs.as_ref()
+        &self.rhs
     }
 
     pub fn to_stmt(self) -> Stmt {
-        Stmt::Alias(self)
+        Stmt::Alias(Box::new(self))
     }
 }
 
@@ -591,14 +580,12 @@ impl GateDeclaration {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct MeasureExpression {
-    operand: Box<TExpr>,
+    operand: TExpr,
 }
 
 impl MeasureExpression {
     pub fn new(operand: TExpr) -> MeasureExpression {
-        MeasureExpression {
-            operand: Box::new(operand),
-        }
+        MeasureExpression { operand }
     }
 
     pub fn operand(&self) -> &TExpr {
@@ -611,7 +598,7 @@ impl MeasureExpression {
             Type::QubitArray(dims) => Type::BitArray(dims.clone(), IsConst::False),
             _ => Type::Undefined,
         };
-        TExpr::new(Expr::MeasureExpression(self), out_type)
+        TExpr::new(Expr::MeasureExpression(Box::new(self)), out_type)
     }
 }
 
@@ -793,16 +780,13 @@ pub enum Literal {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Cast {
-    operand: Box<TExpr>,
+    operand: TExpr,
     typ: Type,
 }
 
 impl Cast {
     pub fn new(operand: TExpr, typ: Type) -> Cast {
-        Cast {
-            operand: Box::new(operand),
-            typ,
-        }
+        Cast { operand, typ }
     }
 
     pub fn get_type(&self) -> &Type {
@@ -810,11 +794,11 @@ impl Cast {
     }
 
     pub fn operand(&self) -> &TExpr {
-        self.operand.as_ref()
+        &self.operand
     }
 
     pub fn to_expr(self) -> Expr {
-        Expr::Cast(self)
+        Expr::Cast(Box::new(self))
     }
 
     pub fn to_texpr(self) -> TExpr {
@@ -1066,15 +1050,12 @@ pub enum UnaryOp {
 #[derive(Clone, Debug, PartialEq)]
 pub struct UnaryExpr {
     op: UnaryOp,
-    operand: Box<TExpr>,
+    operand: TExpr,
 }
 
 impl UnaryExpr {
     pub fn new(op: UnaryOp, operand: TExpr) -> UnaryExpr {
-        UnaryExpr {
-            op,
-            operand: Box::new(operand),
-        }
+        UnaryExpr { op, operand }
     }
 
     pub fn operand(&self) -> &TExpr {
@@ -1087,10 +1068,10 @@ impl UnaryExpr {
 
     pub fn to_texpr(self) -> TExpr {
         match self.op() {
-            UnaryOp::Not => TExpr::new(Expr::UnaryExpr(self), Type::Bool(IsConst::False)),
+            UnaryOp::Not => TExpr::new(Expr::UnaryExpr(Box::new(self)), Type::Bool(IsConst::False)),
             _ => {
                 let ty = self.operand.get_type().clone();
-                TExpr::new(Expr::UnaryExpr(self), ty)
+                TExpr::new(Expr::UnaryExpr(Box::new(self)), ty)
             }
         }
     }
@@ -1099,8 +1080,8 @@ impl UnaryExpr {
 #[derive(Clone, Debug, PartialEq)]
 pub struct BinaryExpr {
     pub(crate) op: BinaryOp,
-    pub(crate) left: Box<TExpr>,
-    pub(crate) right: Box<TExpr>,
+    pub(crate) left: TExpr,
+    pub(crate) right: TExpr,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -1129,15 +1110,9 @@ pub enum CmpOp {
     Eq,
 }
 
-// FIXME: ?? Code would be easier, maybe more performant since we
-// tag fields with pub(crate).
 impl BinaryExpr {
     pub fn new(op: BinaryOp, left: TExpr, right: TExpr) -> BinaryExpr {
-        BinaryExpr {
-            op,
-            left: Box::new(left),
-            right: Box::new(right),
-        }
+        BinaryExpr { op, left, right }
     }
     pub fn op(&self) -> &BinaryOp {
         &self.op
@@ -1150,7 +1125,7 @@ impl BinaryExpr {
     }
 
     pub fn to_expr(self) -> Expr {
-        Expr::BinaryExpr(self)
+        Expr::BinaryExpr(Box::new(self))
     }
 
     pub fn to_texpr(self, typ: Type) -> TExpr {
