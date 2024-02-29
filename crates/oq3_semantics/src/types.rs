@@ -232,6 +232,8 @@ pub fn promote_types(ty1: &Type, ty2: &Type) -> Type {
         (UInt(..), UInt(..)) => UInt(promote_width(ty1, ty2), isconst),
         (Int(..), Float(..)) => ty2.clone(),
         (Float(..), Int(..)) => ty1.clone(),
+        (UInt(..), Float(..)) => ty2.clone(),
+        (Float(..), UInt(..)) => ty1.clone(),
         _ => Void,
     }
 }
