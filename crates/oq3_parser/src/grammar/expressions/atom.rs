@@ -6,16 +6,18 @@ use super::*;
 pub(crate) const PATH_FIRST: TokenSet = TokenSet::new(&[IDENT, HARDWAREIDENT, T![:], T![<]]);
 
 pub(crate) const LITERAL_FIRST: TokenSet = TokenSet::new(&[
-    T![true],
-    T![false],
-    INT_NUMBER,
-    FLOAT_NUMBER,
-    SIMPLE_FLOAT_NUMBER,
-    TIMING_INT_NUMBER,
+    BIT_STRING,
     BYTE,
     CHAR,
+    FLOAT_NUMBER,
+    INT_NUMBER,
+    SIMPLE_FLOAT_NUMBER,
     STRING,
-    BIT_STRING,
+    // FIXME, remove the following two. They are no longer used.
+    TIMING_FLOAT_NUMBER,
+    TIMING_INT_NUMBER,
+    T![true],
+    T![false],
 ]);
 
 const TIMING_LITERAL_FIRST: TokenSet = TokenSet::new(&[INT_NUMBER, FLOAT_NUMBER]);

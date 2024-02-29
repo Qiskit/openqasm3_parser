@@ -400,6 +400,22 @@ pub(crate) fn quantum_type_spec(p: &mut Parser<'_>) -> bool {
 pub(crate) fn designator(p: &mut Parser<'_>) -> bool {
     let m = p.start();
     p.eat(T!['[']);
+    // Log error for a literal designator that is not integer.  We are
+    // conservative here.  I am not sure that an expression that begins with one
+    // of the following literals cannot have an integer type. I am pretty sure
+    // this is the case, though. At some point we can review this and catch more
+    // syntax errors here.
+    //
+    // We assume here that it is not allowed to cast types to integer, even
+    // those that would be allowed in, say, arguments to function calls. I don't
+    // see this addressed in the spec.
+    if matches!(
+        p.current(),
+        FLOAT_NUMBER | SIMPLE_FLOAT_NUMBER | BYTE | CHAR | STRING | BIT_STRING
+    ) && matches!(p.nth(1), T![']'])
+    {
+        p.error("Literal type designator must be an integer.")
+    }
     expr(p);
     p.expect(T![']']);
     m.complete(p, DESIGNATOR);

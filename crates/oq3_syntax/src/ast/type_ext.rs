@@ -5,16 +5,16 @@ use crate::{ast, SyntaxToken, T};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ScalarTypeKind {
+    Angle,
     Bit,
     Bool,
-    Int,
-    UInt,
-    Float,
-    Angle,
-    Duration,
-    Stretch,
     Complex,
+    Duration,
+    Float,
+    Int,
     None, // For testing. Remove this
+    Stretch,
+    UInt,
 }
 
 impl ast::ScalarType {

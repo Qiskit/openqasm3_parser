@@ -220,7 +220,7 @@ fn promote_width(ty1: &Type, ty2: &Type) -> Width {
     }
 }
 
-// promotion suitable for some binary operations, eg +, -, *, /
+// promotion suitable for some binary operations, eg +, -, *
 pub fn promote_types(ty1: &Type, ty2: &Type) -> Type {
     use Type::*;
     if ty1 == ty2 {
@@ -228,8 +228,11 @@ pub fn promote_types(ty1: &Type, ty2: &Type) -> Type {
     }
     let isconst = promote_constness(ty1, ty2);
     match (ty1, ty2) {
+        // pairs without float
         (Int(..), Int(..)) => Int(promote_width(ty1, ty2), isconst),
         (UInt(..), UInt(..)) => UInt(promote_width(ty1, ty2), isconst),
+
+        // pairs with float
         (Int(..), Float(..)) => ty2.clone(),
         (Float(..), Int(..)) => ty1.clone(),
         (UInt(..), Float(..)) => ty2.clone(),
