@@ -293,10 +293,7 @@ pub enum LiteralKind {
     Char(ast::Char),
     FloatNumber(ast::FloatNumber),
     IntNumber(ast::IntNumber),
-    SimpleFloatNumber(ast::SimpleFloatNumber),
     String(ast::String),
-    TimingFloatNumber(ast::TimingFloatNumber),
-    TimingIntNumber(ast::TimingIntNumber),
 }
 
 // Literal strings in OQ3 occur only in a few contexts.
@@ -354,15 +351,6 @@ impl ast::Literal {
         }
         if let Some(t) = ast::FloatNumber::cast(token.clone()) {
             return LiteralKind::FloatNumber(t);
-        }
-        if let Some(t) = ast::SimpleFloatNumber::cast(token.clone()) {
-            return LiteralKind::SimpleFloatNumber(t);
-        }
-        if let Some(t) = ast::TimingFloatNumber::cast(token.clone()) {
-            return LiteralKind::TimingFloatNumber(t);
-        }
-        if let Some(t) = ast::TimingIntNumber::cast(token.clone()) {
-            return LiteralKind::TimingIntNumber(t);
         }
         if let Some(t) = ast::String::cast(token.clone()) {
             return LiteralKind::String(t);

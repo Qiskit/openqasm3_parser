@@ -111,13 +111,10 @@ pub enum SyntaxKind {
     #[doc = r" literals"]
     INT_NUMBER,
     FLOAT_NUMBER,
-    SIMPLE_FLOAT_NUMBER,
     CHAR,
     BYTE,
     STRING,
     BIT_STRING,
-    TIMING_FLOAT_NUMBER,
-    TIMING_INT_NUMBER,
     #[doc = r" scalar_types"]
     FLOAT_TY,
     INT_TY,
@@ -331,15 +328,7 @@ impl SyntaxKind {
     pub fn is_literal(self) -> bool {
         matches!(
             self,
-            INT_NUMBER
-                | FLOAT_NUMBER
-                | SIMPLE_FLOAT_NUMBER
-                | CHAR
-                | BYTE
-                | STRING
-                | BIT_STRING
-                | TIMING_FLOAT_NUMBER
-                | TIMING_INT_NUMBER
+            INT_NUMBER | FLOAT_NUMBER | CHAR | BYTE | STRING | BIT_STRING
         )
     }
     pub fn is_scalar_type(self) -> bool {
