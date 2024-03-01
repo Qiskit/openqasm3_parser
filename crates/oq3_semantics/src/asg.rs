@@ -177,7 +177,7 @@ pub enum Stmt {
     DeclareClassical(Box<DeclareClassical>),
     DeclareQuantum(DeclareQuantum),
     DeclareHardwareQubit(DeclareHardwareQubit),
-    Def,    // stub
+    DefStmt(DefStmt),
     DefCal, // stub
     Delay(DelayStmt),
     End,
@@ -599,6 +599,50 @@ impl GateDeclaration {
 
     pub fn block(&self) -> &Block {
         &self.block
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct DefStmt {
+    name: SymbolIdResult,
+    params: Vec<SymbolIdResult>,
+    block: Block,
+    return_type: Option<Type>,
+}
+
+impl DefStmt {
+    pub fn new(
+        name: SymbolIdResult,
+        params: Vec<SymbolIdResult>,
+        block: Block,
+        return_type: Option<Type>,
+    ) -> DefStmt {
+        DefStmt {
+            name,
+            params,
+            block,
+            return_type,
+        }
+    }
+
+    pub fn to_stmt(self) -> Stmt {
+        Stmt::DefStmt(self)
+    }
+
+    pub fn name(&self) -> &SymbolIdResult {
+        &self.name
+    }
+
+    pub fn params(&self) -> &[SymbolIdResult] {
+        self.params.as_ref()
+    }
+
+    pub fn block(&self) -> &Block {
+        &self.block
+    }
+
+    pub fn return_type(&self) -> Option<&Type> {
+        self.return_type.as_ref()
     }
 }
 

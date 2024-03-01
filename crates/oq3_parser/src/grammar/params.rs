@@ -133,6 +133,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         DefCalQubits => QUBIT_LIST,
         GateCallQubits => QUBIT_LIST,
         ExpressionList => EXPRESSION_LIST,
+        DefParams | DefCalParams => TYPED_PARAM_LIST,
         _ => PARAM_LIST,
     };
     list_marker.complete(p, kind);
@@ -181,21 +182,10 @@ fn param_untyped(p: &mut Parser<'_>, m: Marker) -> bool {
 }
 
 fn param_typed(p: &mut Parser<'_>, m: Marker) -> bool {
-    let mut success = true;
-    if p.current().is_type() {
-        p.bump_any();
-    } else {
-        p.error("expected type annotation");
-        success = false;
-    }
-    if !p.at(IDENT) {
-        p.error("expected parameter name");
-        m.abandon(p);
-        return false;
-    }
-    p.bump(IDENT);
-    m.complete(p, PARAM);
-    success
+    expressions::type_spec(p);
+    expressions::var_name(p);
+    m.complete(p, TYPED_PARAM);
+    true
 }
 
 // These can be cast to GateOperand

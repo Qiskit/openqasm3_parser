@@ -339,9 +339,9 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             //    1. a sequnce of semicolon-separated stmts.
             // or 2. a single block. But the block has a scope of course.
             with_scope!(context,  ScopeType::Subroutine,
-                          let params = bind_parameter_list(gate.angle_params(), &Type::Angle(None, IsConst::True), context);
-                          let qubits = bind_parameter_list(gate.qubit_params(), &Type::Qubit, context).unwrap();
-                          let block = from_block_expr(gate.body().unwrap(), context);
+                        let params = bind_parameter_list(gate.angle_params(), &Type::Angle(None, IsConst::True), context);
+                        let qubits = bind_parameter_list(gate.qubit_params(), &Type::Qubit, context).unwrap();
+                        let block = from_block_expr(gate.body().unwrap(), context);
             );
             let num_params = match params {
                 Some(ref params) => params.len(),
@@ -355,8 +355,31 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
                 ),
                 &name_node,
             );
-
             Some(asg::GateDeclaration::new(gate_name_symbol_id, params, qubits, block).to_stmt())
+        }
+
+        synast::Stmt::Def(def_stmt) => {
+            let name_node = def_stmt.name().unwrap();
+            with_scope!(context,  ScopeType::Subroutine,
+                        let params = bind_typed_parameter_list(def_stmt.typed_param_list(), context);
+                        let block = from_block_expr(def_stmt.body().unwrap(), context);
+            );
+            // FIXME: Should we let subroutines have a parameterized type?
+            // This would be very convenient for matching signatures.
+            // let num_params = match params {
+            //     Some(ref params) => params.len(),
+            //     None => 0,
+            // };
+            let ret_type = def_stmt.return_signature()
+                .and_then(|x| x.scalar_type())
+                .map(|x| from_scalar_type(&x, true, context));
+
+            let def_name_symbol_id = context.new_binding(
+                name_node.string().as_ref(),
+                &Type::Void,
+                &name_node,
+            );
+            Some(asg::DefStmt::new(def_name_symbol_id, params.unwrap(), block, ret_type).to_stmt())
         }
 
         synast::Stmt::Barrier(barrier) => {
@@ -433,7 +456,6 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         }
 
         synast::Stmt::Cal(_)
-            | synast::Stmt::Def(_)
             | synast::Stmt::DefCal(_)
             | synast::Stmt::DefCalGrammar(_)
             // The following two should probably be removed from the syntax parser.
@@ -909,6 +931,7 @@ fn from_scalar_type(
         synast::ScalarTypeKind::None => panic!("You have found a bug in oq3_parser"),
         synast::ScalarTypeKind::Stretch => Type::Stretch(isconst.into()),
         synast::ScalarTypeKind::UInt => Type::UInt(width, isconst.into()),
+        synast::ScalarTypeKind::Qubit => Type::Qubit,
     }
 }
 
@@ -1035,6 +1058,22 @@ fn bind_parameter_list(
         param_list
             .params()
             .map(|param| context.new_binding(param.text().as_ref(), typ, &param))
+            .collect()
+    })
+}
+
+fn bind_typed_parameter_list(
+    inparam_list: Option<synast::TypedParamList>,
+    context: &mut Context,
+) -> Option<Vec<SymbolIdResult>> {
+    inparam_list.map(|param_list| {
+        param_list
+            .typed_params()
+            .map(|param| {
+                let typ = from_scalar_type(&param.scalar_type().unwrap(), false, context);
+                let namestr = param.name().unwrap().string();
+                context.new_binding(namestr.as_ref(), &typ, &param)
+            })
             .collect()
     })
 }

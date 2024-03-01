@@ -89,7 +89,7 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         T![if] => if_stmt(p, m),
         T![while] => while_stmt(p, m),
         T![for] => for_stmt(p, m),
-        T![def] => def_(p, m),
+        T![def] => def_stmt(p, m),
         T![defcal] => defcal_(p, m),
         T![cal] => cal_(p, m),
         T![defcalgrammar] => defcalgrammar_(p, m),
@@ -336,8 +336,9 @@ fn io_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
     m.complete(p, I_O_DECLARATION_STATEMENT);
 }
 
-fn def_(p: &mut Parser<'_>, m: Marker) {
-    p.bump(T![def]);
+fn def_stmt(p: &mut Parser<'_>, m: Marker) {
+    assert!(p.at(T![def]));
+    p.bump_any();
 
     // Read the name of the subroutine. (This records an error message on failure.)
     name_r(p, ITEM_RECOVERY_SET);

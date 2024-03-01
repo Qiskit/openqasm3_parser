@@ -363,6 +363,10 @@ fn call_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
 fn type_name(p: &mut Parser<'_>) {
     if !p.current().is_type() {
         p.error("Expected type name.");
+        // Return without parsing whatever is here.
+        // Probably an identifier because the entire type spec is missing.
+        // If we eat it now. We will get another (false) error for a missing parameter.
+        return;
     }
     p.bump(p.current());
 }
@@ -454,7 +458,12 @@ pub(crate) fn designator(p: &mut Parser<'_>) -> bool {
 
 pub(crate) fn var_name(p: &mut Parser<'_>) {
     let m = p.start();
-    p.expect(IDENT); // The declared identifier, ie variable name
+    if p.at(IDENT) {
+        // The declared identifier, ie variable name
+        p.bump_any();
+    } else {
+        p.error("Expecting parameter name.");
+    }
     m.complete(p, NAME);
 }
 

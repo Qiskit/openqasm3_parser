@@ -160,8 +160,8 @@ fn print_defcal(defcal: ast::DefCal) {
 
 fn print_def(def: ast::Def) {
     println!("Def\ndef name: '{}'", def.name().unwrap());
-    if def.param_list().is_some() {
-        println!("parameters: '{}'", def.param_list().unwrap());
+    if def.typed_param_list().is_some() {
+        println!("parameters: '{}'", def.typed_param_list().unwrap());
     }
     if def.return_signature().is_some() {
         println!("return type: '{}'", def.return_signature().unwrap());
