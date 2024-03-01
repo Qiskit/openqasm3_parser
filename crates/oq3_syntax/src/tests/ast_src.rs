@@ -127,13 +127,10 @@ pub(crate) const KINDS_SRC: KindsSrc<'_> = KindsSrc {
     literals: &[
         "INT_NUMBER",
         "FLOAT_NUMBER",
-        "SIMPLE_FLOAT_NUMBER",
         "CHAR",
         "BYTE",
         "STRING",
         "BIT_STRING",
-        "TIMING_FLOAT_NUMBER",
-        "TIMING_INT_NUMBER",
     ],
     tokens: &[
         "ERROR",

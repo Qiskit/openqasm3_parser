@@ -662,11 +662,10 @@ impl Field {
 
 fn lower(grammar: &Grammar) -> AstSrc {
     let mut res = AstSrc {
-        tokens:
-            "Whitespace Comment String IntNumber FloatNumber Char Byte Ident TimingIntNumber TimingFloatNumber SimpleFloatNumber BitString"
-                .split_ascii_whitespace()
-                .map(|it| it.to_string())
-                .collect::<Vec<_>>(),
+        tokens: "Whitespace Comment String IntNumber FloatNumber Char Byte Ident BitString"
+            .split_ascii_whitespace()
+            .map(|it| it.to_string())
+            .collect::<Vec<_>>(),
         ..Default::default()
     };
 

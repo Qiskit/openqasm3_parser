@@ -411,7 +411,7 @@ pub(crate) fn designator(p: &mut Parser<'_>) -> bool {
     // see this addressed in the spec.
     if matches!(
         p.current(),
-        FLOAT_NUMBER | SIMPLE_FLOAT_NUMBER | BYTE | CHAR | STRING | BIT_STRING
+        FLOAT_NUMBER | BYTE | CHAR | STRING | BIT_STRING
     ) && matches!(p.nth(1), T![']'])
     {
         p.error("Literal type designator must be an integer.")

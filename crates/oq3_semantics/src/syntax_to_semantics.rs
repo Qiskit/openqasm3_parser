@@ -850,10 +850,7 @@ fn from_literal(literal: &synast::Literal) -> Option<asg::TExpr> {
 
         synast::LiteralKind::Byte(_)
         | synast::LiteralKind::Char(_)
-        | synast::LiteralKind::SimpleFloatNumber(_)
-        | synast::LiteralKind::String(_)
-        | synast::LiteralKind::TimingFloatNumber(_)
-        | synast::LiteralKind::TimingIntNumber(_) => todo!(),
+        | synast::LiteralKind::String(_) => todo!(),
     };
     Some(literal_texpr)
 }

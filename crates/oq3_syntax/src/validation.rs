@@ -175,9 +175,6 @@ fn validate_literal(literal: ast::Literal, acc: &mut Vec<SyntaxError>) {
         }
         ast::LiteralKind::IntNumber(_)
         | ast::LiteralKind::FloatNumber(_)
-        | ast::LiteralKind::TimingFloatNumber(_)
-        | ast::LiteralKind::TimingIntNumber(_)
-        | ast::LiteralKind::SimpleFloatNumber(_)
         | ast::LiteralKind::Bool(_) => {}
     }
 }

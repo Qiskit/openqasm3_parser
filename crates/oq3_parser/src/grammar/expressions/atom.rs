@@ -11,11 +11,7 @@ pub(crate) const LITERAL_FIRST: TokenSet = TokenSet::new(&[
     CHAR,
     FLOAT_NUMBER,
     INT_NUMBER,
-    SIMPLE_FLOAT_NUMBER,
     STRING,
-    // FIXME, remove the following two. They are no longer used.
-    TIMING_FLOAT_NUMBER,
-    TIMING_INT_NUMBER,
     T![true],
     T![false],
 ]);
