@@ -107,7 +107,7 @@ fn opt_ret_type(p: &mut Parser<'_>) -> bool {
     if p.at(T![->]) {
         let m = p.start();
         p.bump(T![->]);
-        if p.current().is_type_name() {
+        if p.current().is_type() {
             scalar_type(p);
         } else {
             p.error("Expected return type after ->");
@@ -181,15 +181,18 @@ fn delimited(
 }
 
 impl SyntaxKind {
+    /// Return `true` if the next token begins a classical type, including array, specification.
     pub fn is_classical_type(&self) -> bool {
         self.is_scalar_type() || matches!(self, ARRAY_KW)
     }
 
+    /// Return `true` if the next token begins quantum type.
     pub fn is_quantum_type(&self) -> bool {
-        matches!(self, QUBIT_TYPE | HARDWARE_QUBIT)
+        matches!(self, T![qubit] | HARDWARE_QUBIT)
     }
 
-    pub fn is_type_name(&self) -> bool {
-        self.is_classical_type() || matches!(self, QUBIT_KW | HARDWARE_QUBIT)
+    /// Return `true` if the next token begins a type.
+    pub fn is_type(&self) -> bool {
+        self.is_classical_type() || self.is_quantum_type()
     }
 }

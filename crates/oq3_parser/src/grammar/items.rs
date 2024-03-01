@@ -188,7 +188,7 @@ fn for_stmt(p: &mut Parser<'_>, m: Marker) {
 
 fn qubit_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![qubit]));
-    expressions::quantum_type_spec(p);
+    expressions::qubit_type_spec(p);
     expressions::var_name(p);
     p.expect(SEMICOLON);
     m.complete(p, QUANTUM_DECLARATION_STATEMENT);
