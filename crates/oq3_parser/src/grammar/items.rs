@@ -189,9 +189,10 @@ fn for_stmt(p: &mut Parser<'_>, m: Marker) {
 fn qubit_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![qubit]));
     expressions::qubit_type_spec(p);
+    // Declaring hardware qubits is forbidden in the OQ3 spec.
+    // But it is used by all the current users of openqasm3_parser.
     if p.at(HARDWAREIDENT) {
-        p.bump_any();
-        p.error("Declaring a hardware qubit is not allowed.");
+        expressions::atom::hardware_qubit(p);
     } else {
         expressions::var_name(p);
     }

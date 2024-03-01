@@ -176,6 +176,7 @@ pub enum Stmt {
     Continue,
     DeclareClassical(Box<DeclareClassical>),
     DeclareQuantum(DeclareQuantum),
+    DeclareHardwareQubit(DeclareHardwareQubit),
     Def,    // stub
     DefCal, // stub
     Delay(DelayStmt),
@@ -492,6 +493,29 @@ impl DeclareQuantum {
 
     pub fn name(&self) -> &SymbolIdResult {
         &self.name
+    }
+
+    pub fn to_stmt(self) -> Stmt {
+        Stmt::DeclareQuantum(self)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct DeclareHardwareQubit {
+    name: HardwareQubit,
+}
+
+impl DeclareHardwareQubit {
+    pub fn new(name: HardwareQubit) -> DeclareHardwareQubit {
+        DeclareHardwareQubit { name }
+    }
+
+    pub fn name(&self) -> &HardwareQubit {
+        &self.name
+    }
+
+    pub fn to_stmt(self) -> Stmt {
+        Stmt::DeclareHardwareQubit(self)
     }
 }
 

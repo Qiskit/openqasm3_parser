@@ -423,7 +423,7 @@ OldStyleDeclarationStatement =
     ('creg' | 'qreg') Name Designator? ';'
 
 QuantumDeclarationStatement =
-   QubitType Name ';'
+   QubitType (Name | HardwareQubit) ';'
 
 AssignmentStmt =
     (Name | IndexedIdentifier) '=' rhs:Expr ';'
