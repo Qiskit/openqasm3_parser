@@ -75,7 +75,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
     //  while !p.at(EOF) && !p.at_ts(list_end_tokens) {
     while !p.at(EOF) && !list_end_tokens.iter().any(|x| p.at(*x)) {
         let m = param_marker.take().unwrap_or_else(|| p.start());
-        if !(p.current().is_type_name() || p.at_ts(PARAM_FIRST)) {
+        if !(p.current().is_type() || p.at_ts(PARAM_FIRST)) {
             p.error("expected value parameter");
             m.abandon(p);
             break;
@@ -182,7 +182,7 @@ fn param_untyped(p: &mut Parser<'_>, m: Marker) -> bool {
 
 fn param_typed(p: &mut Parser<'_>, m: Marker) -> bool {
     let mut success = true;
-    if p.current().is_type_name() {
+    if p.current().is_type() {
         p.bump_any();
     } else {
         p.error("expected type annotation");

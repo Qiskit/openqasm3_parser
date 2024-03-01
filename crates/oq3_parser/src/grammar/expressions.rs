@@ -329,6 +329,11 @@ fn postfix_expr(
             T!['['] if allow_calls => match lhs.kind() {
                 IDENTIFIER => indexed_identifier(p, lhs),
                 // The previous token was not `IDENTIFIER`, so we are indexing an expression.
+                LITERAL | TIMING_LITERAL | HARDWARE_QUBIT => {
+                    // record error, but parse the expression anyway.
+                    p.error("Indexing into literal is not allowed.");
+                    index_expr(p, lhs)
+                }
                 _ => index_expr(p, lhs),
             },
             _ => break,
@@ -354,31 +359,52 @@ fn call_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     m.complete(p, CALL_EXPR)
 }
 
+// A classical
 fn type_name(p: &mut Parser<'_>) {
-    if !p.current().is_type_name() {
-        p.error("Expected name of type");
+    if !p.current().is_type() {
+        p.error("Expected type name.");
     }
     p.bump(p.current());
 }
 
 pub(crate) fn type_spec(p: &mut Parser<'_>) -> bool {
-    let m = p.start();
     if p.at(T![array]) {
-        p.bump_any();
-        p.expect(T!['[']);
-        type_spec(p); // the scalar base type
-        p.expect(COMMA);
-        loop {
-            expr(p);
-            if p.at(T![']']) {
-                p.bump_any();
-                break;
-            }
-            p.expect(COMMA);
-        }
-        m.complete(p, ARRAY_TYPE);
-        return true;
+        return array_type_spec(p);
     }
+    non_array_type_spec(p)
+}
+
+// Parse an array type spec
+pub(crate) fn array_type_spec(p: &mut Parser<'_>) -> bool {
+    assert!(p.at(T![array]));
+    let m = p.start();
+    p.bump_any();
+    p.expect(T!['[']);
+    if !matches!(
+        p.current(),
+        T![int] | T![uint] | T![float] | T![complex] | T![angle] | T![bool] | T![duration]
+    ) {
+        p.error("Illegal base type for array.");
+    }
+    type_spec(p);
+    p.expect(COMMA);
+    // Parse the dimensions.
+    loop {
+        expr(p);
+        if p.at(T![']']) {
+            p.bump_any();
+            break;
+        }
+        p.expect(COMMA);
+    }
+    m.complete(p, ARRAY_TYPE);
+    true
+}
+
+// Parse a scalar or quantum type.
+// Don't record error if array is found. Do not parse array.
+fn non_array_type_spec(p: &mut Parser<'_>) -> bool {
+    let m = p.start();
     type_name(p);
     if p.at(T!['[']) {
         designator(p);
@@ -387,7 +413,8 @@ pub(crate) fn type_spec(p: &mut Parser<'_>) -> bool {
     true
 }
 
-pub(crate) fn quantum_type_spec(p: &mut Parser<'_>) -> bool {
+pub(crate) fn qubit_type_spec(p: &mut Parser<'_>) -> bool {
+    assert!(p.at(T![qubit]));
     let m = p.start();
     type_name(p);
     if p.at(T!['[']) {
@@ -430,10 +457,6 @@ pub(crate) fn var_name(p: &mut Parser<'_>) {
 
 // This includes a previously parsed expression as the first argument of `INDEX_EXPR`.
 // ig `arg1[arg2]` is the expression and only `arg2` is parsed here.
-// test index_expr
-// fn foo() {
-//     x[1][2];
-// }
 pub(crate) fn index_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     assert!(p.at(T!['[']));
     let m = lhs.precede(p);
