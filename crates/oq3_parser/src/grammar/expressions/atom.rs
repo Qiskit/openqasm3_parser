@@ -340,23 +340,13 @@ pub(crate) fn block_expr(p: &mut Parser<'_>) -> CompletedMarker {
     m.complete(p, BLOCK_EXPR)
 }
 
-// FIXME: This idiom for handling "measure" does not occur
-// in the original r-a crates. Need to refactor to avoid
-// starting a new Marker.
-// test return_expr
-// fn foo() {
-//     return;
-//     return 92;
-// }
 fn return_expr(p: &mut Parser<'_>) -> CompletedMarker {
     assert!(p.at(T![return]));
     let m = p.start();
-    p.bump(T![return]);
+    p.bump_any(); // return
+                  // parse possible returned expression
     if p.at_ts(EXPR_FIRST) {
         expr(p);
-    } else if p.at(T![measure]) {
-        let m1 = p.start();
-        expressions::items::measure_(p, m1);
     }
     m.complete(p, RETURN_EXPR)
 }
