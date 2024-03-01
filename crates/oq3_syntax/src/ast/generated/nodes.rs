@@ -400,6 +400,9 @@ impl QuantumDeclarationStatement {
     pub fn qubit_type(&self) -> Option<QubitType> {
         support::child(&self.syntax)
     }
+    pub fn hardware_qubit(&self) -> Option<HardwareQubit> {
+        support::child(&self.syntax)
+    }
     pub fn semicolon_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![;])
     }

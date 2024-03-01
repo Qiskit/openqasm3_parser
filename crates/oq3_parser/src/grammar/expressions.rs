@@ -419,6 +419,9 @@ pub(crate) fn qubit_type_spec(p: &mut Parser<'_>) -> bool {
     type_name(p);
     if p.at(T!['[']) {
         designator(p);
+        if p.at(HARDWAREIDENT) {
+            p.error("Found designator in hardware qubit declaration.");
+        }
     }
     m.complete(p, QUBIT_TYPE);
     true

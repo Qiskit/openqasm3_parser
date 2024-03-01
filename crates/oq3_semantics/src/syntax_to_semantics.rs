@@ -269,6 +269,12 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         }
 
         synast::Stmt::QuantumDeclarationStatement(q_decl) => {
+            let name_str = if let Some(name_str) = q_decl.name() {
+                name_str.string()
+            } else {
+                let hw_qubit = q_decl.hardware_qubit().unwrap();
+                return Some(asg::DeclareHardwareQubit::new(ast_hardware_qubit(&hw_qubit)).to_stmt());
+            };
             let qubit_type = q_decl.qubit_type().unwrap();
             let width = match qubit_type.designator().and_then(|x| x.expr()) {
                 Some(synast::Expr::Literal(ref literal)) => {
@@ -288,10 +294,8 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
                 Some(width) => Type::QubitArray(ArrayDims::D1(width as usize)),
                 None => Type::Qubit,
             };
-            let name_str = q_decl.name().unwrap().string();
             let symbol_id = context.new_binding(name_str.as_ref(), &typ, &q_decl);
-            let q_decl_ast = asg::DeclareQuantum::new(symbol_id);
-            Some(asg::Stmt::DeclareQuantum(q_decl_ast))
+            Some(asg::DeclareQuantum::new(symbol_id).to_stmt())
         }
 
         synast::Stmt::AssignmentStmt(assignment_stmt) => {
