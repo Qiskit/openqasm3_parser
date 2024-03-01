@@ -189,7 +189,12 @@ fn for_stmt(p: &mut Parser<'_>, m: Marker) {
 fn qubit_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![qubit]));
     expressions::qubit_type_spec(p);
-    expressions::var_name(p);
+    if p.at(HARDWAREIDENT) {
+        p.bump_any();
+        p.error("Declaring a hardware qubit is not allowed.");
+    } else {
+        expressions::var_name(p);
+    }
     p.expect(SEMICOLON);
     m.complete(p, QUANTUM_DECLARATION_STATEMENT);
 }
