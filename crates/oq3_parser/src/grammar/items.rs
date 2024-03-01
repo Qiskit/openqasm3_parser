@@ -212,25 +212,6 @@ fn reset_stmt(p: &mut Parser<'_>, m: Marker) {
     m.complete(p, RESET);
 }
 
-// FIXME: this has underscore, so should be private.
-// We should be able to refactor to keep this private.
-pub(crate) fn measure_(p: &mut Parser<'_>, m: Marker) {
-    p.bump(T![measure]);
-    match p.current() {
-        IDENT | HARDWAREIDENT => {
-            let m1 = p.start();
-            params::arg_gate_call_qubit(p, m1);
-        }
-        _ => {
-            p.error("expecting qubit(s) to measure");
-            m.abandon(p);
-            return;
-        }
-    }
-    p.expect(T![;]);
-    m.complete(p, MEASURE);
-}
-
 fn break_(p: &mut Parser<'_>, m: Marker) {
     p.bump(T![break]);
     p.expect(SEMICOLON);
