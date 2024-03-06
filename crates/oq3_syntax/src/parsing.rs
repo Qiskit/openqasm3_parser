@@ -16,6 +16,30 @@ pub fn parse_text(text: &str) -> (GreenNode, Vec<SyntaxError>) {
     (node, errors)
 }
 
+pub fn parse_text_check_lex(text: &str) -> (Option<GreenNode>, Vec<SyntaxError>) {
+    let lexed = oq3_parser::LexedStr::new(text);
+    if lexed.errors_len() > 0 {
+        return (None, just_errors(lexed));
+    }
+    let parser_input = lexed.to_input();
+    let parser_output = oq3_parser::TopEntryPoint::SourceFile.parse(&parser_input);
+    let (node, errors, _eof) = build_tree(lexed, parser_output);
+    (Some(node), errors)
+}
+
+fn just_errors(lexed: oq3_parser::LexedStr<'_>) -> Vec<SyntaxError> {
+    let mut errors = Vec::<SyntaxError>::new();
+    for (i, err) in lexed.errors() {
+        let text_range = lexed.text_range(i);
+        let text_range = TextRange::new(
+            text_range.start.try_into().unwrap(),
+            text_range.end.try_into().unwrap(),
+        );
+        errors.push(SyntaxError::new(err, text_range))
+    }
+    errors
+}
+
 pub(crate) fn build_tree(
     lexed: oq3_parser::LexedStr<'_>,
     parser_output: oq3_parser::Output,

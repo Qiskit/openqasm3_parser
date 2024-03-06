@@ -24,9 +24,7 @@ use crate::{ast, AstNode, SourceFile, SyntaxKind, SyntaxToken}; // utils::is_raw
 /// module defines shortcuts for common things.
 ///
 /// It's named `ext` rather than `shortcuts` just to keep it short.
-pub mod ext {
-    // GJL. This is intended to be used for semantic analysis, I think.
-}
+pub mod ext {}
 
 pub fn expr_loop(block: ast::BlockExpr) -> ast::Expr {
     expr_from_text(&format!("loop {block}"))

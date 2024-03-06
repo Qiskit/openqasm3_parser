@@ -118,13 +118,14 @@ impl<T> Parse<T> {
 }
 
 impl<T: AstNode> Parse<T> {
-    pub fn to_syntax(self) -> Parse<SyntaxNode> {
-        Parse {
-            green: self.green,
-            errors: self.errors,
-            _ty: PhantomData,
-        }
-    }
+    // FIXME: This is apparently not used anywhere
+    // pub fn to_syntax(self) -> Parse<SyntaxNode> {
+    //     Parse {
+    //         green: self.green,
+    //         errors: self.errors,
+    //         _ty: PhantomData,
+    //     }
+    // }
 
     pub fn tree(&self) -> T {
         T::cast(self.syntax_node()).unwrap()
@@ -163,7 +164,70 @@ impl Parse<SourceFile> {
     }
 }
 
-/// `SourceFile` represents a parse tree for a single Rust file.
+// We have preserved `Parse<T>` above which is needed at least by make.rs.
+// But it's probably best to consolidate `Parse` and `ParseOrErrors`. The
+// former is still used in make.rs. We make very little use of this, only for
+// a few tests. Some of these tests trigger lexer errors, some do not. We
+// inherited the treatement from r-a, which always proceeds from lexing to parsing,
+// and makes no distinction between lexer and parser errors.
+// But for OQ3, it is convenient to demand:
+//   The parser only runs if there were no lexer errors.
+//   The semantic analysis only runs if there were no parser errors.
+// Corollaries to these requirements are
+//   An improperly lexed stream, say one with tokens deemed "illegal", being ingested
+//   by the parser, implies a bug outside the parser.
+//   A syntactically incorrect ast being ingested by the semantic analyzer implies a bug
+//   outside the semantic analyzer.
+/// Same as Parse<T> except that the `GreenNode` is wrapped in `Option`.
+/// The `Option` is `None` if lexer errors were recorded, in which case no
+/// parsing was done. In the same case, all errors will be lexer errors.
+/// If there are no lexer errors, the parsing was done, and there is a `GreenNode`.
+/// In this case any errors are parser errors.
+#[derive(Debug, PartialEq, Eq)]
+pub struct ParseOrErrors<T> {
+    green: Option<GreenNode>,
+    errors: Arc<Vec<SyntaxError>>,
+    _ty: PhantomData<fn() -> T>,
+}
+
+impl<T> Clone for ParseOrErrors<T> {
+    fn clone(&self) -> ParseOrErrors<T> {
+        ParseOrErrors {
+            green: self.green.clone(),
+            errors: self.errors.clone(),
+            _ty: PhantomData,
+        }
+    }
+}
+
+impl<T> ParseOrErrors<T> {
+    pub fn syntax_node(&self) -> SyntaxNode {
+        SyntaxNode::new_root(self.green.clone().unwrap())
+    }
+    pub fn errors(&self) -> &[SyntaxError] {
+        &self.errors
+    }
+    pub fn have_parse(&self) -> bool {
+        self.green.is_some()
+    }
+}
+
+impl<T: AstNode> ParseOrErrors<T> {
+    pub fn tree(&self) -> T {
+        T::cast(self.syntax_node()).unwrap()
+    }
+
+    // May not need to duplicate this, which is implemented for `Parse`
+    // pub fn ok(self) -> Result<T, Arc<Vec<SyntaxError>>> {
+    //     if self.errors.is_empty() {
+    //         Ok(self.tree())
+    //     } else {
+    //         Err(self.errors)
+    //     }
+    // }
+}
+
+/// `SourceFile` represents a parse tree for a single OQ3 file.
 pub use crate::ast::SourceFile;
 
 impl SourceFile {
@@ -174,6 +238,23 @@ impl SourceFile {
         assert_eq!(root.kind(), SyntaxKind::SOURCE_FILE);
         Parse {
             green,
+            errors: Arc::new(errors),
+            _ty: PhantomData,
+        }
+    }
+
+    // If there are lexer errors, do not parse and do not return `Parse<SourceFile>`.
+    // If there are lexer errors, return `(None, Some(errors))`
+    // If there are no lexer errors, return `(Some(Parse), None)`
+    pub fn parse_check_lex(text: &str) -> ParseOrErrors<SourceFile> {
+        let (green_maybe, mut errors) = parsing::parse_text_check_lex(text);
+        if let Some(ref green) = green_maybe {
+            let root = SyntaxNode::new_root(green.clone());
+            errors.extend(validation::validate(&root));
+            assert_eq!(root.kind(), SyntaxKind::SOURCE_FILE);
+        }
+        ParseOrErrors {
+            green: green_maybe,
             errors: Arc::new(errors),
             _ty: PhantomData,
         }

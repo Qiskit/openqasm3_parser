@@ -120,18 +120,22 @@ fn main() {
 
         Some(Commands::Parse { file_name }) => {
             let parsed_source = oq3_source_file::parse_source_file(file_name, None::<&[PathBuf]>);
-            let parse_tree = parsed_source.syntax_ast().tree();
-            println!(
-                "Found {} stmts",
-                parse_tree.statements().collect::<Vec<_>>().len()
-            );
-            let syntax_errors = parsed_source.syntax_ast().errors();
+            let ast = parsed_source.syntax_ast();
+            let num_stmts = if ast.have_parse() {
+                ast.tree().statements().count()
+            } else {
+                0
+            };
+            println!("Found {num_stmts} stmts");
+            let syntax_errors = ast.errors();
             println!(
                 "Found {} parse errors:\n{:?}\n",
                 syntax_errors.len(),
                 syntax_errors
             );
-            print_tree(parse_tree);
+            if ast.have_parse() {
+                print_tree(ast.tree());
+            }
         }
 
         Some(Commands::ParseGreen { file_name }) => {
