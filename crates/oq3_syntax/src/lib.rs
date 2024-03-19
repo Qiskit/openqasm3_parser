@@ -118,15 +118,6 @@ impl<T> Parse<T> {
 }
 
 impl<T: AstNode> Parse<T> {
-    // FIXME: This is apparently not used anywhere
-    // pub fn to_syntax(self) -> Parse<SyntaxNode> {
-    //     Parse {
-    //         green: self.green,
-    //         errors: self.errors,
-    //         _ty: PhantomData,
-    //     }
-    // }
-
     pub fn tree(&self) -> T {
         T::cast(self.syntax_node()).unwrap()
     }
@@ -216,15 +207,6 @@ impl<T: AstNode> ParseOrErrors<T> {
     pub fn tree(&self) -> T {
         T::cast(self.syntax_node()).unwrap()
     }
-
-    // May not need to duplicate this, which is implemented for `Parse`
-    // pub fn ok(self) -> Result<T, Arc<Vec<SyntaxError>>> {
-    //     if self.errors.is_empty() {
-    //         Ok(self.tree())
-    //     } else {
-    //         Err(self.errors)
-    //     }
-    // }
 }
 
 /// `SourceFile` represents a parse tree for a single OQ3 file.
@@ -243,9 +225,10 @@ impl SourceFile {
         }
     }
 
-    // If there are lexer errors, do not parse and do not return `Parse<SourceFile>`.
-    // If there are lexer errors, return `(None, Some(errors))`
-    // If there are no lexer errors, return `(Some(Parse), None)`
+    /// Lex `text` and parse the result if there are no lexing errors.
+    /// The green tree is wrapped in `Option` to account for the case
+    /// that there *are* lexing errors and no parsing is done and no
+    /// tree is built.
     pub fn parse_check_lex(text: &str) -> ParseOrErrors<SourceFile> {
         let (green_maybe, mut errors) = parsing::parse_text_check_lex(text);
         if let Some(ref green) = green_maybe {
