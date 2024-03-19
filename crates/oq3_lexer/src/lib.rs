@@ -330,6 +330,7 @@ impl Cursor<'_> {
                         }
                     }
                 }
+                // Only `#pragma` and `#dim` may begin with a pound character
                 InvalidIdent
             }
 

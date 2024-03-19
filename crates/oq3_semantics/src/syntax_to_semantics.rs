@@ -96,7 +96,7 @@ where
     T: AsRef<str>,
     P: AsRef<Path>,
 {
-    let parsed_source =
+    let parsed_source: SourceString =
         oq3_source_file::parse_source_string(source, fake_file_path, search_path_list);
     analyze_source(parsed_source)
 }
@@ -110,7 +110,7 @@ where
     T: AsRef<Path>,
     P: AsRef<Path>,
 {
-    let parsed_source = oq3_source_file::parse_source_file(file_path, search_path_list);
+    let parsed_source: SourceFile = oq3_source_file::parse_source_file(file_path, search_path_list);
     analyze_source(parsed_source)
 }
 

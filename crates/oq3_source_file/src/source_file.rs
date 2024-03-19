@@ -3,24 +3,28 @@
 
 use crate::api::{inner_print_compiler_errors, parse_source_file, print_compiler_errors};
 use oq3_syntax::ast as synast; // Syntactic AST
-use oq3_syntax::Parse;
+use oq3_syntax::ParseOrErrors;
 use oq3_syntax::TextRange;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+// I think SourceFile actually just works with the source as a string.
+// Knowledge of any file is not used by synast::SourceFile;
+pub(crate) type ParsedSource = ParseOrErrors<synast::SourceFile>;
+
 pub(crate) fn parse_source_and_includes<P: AsRef<Path>>(
     source: &str,
     search_path_list: Option<&[P]>,
 ) -> (ParsedSource, Vec<SourceFile>) {
-    let syntax_ast: ParsedSource = synast::SourceFile::parse(source);
-    let included = parse_included_files(&syntax_ast, search_path_list);
-    (syntax_ast, included)
+    let parsed_source = synast::SourceFile::parse_check_lex(source);
+    let included = if parsed_source.have_parse() {
+        parse_included_files(&parsed_source, search_path_list)
+    } else {
+        Vec::<SourceFile>::new()
+    };
+    (parsed_source, included)
 }
-
-// I think SourceFile actually just works with the source as a string.
-// Knowledge of any file is not used by synast::SourceFile;
-pub(crate) type ParsedSource = Parse<synast::SourceFile>;
 
 pub trait ErrorTrait {
     fn message(&self) -> String;

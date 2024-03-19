@@ -105,6 +105,10 @@ impl<'a> LexedStr<'a> {
             .map(|it| (it.token as usize, it.msg.as_str()))
     }
 
+    pub fn errors_len(&self) -> usize {
+        self.error.len()
+    }
+
     fn push(&mut self, kind: SyntaxKind, offset: usize) {
         self.kind.push(kind);
         self.start.push(offset as u32);
@@ -233,7 +237,7 @@ fn inner_extend_token<'a>(
             }
 
             oq3_lexer::TokenKind::InvalidIdent => {
-                err = "Ident contains invalid characters";
+                err = "Identifier contains invalid characters";
                 IDENT
             }
 
