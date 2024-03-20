@@ -94,12 +94,13 @@ impl BlockLike {
     }
 }
 
-fn scalar_type(p: &mut Parser<'_>) {
-    assert!(p.current().is_scalar_type());
-    let r = p.start();
-    p.bump_any();
-    r.complete(p, SCALAR_TYPE);
-}
+// FIXME: was only used in opt_ret_type. But no longer even there
+// fn scalar_type(p: &mut Parser<'_>) {
+//     assert!(p.current().is_scalar_type());
+//     let r = p.start();
+//     p.bump_any();
+//     r.complete(p, SCALAR_TYPE);
+// }
 
 /// Parse the optional return signature of a `defcal` or `def` definition.
 /// Return `true` if the return type was found, else `false.
@@ -107,10 +108,13 @@ fn opt_ret_type(p: &mut Parser<'_>) -> bool {
     if p.at(T![->]) {
         let m = p.start();
         p.bump(T![->]);
+        if !p.current().is_scalar_type() {
+            p.error("Expected scalar return type after ->");
+        }
+        // Allow any type, with possible error.
         if p.current().is_type() {
-            scalar_type(p);
+            expressions::type_spec(p);
         } else {
-            p.error("Expected return type after ->");
             m.abandon(p);
             return false;
         }

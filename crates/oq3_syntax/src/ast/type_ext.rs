@@ -3,6 +3,9 @@
 
 use crate::{ast, SyntaxToken, T};
 
+// `ScalarTypeKind` includes Qubit because thus far, we only
+// use it for def can defcall, which allows mixing scalar and qubits
+// in a list of parameters.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ScalarTypeKind {
     Angle,
@@ -12,9 +15,10 @@ pub enum ScalarTypeKind {
     Duration,
     Float,
     Int,
-    None, // For testing. Remove this
+    None, // Use this to record errors
     Stretch,
     UInt,
+    Qubit,
 }
 
 impl ast::ScalarType {
@@ -30,7 +34,8 @@ impl ast::ScalarType {
             T![int] => Int,
             T![stretch] => Stretch,
             T![uint] => UInt,
-            _ => None, // record an error ?
+            T![qubit] => Qubit,
+            _ => None,
         }
     }
 

@@ -154,7 +154,7 @@ FilePath =
 
 // Subroutine definition
 Def =
- 'def' Name ParamList ReturnSignature?
+ 'def' Name TypedParamList ReturnSignature?
  (body:BlockExpr | ';')
 
 // Defcal definition
@@ -178,6 +178,12 @@ Gate =
 // Paren delimited list
 ParamList =
   '(' (Param (',' Param)* ','?)? ')'
+
+TypedParamList =
+  '(' (TypedParam (',' TypedParam)* ','?)? ')'
+
+TypedParam =
+  ScalarType Name
 
 // List with no delimeters
 QubitList =

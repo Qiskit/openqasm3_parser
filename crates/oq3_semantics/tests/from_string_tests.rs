@@ -619,3 +619,48 @@ delay[x] q;
     assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 3);
 }
+
+#[test]
+fn test_from_string_def_1() {
+    let code = r##"
+gate h q {}
+def xmeasure(qubit q) -> bit { h q; return measure q; }
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 2);
+}
+
+#[test]
+fn test_from_string_def_2() {
+    let code = r##"
+gate h q {}
+gate rz(theta) q {}
+
+def pmeasure(angle[32] theta, qubit q) -> bit {
+  rz(theta) q;
+  h q;
+  return measure q;
+}
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 3);
+}
+
+// Issue #183
+#[test]
+fn test_from_string_def_3() {
+    let code = r##"
+gate cx p, q {}
+
+def xcheck(qubit[4] d, qubit a) -> bit {
+  reset a;
+  for int i in [0: 3] {cx d[i], a;}
+  return measure a;
+}
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert_eq!(program.len(), 2);
+}

@@ -152,7 +152,7 @@ impl Def {
     pub fn def_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![def])
     }
-    pub fn param_list(&self) -> Option<ParamList> {
+    pub fn typed_param_list(&self) -> Option<TypedParamList> {
         support::child(&self.syntax)
     }
     pub fn return_signature(&self) -> Option<ReturnSignature> {
@@ -559,14 +559,14 @@ pub struct FilePath {
 }
 impl FilePath {}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ParamList {
+pub struct TypedParamList {
     pub(crate) syntax: SyntaxNode,
 }
-impl ParamList {
+impl TypedParamList {
     pub fn l_paren_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T!['('])
     }
-    pub fn params(&self) -> AstChildren<Param> {
+    pub fn typed_params(&self) -> AstChildren<TypedParam> {
         support::children(&self.syntax)
     }
     pub fn r_paren_token(&self) -> Option<SyntaxToken> {
@@ -586,11 +586,81 @@ impl ReturnSignature {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct ParamList {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ParamList {
+    pub fn l_paren_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['('])
+    }
+    pub fn params(&self) -> AstChildren<Param> {
+        support::children(&self.syntax)
+    }
+    pub fn r_paren_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![')'])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Param {
     pub(crate) syntax: SyntaxNode,
 }
 impl ast::HasName for Param {}
 impl Param {}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct TypedParam {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ast::HasName for TypedParam {}
+impl TypedParam {
+    pub fn scalar_type(&self) -> Option<ScalarType> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct ScalarType {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ScalarType {
+    pub fn bit_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![bit])
+    }
+    pub fn designator(&self) -> Option<Designator> {
+        support::child(&self.syntax)
+    }
+    pub fn int_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![int])
+    }
+    pub fn uint_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![uint])
+    }
+    pub fn float_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![float])
+    }
+    pub fn angle_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![angle])
+    }
+    pub fn bool_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![bool])
+    }
+    pub fn duration_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![duration])
+    }
+    pub fn stretch_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![stretch])
+    }
+    pub fn complex_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![complex])
+    }
+    pub fn l_brack_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['['])
+    }
+    pub fn scalar_type(&self) -> Option<ScalarType> {
+        support::child(&self.syntax)
+    }
+    pub fn r_brack_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![']'])
+    }
+}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ArrayExpr {
     pub(crate) syntax: SyntaxNode,
@@ -864,51 +934,6 @@ impl ArgList {
     }
     pub fn r_paren_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![')'])
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ScalarType {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ScalarType {
-    pub fn bit_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![bit])
-    }
-    pub fn designator(&self) -> Option<Designator> {
-        support::child(&self.syntax)
-    }
-    pub fn int_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![int])
-    }
-    pub fn uint_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![uint])
-    }
-    pub fn float_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![float])
-    }
-    pub fn angle_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![angle])
-    }
-    pub fn bool_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![bool])
-    }
-    pub fn duration_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![duration])
-    }
-    pub fn stretch_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![stretch])
-    }
-    pub fn complex_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![complex])
-    }
-    pub fn l_brack_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T!['['])
-    }
-    pub fn scalar_type(&self) -> Option<ScalarType> {
-        support::child(&self.syntax)
-    }
-    pub fn r_brack_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![']'])
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -1675,9 +1700,9 @@ impl AstNode for FilePath {
         &self.syntax
     }
 }
-impl AstNode for ParamList {
+impl AstNode for TypedParamList {
     fn can_cast(kind: SyntaxKind) -> bool {
-        kind == PARAM_LIST
+        kind == TYPED_PARAM_LIST
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -1705,9 +1730,54 @@ impl AstNode for ReturnSignature {
         &self.syntax
     }
 }
+impl AstNode for ParamList {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == PARAM_LIST
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for Param {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == PARAM
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for TypedParam {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == TYPED_PARAM
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for ScalarType {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == SCALAR_TYPE
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2038,21 +2108,6 @@ impl AstNode for IndexOperator {
 impl AstNode for ArgList {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == ARG_LIST
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
-impl AstNode for ScalarType {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == SCALAR_TYPE
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2778,6 +2833,7 @@ impl AstNode for AnyHasName {
                 | LET_STMT
                 | QUANTUM_DECLARATION_STATEMENT
                 | PARAM
+                | TYPED_PARAM
                 | GATE_CALL_EXPR
                 | HARDWARE_QUBIT
                 | INDEXED_IDENTIFIER
@@ -2996,7 +3052,7 @@ impl std::fmt::Display for FilePath {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
-impl std::fmt::Display for ParamList {
+impl std::fmt::Display for TypedParamList {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -3006,7 +3062,22 @@ impl std::fmt::Display for ReturnSignature {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
+impl std::fmt::Display for ParamList {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
 impl std::fmt::Display for Param {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for TypedParam {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for ScalarType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -3117,11 +3188,6 @@ impl std::fmt::Display for IndexOperator {
     }
 }
 impl std::fmt::Display for ArgList {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for ScalarType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
