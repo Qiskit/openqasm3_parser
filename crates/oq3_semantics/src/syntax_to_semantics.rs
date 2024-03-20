@@ -931,7 +931,13 @@ fn from_scalar_type(
         synast::ScalarTypeKind::None => panic!("You have found a bug in oq3_parser"),
         synast::ScalarTypeKind::Stretch => Type::Stretch(isconst.into()),
         synast::ScalarTypeKind::UInt => Type::UInt(width, isconst.into()),
-        synast::ScalarTypeKind::Qubit => Type::Qubit,
+        // The spec says a qubit register is equivalent to a 1D qubit array.
+        // Trying to maintain a non-existent distinction would lead to bad confusion.
+        // This is the point where we eliminate the distinction. (Code is repeated elsewhere.)
+        synast::ScalarTypeKind::Qubit => match width {
+            Some(width) => Type::QubitArray(ArrayDims::D1(width as usize)),
+            None => Type::Qubit,
+        },
     }
 }
 
