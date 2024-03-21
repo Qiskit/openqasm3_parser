@@ -52,7 +52,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
     let want_parens = matches!(flavor, GateParams | DefParams | DefCalParams);
     match flavor {
         GateParams | DefParams | DefCalParams => p.bump(T!['(']),
-        _ => (),
+        GateQubits | GateCallQubits | DefCalQubits | ExpressionList => (),
     }
     // FIXME: find implementation that does not require [T![')'], T![')']]
     // I tried using TokenSet, which should give exactly the same result.
@@ -87,9 +87,10 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
                 true
             }
             GateCallQubits => arg_gate_call_qubit(p, m),
+            // FIXME: this can't work. These two variants have different reqs on params
             DefParams | DefCalParams => param_typed(p, m),
             // The following is pretty ugly. Probably inefficient as well
-            _ => param_untyped(p, m),
+            GateParams | GateQubits | DefCalQubits => param_untyped(p, m),
         };
         if !found_param {
             break;
@@ -118,12 +119,12 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         GateParams | ExpressionList if num_params < 1 => {
             p.error("expected one or more parameters");
         }
-        _ => {}
+        GateParams | ExpressionList => {}
+        GateQubits | GateCallQubits | DefParams | DefCalParams | DefCalQubits => {}
     };
     if let Some(m) = param_marker {
         m.abandon(p);
     }
-    // FIXME: rewrite followig as match statement.
     // Error if we don't find closing paren.
     if want_parens {
         p.expect(T![')']);
@@ -134,11 +135,9 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         GateCallQubits => QUBIT_LIST,
         ExpressionList => EXPRESSION_LIST,
         DefParams | DefCalParams => TYPED_PARAM_LIST,
-        _ => PARAM_LIST,
+        GateParams => PARAM_LIST,
     };
     list_marker.complete(p, kind);
-    // let is_qubits = matches!(flavor, GateQubits | DefCalQubits);
-    // list_marker.complete(p, if is_qubits {QUBIT_LIST} else {PARAM_LIST});
 }
 
 const PATTERN_FIRST: TokenSet = expressions::LITERAL_FIRST

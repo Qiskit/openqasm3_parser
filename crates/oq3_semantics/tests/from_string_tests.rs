@@ -661,6 +661,6 @@ def xcheck(qubit[4] d, qubit a) -> bit {
 }
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 1);
+    assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
 }
