@@ -169,7 +169,12 @@ pub(crate) fn parse_included_files<P: AsRef<Path>>(
             synast::Stmt::Include(include) => {
                 let file: synast::FilePath = include.file().unwrap();
                 let file_path = file.to_string().unwrap();
-                Some(parse_source_file(file_path, search_path_list))
+                // stdgates.qasm will be handled "as if" it really existed.
+                if file_path == "stdgates.qasm" {
+                    None
+                } else {
+                    Some(parse_source_file(file_path, search_path_list))
+                }
             }
             _ => None,
         })
