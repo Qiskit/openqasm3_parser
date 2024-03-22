@@ -687,3 +687,107 @@ include "stdgates.inc";
     assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 1);
 }
+
+#[test]
+fn test_from_string_check_assign_types_1() {
+    let code = r##"
+bit[3] b;
+qubit[2] q;
+b = measure q;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert!(matches!(
+        &errors[0].kind(),
+        SemanticErrorKind::IncompatibleDimensionError
+    ));
+    assert_eq!(program.len(), 3);
+}
+
+#[test]
+fn test_from_string_check_assign_types_2() {
+    let code = r##"
+float b;
+qubit[2] q;
+b = measure q;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert!(matches!(
+        &errors[0].kind(),
+        SemanticErrorKind::IncompatibleTypesError
+    ));
+    assert_eq!(program.len(), 3);
+}
+
+// Bug
+#[test]
+fn test_from_string_check_assign_types_3() {
+    let code = r##"
+float b[2];
+qubit[2] q;
+b[1] = measure q;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+}
+
+#[test]
+fn test_from_string_check_assign_types_4() {
+    let code = r##"
+float x0;
+x0 = 1;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+}
+
+#[test]
+fn test_from_string_check_assign_types_5() {
+    let code = r##"
+uint x0;
+x0 = 1;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+}
+
+#[test]
+fn test_from_string_check_assign_types_6() {
+    let code = r##"
+uint x0;
+x0 = -1;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert!(matches!(&errors[0].kind(), SemanticErrorKind::CastError));
+}
+
+#[test]
+fn test_from_string_check_assign_types_7() {
+    let code = r##"
+int x0;
+x0 = 2.0;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert!(matches!(
+        &errors[0].kind(),
+        SemanticErrorKind::IncompatibleTypesError
+    ));
+}
+
+#[test]
+fn test_from_string_check_assign_types_8() {
+    let code = r##"
+float xx = 3;
+int yy;
+yy = xx;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert!(matches!(
+        &errors[0].kind(),
+        SemanticErrorKind::IncompatibleTypesError
+    ));
+}

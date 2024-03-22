@@ -184,6 +184,17 @@ impl Type {
             _ => None,
         }
     }
+
+    pub fn equal_up_to_dims(&self, other: &Type) -> bool {
+        use Type::*;
+        if self == other {
+            return true;
+        }
+        if matches!(self, BitArray(_, _)) && matches!(other, BitArray(_, _)) {
+            return true;
+        }
+        false
+    }
 }
 
 #[test]
@@ -221,21 +232,36 @@ fn promote_width(ty1: &Type, ty2: &Type) -> Width {
 
 // promotion suitable for some binary operations, eg +, -, *
 pub fn promote_types(ty1: &Type, ty2: &Type) -> Type {
-    use Type::*;
     if ty1 == ty2 {
         return ty1.clone();
     }
+    let typ = promote_types_symmetric(ty1, ty2);
+    if typ != Type::Void {
+        return typ;
+    }
+    let typ = promote_types_asymmetric(ty1, ty2);
+    if typ == Type::Void {
+        return promote_types_asymmetric(ty2, ty1);
+    }
+    typ
+}
+
+fn promote_types_symmetric(ty1: &Type, ty2: &Type) -> Type {
+    use Type::*;
     let isconst = promote_constness(ty1, ty2);
     match (ty1, ty2) {
-        // pairs without float
         (Int(..), Int(..)) => Int(promote_width(ty1, ty2), isconst),
         (UInt(..), UInt(..)) => UInt(promote_width(ty1, ty2), isconst),
+        (Float(..), Float(..)) => Float(promote_width(ty1, ty2), isconst),
+        _ => Void,
+    }
+}
 
-        // pairs with float
+fn promote_types_asymmetric(ty1: &Type, ty2: &Type) -> Type {
+    use Type::*;
+    match (ty1, ty2) {
         (Int(..), Float(..)) => ty2.clone(),
-        (Float(..), Int(..)) => ty1.clone(),
         (UInt(..), Float(..)) => ty2.clone(),
-        (Float(..), UInt(..)) => ty1.clone(),
         _ => Void,
     }
 }

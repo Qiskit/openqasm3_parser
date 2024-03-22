@@ -19,6 +19,8 @@ pub enum SemanticErrorKind {
     RedeclarationError(String),
     ConstIntegerError, // need a better way to organize this kind of type error
     IncompatibleTypesError,
+    IncompatibleDimensionError,
+    CastError,
     MutateConstError,
     IncludeNotInGlobalScopeError,
     ReturnInGlobalScopeError,
