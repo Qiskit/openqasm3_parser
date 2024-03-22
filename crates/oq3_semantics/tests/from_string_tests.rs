@@ -668,7 +668,7 @@ def xcheck(qubit[4] d, qubit a) -> bit {
 #[test]
 fn test_from_string_stdgates() {
     let code = r##"
-include "stdgates.qasm";
+include "stdgates.inc";
 qubit q;
 h q;
 "##;
@@ -681,7 +681,7 @@ h q;
 fn test_from_string_stdgates_2() {
     let code = r##"
 gate h q {}
-include "stdgates.qasm";
+include "stdgates.inc";
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 1);

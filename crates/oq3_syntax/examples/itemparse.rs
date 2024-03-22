@@ -12,7 +12,7 @@ int q;
 
 OPENQASM 3.1;
 
-include "stdgates.qasm";
+include "stdgates.inc";
 
 defcalgrammar "openpulse";
 

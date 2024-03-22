@@ -46,7 +46,7 @@ impl Context {
     // `SymbolTable::standard_library_gates()` returns a vector of
     // all names that were already bound. We record a redeclaration error
     // for each of these. The caller of the present method should pass
-    // the node corresponding to `include "stdgates.qasm"`. This is the
+    // the node corresponding to `include "stdgates.inc"`. This is the
     // best we can do since no real file has been included.
     /// Define gates in the standard library.
     pub fn standard_library_gates<T>(&mut self, node: &T)

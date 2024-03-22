@@ -169,8 +169,8 @@ pub(crate) fn parse_included_files<P: AsRef<Path>>(
             synast::Stmt::Include(include) => {
                 let file: synast::FilePath = include.file().unwrap();
                 let file_path = file.to_string().unwrap();
-                // stdgates.qasm will be handled "as if" it really existed.
-                if file_path == "stdgates.qasm" {
+                // stdgates.inc will be handled "as if" it really existed.
+                if file_path == "stdgates.inc" {
                     None
                 } else {
                     Some(parse_source_file(file_path, search_path_list))
