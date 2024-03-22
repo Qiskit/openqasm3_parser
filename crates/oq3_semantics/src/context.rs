@@ -43,6 +43,26 @@ impl Context {
         &self.symbol_table
     }
 
+    // `SymbolTable::standard_library_gates()` returns a vector of
+    // all names that were already bound. We record a redeclaration error
+    // for each of these. The caller of the present method should pass
+    // the node corresponding to `include "stdgates.qasm"`. This is the
+    // best we can do since no real file has been included.
+    /// Define gates in the standard library.
+    pub fn standard_library_gates<T>(&mut self, node: &T)
+    where
+        T: AstNode,
+    {
+        self.symbol_table
+            .standard_library_gates()
+            .into_iter()
+            .map(|name| {
+                self.semantic_errors
+                    .insert(RedeclarationError(name.to_string()), node);
+            })
+            .for_each(drop);
+    }
+
     pub fn as_tuple(self) -> (asg::Program, SemanticErrorList, SymbolTable) {
         (self.program, self.semantic_errors, self.symbol_table)
     }
@@ -108,7 +128,8 @@ impl Context {
         //        let symbol_id_result = self.symbol_table.new_binding(name, typ, node.syntax());
         let symbol_id_result = self.symbol_table.new_binding(name, typ);
         if symbol_id_result.is_err() {
-            self.semantic_errors.insert(RedeclarationError, node);
+            self.semantic_errors
+                .insert(RedeclarationError(name.to_string()), node);
         }
         symbol_id_result
     }

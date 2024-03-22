@@ -221,6 +221,46 @@ pub struct SymbolTable {
     symbol_id_counter: SymbolId,
 }
 
+impl SymbolTable {
+    // This will be called if `include "stdgates.qasm"` is encountered. At present we don't have any include guard.
+    // FIXME: This function allocates a vector. The caller iterates over the vector.
+    //  Would be nice to return the `FlatMap` instead. I tried doing this, but it was super compilcated.
+    //  The compiler helps with which trait to use as the return type. But then tons of bugs occur within
+    //  the body.
+    /// Define gates in standard library "as if" a file of definitions (or declarations) had been read.
+    pub(crate) fn standard_library_gates(&mut self) -> Vec<&str> {
+        let g1q0p = (
+            vec![
+                "x", "y", "z", "h", "s", "sdg", "t", "tdg", "sx", /* 2.0 */ "id",
+            ],
+            [0, 1],
+        );
+        let g1q1p = (vec!["p", "rx", "ry", "rz", /* 2.0 */ "phase", "u1"], [1, 1]);
+        let g1q2p = (vec![/* 2.0 */ "u2"], [2, 1]);
+        let g1q3p = (vec![/* 2.0 */ "u3"], [3, 1]);
+        let g2q0p = (vec!["cx", "cy", "cz", "ch", "swap", /* 2.0 */ "CX"], [0, 2]);
+        let g2q1p = (vec!["cp", "crx", "cry", "crz", /* 2.0 */ "cphase"], [1, 2]);
+        let g2q4p = (vec!["cu"], [4, 2]);
+        let g3q0p = (vec!["ccx", "cswap"], [0, 3]);
+        let all_gates = vec![g1q0p, g1q1p, g1q2p, g1q3p, g2q0p, g2q1p, g2q4p, g3q0p];
+        // If `new_binding` returns `Err`, we push `name` onto a vector which will be
+        // used by the caller to record errors. Here flat_map and filter are used to
+        // select filter the names.
+        all_gates
+            .into_iter()
+            .flat_map(|(names, [n_cl, n_qu])| {
+                names
+                    .into_iter()
+                    .filter(|name| {
+                        // The side effect of the test is important!
+                        self.new_binding(name, &Type::Gate(n_cl, n_qu)).is_err()
+                    })
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>()
+    }
+}
+
 #[allow(dead_code)]
 impl SymbolTable {
     /// Create a new `SymbolTable` and initialize with the global scope.
@@ -231,7 +271,7 @@ impl SymbolTable {
             all_symbols: Vec::<Symbol>::new(),
         };
         symbol_table.enter_scope(ScopeType::Global);
-        // Define global, built-in constants
+        // Define global, built-in constants, and the single built-in gate
         for const_name in ["pi", "π", "euler", "ℇ", "tau", "τ"] {
             let _ =
                 symbol_table.new_binding(const_name, &Type::Float(Some(64), types::IsConst::True));
