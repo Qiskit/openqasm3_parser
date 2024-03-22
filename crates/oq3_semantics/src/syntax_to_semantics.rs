@@ -154,7 +154,7 @@ pub fn syntax_to_semantic<T: SourceTrait>(
             synast::Stmt::Include(include) => {
                 let file: synast::FilePath = include.file().unwrap();
                 let file_path = file.to_string().unwrap();
-                if file_path == "stdgates.qasm" {
+                if file_path == "stdgates.inc" {
                     // We do not use a file for standard library, but rather create the symbols.
                     context.standard_library_gates(&include);
                 } else {

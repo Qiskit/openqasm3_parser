@@ -222,7 +222,7 @@ pub struct SymbolTable {
 }
 
 impl SymbolTable {
-    // This will be called if `include "stdgates.qasm"` is encountered. At present we don't have any include guard.
+    // This will be called if `include "stdgates.inc"` is encountered. At present we don't have any include guard.
     // FIXME: This function allocates a vector. The caller iterates over the vector.
     //  Would be nice to return the `FlatMap` instead. I tried doing this, but it was super compilcated.
     //  The compiler helps with which trait to use as the return type. But then tons of bugs occur within
