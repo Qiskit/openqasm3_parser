@@ -31,7 +31,7 @@ fn test_texpr_int_literal() {
     let literal = IntLiteral::new(1_u32, true);
     let texpr = literal.clone().to_texpr();
     assert_eq!(texpr.expression(), &literal.to_expr());
-    assert_eq!(texpr.get_type(), &Type::UInt(Some(128), IsConst::True));
+    assert_eq!(texpr.get_type(), &Type::Int(Some(128), IsConst::True));
 }
 
 //

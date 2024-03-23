@@ -932,7 +932,7 @@ impl IntLiteral {
     }
 
     pub fn to_texpr(self) -> TExpr {
-        TExpr::new(self.to_expr(), Type::UInt(Some(128), IsConst::True))
+        TExpr::new(self.to_expr(), Type::Int(Some(128), IsConst::True))
     }
 }
 

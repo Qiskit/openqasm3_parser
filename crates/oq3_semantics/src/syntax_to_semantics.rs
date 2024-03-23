@@ -996,27 +996,58 @@ fn from_assignment_stmt(
     context: &mut Context,
 ) -> Option<asg::Stmt> {
     let nameb = assignment_stmt.identifier(); // LHS of assignment
+                                              // LHS is an identifier
     if nameb.is_some() {
         let name = nameb.as_ref().unwrap();
         let name_str = name.string();
-        let expr = from_expr(assignment_stmt.rhs(), context); // rhs of `=` operator
+        let mut expr = from_expr(assignment_stmt.rhs(), context).unwrap(); // rhs of `=` operator
 
-        let (symbol_id, typ) = context.lookup_symbol(name_str.as_str(), name).as_tuple();
-        let is_mutating_const = symbol_id.is_ok() && typ.is_const();
+        let (symbol_id, symbol_type) = context.lookup_symbol(name_str.as_str(), name).as_tuple();
+        let symbol_ok = symbol_id.is_ok();
+        let is_mutating_const = symbol_ok && symbol_type.is_const();
         let lvalue = asg::LValue::Identifier(symbol_id);
-        let stmt_asg = Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt());
+        let expr_type = expr.get_type();
+        // Check that types match, but only if lhs has been declared, in which case
+        // recording a type error would be redundant.
+        if symbol_ok && expr_type != &symbol_type {
+            if expr_type.equal_up_to_dims(&symbol_type) {
+                context.insert_error(IncompatibleDimensionError, assignment_stmt);
+            } else if let asg::Expr::Literal(asg::Literal::Int(intlit)) = expr.expression() {
+                if matches!(symbol_type, Type::UInt(..)) {
+                    if *intlit.sign() {
+                        // FIXME: We are casting to unsigned if the int literal is positive.
+                        // But we are not checking the width.
+                        expr = asg::Cast::new(expr, symbol_type).to_texpr()
+                    } else {
+                        // We call this cast error. Not a great name
+                        // In Rust, `let x: u32 = -1;` gives "cannot apply unary operator `-` to type `u32`"
+                        // But we have combined `-` with the literal already during parsing (I think?).
+                        // In Julia, `x::UInt = -1` throws `InexactError`.
+                        context.insert_error(CastError, assignment_stmt);
+                    }
+                }
+            } else {
+                let promoted_type = types::promote_types(&symbol_type, expr_type);
+                if promoted_type == symbol_type {
+                    expr = asg::Cast::new(expr, promoted_type.clone()).to_texpr()
+                } else {
+                    context.insert_error(IncompatibleTypesError, assignment_stmt);
+                }
+            }
+        }
+        let stmt_asg = Some(asg::Assignment::new(lvalue, expr).to_stmt());
         if is_mutating_const {
             context.insert_error(MutateConstError, assignment_stmt);
         }
         return stmt_asg;
     }
+    // LHS is *not* an identifier, rather an indexed identifier
     let indexed_identifier_ast = assignment_stmt.indexed_identifier();
     let (indexed_identifier, _typ) =
         ast_indexed_identifier(&indexed_identifier_ast.unwrap(), context);
-    let expr = from_expr(assignment_stmt.rhs(), context); // rhs of `=` operator
-                                                          //    let is_mutating_const = symbol_id.is_ok() && typ.is_const();
+    let expr = from_expr(assignment_stmt.rhs(), context).unwrap(); // rhs of `=` operator
     let lvalue = asg::LValue::IndexedIdentifier(indexed_identifier);
-    Some(asg::Assignment::new(lvalue, expr.unwrap()).to_stmt())
+    Some(asg::Assignment::new(lvalue, expr).to_stmt())
 }
 
 //
