@@ -92,7 +92,7 @@ pub enum ArrayDims {
 }
 
 impl ArrayDims {
-    pub fn num_dims(&self) -> i32 {
+    pub fn num_dims(&self) -> usize {
         match self {
             ArrayDims::D1(..) => 1,
             ArrayDims::D2(..) => 2,
@@ -180,12 +180,23 @@ impl Type {
     pub fn dims(&self) -> Option<Vec<usize>> {
         use Type::*;
         match self {
-            QubitArray(dims) | IntArray(dims) => Some(dims.dims()),
+            QubitArray(dims) | IntArray(dims) | BitArray(dims, _) => Some(dims.dims()),
             _ => None,
         }
     }
 
-    pub fn equal_up_to_dims(&self, other: &Type) -> bool {
+    pub fn num_dims(&self) -> usize {
+        use Type::*;
+        match self {
+            QubitArray(dims) | IntArray(dims) | BitArray(dims, _) => dims.num_dims(),
+            _ => 0,
+        }
+    }
+
+    // FIXME: Not finished
+    /// Return `true` if the types have the same base type.
+    /// The number of dimensions and dimensions may differ.
+    pub fn equal_up_to_shape(&self, other: &Type) -> bool {
         use Type::*;
         if self == other {
             return true;
@@ -193,7 +204,23 @@ impl Type {
         if matches!(self, BitArray(_, _)) && matches!(other, BitArray(_, _)) {
             return true;
         }
+        if matches!(self, QubitArray(_)) && matches!(other, QubitArray(_)) {
+            return true;
+        }
         false
+    }
+
+    // FIXME: Not finished
+    /// Return `true` if the types have the same base type and the same shape.
+    /// The dimensions of each axis may differ.
+    pub fn equal_up_to_dims(&self, other: &Type) -> bool {
+        if self == other {
+            return true;
+        }
+        if self.num_dims() != other.num_dims() {
+            return false;
+        }
+        self.equal_up_to_shape(other)
     }
 }
 
