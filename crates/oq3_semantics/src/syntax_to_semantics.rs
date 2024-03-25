@@ -908,8 +908,24 @@ fn from_scalar_type(
     isconst: bool,
     context: &mut Context,
 ) -> Type {
-    // We only support literal integer designators at the moment.
-    let width = match scalar_type.designator().and_then(|desg| desg.expr()) {
+    // If the scalar type is `complex`, then scalar_type.scalar_type() will return
+    // the base type, which is a float type. If scalar_type.scalar_type() is `None`,
+    // then it is a simple scalar type and the designator is in scalar_type.designator.
+    // Note that this is the point where we throw away the token `float`, which is
+    // superfluous.
+    // In OQ3 source, `complex` types have a different syntax from other scalar types.
+    // Eg, we write `int[32]`, but we don't write `complex[32]`, but rather `complex[float[32]]`.
+    // However `Type::Complex` has exactly the same form as other scalar types. In this case
+    // `width` is understood to be the width of each of real and imaginary components.
+    let designator = if let Some(float_type) = scalar_type.scalar_type() {
+        // complex
+        float_type.designator()
+    } else {
+        // not complex
+        scalar_type.designator()
+    };
+    let width = match designator.and_then(|desg| desg.expr()) {
+        // We only support literal integer designators at the moment.
         Some(synast::Expr::Literal(ref literal)) => {
             match literal.kind() {
                 synast::LiteralKind::IntNumber(int_num) => Some(int_num.value().unwrap() as u32),
@@ -957,7 +973,6 @@ fn from_classical_declaration_statement(
     }
     let scalar_type = type_decl.scalar_type().unwrap();
     let typ = from_scalar_type(&scalar_type, type_decl.const_token().is_some(), context);
-
     let name_str = type_decl.name().unwrap().string();
     let initializer = from_expr(type_decl.expr(), context);
     // FIXME: This error and several others can and should be moved to a subsequent pass.

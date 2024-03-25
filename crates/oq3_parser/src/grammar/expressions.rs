@@ -408,6 +408,10 @@ pub(crate) fn array_type_spec(p: &mut Parser<'_>) -> bool {
 // Parse a scalar or quantum type.
 // Don't record error if array is found. Do not parse array.
 fn non_array_type_spec(p: &mut Parser<'_>) -> bool {
+    if p.at(T![complex]) {
+        complex_type_spec(p);
+        return true;
+    }
     let m = p.start();
     type_name(p);
     if p.at(T!['[']) {
@@ -415,6 +419,22 @@ fn non_array_type_spec(p: &mut Parser<'_>) -> bool {
     }
     m.complete(p, SCALAR_TYPE);
     true
+}
+
+fn complex_type_spec(p: &mut Parser<'_>) {
+    assert!(p.at(T![complex]));
+    let m = p.start();
+    p.bump_any();
+    // designator is optional for `complex`.
+    if p.at(T!['[']) {
+        p.bump(T!['[']);
+        if !p.at(T![float]) {
+            p.error("Expecting `float` in complex designator`");
+        }
+        non_array_type_spec(p);
+        p.expect(T![']']);
+    }
+    m.complete(p, SCALAR_TYPE);
 }
 
 pub(crate) fn qubit_type_spec(p: &mut Parser<'_>) -> bool {
@@ -432,8 +452,9 @@ pub(crate) fn qubit_type_spec(p: &mut Parser<'_>) -> bool {
 }
 
 pub(crate) fn designator(p: &mut Parser<'_>) -> bool {
+    assert!(p.at(T!['[']));
     let m = p.start();
-    p.eat(T!['[']);
+    p.bump(T!['[']);
     // Log error for a literal designator that is not integer.  We are
     // conservative here.  I am not sure that an expression that begins with one
     // of the following literals cannot have an integer type. I am pretty sure
