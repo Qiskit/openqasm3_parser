@@ -595,7 +595,7 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
             let left_syn = bin_expr.lhs();
             let right_syn = bin_expr.rhs();
 
-            let op = from_binary_op(synast_op);
+            let op = ast_from_binary_op(synast_op);
             let left = from_expr(left_syn, context).unwrap();
             let right = from_expr(right_syn, context).unwrap();
             // There are no binary ops that accept quantum operands.
@@ -648,7 +648,7 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
 
         synast::Expr::IndexExpr(index_expr) => {
             let expr = from_expr(index_expr.expr(), context);
-            let index = from_index_operator(index_expr.index_operator().unwrap(), context);
+            let index = ast_from_index_operator(index_expr.index_operator().unwrap(), context);
             Some(asg::IndexExpression::new(expr.unwrap(), index).to_texpr())
         }
 
@@ -799,7 +799,7 @@ fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -
     }
 }
 
-fn from_index_operator(
+fn ast_from_index_operator(
     index_op: synast::IndexOperator,
     context: &mut Context,
 ) -> asg::IndexOperator {
@@ -832,7 +832,7 @@ fn inner_expression_list(
         .collect()
 }
 
-fn from_binary_op(synast_op: synast::BinaryOp) -> asg::BinaryOp {
+fn ast_from_binary_op(synast_op: synast::BinaryOp) -> asg::BinaryOp {
     match synast_op {
         synast::BinaryOp::ArithOp(arith_op) => {
             use asg::BinaryOp::ArithOp;
@@ -1013,6 +1013,7 @@ fn from_assignment_stmt(
             if expr_type.equal_up_to_dims(&symbol_type) {
                 context.insert_error(IncompatibleDimensionError, assignment_stmt);
             } else if let asg::Expr::Literal(asg::Literal::Int(intlit)) = expr.expression() {
+                // Cast positive integer literal to UInt
                 if matches!(symbol_type, Type::UInt(..)) {
                     if *intlit.sign() {
                         // FIXME: We are casting to unsigned if the int literal is positive.
@@ -1029,7 +1030,7 @@ fn from_assignment_stmt(
             } else {
                 let promoted_type = types::promote_types(&symbol_type, expr_type);
                 if promoted_type == symbol_type {
-                    expr = asg::Cast::new(expr, promoted_type.clone()).to_texpr()
+                    expr = asg::Cast::new(expr, promoted_type).to_texpr()
                 } else {
                     context.insert_error(IncompatibleTypesError, assignment_stmt);
                 }
@@ -1042,9 +1043,25 @@ fn from_assignment_stmt(
         return stmt_asg;
     }
     // LHS is *not* an identifier, rather an indexed identifier
-    let indexed_identifier_ast = assignment_stmt.indexed_identifier();
-    let (indexed_identifier, _typ) =
-        ast_indexed_identifier(&indexed_identifier_ast.unwrap(), context);
+    let indexed_identifier_ast = assignment_stmt.indexed_identifier().unwrap();
+    let (indexed_identifier, typ) = ast_indexed_identifier(&indexed_identifier_ast, context);
+    // Examine number of indexing operators. Eg. `d[1][2]` has two operations.
+    // We only check expressions with a single indexing op for now.
+    if indexed_identifier.indexes().len() == 1 {
+        let index = &indexed_identifier.indexes()[0];
+        if index.num_dims() > typ.num_dims() {
+            context.insert_error(TooManyIndexes, &indexed_identifier_ast);
+        }
+        // let mut num_out_dims = typ.num_dims();
+        // match index {
+        //     asg::IndexOperator::SetExpression(_) => { num_out_dims = 1;}
+        //     asg::IndexOperator::ExpressionList(elist) => {
+        //         for expr in &elist.expressions {
+        //             dbg!(expr);
+        //         }
+        //     }
+        // }
+    }
     let expr = from_expr(assignment_stmt.rhs(), context).unwrap(); // rhs of `=` operator
     let lvalue = asg::LValue::IndexedIdentifier(indexed_identifier);
     Some(asg::Assignment::new(lvalue, expr).to_stmt())
@@ -1054,7 +1071,7 @@ fn from_assignment_stmt(
 // These functions (fn ast_ ...) convert oq3_syntax::ast (alias synast) structs to ast structs.
 // These ast structs are not yet wrapped in `enum Stmt` or `enum Expr`, etc.
 // These functions exist because some of these ast structs will be wrapped into the
-// ast tree in different ways. So their construction is abstracted out.
+// ast tree in different ways. So their construction is factored out.
 //
 // It seems like it would be a good idea to use these functions as much as possible. However,
 // Sometimes construction of the object on the one hand and wrapping it in a type and in an
@@ -1086,7 +1103,7 @@ fn ast_indexed_identifier(
         .as_tuple();
     let indexes = indexed_identifier
         .index_operators()
-        .map(|index| from_index_operator(index, context))
+        .map(|index| ast_from_index_operator(index, context))
         .collect();
     (asg::IndexedIdentifier::new(symbol_id, indexes), typ)
 }

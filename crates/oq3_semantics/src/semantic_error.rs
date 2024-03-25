@@ -20,6 +20,7 @@ pub enum SemanticErrorKind {
     ConstIntegerError, // need a better way to organize this kind of type error
     IncompatibleTypesError,
     IncompatibleDimensionError,
+    TooManyIndexes,
     CastError,
     MutateConstError,
     IncludeNotInGlobalScopeError,

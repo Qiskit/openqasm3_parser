@@ -341,6 +341,15 @@ pub enum IndexOperator {
     ExpressionList(ExpressionList),
 }
 
+impl IndexOperator {
+    pub fn num_dims(&self) -> usize {
+        match self {
+            IndexOperator::SetExpression(_) => 1,
+            IndexOperator::ExpressionList(elist) => elist.len(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct ExpressionList {
     pub expressions: Vec<TExpr>,
@@ -371,6 +380,14 @@ impl HardwareQubit {
 impl ExpressionList {
     pub fn new(expressions: Vec<TExpr>) -> ExpressionList {
         ExpressionList { expressions }
+    }
+
+    pub fn len(&self) -> usize {
+        self.expressions.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.expressions.is_empty()
     }
 }
 
