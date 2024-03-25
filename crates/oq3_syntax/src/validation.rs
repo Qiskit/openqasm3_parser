@@ -182,10 +182,10 @@ fn validate_literal(literal: ast::Literal, acc: &mut Vec<SyntaxError>) {
 fn validate_timing_literal(timing_literal: ast::TimingLiteral, errors: &mut Vec<SyntaxError>) {
     if !matches!(
         timing_literal.identifier().unwrap().text().as_str(),
-        "s" | "ms" | "us" | "µs" | "ns" | "dt"
+        "s" | "ms" | "us" | "µs" | "ns" | "dt" | "im"
     ) {
         errors.push(SyntaxError::new(
-            "Time unit must be one of 's', 'ms', 'us', 'µs', 'ns', or 'dt'",
+            "Expected 'im', or one of the time units 's', 'ms', 'us', 'µs', 'ns', or 'dt'",
             timing_literal.syntax().text_range(),
         ));
     }
