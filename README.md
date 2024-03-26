@@ -20,7 +20,7 @@ If you are interested in contributing, browsing the issues is a good place to st
 Some of the issues are [tagged with the label "Looking for assignee"](https://github.com/Qiskit/openqasm3_parser/issues?q=label%3A%22Looking+for+assignee%22+is%3Aopen+sort%3Aupdated-desc).
 Issues with the tag include a bit more context than some other issues in order to guide a newcomer. Also, the core developers are not
 planning on working on these issues in the immediate future.
-However, this does not mean you can't tackle an issue without this tag if is a better fit.
+However, this does not mean you can't tackle an issue without this tag if it is a better fit.
 
 There are a few more tips in [CONTRIBUTING.md](./CONTRIBUTING.md), as well as some later in this README.
 
