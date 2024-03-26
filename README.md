@@ -8,11 +8,19 @@ This project provides a compiler front end for OpenQASM 3 language (OQ3).
 
 In this document, this parser is referred to as `openqasm3_parser`.
 
-Differences with the [OpenQASM reference parser](https://github.com/openqasm/openqasm) are
+### Why is this important?
+
+There is a lot of interest in using OpenQASM 3 for a number of purposes. For example, for controlling
+hardware and as an exchange medium for quantum circuits. This project aims to provide a performant,
+robust front end to compilers and importers. There are no other open source (or public) projects of this
+kind.
+
+Differences with the [OpenQASM reference parser](https://github.com/openqasm/openqasm) include
 
 * The parser in `openqasm3_parser` is much more performant.
   A crude test with large source files showed parse time reduced by a factor of 80.
-* `openqasm3_parser` performs semantic analysis.
+* `openqasm3_parser` performs semantic analysis. In particular diagnostics and error reporting
+   are much better.
 
 ### Contributing
 
