@@ -22,6 +22,8 @@ Issues with the tag include a bit more context than some other issues in order t
 planning on working on these issues in the immediate future.
 However, this does not mean you can't tackle an issue without this tag if is a better fit.
 
+There are a few more tips in [CONTRIBUTING.md](./CONTRIBUTING.md), as well as some later in this README.
+
 ### Crates (roughly one installable library per crate)
 
 The first three crates are based on tools for `rust` and `rust-analyzer`.
