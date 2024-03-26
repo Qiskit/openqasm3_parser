@@ -791,3 +791,54 @@ yy = xx;
         SemanticErrorKind::IncompatibleTypesError
     ));
 }
+
+#[test]
+fn test_from_string_imaginary_int_literal_1() {
+    let code = r##"
+10 im;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    let stmt = &program[0];
+    match stmt {
+        asg::Stmt::ExprStmt(texpr) => match texpr.expression() {
+            asg::Expr::Literal(asg::Literal::ImaginaryInt(_)) => (),
+            _ => unreachable!(),
+        },
+        _ => unreachable!(),
+    };
+}
+
+#[test]
+fn test_from_string_imaginary_int_literal_2() {
+    let code = r##"
+10im;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    let stmt = &program[0];
+    match stmt {
+        asg::Stmt::ExprStmt(texpr) => match texpr.expression() {
+            asg::Expr::Literal(asg::Literal::ImaginaryInt(_)) => (),
+            _ => unreachable!(),
+        },
+        _ => unreachable!(),
+    };
+}
+
+#[test]
+fn test_from_string_imaginary_float_literal_1() {
+    let code = r##"
+12.3 im;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    let stmt = &program[0];
+    match stmt {
+        asg::Stmt::ExprStmt(texpr) => match texpr.expression() {
+            asg::Expr::Literal(asg::Literal::ImaginaryFloat(_)) => (),
+            _ => unreachable!(),
+        },
+        _ => unreachable!(),
+    };
+}

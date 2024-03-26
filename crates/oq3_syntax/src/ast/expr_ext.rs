@@ -380,6 +380,7 @@ pub enum TimeUnit {
     MicroSecond,
     Second,
     Cycle,
+    Imaginary,
 }
 
 impl ast::TimingLiteral {
@@ -390,6 +391,7 @@ impl ast::TimingLiteral {
             "us" | "µs" => Some(TimeUnit::MicroSecond),
             "ns" => Some(TimeUnit::NanoSecond),
             "dt" => Some(TimeUnit::Cycle),
+            "im" => Some(TimeUnit::Imaginary),
             _ => None,
         }
     }

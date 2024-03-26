@@ -859,6 +859,8 @@ pub enum Literal {
     Bool(BoolLiteral),
     Int(IntLiteral),
     Float(FloatLiteral),
+    ImaginaryInt(IntLiteral),
+    ImaginaryFloat(FloatLiteral),
     BitString(BitStringLiteral),
     TimingIntLiteral(TimingIntLiteral),
     TimingFloatLiteral(TimingFloatLiteral),
@@ -950,6 +952,14 @@ impl IntLiteral {
 
     pub fn to_texpr(self) -> TExpr {
         TExpr::new(self.to_expr(), Type::Int(Some(128), IsConst::True))
+    }
+
+    pub fn to_imaginary_expr(self) -> Expr {
+        Expr::Literal(Literal::ImaginaryInt(self))
+    }
+
+    pub fn to_imaginary_texpr(self) -> TExpr {
+        TExpr::new(self.to_imaginary_expr(), Type::Int(Some(64), IsConst::True))
     }
 }
 
@@ -1075,6 +1085,17 @@ impl FloatLiteral {
 
     pub fn to_texpr(self) -> TExpr {
         TExpr::new(self.to_expr(), Type::Float(Some(64), IsConst::True))
+    }
+
+    pub fn to_imaginary_expr(self) -> Expr {
+        Expr::Literal(Literal::ImaginaryFloat(self))
+    }
+
+    pub fn to_imaginary_texpr(self) -> TExpr {
+        TExpr::new(
+            self.to_imaginary_expr(),
+            Type::Complex(Some(64), IsConst::True),
+        )
     }
 }
 

@@ -545,6 +545,8 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
     let expr = expr_maybe?;
     match expr {
         // FIXME: Ugh. could clean up logic here
+        // It is convenient to rewrite literals wrapped in unary minus as literals
+        // with negative values.
         synast::Expr::PrefixExpr(prefix_expr) => {
             match prefix_expr.op_kind() {
                 Some(synast::UnaryOp::Neg) => {
@@ -612,13 +614,34 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
 
         synast::Expr::Literal(ref literal) => from_literal(literal),
 
+        // We also handle imaginary literals here along with timing literals.
+        // This makes no sense on the level of semantics. But at all eariler points,
+        // from lexing to here, it is trivial to treat the imaginary suffix `im` as
+        // if it were a timing suffix. We could try to fix this, but it would add
+        // code paths and complexity from lexing on up.
         synast::Expr::TimingLiteral(ref timing_literal) => {
-            let time_unit = match timing_literal.time_unit().unwrap() {
+            let ast_time_unit = timing_literal.time_unit().unwrap();
+            if matches!(ast_time_unit, synast::TimeUnit::Imaginary) {
+                return match timing_literal.literal().unwrap().kind() {
+                    synast::LiteralKind::IntNumber(int_num) => {
+                        let num = int_num.value_u128().unwrap();
+                        Some(asg::IntLiteral::new(num, true).to_imaginary_texpr())
+                    }
+                    synast::LiteralKind::FloatNumber(float_num) => {
+                        let num = float_num.value().unwrap();
+                        Some(asg::FloatLiteral::new(num).to_imaginary_texpr())
+                    }
+                    _ => panic!("You have found a bug in oq3_syntax or oq3_parser"),
+                };
+            }
+            let time_unit = match ast_time_unit {
                 synast::TimeUnit::Second => asg::TimeUnit::Second,
                 synast::TimeUnit::MilliSecond => asg::TimeUnit::MilliSecond,
                 synast::TimeUnit::MicroSecond => asg::TimeUnit::MicroSecond,
                 synast::TimeUnit::NanoSecond => asg::TimeUnit::NanoSecond,
                 synast::TimeUnit::Cycle => asg::TimeUnit::Cycle,
+                // Imaginary was handled above.
+                synast::TimeUnit::Imaginary => unreachable!(),
             };
             match timing_literal.literal().unwrap().kind() {
                 synast::LiteralKind::IntNumber(int_num) => {
@@ -629,7 +652,6 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
                     let num = float_num.value().unwrap();
                     Some(asg::TimingFloatLiteral::new(num, true, time_unit).to_texpr())
                 }
-
                 _ => panic!("You have found a bug in oq3_syntax or oq3_parser"),
             }
         }

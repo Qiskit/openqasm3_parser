@@ -16,6 +16,7 @@ pub(crate) const LITERAL_FIRST: TokenSet = TokenSet::new(&[
     T![false],
 ]);
 
+// Also for imaginary literals
 const TIMING_LITERAL_FIRST: TokenSet = TokenSet::new(&[INT_NUMBER, FLOAT_NUMBER]);
 
 pub(crate) fn literal(p: &mut Parser<'_>) -> Option<CompletedMarker> {
@@ -28,15 +29,18 @@ pub(crate) fn literal(p: &mut Parser<'_>) -> Option<CompletedMarker> {
     }
     let m = p.start();
     // If the first token after the current one is an identifer, then the only
-    // syntactically correct construct is a timing literal.  Note that `s` is a
+    // syntactically correct construct is a timing or imaginary literal.  Note that `s` is a
     // valid suffix for both a timing literal and a variable identifier, we
     // can't make `s` a keyword token.  This is because, in the parser, I don't
     // know how to make a string either an identifer or "keyword"
     // depending on context. So we parse an identifier and validate in validate.rs.
     if matches!(p.nth(1), IDENT) {
         if !p.at_ts(TIMING_LITERAL_FIRST) {
-            p.error("Timing literal must begin with an integer or float literal");
+            p.error("Timing and imaginary literals must begin with an integer or float literal");
         }
+        // We don't have access to the text of the identifier here, so we can't distinguish
+        // timing literals from imaginary literals. We tag everything TIMING_LITERAL
+        // Later in semantic analysis we separate imaginary literals from timing literals.
         let m2 = p.start(); // TIMING_LITERAL
         p.bump_any(); // The numeric literal
         m.complete(p, LITERAL);

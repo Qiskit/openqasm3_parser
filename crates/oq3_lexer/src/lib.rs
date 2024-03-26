@@ -299,7 +299,7 @@ impl Cursor<'_> {
                 // If this a timing (or duration) literal, we will parse the
                 // time unit as another token.  So we don't eat the suffix if it
                 // is a time unit.
-                if !self.has_timing_suffix() {
+                if !self.has_timing_or_imaginary_suffix() {
                     self.eat_literal_suffix();
                 }
                 TokenKind::Literal {
@@ -760,12 +760,19 @@ impl Cursor<'_> {
         self.eat_identifier();
     }
 
-    fn has_timing_suffix(&mut self) -> bool {
+    fn has_timing_or_imaginary_suffix(&mut self) -> bool {
         if self.first() == 's' {
             return true;
         } else {
             // TODO: greek mu is encoded in more than one way. We only get one here.
-            for (f, s) in [('d', 't'), ('n', 's'), ('u', 's'), ('m', 's'), ('µ', 's')] {
+            for (f, s) in [
+                ('d', 't'),
+                ('n', 's'),
+                ('u', 's'),
+                ('m', 's'),
+                ('µ', 's'),
+                ('i', 'm'),
+            ] {
                 if self.first() == f && self.second() == s {
                     return true;
                 }
