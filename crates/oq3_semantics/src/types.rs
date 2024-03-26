@@ -71,7 +71,7 @@ pub enum Type {
     DurationArray(ArrayDims),
 
     // Other
-    Gate(i32, i32), // (num classical args, num quantum args)
+    Gate(usize, usize), // (num classical args, num quantum args)
     Range,
     Set,
     Void,

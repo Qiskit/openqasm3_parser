@@ -186,7 +186,7 @@ pub enum Stmt {
     ForStmt(ForStmt),
     GPhaseCall(GPhaseCall),
     GateCall(GateCall), // A statement because a gate call does not return anything
-    GateDeclaration(GateDeclaration),
+    GateDefinition(GateDefinition),
     InputDeclaration(InputDeclaration),
     OutputDeclaration(OutputDeclaration),
     If(If),
@@ -576,21 +576,21 @@ impl Block {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct GateDeclaration {
+pub struct GateDefinition {
     name: SymbolIdResult,
     params: Option<Vec<SymbolIdResult>>,
     qubits: Vec<SymbolIdResult>,
     block: Block,
 }
 
-impl GateDeclaration {
+impl GateDefinition {
     pub fn new(
         name: SymbolIdResult,
         params: Option<Vec<SymbolIdResult>>,
         qubits: Vec<SymbolIdResult>,
         block: Block,
-    ) -> GateDeclaration {
-        GateDeclaration {
+    ) -> GateDefinition {
+        GateDefinition {
             name,
             params,
             qubits,
@@ -599,7 +599,7 @@ impl GateDeclaration {
     }
 
     pub fn to_stmt(self) -> Stmt {
-        Stmt::GateDeclaration(self)
+        Stmt::GateDefinition(self)
     }
 
     pub fn name(&self) -> &SymbolIdResult {
@@ -608,6 +608,10 @@ impl GateDeclaration {
 
     pub fn params(&self) -> Option<&[SymbolIdResult]> {
         self.params.as_deref()
+    }
+
+    pub fn num_params(&self) -> usize {
+        self.params.as_ref().map_or(0, Vec::len)
     }
 
     pub fn qubits(&self) -> &[SymbolIdResult] {

@@ -111,7 +111,10 @@ where
     P: AsRef<Path>,
 {
     let parsed_source: SourceFile = oq3_source_file::parse_source_file(file_path, search_path_list);
-    analyze_source(parsed_source)
+    let res = analyze_source(parsed_source);
+    let gs = &res.context.symbol_table().gates();
+    dbg!(gs);
+    res
 }
 
 fn analyze_source<T: SourceTrait>(parsed_source: T) -> ParseResult<T> {
@@ -362,7 +365,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
                 ),
                 &name_node,
             );
-            Some(asg::GateDeclaration::new(gate_name_symbol_id, params, qubits, block).to_stmt())
+            Some(asg::GateDefinition::new(gate_name_symbol_id, params, qubits, block).to_stmt())
         }
 
         synast::Stmt::Def(def_stmt) => {

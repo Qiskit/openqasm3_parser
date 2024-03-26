@@ -259,6 +259,22 @@ impl SymbolTable {
             })
             .collect::<Vec<_>>()
     }
+
+    /// Return a Vec of information about all gate declarations. Each element
+    /// is a tuple of (gate name, symbol id, num classical params, num quantum params).
+    pub fn gates(&self) -> Vec<(&str, SymbolId, usize, usize)> {
+        self.all_symbols
+            .iter()
+            .enumerate()
+            .filter_map(|(n, sym)| {
+                if let Type::Gate(num_cl, num_qu) = &sym.symbol_type() {
+                    Some((sym.name(), SymbolId(n), *num_cl, *num_qu))
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
 }
 
 #[allow(dead_code)]
