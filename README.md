@@ -14,6 +14,14 @@ Differences with the [OpenQASM reference parser](https://github.com/openqasm/ope
   A crude test with large source files showed parse time reduced by a factor of 80.
 * `openqasm3_parser` performs semantic analysis.
 
+### Contributing
+
+If you are interested in contributing, browsing the issues is a good place to start.
+Some of the issues are [tagged with the label "Looking for assignee"](https://github.com/Qiskit/openqasm3_parser/issues?q=label%3A%22Looking+for+assignee%22+is%3Aopen+sort%3Aupdated-desc).
+Issues with the tag include a bit more context than some other issues in order to guide a newcomer. Also, the core developers are not
+planning on working on these issues in the immediate future.
+However, this does not mean you can't tackle an issue without this tag if is a better fit.
+
 ### Crates (roughly one installable library per crate)
 
 The first three crates are based on tools for `rust` and `rust-analyzer`.

@@ -11,5 +11,3 @@ cargo fmt --all -- --check && cargo build --verbose && cargo clippy -- -D warnin
 
 One of the CI items is `cargo clippy`.
 To handle a lot of errors at the command line you can use (for unix-like OS) `cargo clippy --color always &| less -R`.
-
-
