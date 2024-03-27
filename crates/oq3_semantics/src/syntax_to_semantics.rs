@@ -1001,7 +1001,8 @@ fn from_classical_declaration_statement(
     // However, we would lose the information in `text_range` unless we do something to preserve it.
     let symbol_id = context.new_binding(name_str.as_ref(), &typ, type_decl);
     if let Some(ref initializer) = initializer {
-        if !types::can_cast_loose(&typ, initializer.get_type()) {
+        let init_typ = initializer.get_type();
+        if !(&typ == init_typ) && !types::can_cast_loose(&typ, init_typ) {
             context.insert_error(IncompatibleTypesError, type_decl);
         }
     }
