@@ -842,3 +842,14 @@ fn test_from_string_imaginary_float_literal_1() {
         _ => unreachable!(),
     };
 }
+
+// Issue #200
+#[test]
+fn test_from_string_init_bit_with_measure() {
+    let code = r##"
+bit mid = measure $1;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 1);
+}

@@ -304,7 +304,7 @@ fn equal_up_to_constness(_ty1: &Type, _ty2: &Type) -> bool {
     //     }
 }
 
-// Return `true` of  `from_type` can be cast to `to_type`.
+// Return `true` if  `from_type` can be cast to `to_type`.
 // Warning: It is assumed that `equal_up_to_constness(from_type, to_type)`
 // returns `false`. If not, `can_cast_strict` may give incorrect results.
 // Unused at the moment
