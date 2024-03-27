@@ -111,10 +111,7 @@ where
     P: AsRef<Path>,
 {
     let parsed_source: SourceFile = oq3_source_file::parse_source_file(file_path, search_path_list);
-    let res = analyze_source(parsed_source);
-//    let gs = &res.context.symbol_table().hardware_qubits();
-//    dbg!(gs);
-    res
+    analyze_source(parsed_source)
 }
 
 fn analyze_source<T: SourceTrait>(parsed_source: T) -> ParseResult<T> {
