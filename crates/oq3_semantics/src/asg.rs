@@ -120,7 +120,7 @@ pub enum Expr {
     UnaryExpr(Box<UnaryExpr>),
     Literal(Literal),
     Cast(Box<Cast>),
-    Identifier(Identifier),
+    Identifier(SymbolIdResult),
     HardwareQubit(HardwareQubit),
     IndexExpression(Box<IndexExpression>),
     IndexedIdentifier(IndexedIdentifier),
@@ -186,7 +186,7 @@ pub enum Stmt {
     ForStmt(ForStmt),
     GPhaseCall(GPhaseCall),
     GateCall(GateCall), // A statement because a gate call does not return anything
-    GateDeclaration(GateDeclaration),
+    GateDefinition(GateDefinition),
     InputDeclaration(InputDeclaration),
     OutputDeclaration(OutputDeclaration),
     If(If),
@@ -576,21 +576,21 @@ impl Block {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct GateDeclaration {
+pub struct GateDefinition {
     name: SymbolIdResult,
     params: Option<Vec<SymbolIdResult>>,
     qubits: Vec<SymbolIdResult>,
     block: Block,
 }
 
-impl GateDeclaration {
+impl GateDefinition {
     pub fn new(
         name: SymbolIdResult,
         params: Option<Vec<SymbolIdResult>>,
         qubits: Vec<SymbolIdResult>,
         block: Block,
-    ) -> GateDeclaration {
-        GateDeclaration {
+    ) -> GateDefinition {
+        GateDefinition {
             name,
             params,
             qubits,
@@ -599,7 +599,7 @@ impl GateDeclaration {
     }
 
     pub fn to_stmt(self) -> Stmt {
-        Stmt::GateDeclaration(self)
+        Stmt::GateDefinition(self)
     }
 
     pub fn name(&self) -> &SymbolIdResult {
@@ -608,6 +608,10 @@ impl GateDeclaration {
 
     pub fn params(&self) -> Option<&[SymbolIdResult]> {
         self.params.as_deref()
+    }
+
+    pub fn num_params(&self) -> usize {
+        self.params.as_ref().map_or(0, Vec::len)
     }
 
     pub fn qubits(&self) -> &[SymbolIdResult] {
@@ -743,7 +747,7 @@ pub enum GateModifier {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum GateOperand {
-    Identifier(Identifier),
+    Identifier(SymbolIdResult),
     HardwareQubit(HardwareQubit),
     IndexedIdentifier(IndexedIdentifier),
 }
@@ -1269,49 +1273,6 @@ impl BinaryExpr {
                 BinaryExpr::new(op, left, right).to_texpr(Type::ToDo)
             }
         }
-    }
-}
-
-// FIXME: Elsewhere, we use `name` for a SymbolIdResult. The actual string can be looked up
-// from the SymbolId. But here we use `name` for the string. This is not uniform
-// and potentially confusing. I think we will have to ditch the approach below.
-// The name of the identifer is stored in both `name` and as a field in `symbol_id`.
-// But this is only true if `symbol_id` is not Err. In case of a semantic error,
-// the symbol_id may not be resolved, which we represent by a value of `Err(SymbolError)`.
-// This happens when attempting to look up the binding of an identifier that is in
-// fact not bound in any visible scope.
-// We carry the name in `name` as well in order to facilitate diagnosing the semantic
-// error. But we have not concrete plan for this. So the field `name` below may be removed.
-// And in that case, the variant `Ident(Ident)` in `enum Expr` above could be replaced with
-// `Ident(SymbolId)`.
-#[derive(Clone, Debug, PartialEq)]
-pub struct Identifier {
-    name: String,
-    symbol: SymbolIdResult,
-}
-
-impl Identifier {
-    pub fn new<T: ToString>(name: T, symbol: SymbolIdResult) -> Identifier {
-        Identifier {
-            name: name.to_string(),
-            symbol,
-        }
-    }
-
-    pub fn to_expr(self) -> Expr {
-        Expr::Identifier(self)
-    }
-
-    pub fn to_texpr(self, typ: Type) -> TExpr {
-        TExpr::new(self.to_expr(), typ)
-    }
-
-    pub fn name(&self) -> &str {
-        self.name.as_ref()
-    }
-
-    pub fn symbol(&self) -> &SymbolIdResult {
-        &self.symbol
     }
 }
 

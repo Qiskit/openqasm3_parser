@@ -259,6 +259,36 @@ impl SymbolTable {
             })
             .collect::<Vec<_>>()
     }
+
+    /// Return a Vec of information about all gate declarations. Each element
+    /// is a tuple of (gate name, symbol id, num classical params, num quantum params).
+    pub fn gates(&self) -> Vec<(&str, SymbolId, usize, usize)> {
+        self.all_symbols
+            .iter()
+            .enumerate()
+            .filter_map(|(n, sym)| {
+                if let Type::Gate(num_cl, num_qu) = &sym.symbol_type() {
+                    Some((sym.name(), SymbolId(n), *num_cl, *num_qu))
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+
+    pub fn hardware_qubits(&self) -> Vec<(&str, SymbolId)> {
+        self.all_symbols
+            .iter()
+            .enumerate()
+            .filter_map(|(n, sym)| {
+                if let Type::HardwareQubit = &sym.symbol_type() {
+                    Some((sym.name(), SymbolId(n)))
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
 }
 
 #[allow(dead_code)]
@@ -295,17 +325,7 @@ impl SymbolTable {
         self.symbol_table_stack.pop();
     }
 
-    /// If a binding for `name` exists in the current scope, return `None`.
-    /// Otherwise, create a new Symbol from `name` and `typ`, bind `name` to
-    /// this Symbol in the current scope, and return the Symbol.
-    pub fn new_binding(&mut self, name: &str, typ: &Type) -> Result<SymbolId, SymbolError> {
-        //    pub fn new_binding(&mut self, name: &str, typ: &Type, ast_node: &SyntaxNode) -> Result<SymbolId, SymbolError> {
-
-        // Can't create a binding if it already exists in the current scope.
-        if self.current_scope_contains_name(name) {
-            return Err(SymbolError::AlreadyBound);
-        }
-
+    fn new_binding_no_check(&mut self, name: &str, typ: &Type) -> SymbolId {
         // Create new symbol and symbol id.
         //        let symbol = Symbol::new(name, typ, ast_node);
         let symbol = Symbol::new(name, typ);
@@ -321,7 +341,18 @@ impl SymbolTable {
         // Map `name` to `symbol_id`.
         self.current_scope_mut()
             .insert(name, current_symbol_id.clone());
-        Ok(current_symbol_id)
+        current_symbol_id
+    }
+
+    /// If a binding for `name` exists in the current scope, return `Err(SymbolError::AlreadyBound)`.
+    /// Otherwise, create a new Symbol from `name` and `typ`, bind `name` to
+    /// this Symbol in the current scope, and return the Symbol.
+    pub fn new_binding(&mut self, name: &str, typ: &Type) -> Result<SymbolId, SymbolError> {
+        // Can't create a binding if it already exists in the current scope.
+        if self.current_scope_contains_name(name) {
+            return Err(SymbolError::AlreadyBound);
+        }
+        Ok(self.new_binding_no_check(name, typ))
     }
 
     // Symbol table for current (latest) scope in stack, mutable ref
@@ -356,7 +387,7 @@ impl SymbolTable {
 
     // FIXME: fix awkward scope numbering
     /// Look up `name` in the stack of symbol tables. Return `SymbolRecord`
-    /// if the symbol is found. Otherwise `None`.
+    /// if the symbol is found. Otherwise `Err(SymbolError::MissingBinding)`.
     pub fn lookup(&self, name: &str) -> Result<SymbolRecord, SymbolError> {
         for (scope_level_rev, table) in self.symbol_table_stack.iter().rev().enumerate() {
             if let Some(symbol_id) = table.get_symbol_id(name) {
@@ -366,6 +397,15 @@ impl SymbolTable {
             }
         }
         Err(SymbolError::MissingBinding) // `name` not found in any scope.
+    }
+
+    /// Lookup `name` if symbol exists and return the `SymbolId`, otherwise create a new binding
+    /// and return the `SymbolId`.
+    pub fn lookup_or_new_binding(&mut self, name: &str, typ: &Type) -> SymbolId {
+        match self.lookup(name) {
+            Ok(symbol_record) => symbol_record.symbol_id,
+            Err(_) => self.new_binding_no_check(name, typ),
+        }
     }
 }
 

@@ -357,12 +357,12 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             let gate_name_symbol_id = context.new_binding(
                 name_node.string().as_ref(),
                 &Type::Gate(
-                    num_params.try_into().unwrap(),
-                    qubits.len().try_into().unwrap(),
+                    num_params,
+                    qubits.len(),
                 ),
                 &name_node,
             );
-            Some(asg::GateDeclaration::new(gate_name_symbol_id, params, qubits, block).to_stmt())
+            Some(asg::GateDefinition::new(gate_name_symbol_id, params, qubits, block).to_stmt())
         }
 
         synast::Stmt::Def(def_stmt) => {
@@ -657,8 +657,8 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
         }
 
         synast::Expr::Identifier(identifier) => {
-            let (astidentifier, typ) = ast_identifier(&identifier, context);
-            Some(astidentifier.to_texpr(typ))
+            let (sym, typ) = ast_identifier(&identifier, context);
+            Some(asg::TExpr::new(asg::Expr::Identifier(sym), typ))
         }
 
         synast::Expr::HardwareQubit(hwq) => Some(ast_hardware_qubit(&hwq).to_texpr()),
@@ -768,7 +768,7 @@ fn from_gate_call_expr(
             Type::Gate(np, nq) => (np, nq),
             _ => (0, 0),
         };
-        if def_num_params != num_params.try_into().unwrap() {
+        if def_num_params != num_params {
             if num_params != 0 {
                 // If num params is mismatched, locate error at list of params supplied.
                 context.insert_error(NumGateParamsError, &gate_call_expr.arg_list().unwrap());
@@ -778,7 +778,7 @@ fn from_gate_call_expr(
             }
         }
         let num_qubits: usize = gate_operands.len();
-        if def_num_qubits != num_qubits.try_into().unwrap() {
+        if def_num_qubits != num_qubits {
             if num_qubits == 0 {
                 // This probably can't happen because no qubit args is not recognized syntactially
                 // as a gate call.
@@ -805,11 +805,11 @@ fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -
             asg::GateOperand::HardwareQubit(ast_hardware_qubit(hwq)).to_texpr(Type::HardwareQubit)
         }
         synast::GateOperand::Identifier(ref identifier) => {
-            let (astidentifier, typ) = ast_identifier(identifier, context);
+            let (sym, typ) = ast_identifier(identifier, context);
             if !matches!(typ, Type::Qubit | Type::HardwareQubit | Type::QubitArray(_)) {
                 context.insert_error(IncompatibleTypesError, &gate_operand);
             }
-            asg::GateOperand::Identifier(astidentifier).to_texpr(typ)
+            asg::GateOperand::Identifier(sym).to_texpr(typ)
         }
         synast::GateOperand::IndexedIdentifier(ref indexed_identifier) => {
             let (indexed_identifier, typ) = ast_indexed_identifier(indexed_identifier, context);
@@ -1122,12 +1122,12 @@ fn ast_hardware_qubit(hwq: &synast::HardwareQubit) -> asg::HardwareQubit {
 fn ast_identifier(
     identifier: &synast::Identifier,
     context: &mut Context,
-) -> (asg::Identifier, Type) {
+) -> (SymbolIdResult, Type) {
     let name_str = identifier.string();
     let (symbol_id, typ) = context
         .lookup_symbol(name_str.as_str(), identifier)
         .as_tuple();
-    (asg::Identifier::new(name_str, symbol_id), typ)
+    (symbol_id, typ)
 }
 
 fn ast_indexed_identifier(
