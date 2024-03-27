@@ -275,6 +275,20 @@ impl SymbolTable {
             })
             .collect()
     }
+
+    pub fn hardware_qubits(&self) -> Vec<(&str, SymbolId)> {
+        self.all_symbols
+            .iter()
+            .enumerate()
+            .filter_map(|(n, sym)| {
+                if let Type::HardwareQubit = &sym.symbol_type() {
+                    Some((sym.name(), SymbolId(n)))
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
 }
 
 #[allow(dead_code)]

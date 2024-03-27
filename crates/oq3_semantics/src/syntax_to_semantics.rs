@@ -112,8 +112,8 @@ where
 {
     let parsed_source: SourceFile = oq3_source_file::parse_source_file(file_path, search_path_list);
     let res = analyze_source(parsed_source);
-    let gs = &res.context.symbol_table().gates();
-    dbg!(gs);
+//    let gs = &res.context.symbol_table().hardware_qubits();
+//    dbg!(gs);
     res
 }
 
@@ -660,8 +660,8 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
         }
 
         synast::Expr::Identifier(identifier) => {
-            let (astidentifier, typ) = ast_identifier(&identifier, context);
-            Some(astidentifier.to_texpr(typ))
+            let (sym, typ) = ast_identifier(&identifier, context);
+            Some(asg::TExpr::new(asg::Expr::Identifier(sym), typ))
         }
 
         synast::Expr::HardwareQubit(hwq) => Some(ast_hardware_qubit(&hwq).to_texpr()),
@@ -808,11 +808,11 @@ fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -
             asg::GateOperand::HardwareQubit(ast_hardware_qubit(hwq)).to_texpr(Type::HardwareQubit)
         }
         synast::GateOperand::Identifier(ref identifier) => {
-            let (astidentifier, typ) = ast_identifier(identifier, context);
+            let (sym, typ) = ast_identifier(identifier, context);
             if !matches!(typ, Type::Qubit | Type::HardwareQubit | Type::QubitArray(_)) {
                 context.insert_error(IncompatibleTypesError, &gate_operand);
             }
-            asg::GateOperand::Identifier(astidentifier).to_texpr(typ)
+            asg::GateOperand::Identifier(sym).to_texpr(typ)
         }
         synast::GateOperand::IndexedIdentifier(ref indexed_identifier) => {
             let (indexed_identifier, typ) = ast_indexed_identifier(indexed_identifier, context);
@@ -1125,12 +1125,12 @@ fn ast_hardware_qubit(hwq: &synast::HardwareQubit) -> asg::HardwareQubit {
 fn ast_identifier(
     identifier: &synast::Identifier,
     context: &mut Context,
-) -> (asg::Identifier, Type) {
+) -> (SymbolIdResult, Type) {
     let name_str = identifier.string();
     let (symbol_id, typ) = context
         .lookup_symbol(name_str.as_str(), identifier)
         .as_tuple();
-    (asg::Identifier::new(name_str, symbol_id), typ)
+    (symbol_id, typ)
 }
 
 fn ast_indexed_identifier(

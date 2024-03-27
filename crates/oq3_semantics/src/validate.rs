@@ -96,8 +96,8 @@ impl<T: SymTrait> WalkSymbols<T> for Stmt {
 
 impl<T: SymTrait> WalkSymbols<T> for Expr {
     fn walk_symbols(&self, context: &mut SymContext<T>) {
-        if let Expr::Identifier(ident) = self {
-            (context.func)(ident.symbol())
+        if let Expr::Identifier(sym) = self {
+            (context.func)(sym)
         }
     }
 }
