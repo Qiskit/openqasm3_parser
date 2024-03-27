@@ -325,7 +325,7 @@ impl SymbolTable {
         self.symbol_table_stack.pop();
     }
 
-    /// If a binding for `name` exists in the current scope, return `None`.
+    /// If a binding for `name` exists in the current scope, return `Err(SymbolError::AlreadyBound)`.
     /// Otherwise, create a new Symbol from `name` and `typ`, bind `name` to
     /// this Symbol in the current scope, and return the Symbol.
     pub fn new_binding(&mut self, name: &str, typ: &Type) -> Result<SymbolId, SymbolError> {
@@ -386,7 +386,7 @@ impl SymbolTable {
 
     // FIXME: fix awkward scope numbering
     /// Look up `name` in the stack of symbol tables. Return `SymbolRecord`
-    /// if the symbol is found. Otherwise `None`.
+    /// if the symbol is found. Otherwise `Err(SymbolError::MissingBinding)`.
     pub fn lookup(&self, name: &str) -> Result<SymbolRecord, SymbolError> {
         for (scope_level_rev, table) in self.symbol_table_stack.iter().rev().enumerate() {
             if let Some(symbol_id) = table.get_symbol_id(name) {
