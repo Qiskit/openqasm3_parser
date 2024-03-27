@@ -357,8 +357,8 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             let gate_name_symbol_id = context.new_binding(
                 name_node.string().as_ref(),
                 &Type::Gate(
-                    num_params.try_into().unwrap(),
-                    qubits.len().try_into().unwrap(),
+                    num_params,
+                    qubits.len(),
                 ),
                 &name_node,
             );
@@ -768,7 +768,7 @@ fn from_gate_call_expr(
             Type::Gate(np, nq) => (np, nq),
             _ => (0, 0),
         };
-        if def_num_params != num_params.try_into().unwrap() {
+        if def_num_params != num_params {
             if num_params != 0 {
                 // If num params is mismatched, locate error at list of params supplied.
                 context.insert_error(NumGateParamsError, &gate_call_expr.arg_list().unwrap());
@@ -778,7 +778,7 @@ fn from_gate_call_expr(
             }
         }
         let num_qubits: usize = gate_operands.len();
-        if def_num_qubits != num_qubits.try_into().unwrap() {
+        if def_num_qubits != num_qubits {
             if num_qubits == 0 {
                 // This probably can't happen because no qubit args is not recognized syntactially
                 // as a gate call.
