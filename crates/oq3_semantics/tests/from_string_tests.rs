@@ -853,3 +853,147 @@ bit mid = measure $1;
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);
 }
+
+// Issue #203
+#[test]
+fn test_from_string_declaration_type_check_1() {
+    let code = r##"
+qubit q;
+float a = q;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert_eq!(program.len(), 2);
+    assert!(matches!(
+        &errors[0].kind(),
+        SemanticErrorKind::IncompatibleTypesError
+    ));
+}
+
+// Issue #203
+#[test]
+fn test_from_string_declaration_type_check_2() {
+    let code = r##"
+float c = 2.1;
+int d = c;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert_eq!(program.len(), 2);
+    assert!(matches!(
+        &errors[0].kind(),
+        SemanticErrorKind::IncompatibleTypesError
+    ));
+}
+
+// Issue #203
+#[test]
+fn test_from_string_declaration_type_check_3() {
+    let code = r##"
+float c = 2.1;
+int d = c;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert_eq!(program.len(), 2);
+    assert!(matches!(
+        &errors[0].kind(),
+        SemanticErrorKind::IncompatibleTypesError
+    ));
+}
+
+// at least it's not python
+// Check that the classical declaration statment `stmt` casts its RHS
+// to type `expected_type`.
+fn _check_cast_type(stmt: &asg::Stmt, expected_type: &Type) {
+    match stmt {
+        asg::Stmt::DeclareClassical(decl) => match decl.initializer() {
+            Some(texpr) => {
+                match texpr.expression() {
+                    asg::Expr::Cast(cast) => {
+                        assert!(cast.get_type() == expected_type)
+                    }
+                    _ => unreachable!(),
+                };
+            }
+            _ => unreachable!(),
+        },
+        _ => unreachable!(),
+    }
+}
+
+// Issue #203
+#[test]
+fn test_from_string_declaration_type_check_4() {
+    let code = r##"
+int a = 2;
+float b = a;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 2);
+    _check_cast_type(&program[1], &Type::Float(None, IsConst::False));
+}
+
+#[test]
+fn test_from_string_declaration_type_check_5() {
+    let code = r##"
+int a = 2;
+float[64] b = a;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 2);
+    _check_cast_type(&program[1], &Type::Float(Some(64), IsConst::False));
+}
+
+#[test]
+fn test_from_string_declaration_type_check_6() {
+    let code = r##"
+float[32] a;
+float[64] b = a;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 2);
+    _check_cast_type(&program[1], &Type::Float(Some(64), IsConst::False));
+}
+
+#[test]
+fn test_from_string_declaration_type_check_7() {
+    let code = r##"
+float[32] a;
+const float[64] b = a;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 2);
+    _check_cast_type(&program[1], &Type::Float(Some(64), IsConst::True));
+}
+
+#[test]
+fn test_from_string_declaration_type_check_8() {
+    let code = r##"
+float a;
+float[64] b = a;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert!(matches!(
+        &errors[0].kind(),
+        SemanticErrorKind::IncompatibleTypesError
+    ));
+}
+
+#[test]
+fn test_from_string_declaration_type_check_9() {
+    let code = r##"
+duration a = 2.0;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert!(matches!(
+        &errors[0].kind(),
+        SemanticErrorKind::IncompatibleTypesError
+    ));
+}

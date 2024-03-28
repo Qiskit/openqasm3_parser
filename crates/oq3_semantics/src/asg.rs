@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // The definition of the abstract semantic graph (ASG) as well as the API for using it.
-// Construction of this typed ASG from syntactic AST is in string_to_semantic.rs.
+// Construction of this typed ASG from syntactic AST is in syntax_to_semantics.rs
 
 // SymbolIdResult can represent a valid symbol symbol, via a symbol id, or a semantic error.
 // We need to insert SymbolIdResult everywhere a symbol is needed in the semantic tree.
