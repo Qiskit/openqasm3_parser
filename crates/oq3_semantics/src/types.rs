@@ -81,6 +81,28 @@ pub enum Type {
     Undefined,
 }
 
+// wow. Is there a less boiler-plated way?
+// Return `true` if `ty1 == ty2` except that the `is_const`
+// property is allowed to differ.
+pub(crate) fn equal_up_to_constness(ty1: &Type, ty2: &Type) -> bool {
+    use Type::*;
+    if ty1 == ty2 {
+        return true;
+    }
+    match (ty1, ty2) {
+        (Bit(_), Bit(_)) => true,
+        (Duration(_), Duration(_)) => true,
+        (Bool(_), Bool(_)) => true,
+        (Stretch(_), Stretch(_)) => true,
+        (Int(w1, _), Int(w2, _)) => w1 == w2,
+        (UInt(w1, _), UInt(w2, _)) => w1 == w2,
+        (Float(w1, _), Float(w2, _)) => w1 == w2,
+        (Angle(w1, _), Angle(w2, _)) => w1 == w2,
+        (BitArray(dims1, _), BitArray(dims2, _)) => dims1 == dims2,
+        _ => false,
+    }
+}
+
 // OQ3 supports arrays with number of dims up to seven.
 // Probably exists a much better way to represent dims... [usize, N]
 // Could use Box for higher dimensional arrays, or...
@@ -257,9 +279,21 @@ fn promote_width(ty1: &Type, ty2: &Type) -> Width {
     }
 }
 
+pub fn promote_types_not_equal(ty1: &Type, ty2: &Type) -> Type {
+    let typ = promote_types_symmetric(ty1, ty2);
+    if typ != Type::Void {
+        return typ;
+    }
+    let typ = promote_types_asymmetric(ty1, ty2);
+    if typ == Type::Void {
+        return promote_types_asymmetric(ty2, ty1);
+    }
+    typ
+}
+
 // promotion suitable for some binary operations, eg +, -, *
 pub fn promote_types(ty1: &Type, ty2: &Type) -> Type {
-    if ty1 == ty2 {
+    if equal_up_to_constness(ty1, ty2) {
         return ty1.clone();
     }
     let typ = promote_types_symmetric(ty1, ty2);
@@ -291,33 +325,4 @@ fn promote_types_asymmetric(ty1: &Type, ty2: &Type) -> Type {
         (UInt(..), Float(..)) => ty2.clone(),
         _ => Void,
     }
-}
-
-// FIXME: always returns false
-// Return `true` if `ty1 == ty2` except that the `is_const`
-// property is allowed to differ.
-fn equal_up_to_constness(_ty1: &Type, _ty2: &Type) -> bool {
-    false
-    //     match (ty1, ty2) {
-    // //        (Bit(w1, _), Bit(w2, _)) => w1 == w2,
-    //         _ => false,
-    //     }
-}
-
-// Return `true` if  `from_type` can be cast to `to_type`.
-// Warning: It is assumed that `equal_up_to_constness(from_type, to_type)`
-// returns `false`. If not, `can_cast_strict` may give incorrect results.
-// Unused at the moment
-// fn can_cast_strict(from_type: &Type, to_type: &Type) -> bool {
-//     use Type::*;
-//     !matches!((from_type, to_type), (Bit(..), Bit(..)))
-// }
-
-// FIXME: This in unfinished and permissive.
-/// Return `true` if `from_type` is equal to `to_type` up to constness,
-/// or if `from_type` can be cast to `to_type`. What "can be cast" means
-/// is perhaps a bit vague at the moment.
-pub(crate) fn can_cast_loose(from_type: &Type, to_type: &Type) -> bool {
-    use Type::*;
-    equal_up_to_constness(from_type, to_type) || !matches!((from_type, to_type), (Bit(..), Bit(..)))
 }

@@ -994,17 +994,39 @@ fn from_classical_declaration_statement(
         panic!("Array types are not supported yet in the ASG");
     }
     let scalar_type = type_decl.scalar_type().unwrap();
-    let typ = from_scalar_type(&scalar_type, type_decl.const_token().is_some(), context);
+    let lhs_type = from_scalar_type(&scalar_type, type_decl.const_token().is_some(), context);
     let name_str = type_decl.name().unwrap().string();
     let initializer = from_expr(type_decl.expr(), context);
     // FIXME: This error and several others can and should be moved to a subsequent pass.
     // However, we would lose the information in `text_range` unless we do something to preserve it.
-    let symbol_id = context.new_binding(name_str.as_ref(), &typ, type_decl);
-    if let Some(ref initializer) = initializer {
-        let init_typ = initializer.get_type();
-        if !(&typ == init_typ) && !types::can_cast_loose(&typ, init_typ) {
-            context.insert_error(IncompatibleTypesError, type_decl);
+    let symbol_id = context.new_binding(name_str.as_ref(), &lhs_type, type_decl);
+    // If there is an initializer, check that types are compatible and if there is
+    // an implicit cast, make it explicit.
+    if let Some(initializer) = initializer {
+        let init_type = initializer.get_type();
+        if types::equal_up_to_constness(&lhs_type, init_type) {
+            return asg::DeclareClassical::new(symbol_id, Some(initializer)).to_stmt();
         }
+        let promoted_type = types::promote_types_not_equal(&lhs_type, init_type);
+        // dbg!((&promoted_type, &lhs_type));
+        // dbg!(promoted_type == lhs_type);
+        let new_initializer = if types::equal_up_to_constness(&promoted_type, &lhs_type) {
+            // Very often `promoted_type` is correct. But it may be off by constness.
+            // We cast to exactly the type of the lhs, by cloning it.
+            // The important thing is to filter out cases where casting is either
+            // not necessary, or not allowed.
+            asg::Cast::new(initializer.clone(), lhs_type.clone()).to_texpr()
+        } else {
+            // Either the type can't be promoted,
+            // or promote_types says to promote lhs to rhs, which is allowed
+            // for some binary expressions, but not for assignment because the
+            // type of the lhs is fixed.
+            if promoted_type == Type::Void || &promoted_type == init_type {
+                context.insert_error(IncompatibleTypesError, type_decl);
+            }
+            initializer
+        };
+        return asg::DeclareClassical::new(symbol_id, Some(new_initializer)).to_stmt();
     }
     asg::DeclareClassical::new(symbol_id, initializer).to_stmt()
 }
