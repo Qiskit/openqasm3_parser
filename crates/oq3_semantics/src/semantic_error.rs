@@ -23,6 +23,7 @@ pub enum SemanticErrorKind {
     TooManyIndexes,
     CastError,
     MutateConstError,
+    NotInGlobalScopeError,
     IncludeNotInGlobalScopeError,
     ReturnInGlobalScopeError,
     NumGateParamsError,

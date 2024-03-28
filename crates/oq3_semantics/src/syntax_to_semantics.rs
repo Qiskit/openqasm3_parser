@@ -276,6 +276,9 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         }
 
         synast::Stmt::QuantumDeclarationStatement(q_decl) => {
+            if !context.symbol_table().in_global_scope() {
+                context.insert_error(NotInGlobalScopeError, &q_decl);
+            }
             let name_str = if let Some(name_str) = q_decl.name() {
                 name_str.string()
             } else {
@@ -317,6 +320,12 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
 
         // Gate definition
         synast::Stmt::Gate(gate) => {
+            if !context.symbol_table().in_global_scope() {
+                // It would be better to use gate.gate_token(), that is, the word "gate" for the
+                // location of the error. But that is of type `SyntaxToken`, not `AstNode` as
+                // required. There is probably a solution.
+                context.insert_error(NotInGlobalScopeError, &gate.name().unwrap());
+            }
             let name_node = gate.name().unwrap();
             // Here are three ways to manage the context.
 
@@ -367,6 +376,9 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
 
         synast::Stmt::Def(def_stmt) => {
             let name_node = def_stmt.name().unwrap();
+            if !context.symbol_table().in_global_scope() {
+                context.insert_error(NotInGlobalScopeError, &name_node);
+            }
             with_scope!(context,  ScopeType::Subroutine,
                         let params = bind_typed_parameter_list(def_stmt.typed_param_list(), context);
                         let block = from_block_expr(def_stmt.body().unwrap(), context);
@@ -991,14 +1003,15 @@ fn from_classical_declaration_statement(
     context: &mut Context,
 ) -> asg::Stmt {
     if type_decl.array_type().is_some() {
+        if !context.symbol_table().in_global_scope() {
+            context.insert_error(NotInGlobalScopeError, type_decl);
+        }
         panic!("Array types are not supported yet in the ASG");
     }
     let scalar_type = type_decl.scalar_type().unwrap();
     let lhs_type = from_scalar_type(&scalar_type, type_decl.const_token().is_some(), context);
     let name_str = type_decl.name().unwrap().string();
     let initializer = from_expr(type_decl.expr(), context);
-    // FIXME: This error and several others can and should be moved to a subsequent pass.
-    // However, we would lose the information in `text_range` unless we do something to preserve it.
     let symbol_id = context.new_binding(name_str.as_ref(), &lhs_type, type_decl);
     // If there is an initializer, check that types are compatible and if there is
     // an implicit cast, make it explicit.
@@ -1008,8 +1021,6 @@ fn from_classical_declaration_statement(
             return asg::DeclareClassical::new(symbol_id, Some(initializer)).to_stmt();
         }
         let promoted_type = types::promote_types_not_equal(&lhs_type, init_type);
-        // dbg!((&promoted_type, &lhs_type));
-        // dbg!(promoted_type == lhs_type);
         let new_initializer = if types::equal_up_to_constness(&promoted_type, &lhs_type) {
             // Very often `promoted_type` is correct. But it may be off by constness.
             // We cast to exactly the type of the lhs, by cloning it.

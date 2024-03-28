@@ -370,6 +370,10 @@ impl SymbolTable {
         self.current_scope().scope_type()
     }
 
+    pub(crate) fn in_global_scope(&self) -> bool {
+        self.current_scope_type() == ScopeType::Global
+    }
+
     // Return `true` if `name` is bound in current scope.
     fn current_scope_contains_name(&self, name: &str) -> bool {
         self.current_scope().contains_name(name)
