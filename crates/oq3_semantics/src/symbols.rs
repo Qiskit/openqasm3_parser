@@ -200,7 +200,6 @@ impl SymbolMap {
         self.table.len()
     }
 
-    /// Re
     pub fn contains_name(&self, name: &str) -> bool {
         self.table.contains_key(name)
     }
@@ -409,6 +408,13 @@ impl SymbolTable {
         match self.lookup(name) {
             Ok(symbol_record) => symbol_record.symbol_id,
             Err(_) => self.new_binding_no_check(name, typ),
+        }
+    }
+
+    /// Simple dump of all symbols. This could be improved.
+    pub fn dump(&self) {
+        for (n, sym) in self.all_symbols.iter().enumerate() {
+            println!("{n} {:?}", sym);
         }
     }
 }
