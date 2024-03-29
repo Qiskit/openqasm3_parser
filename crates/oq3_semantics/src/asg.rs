@@ -1124,7 +1124,12 @@ impl BitStringLiteral {
     }
 
     pub fn to_texpr(self) -> TExpr {
-        let width: usize = self.value.len();
+        // Don't count underscores when counting bits.
+        let width: usize = self
+            .value
+            .chars()
+            .filter(|c| *c == '0' || *c == '1')
+            .count();
         TExpr::new(
             self.to_expr(),
             Type::BitArray(ArrayDims::D1(width), IsConst::True),

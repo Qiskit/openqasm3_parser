@@ -321,12 +321,12 @@ int(x) + z;
     assert_eq!(parse.errors.len(), 0);
 }
 
-// FIXME: Should be zero errors!
+// Issue #208 and associated PR
 #[test]
 fn parse_cast_expr_test_7() {
     let code = r##"
 z + int[32](x);
     "##;
     let parse = SourceFile::parse(code);
-    assert_eq!(parse.errors.len(), 2);
+    assert_eq!(parse.errors.len(), 0);
 }

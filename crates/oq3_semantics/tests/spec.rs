@@ -160,6 +160,7 @@ defcal h $0 { }
     assert_eq!(program.len(), 0);
 }
 
+// 17dedf
 #[test]
 fn test_spec_types_6() {
     let code = r#"
@@ -167,6 +168,37 @@ fn test_spec_types_6() {
 bit[20] bit_array;
 // Declare and assign a register of bits with decimal value of 15
 bit[8] name = "00001111";
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 2);
+}
+
+// 17dedf
+#[test]
+fn test_spec_types_7() {
+    let code = r#"
+// Declare a 32-bit unsigned integer
+uint[32] my_uint = 10;
+// Declare a 16 bit signed integer
+int[16] my_int;
+my_int = int[16](my_uint);
+// Declare a machine-sized integer
+int my_machine_int;
+"#;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 4);
+}
+
+// 17dedf
+#[test]
+fn test_spec_types_8() {
+    let code = r#"
+   // Declare a single-precision 32-bit float
+   float[32] my_float = π;
+   // Declare a machine-precision float.
+   float my_machine_float = 2.3;
 "#;
     let (program, errors, _symbol_table) = parse_string(code);
     assert!(errors.is_empty());

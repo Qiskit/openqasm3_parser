@@ -997,3 +997,108 @@ duration a = 2.0;
         SemanticErrorKind::IncompatibleTypesError
     ));
 }
+
+// Issue #208
+#[test]
+fn test_from_string_declaration_type_check_10() {
+    let code = r##"
+complex[float[64]] c1 = 1.0 + 2.0im;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 1);
+}
+
+// Issue #208
+#[test]
+fn test_from_string_declaration_type_check_11() {
+    let code = r##"
+const int[64] i1 = 4;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 1);
+}
+
+// Issue #208
+#[test]
+fn test_from_string_declaration_type_check_12() {
+    let code = r##"
+const bit[8] b2 = "0010_1010";
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 1);
+}
+
+#[test]
+fn test_from_string_declaration_type_check_13() {
+    let code = r##"
+float[64] c1 = 1.0 + 2.0im;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+}
+
+#[test]
+fn test_from_string_declaration_type_check_14() {
+    let code = r##"
+float c1 = 1.0 + 2.0im;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+}
+
+#[test]
+fn test_from_string_declaration_type_check_15() {
+    let code = r##"
+int c1 = 1.0 + 2.0im;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+}
+
+#[test]
+fn test_from_string_declaration_type_check_16() {
+    let code = r##"
+int[8] c1 = 1.0 + 2.0im;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+}
+
+#[test]
+fn test_from_string_declaration_type_check_17() {
+    let code = r##"
+uint a = 1;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+}
+
+#[test]
+fn test_from_string_declaration_type_check_18() {
+    let code = r##"
+uint[64] a = 22;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+}
+
+#[test]
+fn test_from_string_declaration_type_check_19() {
+    let code = r##"
+uint[64] a = -1;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+}
+
+#[test]
+fn test_from_string_declaration_type_check_20() {
+    let code = r##"
+uint a = -99;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+}
