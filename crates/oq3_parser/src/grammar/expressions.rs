@@ -223,7 +223,11 @@ fn expr_bp(
 ) -> Option<(CompletedMarker, BlockLike)> {
     let m = m.unwrap_or_else(|| p.start());
     #[allow(clippy::nonminimal_bool)]
-    if !p.at_ts(EXPR_FIRST) && !(p.current().is_classical_type() && p.nth(1) == T!['(']) {
+    // The second clause here is for cast expressions (only cast expressions?), such as
+    // int(expr) and int[32](expr).
+    if !p.at_ts(EXPR_FIRST)
+        && !(p.current().is_classical_type() && matches!(p.nth(1), T!['('] | T!['[']))
+    {
         p.err_recover("expr_bp: expected expression", atom::EXPR_RECOVERY_SET); // FIXME, remove debug from string
         m.abandon(p);
         return None;

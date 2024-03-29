@@ -86,6 +86,7 @@ pub enum Type {
 // property is allowed to differ.
 pub(crate) fn equal_up_to_constness(ty1: &Type, ty2: &Type) -> bool {
     use Type::*;
+    // FIXME: Make sure we can remove following. Looks inefficient
     if ty1 == ty2 {
         return true;
     }
@@ -97,10 +98,31 @@ pub(crate) fn equal_up_to_constness(ty1: &Type, ty2: &Type) -> bool {
         (Int(w1, _), Int(w2, _)) => w1 == w2,
         (UInt(w1, _), UInt(w2, _)) => w1 == w2,
         (Float(w1, _), Float(w2, _)) => w1 == w2,
+        (Complex(w1, _), Complex(w2, _)) => w1 == w2,
         (Angle(w1, _), Angle(w2, _)) => w1 == w2,
         (BitArray(dims1, _), BitArray(dims2, _)) => dims1 == dims2,
         _ => false,
     }
+}
+
+// Are the base types of the scalars equal?
+// (That is modulo width anc constness?)
+// Returns `false` for all array types. Not sure what
+// we need from arrays.
+fn equal_base_type(ty1: &Type, ty2: &Type) -> bool {
+    use Type::*;
+    matches!(
+        (ty1, ty2),
+        (Bit(_), Bit(_))
+            | (Duration(_), Duration(_))
+            | (Bool(_), Bool(_))
+            | (Stretch(_), Stretch(_))
+            | (Int(..), Int(..))
+            | (UInt(..), UInt(..))
+            | (Float(..), Float(..))
+            | (Complex(..), Complex(..))
+            | (Angle(..), Angle(..))
+    )
 }
 
 // OQ3 supports arrays with number of dims up to seven.
@@ -268,10 +290,14 @@ fn test_type_enum2() {
 // Promotion
 //
 
+// `const` is less than non-`const`.
+// (why does this look like the opposite of correct definition?)
 fn promote_constness(ty1: &Type, ty2: &Type) -> IsConst {
     IsConst::from(ty1.is_const() && ty2.is_const())
 }
 
+// Return greater of the `Width`s of the types.
+// The width `None` is the greatest width.
 fn promote_width(ty1: &Type, ty2: &Type) -> Width {
     match (ty1.width(), ty2.width()) {
         (Some(width1), Some(width2)) => Some(std::cmp::max(width1, width2)),
@@ -323,6 +349,39 @@ fn promote_types_asymmetric(ty1: &Type, ty2: &Type) -> Type {
     match (ty1, ty2) {
         (Int(..), Float(..)) => ty2.clone(),
         (UInt(..), Float(..)) => ty2.clone(),
+        (Float(..), Complex(..)) => ty2.clone(),
         _ => Void,
+    }
+}
+
+/// Can the literal type be cast to type `ty1` for assignment?
+/// The width of a literal is a fiction that is not in the spec.
+/// So when casting, the width does not matter.
+///
+/// We currently have `128` for the width of a literal `Int`.
+/// and the literal parsed into a Rust `u128` plus a bool for
+/// a sign. We need to check, outside of the semantics whether
+/// the value of type `u128` can be cast to the lhs type.
+/// For that, we need the value. `can_cast_literal` does not
+/// know the value.
+pub fn can_cast_literal(ty1: &Type, ty_lit: &Type) -> bool {
+    use Type::*;
+    if equal_base_type(ty1, ty_lit) {
+        return true;
+    }
+    match (ty1, ty_lit) {
+        (Float(..), Int(..)) => true,
+        (Float(..), UInt(..)) => true,
+        (Complex(..), Float(..)) => true,
+        (Complex(..), Int(..)) => true,
+        (Complex(..), UInt(..)) => true,
+
+        // Listing these explicitly is slower, but
+        // might be better for maintaining and debugging.
+        (Int(..), Float(..)) => false,
+        (UInt(..), Float(..)) => false,
+        (Int(..), Complex(..)) => false,
+        (UInt(..), Complex(..)) => false,
+        _ => false,
     }
 }

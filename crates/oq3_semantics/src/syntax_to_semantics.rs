@@ -998,6 +998,16 @@ fn from_scalar_type(
     }
 }
 
+// Return `true` if the literal
+fn can_cast_literal(lhs_type: &Type, init_type: &Type, literal: &asg::Literal) -> bool {
+    if matches!(lhs_type, &Type::UInt(..)) {
+        if let asg::Literal::Int(intlit) = literal {
+            return *intlit.sign();
+        }
+    }
+    types::can_cast_literal(lhs_type, init_type)
+}
+
 fn from_classical_declaration_statement(
     type_decl: &synast::ClassicalDeclarationStatement,
     context: &mut Context,
@@ -1019,6 +1029,18 @@ fn from_classical_declaration_statement(
         let init_type = initializer.get_type();
         if types::equal_up_to_constness(&lhs_type, init_type) {
             return asg::DeclareClassical::new(symbol_id, Some(initializer)).to_stmt();
+        }
+        // From this point, we need to cast, if possible.
+        // So, we either cast, or record an error saying types are incompatible.
+        if let asg::Expr::Literal(literal) = initializer.expression() {
+            if can_cast_literal(&lhs_type, init_type, literal) {
+                let new_initializer =
+                    asg::Cast::new(initializer.clone(), lhs_type.clone()).to_texpr();
+                return asg::DeclareClassical::new(symbol_id, Some(new_initializer)).to_stmt();
+            } else {
+                context.insert_error(IncompatibleTypesError, type_decl);
+                return asg::DeclareClassical::new(symbol_id, Some(initializer)).to_stmt();
+            }
         }
         let promoted_type = types::promote_types_not_equal(&lhs_type, init_type);
         let new_initializer = if types::equal_up_to_constness(&promoted_type, &lhs_type) {
