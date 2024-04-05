@@ -107,24 +107,15 @@ impl SymbolType for Symbol {
 pub struct SymbolRecord<'a> {
     symbol: &'a Symbol,
     symbol_id: SymbolId,
-    scope_level: usize,
 }
 
 impl SymbolRecord<'_> {
-    pub fn new(symbol: &Symbol, symbol_id: SymbolId, scope_level: usize) -> SymbolRecord<'_> {
-        SymbolRecord {
-            symbol,
-            symbol_id,
-            scope_level,
-        }
+    pub fn new(symbol: &Symbol, symbol_id: SymbolId) -> SymbolRecord<'_> {
+        SymbolRecord { symbol, symbol_id }
     }
 
     pub fn symbol_id(&self) -> SymbolId {
         self.symbol_id.clone()
-    }
-
-    pub fn scope_level(&self) -> usize {
-        self.scope_level
     }
 }
 
@@ -401,15 +392,15 @@ impl SymbolTable {
         self.current_scope().len()
     }
 
-    // FIXME: fix awkward scope numbering.
     /// Look up `name` in the stack of symbol tables. Return `SymbolRecord`
     /// if the symbol is found. Otherwise `Err(SymbolError::MissingBinding)`.
     pub fn lookup(&self, name: &str) -> Result<SymbolRecord, SymbolError> {
-        for (scope_level_rev, table) in self.symbol_table_stack.iter().rev().enumerate() {
+        for table in self.symbol_table_stack.iter().rev() {
             if let Some(symbol_id) = table.get_symbol_id(name) {
-                let symbol = &self.all_symbols[symbol_id.0];
-                let scope_level = self.number_of_scopes() - scope_level_rev - 1;
-                return Ok(SymbolRecord::new(symbol, symbol_id.clone(), scope_level));
+                return Ok(SymbolRecord::new(
+                    &self.all_symbols[symbol_id.0],
+                    symbol_id.clone(),
+                ));
             }
         }
         Err(SymbolError::MissingBinding) // `name` not found in any scope.
