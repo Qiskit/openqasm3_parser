@@ -38,6 +38,7 @@ impl SymbolId {
     }
 
     /// Post-increment the value, and return the old value.
+    /// This is used for getting a new `SymbolId`.
     pub fn post_increment(&mut self) -> SymbolId {
         let old_val = self.clone();
         self.0 += 1;
@@ -331,6 +332,8 @@ impl SymbolTable {
         self.symbol_table_stack.pop();
     }
 
+    // Make a new binding without checking first whether a binding exists in
+    // this scope.
     fn new_binding_no_check(&mut self, name: &str, typ: &Type) -> SymbolId {
         // Create new symbol and symbol id.
         //        let symbol = Symbol::new(name, typ, ast_node);
@@ -390,12 +393,15 @@ impl SymbolTable {
     //     self.current_scope().get(name)
     // }
 
+    // FIXME: Can we make this private?
+    // This is only used in tests. The tests are in a different crate, so this function
+    // must be public. But it is not needed for anything other than tests.
     /// Return the length (number of bindings) in the current scope.
     pub fn len_current_scope(&self) -> usize {
         self.current_scope().len()
     }
 
-    // FIXME: fix awkward scope numbering
+    // FIXME: fix awkward scope numbering.
     /// Look up `name` in the stack of symbol tables. Return `SymbolRecord`
     /// if the symbol is found. Otherwise `Err(SymbolError::MissingBinding)`.
     pub fn lookup(&self, name: &str) -> Result<SymbolRecord, SymbolError> {
@@ -409,8 +415,8 @@ impl SymbolTable {
         Err(SymbolError::MissingBinding) // `name` not found in any scope.
     }
 
-    /// Lookup `name` if symbol exists and return the `SymbolId`, otherwise create a new binding
-    /// and return the `SymbolId`.
+    /// Try to lookup `name`. If a binding is found return the `SymbolId`, otherwise create a new binding
+    /// and return the new `SymbolId`.
     pub fn lookup_or_new_binding(&mut self, name: &str, typ: &Type) -> SymbolId {
         match self.lookup(name) {
             Ok(symbol_record) => symbol_record.symbol_id,
@@ -436,7 +442,9 @@ use std::ops::Index;
 impl Index<&SymbolId> for SymbolTable {
     type Output = Symbol;
 
-    // Interface for retrieving `Symbol`s from `all_symbols`
+    // Interface for retrieving `Symbol`s by `SymbolId`.
+    // Indexing into the symbol table with a `SymbolId` (which wraps an integer)
+    // returns the `Symbol`, which contains the name and type.
     fn index(&self, symbol_id: &SymbolId) -> &Self::Output {
         &self.all_symbols[symbol_id.0]
     }
