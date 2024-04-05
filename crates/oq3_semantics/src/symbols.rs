@@ -10,8 +10,6 @@ use hashbrown::HashMap;
 // OQ3
 // * "The lifetime of each identifier begins when it is declared, and ends
 //    at the completion of the scope it was declared in."
-
-#[allow(dead_code)]
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ScopeType {
     /// Top-level
@@ -275,6 +273,9 @@ impl SymbolTable {
             .collect()
     }
 
+    /// Return a list of hardware qubits referenced in the program as a
+    /// `Vec` of 2-tuples. In each tuple the first item is the name and
+    /// the second is the `SymbolId`.
     pub fn hardware_qubits(&self) -> Vec<(&str, SymbolId)> {
         self.all_symbols
             .iter()
@@ -309,18 +310,24 @@ impl SymbolTable {
         symbol_table
     }
 
-    pub fn number_of_scopes(&self) -> usize {
+    fn number_of_scopes(&self) -> usize {
         self.symbol_table_stack.len()
     }
 
-    pub fn enter_scope(&mut self, scope_type: ScopeType) {
+    /// Enter a new scope of type `scope_type`. New bindings will occur in this
+    /// scope. This scope will be the first one searched when resolving symbols.
+    /// Certain symbols are excepted, such as gate names, which are always global.
+    pub(crate) fn enter_scope(&mut self, scope_type: ScopeType) {
         if scope_type == ScopeType::Global && self.number_of_scopes() > 0 {
             panic!("The unique global scope must be the first scope.")
         }
         self.symbol_table_stack.push(SymbolMap::new(scope_type))
     }
 
+    /// Exit the current scope and return to the enclosing scope.
     pub fn exit_scope(&mut self) {
+        // Trying to exit the global scope is a programming error.
+        assert!(self.symbol_table_stack.len() > 1);
         self.symbol_table_stack.pop();
     }
 
