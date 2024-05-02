@@ -10,8 +10,6 @@ use hashbrown::HashMap;
 // OQ3
 // * "The lifetime of each identifier begins when it is declared, and ends
 //    at the completion of the scope it was declared in."
-
-#[allow(dead_code)]
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ScopeType {
     /// Top-level
@@ -40,6 +38,7 @@ impl SymbolId {
     }
 
     /// Post-increment the value, and return the old value.
+    /// This is used for getting a new `SymbolId`.
     pub fn post_increment(&mut self) -> SymbolId {
         let old_val = self.clone();
         self.0 += 1;
@@ -108,24 +107,15 @@ impl SymbolType for Symbol {
 pub struct SymbolRecord<'a> {
     symbol: &'a Symbol,
     symbol_id: SymbolId,
-    scope_level: usize,
 }
 
 impl SymbolRecord<'_> {
-    pub fn new(symbol: &Symbol, symbol_id: SymbolId, scope_level: usize) -> SymbolRecord<'_> {
-        SymbolRecord {
-            symbol,
-            symbol_id,
-            scope_level,
-        }
+    pub fn new(symbol: &Symbol, symbol_id: SymbolId) -> SymbolRecord<'_> {
+        SymbolRecord { symbol, symbol_id }
     }
 
     pub fn symbol_id(&self) -> SymbolId {
         self.symbol_id.clone()
-    }
-
-    pub fn scope_level(&self) -> usize {
-        self.scope_level
     }
 }
 
@@ -275,6 +265,9 @@ impl SymbolTable {
             .collect()
     }
 
+    /// Return a list of hardware qubits referenced in the program as a
+    /// `Vec` of 2-tuples. In each tuple the first item is the name and
+    /// the second is the `SymbolId`.
     pub fn hardware_qubits(&self) -> Vec<(&str, SymbolId)> {
         self.all_symbols
             .iter()
@@ -309,21 +302,29 @@ impl SymbolTable {
         symbol_table
     }
 
-    pub fn number_of_scopes(&self) -> usize {
+    fn number_of_scopes(&self) -> usize {
         self.symbol_table_stack.len()
     }
 
-    pub fn enter_scope(&mut self, scope_type: ScopeType) {
+    /// Enter a new scope of type `scope_type`. New bindings will occur in this
+    /// scope. This scope will be the first one searched when resolving symbols.
+    /// Certain symbols are excepted, such as gate names, which are always global.
+    pub(crate) fn enter_scope(&mut self, scope_type: ScopeType) {
         if scope_type == ScopeType::Global && self.number_of_scopes() > 0 {
             panic!("The unique global scope must be the first scope.")
         }
         self.symbol_table_stack.push(SymbolMap::new(scope_type))
     }
 
+    /// Exit the current scope and return to the enclosing scope.
     pub fn exit_scope(&mut self) {
+        // Trying to exit the global scope is a programming error.
+        assert!(self.symbol_table_stack.len() > 1);
         self.symbol_table_stack.pop();
     }
 
+    // Make a new binding without checking first whether a binding exists in
+    // this scope.
     fn new_binding_no_check(&mut self, name: &str, typ: &Type) -> SymbolId {
         // Create new symbol and symbol id.
         //        let symbol = Symbol::new(name, typ, ast_node);
@@ -383,27 +384,30 @@ impl SymbolTable {
     //     self.current_scope().get(name)
     // }
 
+    // FIXME: Can we make this private?
+    // This is only used in tests. The tests are in a different crate, so this function
+    // must be public. But it is not needed for anything other than tests.
     /// Return the length (number of bindings) in the current scope.
     pub fn len_current_scope(&self) -> usize {
         self.current_scope().len()
     }
 
-    // FIXME: fix awkward scope numbering
     /// Look up `name` in the stack of symbol tables. Return `SymbolRecord`
     /// if the symbol is found. Otherwise `Err(SymbolError::MissingBinding)`.
     pub fn lookup(&self, name: &str) -> Result<SymbolRecord, SymbolError> {
-        for (scope_level_rev, table) in self.symbol_table_stack.iter().rev().enumerate() {
+        for table in self.symbol_table_stack.iter().rev() {
             if let Some(symbol_id) = table.get_symbol_id(name) {
-                let symbol = &self.all_symbols[symbol_id.0];
-                let scope_level = self.number_of_scopes() - scope_level_rev - 1;
-                return Ok(SymbolRecord::new(symbol, symbol_id.clone(), scope_level));
+                return Ok(SymbolRecord::new(
+                    &self.all_symbols[symbol_id.0],
+                    symbol_id.clone(),
+                ));
             }
         }
         Err(SymbolError::MissingBinding) // `name` not found in any scope.
     }
 
-    /// Lookup `name` if symbol exists and return the `SymbolId`, otherwise create a new binding
-    /// and return the `SymbolId`.
+    /// Try to lookup `name`. If a binding is found return the `SymbolId`, otherwise create a new binding
+    /// and return the new `SymbolId`.
     pub fn lookup_or_new_binding(&mut self, name: &str, typ: &Type) -> SymbolId {
         match self.lookup(name) {
             Ok(symbol_record) => symbol_record.symbol_id,
@@ -429,7 +433,9 @@ use std::ops::Index;
 impl Index<&SymbolId> for SymbolTable {
     type Output = Symbol;
 
-    // Interface for retrieving `Symbol`s from `all_symbols`
+    // Interface for retrieving `Symbol`s by `SymbolId`.
+    // Indexing into the symbol table with a `SymbolId` (which wraps an integer)
+    // returns the `Symbol`, which contains the name and type.
     fn index(&self, symbol_id: &SymbolId) -> &Self::Output {
         &self.all_symbols[symbol_id.0]
     }
