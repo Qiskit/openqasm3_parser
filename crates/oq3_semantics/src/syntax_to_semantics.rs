@@ -286,7 +286,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
                 return Some(asg::DeclareHardwareQubit::new(ast_hardware_qubit(&hw_qubit)).to_stmt());
             };
             let qubit_type = q_decl.qubit_type().unwrap();
-            let width = match qubit_type.designator().and_then(|x| x.expr()) {
+            let width = match from_designator(qubit_type.designator()) {
                 Some(synast::Expr::Literal(ref literal)) => {
                     match literal.kind() {
                         synast::LiteralKind::IntNumber(int_num) => {
@@ -969,7 +969,7 @@ fn from_scalar_type(
         // not complex
         scalar_type.designator()
     };
-    let width = match designator.and_then(|desg| desg.expr()) {
+    let width = match from_designator(designator) {
         // We only support literal integer designators at the moment.
         Some(synast::Expr::Literal(ref literal)) => {
             match literal.kind() {
@@ -1241,6 +1241,13 @@ fn bind_typed_parameter_list(
             })
             .collect()
     })
+}
+
+fn from_designator(arg: Option<synast::Designator>) -> Option<synast::Expr> {
+    arg.and_then(|desg| desg.expr())
+    // NOTE: Other uses of this pattern above have certain error checking,
+    // but because it was not standardized, it is not included
+    // in this helper function
 }
 
 // This works, but using it is pretty clumsy.
