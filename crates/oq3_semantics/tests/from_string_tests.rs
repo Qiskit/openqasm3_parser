@@ -398,8 +398,10 @@ fn expr_from_expr_stmt(stmt: &asg::Stmt) -> asg::Expr {
 fn literal_value(stmt: &asg::Stmt) -> Option<String> {
     match expr_from_expr_stmt(stmt) {
         asg::Expr::Literal(lit) => match lit {
-            asg::Literal::Float(float) => Some(float.value().to_string()),
-            asg::Literal::Int(int) => {
+            asg::Literal::Float(float) | asg::Literal::ImaginaryFloat(float) => {
+                Some(float.value().to_string())
+            }
+            asg::Literal::Int(int) | asg::Literal::ImaginaryInt(int) => {
                 if *int.sign() {
                     Some(format!("{}", int.value()))
                 } else {
@@ -469,6 +471,30 @@ fn test_from_string_neg_lit_int() {
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
     assert_eq!(expr, "-123");
+}
+
+#[test]
+fn test_from_string_neg_lit_int_im() {
+    let code = r##"
+-1 im;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "-1");
+}
+
+#[test]
+fn test_from_string_neg_lit_float_im() {
+    let code = r##"
+-10.1 im;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "-10.1");
 }
 
 #[test]
