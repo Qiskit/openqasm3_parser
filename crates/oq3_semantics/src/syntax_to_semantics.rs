@@ -553,54 +553,70 @@ fn from_paren_expr(paren_expr: synast::ParenExpr, context: &mut Context) -> Opti
     from_expr(paren_expr.expr(), context)
 }
 
+fn negative_float(f: synast::FloatNumber) -> asg::FloatLiteral {
+    let num = f.value().unwrap();
+    let float = format!("-{num}");
+    asg::FloatLiteral::new(float)
+}
+
+fn negative_int(n: synast::IntNumber) -> asg::IntLiteral {
+    let num = n.value_u128().unwrap(); // fn value_u128 is kind of a hack
+    asg::IntLiteral::new(num, false) // `false` means negative
+}
+
 fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<asg::TExpr> {
     let expr = expr_maybe?;
     match expr {
         // FIXME: Ugh. could clean up logic here
         // It is convenient to rewrite literals wrapped in unary minus as literals
         // with negative values.
-        synast::Expr::PrefixExpr(prefix_expr) => {
-            match prefix_expr.op_kind() {
-                Some(synast::UnaryOp::Neg) => {
-                    match prefix_expr.expr() {
-                        Some(synast::Expr::Literal(ref literal)) => {
-                            match literal.kind() {
-                                synast::LiteralKind::FloatNumber(float_num) => {
-                                    let num = float_num.value().unwrap();
-                                    let float = format!("-{num}");
-                                    Some(asg::FloatLiteral::new(float).to_texpr())
+        synast::Expr::PrefixExpr(prefix_expr) => match prefix_expr.op_kind() {
+            Some(synast::UnaryOp::Neg) => match prefix_expr.expr() {
+                Some(synast::Expr::Literal(ref literal)) => Some(match literal.kind() {
+                    synast::LiteralKind::FloatNumber(f) => negative_float(f).to_texpr(),
+                    synast::LiteralKind::IntNumber(n) => negative_int(n).to_texpr(),
+                    _ => {
+                        panic!("Only integers and floats are supported as operands to unary minus.")
+                    }
+                }),
+
+                Some(synast::Expr::TimingLiteral(ref timing_literal)) => {
+                    match timing_literal.time_unit().unwrap() {
+                        synast::TimeUnit::Imaginary => {
+                            Some(match timing_literal.literal().unwrap().kind() {
+                                synast::LiteralKind::FloatNumber(f) => {
+                                    negative_float(f).to_imaginary_texpr()
                                 }
-                                synast::LiteralKind::IntNumber(int_num) => {
-                                    let num = int_num.value_u128().unwrap(); // fn value_u128 is kind of a hack
-                                    Some(asg::IntLiteral::new(num, false).to_texpr())
-                                    // `false` means negative
+                                synast::LiteralKind::IntNumber(n) => {
+                                    negative_int(n).to_imaginary_texpr()
                                 }
-                                _ => panic!("Only integers and floats are supported as operands to unary minus."),
-                            }
+                                _ => panic!("You have found a bug in oq3_syntax or oq3_parser"),
+                            })
                         }
-
-                        Some(synexpr) => Some(
-                            asg::UnaryExpr::new(
-                                asg::UnaryOp::Minus,
-                                from_expr(Some(synexpr), context).unwrap(),
-                            )
-                            .to_texpr(),
-                        ),
-
-                        None => panic!(
-                            "You have found a bug in oq3_parser. No operand to unary minus found."
-                        ),
+                        _ => {
+                            panic!("Only floats are supported as operands to unary minus.")
+                        }
                     }
                 }
-                Some(op) => panic!(
-                    "Unary operators other than minus are not supported. Found '{:?}.'",
-                    op
+
+                Some(synexpr) => Some(
+                    asg::UnaryExpr::new(
+                        asg::UnaryOp::Minus,
+                        from_expr(Some(synexpr), context).unwrap(),
+                    )
+                    .to_texpr(),
                 ),
-                _ => panic!(
-                    "You have found a bug in oq3_parser. No operand to unary operator found."
-                ),
-            }
-        }
+
+                None => {
+                    panic!("You have found a bug in oq3_parser. No operand to unary minus found.")
+                }
+            },
+            Some(op) => panic!(
+                "Unary operators other than minus are not supported. Found '{:?}.'",
+                op
+            ),
+            _ => panic!("You have found a bug in oq3_parser. No operand to unary operator found."),
+        },
 
         synast::Expr::ParenExpr(paren_expr) => from_paren_expr(paren_expr, context),
 
