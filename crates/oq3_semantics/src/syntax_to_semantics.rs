@@ -741,8 +741,6 @@ fn from_gate_call_expr(
     modifiers: Vec<asg::GateModifier>,
     context: &mut Context,
 ) -> Option<asg::Stmt> {
-    // Warning, I think map overlooks None. This can cause a bug in the present case.
-    // Because None means a coding error upstream. Better to blow up here.
     let gate_operands: Vec<_> = from_qubit_list(gate_call_expr.qubit_list(), context);
     let param_list = gate_call_expr
         .arg_list()
