@@ -838,6 +838,7 @@ fn from_expression_list(
 }
 
 fn from_qubit_list(qubit_list: Option<synast::QubitList>, context: &mut Context) -> Vec<asg::TExpr> {
+    // Warning, I think map overlooks None. This can cause a bug in the present case.
     // Because None means a coding error upstream. Better to blow up here.
     qubit_list.unwrap()
         .gate_operands()
