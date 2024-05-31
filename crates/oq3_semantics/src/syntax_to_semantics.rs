@@ -402,29 +402,19 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         }
 
         synast::Stmt::Barrier(barrier) => {
-            let gate_operands = barrier.qubit_list().map(|operands| {
-                operands
-                    .gate_operands()
-                    .map(|qubit| from_gate_operand(qubit, context))
-                    .collect()
-            });
-            Some(asg::Stmt::Barrier(asg::Barrier::new(gate_operands)))
+            let gate_operands = from_qubit_list(barrier.qubit_list(), context);
+            Some(asg::Stmt::Barrier(asg::Barrier::new(Some(gate_operands))))
         }
 
         synast::Stmt::DelayStmt(delay_stmt) => {
-            let gate_operands = delay_stmt.qubit_list().map(|operands| {
-                operands
-                    .gate_operands()
-                    .map(|qubit| from_gate_operand(qubit, context))
-                    .collect()
-            });
+            let gate_operands = from_qubit_list(delay_stmt.qubit_list(), context);
             let duration = from_expr(delay_stmt.designator().unwrap().expr(), context).unwrap();
             if !matches!(duration.get_type(), Type::Duration(_)) {
                 context.insert_error(IncompatibleTypesError, &delay_stmt.designator().unwrap());
             }
             Some(asg::Stmt::Delay(asg::DelayStmt::new(
                 duration,
-                gate_operands.unwrap(),
+                gate_operands,
             )))
         }
 
@@ -767,15 +757,7 @@ fn from_gate_call_expr(
     modifiers: Vec<asg::GateModifier>,
     context: &mut Context,
 ) -> Option<asg::Stmt> {
-    // Warning, I think map overlooks None. This can cause a bug in the present case.
-    // Because None means a coding error upstream. Better to blow up here.
-    let gate_operands: Vec<_> = gate_call_expr
-        .qubit_list()
-        .unwrap()
-        .gate_operands()
-        .map(|qubit| from_gate_operand(qubit, context))
-        .collect();
-
+    let gate_operands: Vec<_> = from_qubit_list(gate_call_expr.qubit_list(), context);
     let param_list = gate_call_expr
         .arg_list()
         .map(|ex| inner_expression_list(ex.expression_list().unwrap(), context));
@@ -869,6 +851,19 @@ fn from_expression_list(
     context: &mut Context,
 ) -> asg::ExpressionList {
     asg::ExpressionList::new(inner_expression_list(expression_list, context))
+}
+
+fn from_qubit_list(
+    qubit_list: Option<synast::QubitList>,
+    context: &mut Context,
+) -> Vec<asg::TExpr> {
+    // Warning, I think map overlooks None. This can cause a bug in the present case.
+    // Because None means a coding error upstream. Better to blow up here.
+    qubit_list
+        .unwrap()
+        .gate_operands()
+        .map(|qubit| from_gate_operand(qubit, context))
+        .collect()
 }
 
 // Return a Vec of TExpr.
