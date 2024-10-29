@@ -28,11 +28,6 @@
     semicolon_in_expressions_from_macros
 )]
 
-#[allow(unused)]
-macro_rules! eprintln {
-    ($($tt:tt)*) => { stdx::eprintln!($($tt)*) };
-}
-
 mod parsing;
 mod ptr;
 mod sourcegen;
@@ -48,7 +43,6 @@ pub mod ted;
 
 use std::marker::PhantomData;
 
-use stdx::format_to;
 use triomphe::Arc;
 
 pub use crate::{
@@ -451,4 +445,21 @@ fn api_walkthrough() {
         }
     }
     assert_eq!(exprs_cast, exprs_visit);
+}
+
+// #229
+// This macro is copied from ra_ap_stdx. It is the only feature
+// we needed from ra_ap_stdx. But that crate put us in a version bind.
+/// Appends formatted string to a `String`.
+#[macro_export]
+macro_rules! format_to {
+    ($buf:expr) => ();
+    ($buf:expr, $lit:literal $($arg:tt)*) => {
+        {
+            use ::std::fmt::Write as _;
+            // We can't do ::std::fmt::Write::write_fmt($buf, format_args!($lit $($arg)*))
+            // unfortunately, as that loses out on autoref behavior.
+            _ = $buf.write_fmt(format_args!($lit $($arg)*))
+        }
+    };
 }

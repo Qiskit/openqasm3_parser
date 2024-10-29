@@ -1,9 +1,7 @@
 // Copyright contributors to the openqasm-parser project
 // SPDX-License-Identifier: Apache-2.0
 
-#[cfg(not(feature = "in-rust-tree"))]
 mod ast_src;
-#[cfg(not(feature = "in-rust-tree"))]
 mod sourcegen_ast;
 
 use crate::ast;
