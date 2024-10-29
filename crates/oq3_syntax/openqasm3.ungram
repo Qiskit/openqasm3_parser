@@ -16,11 +16,11 @@
 
 // Notes for OQ3
 //
-// Introducing a literal keyword that is also a legal rust identifer here is not difficult, but easy, just do it.
+// Introducing a literal keyword that is also a legal OQ3 identifer here is not difficult, but easy; just do it.
 // 'measure' below requires that the literal "measure" is present.
 //
 // However '++' takes more work.
-// If you introduce a literal that cannot start a rust identifier, say `++`:
+// If you introduce a literal that cannot start an OQ3 identifier, say `++`:
 //  1. Map it to an identifer in `fn method_name` in sourcegen_ast.rs. For example:
 //   `"++" => "double_plus"`
 //  2. Add ++ to KINDS_SRC in ast_src.rs
