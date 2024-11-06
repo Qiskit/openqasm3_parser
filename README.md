@@ -70,7 +70,7 @@ A reminder: A front end is not of much use unless you have a back end. Examples 
 can be found in [./crates/oq3_semantics/examples/semdemo.rs](./crates/oq3_semantics/examples/semdemo.rs).
 
 ```shell
-shell> export QASM3_PATH=./crates/semantics/examples/qasm/
+shell> export QASM3_PATH=./crates/oq3_semantics/examples/qasm/
 shell> cargo run --example semdemo -- semantic scratch1.qasm
 ```
 

@@ -259,9 +259,9 @@ impl ast::BitString {
 impl ast::IntNumber {
     pub fn radix(&self) -> Radix {
         match self.text().get(..2).unwrap_or_default() {
-            "0b" => Radix::Binary,
-            "0o" => Radix::Octal,
-            "0x" => Radix::Hexadecimal,
+            "0b" | "0B" => Radix::Binary,
+            "0o" | "0O" => Radix::Octal,
+            "0x" | "0X" => Radix::Hexadecimal,
             _ => Radix::Decimal,
         }
     }
