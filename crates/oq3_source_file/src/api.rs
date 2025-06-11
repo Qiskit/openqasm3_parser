@@ -74,8 +74,6 @@ pub fn report_error(message: &str, span: &Range<usize>, file_path: &str, source:
     let mut colors = ColorGenerator::new();
     // Generate & choose some colours for each of our elements
     let a = colors.next();
-    // `offset` is a zero-indexed character offset from beginning of file.
-    // Here `offset` is character index of start of error.
     Report::build(ReportKind::Error, (file_path, span.clone()))
         .with_code(3)
         .with_message(message)
