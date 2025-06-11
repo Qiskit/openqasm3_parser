@@ -104,7 +104,7 @@ impl ast::Whitespace {
     pub fn spans_multiple_lines(&self) -> bool {
         let text = self.text();
         text.find('\n')
-            .map_or(false, |idx| text[idx + 1..].contains('\n'))
+            .is_some_and(|idx| text[idx + 1..].contains('\n'))
     }
 }
 
@@ -246,7 +246,7 @@ impl ast::BitString {
     pub fn value(&self) -> Option<Cow<'_, str>> {
         let text = self.text();
         let text = &text[self.text_range_between_quotes()? - self.syntax().text_range().start()];
-        return Some(Cow::Borrowed(text));
+        Some(Cow::Borrowed(text))
     }
 
     // FIXME: find a good name for this function

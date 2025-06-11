@@ -126,7 +126,7 @@ while (false) {
 x = 2;
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
-    assert!(errors.len() > 0 && matches!(&errors[0].kind(), SemanticErrorKind::UndefVarError));
+    assert!(!errors.is_empty() && matches!(&errors[0].kind(), SemanticErrorKind::UndefVarError));
     assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 2);
 }

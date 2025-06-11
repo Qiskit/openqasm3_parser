@@ -97,9 +97,9 @@ fn main() {
 
 /// Construct the fqpn of an example from a filename.
 fn example_path(example: &str) -> PathBuf {
-    return ["crates", "oq3_syntax", "examples", "oq3_source", example]
+    ["crates", "oq3_syntax", "examples", "oq3_source", example]
         .iter()
-        .collect();
+        .collect()
 }
 
 fn read_example_source(file_name: &str) -> String {

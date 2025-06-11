@@ -1,4 +1,4 @@
 # This does not work for some reason.
 # filter-map-identitiy = false
 
-msrv = "1.70.0"
+msrv = "1.79.0"

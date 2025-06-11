@@ -114,7 +114,7 @@ impl Output {
     }
 
     pub(crate) fn leave_node(&mut self) {
-        let e = (Self::EXIT_EVENT as u32) << Self::TAG_SHIFT | Self::EVENT_MASK;
+        let e = ((Self::EXIT_EVENT as u32) << Self::TAG_SHIFT) | Self::EVENT_MASK;
         self.event.push(e)
     }
 

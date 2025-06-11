@@ -1,6 +1,6 @@
 # OpenQASM 3 Parser
 [![License](https://img.shields.io/github/license/Qiskit/rustworkx.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)
-[![Minimum rustc 1.70](https://img.shields.io/badge/rustc-1.70+-blue.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
+[![Minimum rustc 1.79](https://img.shields.io/badge/rustc-1.79+-blue.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
 [![oq3_semantics crate](https://img.shields.io/crates/v/oq3_semantics.svg)](https://crates.io/crates/oq3_semantics)
 
 

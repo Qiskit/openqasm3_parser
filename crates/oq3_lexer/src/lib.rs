@@ -83,7 +83,7 @@ pub enum TokenKind {
     /// (allowed by default) lint, and are treated as regular identifier
     /// tokens.
     /// UnknownPrefix,
-
+    ///
     /// Examples: `1.0e-40`, `1000dt`, `1000ms`. Here `dt` and `ms` are suffixes.
     /// OpenQASM3 relevance? -> Note that `_` is an invalid
     /// suffix, but may be present here on string and float literals. Users of
