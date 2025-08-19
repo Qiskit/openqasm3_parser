@@ -12,7 +12,7 @@ use std::{
 };
 
 use itertools::Itertools;
-use proc_macro2::{Punct, Spacing};
+use proc_macro2::{Punct, Spacing, Ident, Span};
 use quote::{format_ident, quote};
 use ungrammar::{Grammar, Rule};
 
@@ -391,6 +391,10 @@ fn generate_syntax_kinds(grammar: KindsSrc<'_>) -> String {
         if "{}[]()".contains(token) {
             let c = token.chars().next().unwrap();
             quote! { #c }
+        } else if *token == "_" {
+            // `_` is not punctuation in proc_macro2; emit it as an identifier.
+            let ident = Ident::new("_", Span::call_site());
+            quote! { #ident }
         } else {
             let cs = token.chars().map(|c| Punct::new(c, Spacing::Joint));
             quote! { #(#cs)* }

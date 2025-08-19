@@ -1,4 +1,4 @@
-#!/bin/env sh
+#!/usr/bin/env bash
 
 # Copyright contributors to the openqasm-parser project
 # SPDX-License-Identifier: Apache-2.0

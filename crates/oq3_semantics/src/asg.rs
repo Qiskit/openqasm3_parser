@@ -178,11 +178,11 @@ pub enum Stmt {
     DeclareQuantum(DeclareQuantum),
     DeclareHardwareQubit(DeclareHardwareQubit),
     DefStmt(DefStmt),
+    ExternStmt(ExternStmt), // A statement because extern does not return anything
     DefCal, // stub
     Delay(DelayStmt),
     End,
     ExprStmt(TExpr),
-    Extern, // stub
     ForStmt(ForStmt),
     GPhaseCall(GPhaseCall),
     GateCall(GateCall), // A statement because a gate call does not return anything
@@ -660,6 +660,43 @@ impl DefStmt {
 
     pub fn block(&self) -> &Block {
         &self.block
+    }
+
+    pub fn return_type(&self) -> Option<&Type> {
+        self.return_type.as_ref()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ExternStmt {
+    name: SymbolIdResult,
+    params: Vec<SymbolIdResult>,
+    return_type: Option<Type>,
+}
+
+impl ExternStmt {
+    pub fn new(
+        name: SymbolIdResult,
+        params: Vec<SymbolIdResult>,
+        return_type: Option<Type>,
+    ) -> ExternStmt {
+        ExternStmt {
+            name,
+            params,
+            return_type,
+        }
+    }
+
+    pub fn to_stmt(self) -> Stmt {
+        Stmt::ExternStmt(self)
+    }
+
+    pub fn name(&self) -> &SymbolIdResult {
+        &self.name
+    }
+
+    pub fn params(&self) -> &[SymbolIdResult] {
+        self.params.as_ref()
     }
 
     pub fn return_type(&self) -> Option<&Type> {

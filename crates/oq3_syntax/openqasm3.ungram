@@ -72,6 +72,7 @@ Stmt =
 | ClassicalDeclarationStatement
 | ContinueStmt
 | Def
+| Extern
 | DefCal
 | DefCalGrammar
 | DelayStmt
@@ -156,6 +157,10 @@ FilePath =
 Def =
  'def' Name TypedParamList ReturnSignature?
  (body:BlockExpr | ';')
+
+// Subroutine definition
+Extern =
+ 'extern' Name TypedParamList ReturnSignature? ';'
 
 // Defcal definition
 DefCal =

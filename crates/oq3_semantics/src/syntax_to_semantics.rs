@@ -401,6 +401,32 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             Some(asg::DefStmt::new(def_name_symbol_id, params.unwrap(), block, ret_type).to_stmt())
         }
 
+        synast::Stmt::Extern(extern_stmt) => {
+            let name_node = extern_stmt.name().unwrap();
+            if !context.symbol_table().in_global_scope() {
+                context.insert_error(NotInGlobalScopeError, &name_node);
+            }
+            with_scope!(context,  ScopeType::Subroutine,
+                        let params = bind_typed_parameter_list(extern_stmt.typed_param_list(), context);
+            );
+            // FIXME: Should we let subroutines have a parameterized type?
+            // This would be very convenient for matching signatures.
+            // let num_params = match params {
+            //     Some(ref params) => params.len(),
+            //     None => 0,
+            // };
+            let ret_type = extern_stmt.return_signature()
+                .and_then(|x| x.scalar_type())
+                .map(|x| from_scalar_type(&x, true, context));
+
+            let extern_name_symbol_id = context.new_binding(
+                name_node.string().as_ref(),
+                &Type::Void,
+                &name_node,
+            );
+            Some(asg::ExternStmt::new(extern_name_symbol_id, params.unwrap(), ret_type).to_stmt())
+        }
+
         synast::Stmt::Barrier(barrier) => {
             let gate_operands = from_qubit_list(barrier.qubit_list(), context);
             Some(asg::Stmt::Barrier(asg::Barrier::new(Some(gate_operands))))

@@ -10,211 +10,212 @@ pub enum SyntaxKind {
     #[doc(hidden)]
     EOF,
     #[doc = r" punctuation"]
-    DOUBLE_PLUS,
-    SEMICOLON,
-    COMMA,
+    BANG,
+    NEQ,
+    POUND,
+    DOLLAR,
+    PERCENT,
+    PERCENTEQ,
+    AMP,
+    AMP2,
+    AMPEQ,
     L_PAREN,
     R_PAREN,
-    L_CURLY,
-    R_CURLY,
-    L_BRACK,
-    R_BRACK,
-    L_ANGLE,
-    R_ANGLE,
-    AT,
-    POUND,
-    TILDE,
-    QUESTION,
-    DOLLAR,
-    AMP,
-    PIPE,
-    PLUS,
     STAR,
-    SLASH,
-    CARET,
-    PERCENT,
-    UNDERSCORE,
+    STAREQ,
+    PLUS,
+    DOUBLE_PLUS,
+    PLUSEQ,
+    COMMA,
+    MINUS,
+    MINUSEQ,
+    THIN_ARROW,
     DOT,
     DOT2,
     DOT3,
     DOT2EQ,
+    SLASH,
+    SLASHEQ,
     COLON,
     COLON2,
+    SEMICOLON,
+    L_ANGLE,
+    SHL,
+    SHLEQ,
+    LTEQ,
     EQ,
     EQ2,
     FAT_ARROW,
-    BANG,
-    NEQ,
-    MINUS,
-    THIN_ARROW,
-    LTEQ,
+    R_ANGLE,
     GTEQ,
-    PLUSEQ,
-    MINUSEQ,
-    PIPEEQ,
-    AMPEQ,
-    CARETEQ,
-    SLASHEQ,
-    STAREQ,
-    PERCENTEQ,
-    AMP2,
-    PIPE2,
-    SHL,
     SHR,
-    SHLEQ,
     SHREQ,
+    QUESTION,
+    AT,
+    L_BRACK,
+    R_BRACK,
+    CARET,
+    CARETEQ,
+    UNDERSCORE,
+    L_CURLY,
+    PIPE,
+    PIPEEQ,
+    PIPE2,
+    R_CURLY,
+    TILDE,
     #[doc = r" all_keywords"]
     O_P_E_N_Q_A_S_M_KW,
-    INCLUDE_KW,
-    PRAGMA_KW,
-    DEF_KW,
-    DEFCALGRAMMAR_KW,
-    CAL_KW,
-    DEFCAL_KW,
-    GATE_KW,
-    DELAY_KW,
-    RESET_KW,
-    MEASURE_KW,
-    LET_KW,
-    BOX_KW,
-    EXTERN_KW,
-    CONST_KW,
     BARRIER_KW,
+    BOX_KW,
+    CAL_KW,
+    CONST_KW,
+    DEF_KW,
+    DEFCAL_KW,
+    DEFCALGRAMMAR_KW,
+    DELAY_KW,
+    EXTERN_KW,
+    GATE_KW,
     GPHASE_KW,
-    IF_KW,
-    ELSE_KW,
-    FOR_KW,
-    IN_KW,
-    WHILE_KW,
-    CONTINUE_KW,
-    RETURN_KW,
+    INCLUDE_KW,
+    LET_KW,
+    MEASURE_KW,
+    PRAGMA_KW,
+    RESET_KW,
     BREAK_KW,
-    END_KW,
-    SWITCH_KW,
     CASE_KW,
+    CONTINUE_KW,
     DEFAULT_KW,
-    INPUT_KW,
-    OUTPUT_KW,
-    READONLY_KW,
-    MUTABLE_KW,
-    QREG_KW,
-    CREG_KW,
-    QUBIT_KW,
-    VOID_KW,
+    ELSE_KW,
+    END_KW,
+    FOR_KW,
+    IF_KW,
+    IN_KW,
+    RETURN_KW,
+    SWITCH_KW,
+    WHILE_KW,
     ARRAY_KW,
+    CREG_KW,
+    INPUT_KW,
+    MUTABLE_KW,
+    OUTPUT_KW,
+    QREG_KW,
+    QUBIT_KW,
+    READONLY_KW,
+    VOID_KW,
     CTRL_KW,
-    NEGCTRL_KW,
     INV_KW,
+    NEGCTRL_KW,
     POW_KW,
     FALSE_KW,
     TRUE_KW,
     #[doc = r" literals"]
-    INT_NUMBER,
-    FLOAT_NUMBER,
-    CHAR,
-    BYTE,
-    STRING,
     BIT_STRING,
+    BYTE,
+    CHAR,
+    FLOAT_NUMBER,
+    INT_NUMBER,
+    STRING,
     #[doc = r" scalar_types"]
+    ANGLE_TY,
+    BIT_TY,
+    BOOL_TY,
+    COMPLEX_TY,
+    DURATION_TY,
     FLOAT_TY,
     INT_TY,
-    UINT_TY,
-    COMPLEX_TY,
-    BOOL_TY,
-    BIT_TY,
-    DURATION_TY,
     STRETCH_TY,
-    ANGLE_TY,
+    UINT_TY,
     #[doc = r" tokens"]
-    ERROR,
-    IDENT,
-    HARDWAREIDENT,
-    WHITESPACE,
-    COMMENT,
-    PRAGMA,
     ANNOTATION,
+    COMMENT,
+    ERROR,
+    HARDWAREIDENT,
+    IDENT,
+    PRAGMA,
+    WHITESPACE,
     #[doc = r" nodes"]
-    SOURCE_FILE,
-    GATE,
-    DEF_CAL,
-    DELAY_STMT,
-    CAL,
-    DEF_CAL_GRAMMAR,
-    MEASURE,
-    BARRIER,
-    DEF,
-    RESET,
-    CONST,
-    PRAGMA_STATEMENT,
     ANNOTATION_STATEMENT,
+    BARRIER,
+    CAL,
+    CONST,
+    DEF,
+    EXTERN,
+    DEF_CAL,
+    DEF_CAL_GRAMMAR,
+    DELAY_STMT,
+    GATE,
+    MEASURE,
+    PRAGMA_STATEMENT,
+    RESET,
+    SOURCE_FILE,
     TIMING_LITERAL,
-    TUPLE_EXPR,
     ARRAY_EXPR,
-    PAREN_EXPR,
-    IF_STMT,
-    WHILE_STMT,
-    FOR_STMT,
-    FOR_ITERABLE,
-    END_STMT,
-    CONTINUE_STMT,
-    BREAK_STMT,
     BLOCK_EXPR,
-    STMT_LIST,
-    RETURN_EXPR,
-    LET_STMT,
     BOX_EXPR,
-    SWITCH_CASE_STMT,
+    BREAK_STMT,
     CASE_EXPR,
+    CONTINUE_STMT,
+    END_STMT,
+    FOR_ITERABLE,
+    FOR_STMT,
+    IF_STMT,
+    LET_STMT,
+    PAREN_EXPR,
+    RETURN_EXPR,
+    STMT_LIST,
+    SWITCH_CASE_STMT,
+    TUPLE_EXPR,
+    WHILE_STMT,
     CALL_EXPR,
-    GATE_CALL_EXPR,
-    MODIFIED_GATE_CALL_EXPR,
-    G_PHASE_CALL_EXPR,
     CAST_EXPRESSION,
+    GATE_CALL_EXPR,
+    G_PHASE_CALL_EXPR,
     INDEX_EXPR,
-    PREFIX_EXPR,
-    RANGE_EXPR,
+    MODIFIED_GATE_CALL_EXPR,
+    ARG_LIST,
     BIN_EXPR,
+    DECLARATION,
+    EXPR_STMT,
+    FILE_PATH,
+    INCLUDE,
     LITERAL,
     NAME,
-    EXPR_STMT,
-    TYPE,
-    PARAM_LIST,
-    TYPED_PARAM_LIST,
-    QUBIT_LIST,
-    FILE_PATH,
     PARAM,
+    PARAM_LIST,
+    PREFIX_EXPR,
+    QUBIT_LIST,
+    RANGE_EXPR,
+    TYPE,
     TYPED_PARAM,
-    ARG_LIST,
+    TYPED_PARAM_LIST,
     VERSION,
     VERSION_STRING,
-    INCLUDE,
-    DECLARATION,
-    DESIGNATOR,
-    SCALAR_TYPE,
-    ARRAY_TYPE,
-    QUBIT_TYPE,
-    EXPRESSION_LIST,
-    RETURN_SIGNATURE,
-    SET_EXPRESSION,
     ALIAS_DECLARATION_STATEMENT,
-    INDEX_OPERATOR,
-    INDEX_KIND,
-    INDEXED_IDENTIFIER,
-    IDENTIFIER,
     ARRAY_LITERAL,
-    HARDWARE_QUBIT,
-    CLASSICAL_DECLARATION_STATEMENT,
+    ARRAY_TYPE,
     ASSIGNMENT_STMT,
-    I_O_DECLARATION_STATEMENT,
+    CLASSICAL_DECLARATION_STATEMENT,
+    DESIGNATOR,
+    EXPRESSION_LIST,
     GATE_OPERAND,
+    HARDWARE_QUBIT,
+    IDENTIFIER,
+    INDEXED_IDENTIFIER,
+    INDEX_KIND,
+    INDEX_OPERATOR,
+    I_O_DECLARATION_STATEMENT,
     MEASURE_EXPRESSION,
     OLD_STYLE_DECLARATION_STATEMENT,
     QUANTUM_DECLARATION_STATEMENT,
-    INV_MODIFIER,
-    POW_MODIFIER,
+    QUBIT_TYPE,
+    RETURN_SIGNATURE,
+    SCALAR_TYPE,
+    SET_EXPRESSION,
     CTRL_MODIFIER,
-    NEG_CTRL_MODIFIER,
+    INV_MODIFIER,
     MODIFIER,
+    NEG_CTRL_MODIFIER,
+    POW_MODIFIER,
     #[doc(hidden)]
     __LAST,
 }
@@ -224,46 +225,46 @@ impl SyntaxKind {
         matches!(
             self,
             O_P_E_N_Q_A_S_M_KW
-                | INCLUDE_KW
-                | PRAGMA_KW
-                | DEF_KW
-                | DEFCALGRAMMAR_KW
-                | CAL_KW
-                | DEFCAL_KW
-                | GATE_KW
-                | DELAY_KW
-                | RESET_KW
-                | MEASURE_KW
-                | LET_KW
-                | BOX_KW
-                | EXTERN_KW
-                | CONST_KW
                 | BARRIER_KW
+                | BOX_KW
+                | CAL_KW
+                | CONST_KW
+                | DEF_KW
+                | DEFCAL_KW
+                | DEFCALGRAMMAR_KW
+                | DELAY_KW
+                | EXTERN_KW
+                | GATE_KW
                 | GPHASE_KW
-                | IF_KW
-                | ELSE_KW
-                | FOR_KW
-                | IN_KW
-                | WHILE_KW
-                | CONTINUE_KW
-                | RETURN_KW
+                | INCLUDE_KW
+                | LET_KW
+                | MEASURE_KW
+                | PRAGMA_KW
+                | RESET_KW
                 | BREAK_KW
-                | END_KW
-                | SWITCH_KW
                 | CASE_KW
+                | CONTINUE_KW
                 | DEFAULT_KW
-                | INPUT_KW
-                | OUTPUT_KW
-                | READONLY_KW
-                | MUTABLE_KW
-                | QREG_KW
-                | CREG_KW
-                | QUBIT_KW
-                | VOID_KW
+                | ELSE_KW
+                | END_KW
+                | FOR_KW
+                | IF_KW
+                | IN_KW
+                | RETURN_KW
+                | SWITCH_KW
+                | WHILE_KW
                 | ARRAY_KW
+                | CREG_KW
+                | INPUT_KW
+                | MUTABLE_KW
+                | OUTPUT_KW
+                | QREG_KW
+                | QUBIT_KW
+                | READONLY_KW
+                | VOID_KW
                 | CTRL_KW
-                | NEGCTRL_KW
                 | INV_KW
+                | NEGCTRL_KW
                 | POW_KW
                 | FALSE_KW
                 | TRUE_KW
@@ -272,124 +273,123 @@ impl SyntaxKind {
     pub fn is_punct(self) -> bool {
         matches!(
             self,
-            DOUBLE_PLUS
-                | SEMICOLON
-                | COMMA
+            BANG | NEQ
+                | POUND
+                | DOLLAR
+                | PERCENT
+                | PERCENTEQ
+                | AMP
+                | AMP2
+                | AMPEQ
                 | L_PAREN
                 | R_PAREN
-                | L_CURLY
-                | R_CURLY
-                | L_BRACK
-                | R_BRACK
-                | L_ANGLE
-                | R_ANGLE
-                | AT
-                | POUND
-                | TILDE
-                | QUESTION
-                | DOLLAR
-                | AMP
-                | PIPE
-                | PLUS
                 | STAR
-                | SLASH
-                | CARET
-                | PERCENT
-                | UNDERSCORE
+                | STAREQ
+                | PLUS
+                | DOUBLE_PLUS
+                | PLUSEQ
+                | COMMA
+                | MINUS
+                | MINUSEQ
+                | THIN_ARROW
                 | DOT
                 | DOT2
                 | DOT3
                 | DOT2EQ
+                | SLASH
+                | SLASHEQ
                 | COLON
                 | COLON2
+                | SEMICOLON
+                | L_ANGLE
+                | SHL
+                | SHLEQ
+                | LTEQ
                 | EQ
                 | EQ2
                 | FAT_ARROW
-                | BANG
-                | NEQ
-                | MINUS
-                | THIN_ARROW
-                | LTEQ
+                | R_ANGLE
                 | GTEQ
-                | PLUSEQ
-                | MINUSEQ
-                | PIPEEQ
-                | AMPEQ
-                | CARETEQ
-                | SLASHEQ
-                | STAREQ
-                | PERCENTEQ
-                | AMP2
-                | PIPE2
-                | SHL
                 | SHR
-                | SHLEQ
                 | SHREQ
+                | QUESTION
+                | AT
+                | L_BRACK
+                | R_BRACK
+                | CARET
+                | CARETEQ
+                | UNDERSCORE
+                | L_CURLY
+                | PIPE
+                | PIPEEQ
+                | PIPE2
+                | R_CURLY
+                | TILDE
         )
     }
     pub fn is_literal(self) -> bool {
         matches!(
             self,
-            INT_NUMBER | FLOAT_NUMBER | CHAR | BYTE | STRING | BIT_STRING
+            BIT_STRING | BYTE | CHAR | FLOAT_NUMBER | INT_NUMBER | STRING
         )
     }
     pub fn is_scalar_type(self) -> bool {
         matches!(
             self,
-            FLOAT_TY
-                | INT_TY
-                | UINT_TY
-                | COMPLEX_TY
-                | BOOL_TY
+            ANGLE_TY
                 | BIT_TY
+                | BOOL_TY
+                | COMPLEX_TY
                 | DURATION_TY
+                | FLOAT_TY
+                | INT_TY
                 | STRETCH_TY
-                | ANGLE_TY
+                | UINT_TY
         )
     }
     pub fn from_keyword(ident: &str) -> Option<SyntaxKind> {
         let kw = match ident {
             "OPENQASM" => O_P_E_N_Q_A_S_M_KW,
-            "include" => INCLUDE_KW,
-            "pragma" => PRAGMA_KW,
-            "def" => DEF_KW,
-            "defcalgrammar" => DEFCALGRAMMAR_KW,
-            "cal" => CAL_KW,
-            "defcal" => DEFCAL_KW,
-            "gate" => GATE_KW,
-            "delay" => DELAY_KW,
-            "reset" => RESET_KW,
-            "measure" => MEASURE_KW,
-            "let" => LET_KW,
-            "box" => BOX_KW,
-            "extern" => EXTERN_KW,
-            "const" => CONST_KW,
             "barrier" => BARRIER_KW,
+            "box" => BOX_KW,
+            "cal" => CAL_KW,
+            "const" => CONST_KW,
+            "def" => DEF_KW,
+            "defcal" => DEFCAL_KW,
+            "defcalgrammar" => DEFCALGRAMMAR_KW,
+            "delay" => DELAY_KW,
+            "extern" => EXTERN_KW,
+            "gate" => GATE_KW,
             "gphase" => GPHASE_KW,
-            "if" => IF_KW,
-            "else" => ELSE_KW,
-            "for" => FOR_KW,
-            "in" => IN_KW,
-            "while" => WHILE_KW,
-            "continue" => CONTINUE_KW,
-            "return" => RETURN_KW,
+            "include" => INCLUDE_KW,
+            "let" => LET_KW,
+            "measure" => MEASURE_KW,
+            "pragma" => PRAGMA_KW,
+            "reset" => RESET_KW,
             "break" => BREAK_KW,
-            "end" => END_KW,
-            "switch" => SWITCH_KW,
             "case" => CASE_KW,
+            "continue" => CONTINUE_KW,
             "default" => DEFAULT_KW,
-            "input" => INPUT_KW,
-            "output" => OUTPUT_KW,
-            "readonly" => READONLY_KW,
-            "mutable" => MUTABLE_KW,
-            "qreg" => QREG_KW,
-            "creg" => CREG_KW,
-            "qubit" => QUBIT_KW,
-            "void" => VOID_KW,
+            "else" => ELSE_KW,
+            "end" => END_KW,
+            "for" => FOR_KW,
+            "if" => IF_KW,
+            "in" => IN_KW,
+            "return" => RETURN_KW,
+            "switch" => SWITCH_KW,
+            "while" => WHILE_KW,
             "array" => ARRAY_KW,
+            "creg" => CREG_KW,
+            "input" => INPUT_KW,
+            "mutable" => MUTABLE_KW,
+            "output" => OUTPUT_KW,
+            "qreg" => QREG_KW,
+            "qubit" => QUBIT_KW,
+            "readonly" => READONLY_KW,
+            "void" => VOID_KW,
             "ctrl" => CTRL_KW,
-            "negctrl" => NEGCTRL_KW,
             "inv" => INV_KW,
+            "negctrl" => NEGCTRL_KW,
             "pow" => POW_KW,
             "false" => FALSE_KW,
             "true" => TRUE_KW,
@@ -399,54 +399,54 @@ impl SyntaxKind {
     }
     pub fn from_scalar_type(type_name: &str) -> Option<SyntaxKind> {
         let ty = match type_name {
+            "angle" => ANGLE_TY,
+            "bit" => BIT_TY,
+            "bool" => BOOL_TY,
+            "complex" => COMPLEX_TY,
+            "duration" => DURATION_TY,
             "float" => FLOAT_TY,
             "int" => INT_TY,
-            "uint" => UINT_TY,
-            "complex" => COMPLEX_TY,
-            "bool" => BOOL_TY,
-            "bit" => BIT_TY,
-            "duration" => DURATION_TY,
             "stretch" => STRETCH_TY,
-            "angle" => ANGLE_TY,
+            "uint" => UINT_TY,
             _ => return None,
         };
         Some(ty)
     }
     pub fn from_char(c: char) -> Option<SyntaxKind> {
         let tok = match c {
-            ';' => SEMICOLON,
-            ',' => COMMA,
+            '!' => BANG,
+            '#' => POUND,
+            '$' => DOLLAR,
+            '%' => PERCENT,
+            '&' => AMP,
             '(' => L_PAREN,
             ')' => R_PAREN,
-            '{' => L_CURLY,
-            '}' => R_CURLY,
+            '*' => STAR,
+            '+' => PLUS,
+            ',' => COMMA,
+            '-' => MINUS,
+            '.' => DOT,
+            '/' => SLASH,
+            ':' => COLON,
+            ';' => SEMICOLON,
+            '<' => L_ANGLE,
+            '=' => EQ,
+            '>' => R_ANGLE,
+            '?' => QUESTION,
+            '@' => AT,
             '[' => L_BRACK,
             ']' => R_BRACK,
-            '<' => L_ANGLE,
-            '>' => R_ANGLE,
-            '@' => AT,
-            '#' => POUND,
-            '~' => TILDE,
-            '?' => QUESTION,
-            '$' => DOLLAR,
-            '&' => AMP,
-            '|' => PIPE,
-            '+' => PLUS,
-            '*' => STAR,
-            '/' => SLASH,
             '^' => CARET,
-            '%' => PERCENT,
             '_' => UNDERSCORE,
-            '.' => DOT,
-            ':' => COLON,
-            '=' => EQ,
-            '!' => BANG,
-            '-' => MINUS,
+            '{' => L_CURLY,
+            '|' => PIPE,
+            '}' => R_CURLY,
+            '~' => TILDE,
             _ => return None,
         };
         Some(tok)
     }
 }
 #[macro_export]
-macro_rules ! T { [++] => { $ crate :: SyntaxKind :: DOUBLE_PLUS } ; [;] => { $ crate :: SyntaxKind :: SEMICOLON } ; [,] => { $ crate :: SyntaxKind :: COMMA } ; ['('] => { $ crate :: SyntaxKind :: L_PAREN } ; [')'] => { $ crate :: SyntaxKind :: R_PAREN } ; ['{'] => { $ crate :: SyntaxKind :: L_CURLY } ; ['}'] => { $ crate :: SyntaxKind :: R_CURLY } ; ['['] => { $ crate :: SyntaxKind :: L_BRACK } ; [']'] => { $ crate :: SyntaxKind :: R_BRACK } ; [<] => { $ crate :: SyntaxKind :: L_ANGLE } ; [>] => { $ crate :: SyntaxKind :: R_ANGLE } ; [@] => { $ crate :: SyntaxKind :: AT } ; [#] => { $ crate :: SyntaxKind :: POUND } ; [~] => { $ crate :: SyntaxKind :: TILDE } ; [?] => { $ crate :: SyntaxKind :: QUESTION } ; [$] => { $ crate :: SyntaxKind :: DOLLAR } ; [&] => { $ crate :: SyntaxKind :: AMP } ; [|] => { $ crate :: SyntaxKind :: PIPE } ; [+] => { $ crate :: SyntaxKind :: PLUS } ; [*] => { $ crate :: SyntaxKind :: STAR } ; [/] => { $ crate :: SyntaxKind :: SLASH } ; [^] => { $ crate :: SyntaxKind :: CARET } ; [%] => { $ crate :: SyntaxKind :: PERCENT } ; [_] => { $ crate :: SyntaxKind :: UNDERSCORE } ; [.] => { $ crate :: SyntaxKind :: DOT } ; [..] => { $ crate :: SyntaxKind :: DOT2 } ; [...] => { $ crate :: SyntaxKind :: DOT3 } ; [..=] => { $ crate :: SyntaxKind :: DOT2EQ } ; [:] => { $ crate :: SyntaxKind :: COLON } ; [::] => { $ crate :: SyntaxKind :: COLON2 } ; [=] => { $ crate :: SyntaxKind :: EQ } ; [==] => { $ crate :: SyntaxKind :: EQ2 } ; [=>] => { $ crate :: SyntaxKind :: FAT_ARROW } ; [!] => { $ crate :: SyntaxKind :: BANG } ; [!=] => { $ crate :: SyntaxKind :: NEQ } ; [-] => { $ crate :: SyntaxKind :: MINUS } ; [->] => { $ crate :: SyntaxKind :: THIN_ARROW } ; [<=] => { $ crate :: SyntaxKind :: LTEQ } ; [>=] => { $ crate :: SyntaxKind :: GTEQ } ; [+=] => { $ crate :: SyntaxKind :: PLUSEQ } ; [-=] => { $ crate :: SyntaxKind :: MINUSEQ } ; [|=] => { $ crate :: SyntaxKind :: PIPEEQ } ; [&=] => { $ crate :: SyntaxKind :: AMPEQ } ; [^=] => { $ crate :: SyntaxKind :: CARETEQ } ; [/=] => { $ crate :: SyntaxKind :: SLASHEQ } ; [*=] => { $ crate :: SyntaxKind :: STAREQ } ; [%=] => { $ crate :: SyntaxKind :: PERCENTEQ } ; [&&] => { $ crate :: SyntaxKind :: AMP2 } ; [||] => { $ crate :: SyntaxKind :: PIPE2 } ; [<<] => { $ crate :: SyntaxKind :: SHL } ; [>>] => { $ crate :: SyntaxKind :: SHR } ; [<<=] => { $ crate :: SyntaxKind :: SHLEQ } ; [>>=] => { $ crate :: SyntaxKind :: SHREQ } ; [OPENQASM] => { $ crate :: SyntaxKind :: O_P_E_N_Q_A_S_M_KW } ; [include] => { $ crate :: SyntaxKind :: INCLUDE_KW } ; [pragma] => { $ crate :: SyntaxKind :: PRAGMA_KW } ; [def] => { $ crate :: SyntaxKind :: DEF_KW } ; [defcalgrammar] => { $ crate :: SyntaxKind :: DEFCALGRAMMAR_KW } ; [cal] => { $ crate :: SyntaxKind :: CAL_KW } ; [defcal] => { $ crate :: SyntaxKind :: DEFCAL_KW } ; [gate] => { $ crate :: SyntaxKind :: GATE_KW } ; [delay] => { $ crate :: SyntaxKind :: DELAY_KW } ; [reset] => { $ crate :: SyntaxKind :: RESET_KW } ; [measure] => { $ crate :: SyntaxKind :: MEASURE_KW } ; [let] => { $ crate :: SyntaxKind :: LET_KW } ; [box] => { $ crate :: SyntaxKind :: BOX_KW } ; [extern] => { $ crate :: SyntaxKind :: EXTERN_KW } ; [const] => { $ crate :: SyntaxKind :: CONST_KW } ; [barrier] => { $ crate :: SyntaxKind :: BARRIER_KW } ; [gphase] => { $ crate :: SyntaxKind :: GPHASE_KW } ; [if] => { $ crate :: SyntaxKind :: IF_KW } ; [else] => { $ crate :: SyntaxKind :: ELSE_KW } ; [for] => { $ crate :: SyntaxKind :: FOR_KW } ; [in] => { $ crate :: SyntaxKind :: IN_KW } ; [while] => { $ crate :: SyntaxKind :: WHILE_KW } ; [continue] => { $ crate :: SyntaxKind :: CONTINUE_KW } ; [return] => { $ crate :: SyntaxKind :: RETURN_KW } ; [break] => { $ crate :: SyntaxKind :: BREAK_KW } ; [end] => { $ crate :: SyntaxKind :: END_KW } ; [switch] => { $ crate :: SyntaxKind :: SWITCH_KW } ; [case] => { $ crate :: SyntaxKind :: CASE_KW } ; [default] => { $ crate :: SyntaxKind :: DEFAULT_KW } ; [input] => { $ crate :: SyntaxKind :: INPUT_KW } ; [output] => { $ crate :: SyntaxKind :: OUTPUT_KW } ; [readonly] => { $ crate :: SyntaxKind :: READONLY_KW } ; [mutable] => { $ crate :: SyntaxKind :: MUTABLE_KW } ; [qreg] => { $ crate :: SyntaxKind :: QREG_KW } ; [creg] => { $ crate :: SyntaxKind :: CREG_KW } ; [qubit] => { $ crate :: SyntaxKind :: QUBIT_KW } ; [void] => { $ crate :: SyntaxKind :: VOID_KW } ; [array] => { $ crate :: SyntaxKind :: ARRAY_KW } ; [ctrl] => { $ crate :: SyntaxKind :: CTRL_KW } ; [negctrl] => { $ crate :: SyntaxKind :: NEGCTRL_KW } ; [inv] => { $ crate :: SyntaxKind :: INV_KW } ; [pow] => { $ crate :: SyntaxKind :: POW_KW } ; [false] => { $ crate :: SyntaxKind :: FALSE_KW } ; [true] => { $ crate :: SyntaxKind :: TRUE_KW } ; [float] => { $ crate :: SyntaxKind :: FLOAT_TY } ; [int] => { $ crate :: SyntaxKind :: INT_TY } ; [uint] => { $ crate :: SyntaxKind :: UINT_TY } ; [complex] => { $ crate :: SyntaxKind :: COMPLEX_TY } ; [bool] => { $ crate :: SyntaxKind :: BOOL_TY } ; [bit] => { $ crate :: SyntaxKind :: BIT_TY } ; [duration] => { $ crate :: SyntaxKind :: DURATION_TY } ; [stretch] => { $ crate :: SyntaxKind :: STRETCH_TY } ; [angle] => { $ crate :: SyntaxKind :: ANGLE_TY } ; [ident] => { $ crate :: SyntaxKind :: IDENT } ; }
+macro_rules ! T { [!] => { $ crate :: SyntaxKind :: BANG } ; [!=] => { $ crate :: SyntaxKind :: NEQ } ; [#] => { $ crate :: SyntaxKind :: POUND } ; [$] => { $ crate :: SyntaxKind :: DOLLAR } ; [%] => { $ crate :: SyntaxKind :: PERCENT } ; [%=] => { $ crate :: SyntaxKind :: PERCENTEQ } ; [&] => { $ crate :: SyntaxKind :: AMP } ; [&&] => { $ crate :: SyntaxKind :: AMP2 } ; [&=] => { $ crate :: SyntaxKind :: AMPEQ } ; ['('] => { $ crate :: SyntaxKind :: L_PAREN } ; [')'] => { $ crate :: SyntaxKind :: R_PAREN } ; [*] => { $ crate :: SyntaxKind :: STAR } ; [*=] => { $ crate :: SyntaxKind :: STAREQ } ; [+] => { $ crate :: SyntaxKind :: PLUS } ; [++] => { $ crate :: SyntaxKind :: DOUBLE_PLUS } ; [+=] => { $ crate :: SyntaxKind :: PLUSEQ } ; [,] => { $ crate :: SyntaxKind :: COMMA } ; [-] => { $ crate :: SyntaxKind :: MINUS } ; [-=] => { $ crate :: SyntaxKind :: MINUSEQ } ; [->] => { $ crate :: SyntaxKind :: THIN_ARROW } ; [.] => { $ crate :: SyntaxKind :: DOT } ; [..] => { $ crate :: SyntaxKind :: DOT2 } ; [...] => { $ crate :: SyntaxKind :: DOT3 } ; [..=] => { $ crate :: SyntaxKind :: DOT2EQ } ; [/] => { $ crate :: SyntaxKind :: SLASH } ; [/=] => { $ crate :: SyntaxKind :: SLASHEQ } ; [:] => { $ crate :: SyntaxKind :: COLON } ; [::] => { $ crate :: SyntaxKind :: COLON2 } ; [;] => { $ crate :: SyntaxKind :: SEMICOLON } ; [<] => { $ crate :: SyntaxKind :: L_ANGLE } ; [<<] => { $ crate :: SyntaxKind :: SHL } ; [<<=] => { $ crate :: SyntaxKind :: SHLEQ } ; [<=] => { $ crate :: SyntaxKind :: LTEQ } ; [=] => { $ crate :: SyntaxKind :: EQ } ; [==] => { $ crate :: SyntaxKind :: EQ2 } ; [=>] => { $ crate :: SyntaxKind :: FAT_ARROW } ; [>] => { $ crate :: SyntaxKind :: R_ANGLE } ; [>=] => { $ crate :: SyntaxKind :: GTEQ } ; [>>] => { $ crate :: SyntaxKind :: SHR } ; [>>=] => { $ crate :: SyntaxKind :: SHREQ } ; [?] => { $ crate :: SyntaxKind :: QUESTION } ; [@] => { $ crate :: SyntaxKind :: AT } ; ['['] => { $ crate :: SyntaxKind :: L_BRACK } ; [']'] => { $ crate :: SyntaxKind :: R_BRACK } ; [^] => { $ crate :: SyntaxKind :: CARET } ; [^=] => { $ crate :: SyntaxKind :: CARETEQ } ; [_] => { $ crate :: SyntaxKind :: UNDERSCORE } ; ['{'] => { $ crate :: SyntaxKind :: L_CURLY } ; [|] => { $ crate :: SyntaxKind :: PIPE } ; [|=] => { $ crate :: SyntaxKind :: PIPEEQ } ; [||] => { $ crate :: SyntaxKind :: PIPE2 } ; ['}'] => { $ crate :: SyntaxKind :: R_CURLY } ; [~] => { $ crate :: SyntaxKind :: TILDE } ; [OPENQASM] => { $ crate :: SyntaxKind :: O_P_E_N_Q_A_S_M_KW } ; [barrier] => { $ crate :: SyntaxKind :: BARRIER_KW } ; [box] => { $ crate :: SyntaxKind :: BOX_KW } ; [cal] => { $ crate :: SyntaxKind :: CAL_KW } ; [const] => { $ crate :: SyntaxKind :: CONST_KW } ; [def] => { $ crate :: SyntaxKind :: DEF_KW } ; [defcal] => { $ crate :: SyntaxKind :: DEFCAL_KW } ; [defcalgrammar] => { $ crate :: SyntaxKind :: DEFCALGRAMMAR_KW } ; [delay] => { $ crate :: SyntaxKind :: DELAY_KW } ; [extern] => { $ crate :: SyntaxKind :: EXTERN_KW } ; [gate] => { $ crate :: SyntaxKind :: GATE_KW } ; [gphase] => { $ crate :: SyntaxKind :: GPHASE_KW } ; [include] => { $ crate :: SyntaxKind :: INCLUDE_KW } ; [let] => { $ crate :: SyntaxKind :: LET_KW } ; [measure] => { $ crate :: SyntaxKind :: MEASURE_KW } ; [pragma] => { $ crate :: SyntaxKind :: PRAGMA_KW } ; [reset] => { $ crate :: SyntaxKind :: RESET_KW } ; [break] => { $ crate :: SyntaxKind :: BREAK_KW } ; [case] => { $ crate :: SyntaxKind :: CASE_KW } ; [continue] => { $ crate :: SyntaxKind :: CONTINUE_KW } ; [default] => { $ crate :: SyntaxKind :: DEFAULT_KW } ; [else] => { $ crate :: SyntaxKind :: ELSE_KW } ; [end] => { $ crate :: SyntaxKind :: END_KW } ; [for] => { $ crate :: SyntaxKind :: FOR_KW } ; [if] => { $ crate :: SyntaxKind :: IF_KW } ; [in] => { $ crate :: SyntaxKind :: IN_KW } ; [return] => { $ crate :: SyntaxKind :: RETURN_KW } ; [switch] => { $ crate :: SyntaxKind :: SWITCH_KW } ; [while] => { $ crate :: SyntaxKind :: WHILE_KW } ; [array] => { $ crate :: SyntaxKind :: ARRAY_KW } ; [creg] => { $ crate :: SyntaxKind :: CREG_KW } ; [input] => { $ crate :: SyntaxKind :: INPUT_KW } ; [mutable] => { $ crate :: SyntaxKind :: MUTABLE_KW } ; [output] => { $ crate :: SyntaxKind :: OUTPUT_KW } ; [qreg] => { $ crate :: SyntaxKind :: QREG_KW } ; [qubit] => { $ crate :: SyntaxKind :: QUBIT_KW } ; [readonly] => { $ crate :: SyntaxKind :: READONLY_KW } ; [void] => { $ crate :: SyntaxKind :: VOID_KW } ; [ctrl] => { $ crate :: SyntaxKind :: CTRL_KW } ; [inv] => { $ crate :: SyntaxKind :: INV_KW } ; [negctrl] => { $ crate :: SyntaxKind :: NEGCTRL_KW } ; [pow] => { $ crate :: SyntaxKind :: POW_KW } ; [false] => { $ crate :: SyntaxKind :: FALSE_KW } ; [true] => { $ crate :: SyntaxKind :: TRUE_KW } ; [angle] => { $ crate :: SyntaxKind :: ANGLE_TY } ; [bit] => { $ crate :: SyntaxKind :: BIT_TY } ; [bool] => { $ crate :: SyntaxKind :: BOOL_TY } ; [complex] => { $ crate :: SyntaxKind :: COMPLEX_TY } ; [duration] => { $ crate :: SyntaxKind :: DURATION_TY } ; [float] => { $ crate :: SyntaxKind :: FLOAT_TY } ; [int] => { $ crate :: SyntaxKind :: INT_TY } ; [stretch] => { $ crate :: SyntaxKind :: STRETCH_TY } ; [uint] => { $ crate :: SyntaxKind :: UINT_TY } ; [ident] => { $ crate :: SyntaxKind :: IDENT } ; }
 pub use T;

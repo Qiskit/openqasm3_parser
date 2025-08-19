@@ -16,6 +16,7 @@ pub(super) fn source_file_contents(p: &mut Parser<'_>, stop_on_r_curly: bool) {
 pub(super) const ITEM_RECOVERY_SET: TokenSet = TokenSet::new(&[
     T![gate],
     T![def],
+    T![extern],
     T![defcal],
     T![defcalgrammar],
     T![include],
@@ -90,6 +91,7 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         T![while] => while_stmt(p, m),
         T![for] => for_stmt(p, m),
         T![def] => def_stmt(p, m),
+        T![extern] => extern_stmt(p, m),
         T![defcal] => defcal_(p, m),
         T![cal] => cal_(p, m),
         T![defcalgrammar] => defcalgrammar_(p, m),
@@ -354,6 +356,30 @@ fn def_stmt(p: &mut Parser<'_>, m: Marker) {
     expressions::try_block_expr(p);
     // Mark this attempt at reading an item as complete.
     m.complete(p, DEF);
+}
+
+fn extern_stmt(p: &mut Parser<'_>, m: Marker) {
+    assert!(p.at(T![extern]));
+    p.bump_any();
+
+    // Read the name of the subroutine. (This records an error message on failure.)
+    name_r(p, ITEM_RECOVERY_SET);
+
+    // Read optional gate parameters (not qubit and params)
+    if p.at(T!['(']) {
+        params::param_list_def_params(p);
+    } else {
+        p.error("expected function arguments in extern");
+    }
+    opt_ret_type(p);
+    // For extern, there is NO body. Require a semicolon.
+    if p.at(T![;]) {
+        p.bump_any();
+    } else {
+        p.error("expected ';' to terminate extern declaration (extern has no body)");
+    }
+    // Mark this attempt at reading an item as complete.
+    m.complete(p, EXTERN);
 }
 
 fn filepath_r(p: &mut Parser<'_>, recovery: TokenSet) {
