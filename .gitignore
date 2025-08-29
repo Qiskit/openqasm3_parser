@@ -1,5 +1,2 @@
 target/
 /Cargo.lock
-crates/oq3_parser/src/syntax_kind/_syntax_kind_enum.rs
-crates/oq3_syntax/src/ast/generated/_new_nodes.rs
-crates/oq3_syntax/src/ast/generated/_new_tokens.rs        

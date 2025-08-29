@@ -601,10 +601,9 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
                     panic!("You have found a bug in oq3_parser. No operand to unary minus found.")
                 }
             },
-            Some(op) => panic!(
-                "Unary operators other than minus are not supported. Found '{:?}.'",
-                op
-            ),
+            Some(op) => {
+                panic!("Unary operators other than minus are not supported. Found '{op:?}.'")
+            }
             _ => panic!("You have found a bug in oq3_parser. No operand to unary operator found."),
         },
 
@@ -723,7 +722,7 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
         synast::Expr::ArrayExpr(_)
         | synast::Expr::ArrayLiteral(_)
         | synast::Expr::BoxExpr(_)
-        | synast::Expr::CallExpr(_) => panic!("Expression not supported {:?}", expr),
+        | synast::Expr::CallExpr(_) => panic!("Expression not supported {expr:?}"),
 
         synast::Expr::GateCallExpr(_)
         | synast::Expr::GPhaseCallExpr(_)
