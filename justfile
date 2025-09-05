@@ -21,6 +21,7 @@ _assert_empty_git_status:
         echo ""; \
         echo "Diff against HEAD:"; \
         git --no-pager diff; \
+        exit 1; \
     fi
 
 # Check that source files are up to date (assumes a clean working tree)
