@@ -98,7 +98,7 @@ If the file is modified, run:
 just sourcegen
 ```
 
-> This triggers the `build.rs` script in `op3_parser` with the `sourcegen` feature.
+> This triggers the `build.rs` script in `oq3_parser` with the `sourcegen` feature.
 
 The following three source files may be updated:
 * [./crates/oq3_parser/src/syntax_kind/syntax_kind_enum.rs](./crates/oq3_parser/src/syntax_kind/syntax_kind_enum.rs)

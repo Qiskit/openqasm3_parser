@@ -20,6 +20,7 @@ use crate::context::Context;
 use crate::semantic_error::{SemanticErrorKind::*, SemanticErrorList};
 use crate::symbols::{ScopeType, SymbolErrorTrait, SymbolIdResult, SymbolTable};
 use oq3_source_file::{SourceFile, SourceString, SourceTrait};
+
 use oq3_syntax::ast as synast; // Syntactic AST
 
 use crate::with_scope;
@@ -1100,8 +1101,7 @@ fn from_assignment_stmt(
 ) -> Option<asg::Stmt> {
     let nameb = assignment_stmt.identifier(); // LHS of assignment
                                               // LHS is an identifier
-    if nameb.is_some() {
-        let name = nameb.as_ref().unwrap();
+    if let Some(name) = &nameb {
         let name_str = name.string();
         let mut expr = from_expr(assignment_stmt.rhs(), context).unwrap(); // rhs of `=` operator
 

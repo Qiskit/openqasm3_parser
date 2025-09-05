@@ -97,7 +97,7 @@ impl Context {
     }
 
     /// Lookup the symbol, returing a SymbolRecordResult. Possibly log a `UndefVarError`.
-    pub(crate) fn lookup_symbol<T>(&mut self, name: &str, node: &T) -> SymbolRecordResult
+    pub(crate) fn lookup_symbol<T>(&mut self, name: &str, node: &T) -> SymbolRecordResult<'_>
     where
         T: AstNode,
     {
@@ -109,7 +109,7 @@ impl Context {
     }
 
     /// Lookup the gate symbol, returing a SymbolRecordResult. Possibly log a `UndefGateError`.
-    pub(crate) fn lookup_gate_symbol<T>(&mut self, name: &str, node: &T) -> SymbolRecordResult
+    pub(crate) fn lookup_gate_symbol<T>(&mut self, name: &str, node: &T) -> SymbolRecordResult<'_>
     where
         T: AstNode,
     {
