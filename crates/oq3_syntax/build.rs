@@ -523,6 +523,7 @@ mod sourcegen {
     /// Read the ungrammar from openqasm3.ungram, lower to the AST, and return the result.
     fn _generate_ast() -> AstSrc {
         let grammar = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/openqasm3.ungram"))
+            .replace('\r', "")
             .parse()
             .unwrap();
         lower(&grammar)
