@@ -15,11 +15,8 @@ sourcegen:
     cargo fmt -p oq3_syntax -p oq3_parser
 
 _assert_empty_git_status:
-    @if [ -n "$$(git status --porcelain)" ]; then \
-        echo "Git working tree has uncommitted changes:"; \
-        git --no-pager status --short; \
-        echo ""; \
-        echo "Diff against HEAD:"; \
+    @if git status --porcelain | grep .; then \
+        echo "Uncommitted changes found"; \
         git --no-pager diff; \
         exit 1; \
     fi
