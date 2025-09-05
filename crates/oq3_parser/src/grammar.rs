@@ -171,7 +171,7 @@ fn delimited(
         }
         if !p.at(delim) {
             if p.at_ts(first_set) {
-                p.error(format!("expected {:?}", delim));
+                p.error(format!("expected {delim:?}"));
             } else {
                 break;
             }

@@ -63,7 +63,7 @@ fn print_stmt(stmt: ast::Stmt) {
             print_type_declaration_statement(type_decl)
         }
         _ => {
-            println!("unhandled stmt: {:?}", stmt)
+            println!("unhandled stmt: {stmt:?}")
         }
     }
 }
@@ -84,7 +84,7 @@ fn parse_print_stmts(code: &str) {
         print_stmt(stmt.clone());
         println!();
         for d in stmt.syntax().descendants().collect::<Vec<_>>() {
-            println!(" {}", d);
+            println!(" {d}");
         }
         println!();
     }
@@ -125,7 +125,7 @@ fn print_type_declaration_statement(type_decl: ast::ClassicalDeclarationStatemen
     println!("Type declaration");
     print!(" scalar_type ");
     let scalar_type = type_decl.scalar_type().unwrap();
-    println!(" name {:?}", scalar_type);
+    println!(" name {scalar_type:?}");
     println!(" syntax {:?}", scalar_type.kind());
     println!(" token {}", scalar_type.token());
     println!(" token {:?}", scalar_type.token());

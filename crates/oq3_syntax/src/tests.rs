@@ -1,9 +1,6 @@
 // Copyright contributors to the openqasm-parser project
 // SPDX-License-Identifier: Apache-2.0
 
-mod ast_src;
-mod sourcegen_ast;
-
 use crate::ast;
 use crate::ast::HasTextName; // for methods: text(), string()
                              //use oq3_syntax::ast;

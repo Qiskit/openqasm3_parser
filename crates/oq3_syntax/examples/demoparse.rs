@@ -72,7 +72,7 @@ fn main() {
 
         Some(Commands::ParseGreen { filename }) => {
             let (green_node, syntax_errors) = parse_text(&read_example_source(filename));
-            println!("{:?}", green_node);
+            println!("{green_node:?}");
             println!("{:?}", green_node.kind());
             print_node_or_token(green_node, 0);
             println!(
@@ -85,7 +85,7 @@ fn main() {
         Some(Commands::Lex { filename }) => {
             let tokens: Vec<Token> = tokenize(&read_example_source(filename)).collect();
             for tok in tokens {
-                println!("{:?}", tok);
+                println!("{tok:?}");
             }
         }
         None => {
@@ -105,13 +105,13 @@ fn example_path(example: &str) -> PathBuf {
 fn read_example_source(file_name: &str) -> String {
     let file_path = example_path(file_name);
     fs::read_to_string(file_path.clone())
-        .unwrap_or_else(|_| panic!("Unable to read file {:?}", file_path))
+        .unwrap_or_else(|_| panic!("Unable to read file {file_path:?}"))
 }
 
 fn print_tree(file: SourceFile) {
     use ast::AstNode;
     for item in file.syntax().descendants() {
-        println!("{:?}", item);
+        println!("{item:?}");
     }
 }
 
@@ -130,5 +130,5 @@ fn print_node_or_token(item: GreenNode, depth: usize) {
             }
         };
     }
-    println!("{}<", spcs);
+    println!("{spcs}<");
 }

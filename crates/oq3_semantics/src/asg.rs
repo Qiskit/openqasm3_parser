@@ -75,14 +75,14 @@ impl Program {
     /// Print the ASG using the pretty print `Debug` trait.
     pub fn print_asg_debug_pretty(&self) {
         for stmt in self.iter() {
-            println!("{:#?}", stmt);
+            println!("{stmt:#?}");
         }
     }
 
     /// Print the ASG using the `Debug` trait.
     pub fn print_asg_debug(&self) {
         for stmt in self.iter() {
-            println!("{:?}\n", stmt);
+            println!("{stmt:?}\n");
         }
     }
 }

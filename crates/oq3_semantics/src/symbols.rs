@@ -396,7 +396,7 @@ impl SymbolTable {
 
     /// Look up `name` in the stack of symbol tables. Return `SymbolRecord`
     /// if the symbol is found. Otherwise `Err(SymbolError::MissingBinding)`.
-    pub fn lookup(&self, name: &str) -> Result<SymbolRecord, SymbolError> {
+    pub fn lookup(&self, name: &str) -> Result<SymbolRecord<'_>, SymbolError> {
         for table in self.symbol_table_stack.iter().rev() {
             if let Some(symbol_id) = table.get_symbol_id(name) {
                 return Ok(SymbolRecord::new(
@@ -420,7 +420,7 @@ impl SymbolTable {
     /// Simple dump of all symbols. This could be improved.
     pub fn dump(&self) {
         for (n, sym) in self.all_symbols.iter().enumerate() {
-            println!("{n} {:?}", sym);
+            println!("{n} {sym:?}");
         }
     }
 }

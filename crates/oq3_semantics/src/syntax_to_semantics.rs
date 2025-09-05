@@ -20,6 +20,7 @@ use crate::context::Context;
 use crate::semantic_error::{SemanticErrorKind::*, SemanticErrorList};
 use crate::symbols::{ScopeType, SymbolErrorTrait, SymbolIdResult, SymbolTable};
 use oq3_source_file::{SourceFile, SourceString, SourceTrait};
+
 use oq3_syntax::ast as synast; // Syntactic AST
 
 use crate::with_scope;
@@ -601,10 +602,9 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
                     panic!("You have found a bug in oq3_parser. No operand to unary minus found.")
                 }
             },
-            Some(op) => panic!(
-                "Unary operators other than minus are not supported. Found '{:?}.'",
-                op
-            ),
+            Some(op) => {
+                panic!("Unary operators other than minus are not supported. Found '{op:?}.'")
+            }
             _ => panic!("You have found a bug in oq3_parser. No operand to unary operator found."),
         },
 
@@ -723,7 +723,7 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
         synast::Expr::ArrayExpr(_)
         | synast::Expr::ArrayLiteral(_)
         | synast::Expr::BoxExpr(_)
-        | synast::Expr::CallExpr(_) => panic!("Expression not supported {:?}", expr),
+        | synast::Expr::CallExpr(_) => panic!("Expression not supported {expr:?}"),
 
         synast::Expr::GateCallExpr(_)
         | synast::Expr::GPhaseCallExpr(_)
@@ -1101,8 +1101,7 @@ fn from_assignment_stmt(
 ) -> Option<asg::Stmt> {
     let nameb = assignment_stmt.identifier(); // LHS of assignment
                                               // LHS is an identifier
-    if nameb.is_some() {
-        let name = nameb.as_ref().unwrap();
+    if let Some(name) = &nameb {
         let name_str = name.string();
         let mut expr = from_expr(assignment_stmt.rhs(), context).unwrap(); // rhs of `=` operator
 
