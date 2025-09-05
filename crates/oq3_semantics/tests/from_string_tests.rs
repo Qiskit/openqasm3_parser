@@ -521,6 +521,78 @@ fn test_from_string_neg_spc_lit_float() {
     assert_eq!(expr, "-1.23");
 }
 
+#[test]
+fn test_from_string_hex_literal() {
+    let code = r##"
+0xFF;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "255");
+}
+
+#[test]
+fn test_from_string_hex_literal_capital() {
+    let code = r##"
+0XFF;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "255");
+}
+
+#[test]
+fn test_from_string_octal_literal() {
+    let code = r##"
+0o77;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "63");
+}
+
+#[test]
+fn test_from_string_octal_literal_capital() {
+    let code = r##"
+0O77;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "63");
+}
+
+#[test]
+fn test_from_string_binary_literal() {
+    let code = r##"
+0b11;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "3");
+}
+
+#[test]
+fn test_from_string_binary_literal_capital() {
+    let code = r##"
+0B11;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "3");
+}
+
 // PR #91
 #[test]
 fn test_from_string_bin_expr_no_spc() {
