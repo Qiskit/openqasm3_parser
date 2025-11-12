@@ -717,19 +717,20 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
             Some(asg::Cast::new(expr.unwrap(), typ).to_texpr())
         }
 
+        synast::Expr::CallExpr(call_expr) => Some(from_call_expr(call_expr, context)),
+
         // Followng may be a parser error. But I think we will need to support BlockExpr anywhere here.
         synast::Expr::BlockExpr(_) => panic!("BlockExpr not supported."),
 
-        synast::Expr::ArrayExpr(_)
-        | synast::Expr::ArrayLiteral(_)
-        | synast::Expr::BoxExpr(_)
-        | synast::Expr::CallExpr(_) => panic!("Expression not supported {:?}", expr),
+        synast::Expr::ArrayExpr(_) => panic!("ArrayExpr not supported {:?}", expr),
+        synast::Expr::ArrayLiteral(_) => panic!("ArrayLiteral not supported {:?}", expr),
+        synast::Expr::BoxExpr(_) => panic!("BoxExpr not supported {:?}", expr),
 
         synast::Expr::GateCallExpr(_)
         | synast::Expr::GPhaseCallExpr(_)
         | synast::Expr::ModifiedGateCallExpr(_) => panic!("You have found a bug in oq3_parser."),
     }
-} // fn from_expr(
+}
 
 fn from_set_expression(
     set_expression: synast::SetExpression,
@@ -807,6 +808,20 @@ fn from_gate_call_expr(
         gate_operands,
         modifiers,
     )))
+}
+
+fn from_call_expr(call_expr: synast::CallExpr, context: &mut Context) -> asg::TExpr {
+    let param_list = call_expr
+        .arg_list()
+        .map(|ex| inner_expression_list(ex.expression_list().unwrap(), context));
+    let function_id = call_expr.identifier();
+    let function_name = call_expr.identifier().unwrap().text().to_string();
+    let (symbol_result, _call_type) = context
+        .lookup_gate_symbol(function_name.as_ref(), function_id.as_ref().unwrap())
+        .as_tuple();
+    // _call_type is Void.
+
+    asg::Call::new(symbol_result, param_list).to_texpr()
 }
 
 fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -> asg::TExpr {

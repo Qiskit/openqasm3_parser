@@ -465,6 +465,20 @@ impl ast::GateCallExpr {
     }
 }
 
+impl ast::CallExpr {
+    // pub fn name(&self) -> Option<ast::Name> {
+    //     support::child(&self.syntax)
+    // }
+
+    pub fn identifier(&self) -> Option<ast::Identifier> {
+        let maybe_id = support::children(self.syntax()).next();
+        match maybe_id {
+            Some(ast::Expr::Identifier(ident)) => Some(ident),
+            _ => None,
+        }
+    }
+}
+
 // Angles are optional, but they come before qubits.
 // So we need a bit of logic.
 //

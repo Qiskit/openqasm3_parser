@@ -126,7 +126,7 @@ pub enum Expr {
     IndexedIdentifier(IndexedIdentifier),
     GateOperand(GateOperand),
     Return(Box<ReturnExpression>),
-    Call, // stub function (def) call
+    Call(Call),
     MeasureExpression(Box<MeasureExpression>),
     SetExpression(SetExpression),
     RangeExpression(Box<RangeExpression>),
@@ -726,6 +726,35 @@ impl DelayStmt {
 
     pub fn qubits(&self) -> &[TExpr] {
         self.qubits.as_ref()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Call {
+    name: SymbolIdResult,
+    params: Option<Vec<TExpr>>,
+}
+
+impl Call {
+    pub fn new(name: SymbolIdResult, params: Option<Vec<TExpr>>) -> Call {
+        Call { name, params }
+    }
+
+    pub fn name(&self) -> &SymbolIdResult {
+        &self.name
+    }
+
+    pub fn params(&self) -> Option<&[TExpr]> {
+        self.params.as_deref()
+    }
+
+    pub fn to_expr(self) -> Expr {
+        Expr::Call(self)
+    }
+
+    pub fn to_texpr(self) -> TExpr {
+        let typ = Type::Bool(IsConst::False);
+        TExpr::new(self.to_expr(), typ)
     }
 }
 

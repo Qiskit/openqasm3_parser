@@ -217,6 +217,21 @@ mygate(x, y) q;
 }
 
 #[test]
+fn test_function_call() {
+    let code = r##"
+def pauli_measure(qubit[2] qu) -> bit {
+    return measure qu;
+}
+
+qubit[2] q;
+pauli_measure(q);
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 3);
+}
+
+#[test]
 fn test_bit_string_literal() {
     let code = r#"
 bit[4] b = "1001";
