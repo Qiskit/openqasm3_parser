@@ -71,7 +71,8 @@ pub enum Type {
     DurationArray(ArrayDims),
 
     // Other
-    Gate(usize, usize), // (num classical args, num quantum args)
+    Gate(usize, usize),           // (num classical args, num quantum args)
+    SubroutineDef(SubroutineDef), // number of parameters ("arguments")
     Range,
     Set,
     Void,
@@ -79,6 +80,12 @@ pub enum Type {
     // Undefined means a type that is erroneously non-existent. This is not the same as unknown.
     // The prototypical application is trying to resolve an unbound identifier.
     Undefined,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct SubroutineDef {
+    pub num_params: usize,
+    pub return_type: Box<Type>,
 }
 
 // wow. Is there a less boiler-plated way?
@@ -306,15 +313,11 @@ fn promote_width(ty1: &Type, ty2: &Type) -> Width {
 }
 
 pub fn promote_types_not_equal(ty1: &Type, ty2: &Type) -> Type {
-    let typ = promote_types_symmetric(ty1, ty2);
+    let typ = promote_type_width(ty1, ty2);
     if typ != Type::Void {
         return typ;
     }
-    let typ = promote_types_asymmetric(ty1, ty2);
-    if typ == Type::Void {
-        return promote_types_asymmetric(ty2, ty1);
-    }
-    typ
+    promote_base_type(ty1, ty2)
 }
 
 // promotion suitable for some binary operations, eg +, -, *
@@ -322,18 +325,30 @@ pub fn promote_types(ty1: &Type, ty2: &Type) -> Type {
     if equal_up_to_constness(ty1, ty2) {
         return ty1.clone();
     }
-    let typ = promote_types_symmetric(ty1, ty2);
+    let typ = promote_type_width(ty1, ty2);
     if typ != Type::Void {
         return typ;
     }
-    let typ = promote_types_asymmetric(ty1, ty2);
-    if typ == Type::Void {
-        return promote_types_asymmetric(ty2, ty1);
-    }
-    typ
+    promote_base_type(ty1, ty2)
 }
 
-fn promote_types_symmetric(ty1: &Type, ty2: &Type) -> Type {
+/// Promotes the width of two types if they belong to the same type category.
+///
+/// This function checks whether the two types belong to the same category
+/// (integers, unsigned integers, or floating-point numbers) and promotes them
+/// to the one with the wider width. If the types are of different categories,
+/// such as an integer and a float, the function returns `Type::Void`.
+///
+/// # Parameters
+///
+/// - `ty1`: A reference to the first type.
+/// - `ty2`: A reference to the second type.
+///
+/// # Returns
+///
+/// Returns the type with the promoted width if `ty1` and `ty2` are of the same
+/// category. If not, returns `Type::Void`.
+fn promote_type_width(ty1: &Type, ty2: &Type) -> Type {
     use Type::*;
     let isconst = promote_constness(ty1, ty2);
     match (ty1, ty2) {
@@ -344,12 +359,19 @@ fn promote_types_symmetric(ty1: &Type, ty2: &Type) -> Type {
     }
 }
 
-fn promote_types_asymmetric(ty1: &Type, ty2: &Type) -> Type {
+/// Given two mathematical types, if one type is an (algebraic) extension of other,
+/// promote to the larger type. If this is not possible, return `Void`.
+/// TODO: Check OQ3 semantics on this. For example, we could promote a very wide integer
+/// type to a narrow floating point type.
+fn promote_base_type(ty1: &Type, ty2: &Type) -> Type {
     use Type::*;
     match (ty1, ty2) {
         (Int(..), Float(..)) => ty2.clone(),
         (UInt(..), Float(..)) => ty2.clone(),
         (Float(..), Complex(..)) => ty2.clone(),
+        (Float(..), Int(..)) | (Float(..), UInt(..)) | (Complex(..), Float(..)) => {
+            promote_base_type(ty2, ty1)
+        }
         _ => Void,
     }
 }

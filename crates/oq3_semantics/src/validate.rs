@@ -74,8 +74,7 @@ impl<T: SymTrait> WalkSymbols<T> for &TExpr {
     }
 }
 
-// The impl's for Stmt and Expr are the only two that actually apply
-// the function
+// The impl's for Stmt and Expr are the only two that actually apply the function.
 impl<T: SymTrait> WalkSymbols<T> for Stmt {
     fn walk_symbols(&self, context: &mut SymContext<T>) {
         match self {

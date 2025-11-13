@@ -347,7 +347,7 @@ fn def_stmt(p: &mut Parser<'_>, m: Marker) {
     if p.at(T!['(']) {
         params::param_list_def_params(p);
     } else {
-        p.error("expected function arguments in def");
+        p.error("expected parameters list in subroutine signature");
     }
     opt_ret_type(p);
     // Read the code block.

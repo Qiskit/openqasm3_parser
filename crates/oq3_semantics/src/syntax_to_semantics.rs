@@ -389,16 +389,25 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             //     Some(ref params) => params.len(),
             //     None => 0,
             // };
-            let ret_type = def_stmt.return_signature()
+            let num_params = match params {
+                Some(ref params) => params.len(),
+                None => 0,
+            };
+            let return_type = def_stmt.return_signature()
                 .and_then(|x| x.scalar_type())
                 .map(|x| from_scalar_type(&x, true, context));
-
+            let return_type = match return_type {
+                Some(typ) => typ,
+                _ => Type::Void
+            };
             let def_name_symbol_id = context.new_binding(
                 name_node.string().as_ref(),
-                &Type::Void,
+                &Type::SubroutineDef(
+                    types::SubroutineDef{ num_params, return_type: Box::new(return_type.clone()) }
+                ),
                 &name_node,
             );
-            Some(asg::DefStmt::new(def_name_symbol_id, params.unwrap(), block, ret_type).to_stmt())
+            Some(asg::DefStmt::new(def_name_symbol_id, params.unwrap(), block, return_type).to_stmt())
         }
 
         synast::Stmt::Barrier(barrier) => {
@@ -717,7 +726,7 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
             Some(asg::Cast::new(expr.unwrap(), typ).to_texpr())
         }
 
-        synast::Expr::CallExpr(call_expr) => Some(from_call_expr(call_expr, context)),
+        synast::Expr::CallExpr(call_expr) => Some(from_subroutine_call_expr(call_expr, context)),
 
         // Followng may be a parser error. But I think we will need to support BlockExpr anywhere here.
         synast::Expr::BlockExpr(_) => panic!("BlockExpr not supported."),
@@ -810,18 +819,30 @@ fn from_gate_call_expr(
     )))
 }
 
-fn from_call_expr(call_expr: synast::CallExpr, context: &mut Context) -> asg::TExpr {
+fn from_subroutine_call_expr(call_expr: synast::CallExpr, context: &mut Context) -> asg::TExpr {
     let param_list = call_expr
         .arg_list()
         .map(|ex| inner_expression_list(ex.expression_list().unwrap(), context));
-    let function_id = call_expr.identifier();
-    let function_name = call_expr.identifier().unwrap().text().to_string();
-    let (symbol_result, _call_type) = context
-        .lookup_gate_symbol(function_name.as_ref(), function_id.as_ref().unwrap())
+    let subroutine_id = call_expr.identifier();
+    let subroutine_name = call_expr.identifier().unwrap().text().to_string();
+    let (symbol_result, call_type) = context
+        .lookup_symbol(subroutine_name.as_ref(), subroutine_id.as_ref().unwrap())
         .as_tuple();
-    // _call_type is Void.
-
-    asg::Call::new(symbol_result, param_list).to_texpr()
+    let def_type = match call_type {
+        Type::SubroutineDef(def_type) => def_type,
+        _ => panic!("programming error: expected Type::Def variant"),
+    };
+    let expected_num_params = def_type.num_params;
+    // number of params actually passed in call.
+    let num_params = match param_list {
+        Some(ref params) => params.len(),
+        None => 0,
+    };
+    if expected_num_params != num_params {
+        context.insert_error(NumDefParamsError, &call_expr.arg_list().unwrap());
+    }
+    let typ = def_type.return_type;
+    asg::SubroutineCall::new(symbol_result, param_list).to_texpr(*typ)
 }
 
 fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -> asg::TExpr {
@@ -881,7 +902,8 @@ fn from_qubit_list(
         .collect()
 }
 
-// Return a Vec of TExpr.
+// Return a Vec of TExpr.  There is no reason to return an iterator, because if it were an
+// iterator, then at every call site this would be collected immediately.
 fn inner_expression_list(
     expression_list: synast::ExpressionList,
     context: &mut Context,

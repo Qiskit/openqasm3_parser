@@ -28,6 +28,8 @@ pub enum SemanticErrorKind {
     ReturnInGlobalScopeError,
     NumGateParamsError,
     NumGateQubitsError,
+    // Number of arguments in call to a subroutine def is not equal to number of declared parameters.
+    NumDefParamsError,
 }
 
 #[derive(Clone, Debug)]

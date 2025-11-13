@@ -217,17 +217,32 @@ mygate(x, y) q;
 }
 
 #[test]
-fn test_function_call() {
+fn test_subroutine_call() {
     let code = r##"
 def pauli_measure(qubit[2] qu) -> bit {
     return measure qu;
 }
 
 qubit[2] q;
-pauli_measure(q);
+bit result = pauli_measure(q);
 "##;
     let (program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 3);
+}
+
+#[test]
+fn test_subroutine_call_2() {
+    let code = r##"
+def pauli_measure(qubit[2] qu) -> bit {
+    return measure qu;
+}
+
+qubit[2] q;
+float result = pauli_measure(q); // incompatible type error
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 3);
 }
 
