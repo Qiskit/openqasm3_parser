@@ -217,6 +217,66 @@ mygate(x, y) q;
 }
 
 #[test]
+fn test_subroutine_call() {
+    let code = r##"
+def pauli_measure(qubit[2] qu) -> bit {
+    return measure qu;
+}
+
+qubit[2] q;
+bit result = pauli_measure(q);
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 3);
+}
+
+#[test]
+fn test_subroutine_call_2() {
+    let code = r##"
+def pauli_measure(qubit[2] qu) -> bit {
+    return measure qu;
+}
+
+qubit[2] q;
+float result = pauli_measure(q); // incompatible type error
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert_eq!(program.len(), 3);
+}
+
+#[test]
+fn test_subroutine_call_3() {
+    let code = r##"
+def myfunc() -> int {
+  return 1;
+}
+
+int x = myfunc();
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 2);
+}
+
+#[test]
+fn test_subroutine_call_4() {
+    let code = r##"
+def myfunc() -> int {
+  return 1;
+}
+
+int x = myfunc();
+float y = myfunc(); // casting to broader type
+complex z = myfunc();
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 4);
+}
+
+#[test]
 fn test_bit_string_literal() {
     let code = r#"
 bit[4] b = "1001";
@@ -519,6 +579,78 @@ fn test_from_string_neg_spc_lit_float() {
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
     assert_eq!(expr, "-1.23");
+}
+
+#[test]
+fn test_from_string_hex_literal() {
+    let code = r##"
+0xFF;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "255");
+}
+
+#[test]
+fn test_from_string_hex_literal_capital() {
+    let code = r##"
+0XFF;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "255");
+}
+
+#[test]
+fn test_from_string_octal_literal() {
+    let code = r##"
+0o77;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "63");
+}
+
+#[test]
+fn test_from_string_octal_literal_capital() {
+    let code = r##"
+0O77;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "63");
+}
+
+#[test]
+fn test_from_string_binary_literal() {
+    let code = r##"
+0b11;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "3");
+}
+
+#[test]
+fn test_from_string_binary_literal_capital() {
+    let code = r##"
+0B11;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+    assert_eq!(program.len(), 1);
+    let expr = literal_value(&program[0]).unwrap();
+    assert_eq!(expr, "3");
 }
 
 // PR #91
