@@ -107,7 +107,7 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
 }
 
 // Here we call `try_block_expr` rather than `block_or_statement`
-// because curly brackets are mandatory in a the switch-case statement.
+// because curly brackets are mandatory in the switch-case statement.
 fn switch_case_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![switch]));
     p.bump(T![switch]);
