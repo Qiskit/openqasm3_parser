@@ -166,23 +166,23 @@ impl ForStmt {
 }
 
 // FIXME: I mysteriously had to make this public when changing flow control to Stmt
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ElseBranch {
-    Block(ast::BlockExpr),
-    IfStmt(ast::IfStmt),
-}
+// #[derive(Debug, Clone, PartialEq, Eq)]
+// pub enum ElseBranch {
+//     Block(ast::BlockExpr),
+//     IfStmt(ast::IfStmt),
+// }
 
-impl From<ast::BlockExpr> for ElseBranch {
-    fn from(block_expr: ast::BlockExpr) -> Self {
-        Self::Block(block_expr)
-    }
-}
+// impl From<ast::BlockExpr> for ElseBranch {
+//     fn from(block_expr: ast::BlockExpr) -> Self {
+//         Self::Block(block_expr)
+//     }
+// }
 
-impl From<ast::IfStmt> for ElseBranch {
-    fn from(if_stmt: ast::IfStmt) -> Self {
-        Self::IfStmt(if_stmt)
-    }
-}
+// impl From<ast::IfStmt> for ElseBranch {
+//     fn from(if_stmt: ast::IfStmt) -> Self {
+//         Self::IfStmt(if_stmt)
+//     }
+// }
 
 impl ast::IfStmt {
     pub fn condition(&self) -> Option<ast::Expr> {
