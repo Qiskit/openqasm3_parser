@@ -58,12 +58,6 @@ This single repository contains more than one separately installable crates. In 
 
 </details>
 
-
-### Warning !
-
-Do not run `cargo test`. Rather use `./run_tests.sh` or commands found therein. This is because codegen is implemented via
-the test system (you read correctly). If possible, we plan to change this to a more conventional approach.
-
 ### Using this front end
 
 A reminder: A front end is not of much use unless you have a back end. Examples showing the entry points and how to use them,
