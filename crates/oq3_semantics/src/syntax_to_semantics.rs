@@ -28,7 +28,7 @@ use crate::with_scope;
 use crate::utils::type_name_of; // for debugging
 
 // traits
-use synast::{HasArgList, HasName, HasTextName};
+use synast::{HasArgList, HasName, HasTextNode};
 
 pub struct ParseResult<T: SourceTrait> {
     syntax_result: T, // syntax tree and errors
@@ -210,10 +210,10 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         synast::Stmt::IfStmt(if_stmt) => {
             let condition = from_expr(if_stmt.condition(), context);
             with_scope!(context,  ScopeType::Local,
-                        let then_branch = from_block_expr(if_stmt.then_branch().unwrap(), context);
+                        let then_branch = from_block_or_stmt(if_stmt.true_body_block_or_stmt(), context);
             );
             with_scope!(context,  ScopeType::Local,
-                        let else_branch = if_stmt.else_branch().map(|ex| from_block_expr(ex, context));
+                        let else_branch = if_stmt.false_body_block_or_stmt().map(|bors| from_block_or_stmt(bors, context));
             );
             Some(asg::If::new(condition.unwrap(), then_branch, else_branch).to_stmt())
         }
@@ -221,7 +221,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         synast::Stmt::WhileStmt(while_stmt) => {
             let condition = from_expr(while_stmt.condition(), context);
             with_scope!(context,  ScopeType::Local,
-                        let loop_body = from_block_expr(while_stmt.body().unwrap(), context);
+                        let loop_body = from_block_or_stmt(while_stmt.block_or_stmt(), context);
             );
             Some(asg::While::new(condition.unwrap(), loop_body).to_stmt())
         }
@@ -243,16 +243,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             };
             with_scope!(context,  ScopeType::Local,
                         let loop_var_symbol_id = context.new_binding(loop_var.string().as_ref(), &ty, &loop_var);
-                        // If the body of the for loop is a single statement, with no curlies,
-                        // we wrap it in a `Block`. The result is the same as if there were
-                        // as single statement in a pair of `{` `}`.
-                        let loop_body = if let Some(body) = for_stmt.body() {
-                            from_block_expr(body, context)
-                        } else if let Some(stmt) = for_stmt.stmt() {
-                            asg::Block::new(vec![from_stmt(stmt, context).unwrap()])
-                        } else {
-                            panic!("Error in oq3_syntax");
-                        };
+                        let loop_body = from_block_or_stmt(for_stmt.block_or_stmt(), context);
             );
             Some(asg::ForStmt::new(loop_var_symbol_id, iterable, loop_body).to_stmt())
         }
@@ -785,7 +776,7 @@ fn from_gate_call_expr(
     };
     let gate_id = gate_call_expr.identifier();
     // FIXME: make sure we are efficient with strings
-    let gate_name = gate_call_expr.identifier().unwrap().text().to_string();
+    let gate_name = gate_call_expr.identifier().unwrap().string();
     let (symbol_result, gate_type) = context
         .lookup_gate_symbol(gate_name.as_ref(), gate_id.as_ref().unwrap())
         .as_tuple();
@@ -832,7 +823,7 @@ fn from_subroutine_call_expr(call_expr: synast::CallExpr, context: &mut Context)
         .arg_list()
         .map(|ex| inner_expression_list(ex.expression_list().unwrap(), context));
     let subroutine_id = call_expr.identifier();
-    let subroutine_name = call_expr.identifier().unwrap().text().to_string();
+    let subroutine_name = call_expr.identifier().unwrap().string();
     let (symbol_result, call_type) = context
         .lookup_symbol(subroutine_name.as_ref(), subroutine_id.as_ref().unwrap())
         .as_tuple();
@@ -990,6 +981,18 @@ fn statement_list_from_block(block: synast::BlockExpr, context: &mut Context) ->
 
 fn from_block_expr(block_synast: synast::BlockExpr, context: &mut Context) -> asg::Block {
     asg::Block::new(statement_list_from_block(block_synast, context))
+}
+
+// If the body of the for loop is a single statement, with no curlies,
+// we wrap it in a `Block`. The result is the same as if there were
+// as single statement in a pair of `{` `}`.
+fn from_block_or_stmt(val: oq3_syntax::BlockOrStmt, context: &mut Context) -> asg::Block {
+    match val {
+        oq3_syntax::BlockOrStmt::BlockExpr(body) => from_block_expr(body, context),
+        oq3_syntax::BlockOrStmt::Stmt(stmt) => {
+            asg::Block::new(vec![from_stmt(stmt, context).unwrap()])
+        }
+    }
 }
 
 // Convert AST scalar type to a `types::Type`

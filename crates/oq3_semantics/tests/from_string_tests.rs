@@ -132,6 +132,16 @@ x = 2;
 }
 
 #[test]
+fn test_from_string_while_stmt_no_block() {
+    let code = r##"
+while (false) true;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 1);
+}
+
+#[test]
 fn test_from_string_if_stmt_scope() {
     let code = r##"
 if (false) {
@@ -159,6 +169,50 @@ int x = 2;
     let (program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
+}
+
+#[test]
+fn test_from_string_if_stmt_no_block() {
+    let code = r##"
+if (false) int x = 1;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 1);
+}
+
+#[test]
+fn test_from_string_if_stmt_no_block_2() {
+    let code = r##"
+if (false) {int x = 1;}
+else { 3 + 4;}
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 1);
+
+    let if_stmt = match program.first() {
+        Some(asg::Stmt::If(if_stmt)) => if_stmt,
+        _ => unreachable!(),
+    };
+
+    assert!(if_stmt.else_branch().is_some());
+}
+
+#[test]
+fn test_from_string_if_stmt_no_block_3() {
+    let code = r##"
+if (false) {int x = 1;}
+else  3 + 4;
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 1);
+    let if_stmt = match program.first() {
+        Some(asg::Stmt::If(if_stmt)) => if_stmt,
+        _ => unreachable!(),
+    };
+    assert!(if_stmt.else_branch().is_some());
 }
 
 #[test]

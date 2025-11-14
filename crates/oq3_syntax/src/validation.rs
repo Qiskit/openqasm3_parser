@@ -14,7 +14,7 @@ use oq3_lexer::unescape::{self, unescape_literal, Mode};
 
 use crate::{
     ast::{self, IsString},
-    match_ast, AstNode, HasTextName, SyntaxError, SyntaxNode, TextSize,
+    match_ast, AstNode, HasTextNode, SyntaxError, SyntaxNode, TextSize,
 };
 
 // FIXME: GJL, I think I disabled many of these. Some should be used.

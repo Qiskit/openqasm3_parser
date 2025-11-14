@@ -136,7 +136,7 @@ pub(crate) fn stmt(p: &mut Parser<'_>) {
 // {. In a way, this is an implicit block expression. Or else it is inadvertent.
 // YES: inadvertent when adpating code for OQ3.
 // This function exists in r-a, but it is not called without having read a `{`
-pub(super) fn expr_block_contents(p: &mut Parser<'_>) {
+pub(super) fn expr_block_statements(p: &mut Parser<'_>) {
     while !p.at(EOF) && !p.at(T!['}']) {
         stmt(p);
     }

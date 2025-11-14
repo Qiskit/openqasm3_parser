@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use super::*;
-use crate::grammar::expressions::expr_block_contents;
+use crate::grammar::expressions::expr_block_statements;
 
 // This is more or less the entry point for the parser crate.
 // Entry point `fn parse` in lib.rs calls grammar::entry::top::source_file.
@@ -59,7 +59,7 @@ pub(super) fn item(p: &mut Parser<'_>, stop_on_r_curly: bool) {
         // FIXME: for this reason, perhaps recursively call `fn item` instead.
         _ => {
             m.abandon(p);
-            expr_block_contents(p);
+            expr_block_statements(p);
         }
     }
 }
@@ -106,6 +106,8 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
     Ok(())
 }
 
+// Here we call `try_block_expr` rather than `block_or_statement`
+// because curly brackets are mandatory in the switch-case statement.
 fn switch_case_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![switch]));
     p.bump(T![switch]);
@@ -130,20 +132,31 @@ fn switch_case_stmt(p: &mut Parser<'_>, m: Marker) {
     m.complete(p, SWITCH_CASE_STMT);
 }
 
+// Consume a block delimited by curlies, if found.
+// Otherwise, consume a single statement.
+// Used for control-flow blocks that can be either a statement of a block thereof
+fn block_or_statement(p: &mut Parser<'_>) {
+    if p.at(T!['{']) {
+        expressions::block_expr(p);
+    } else {
+        expressions::stmt(p);
+    }
+}
+
 fn if_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![if]));
     p.bump(T![if]);
     p.expect(T!['(']);
     expressions::expr(p);
     p.expect(T![')']);
-    expressions::try_block_expr(p);
+    block_or_statement(p);
     if p.at(T![else]) {
         p.bump(T![else]);
         if p.at(T![if]) {
             let m = p.start();
             if_stmt(p, m);
         } else {
-            expressions::try_block_expr(p);
+            block_or_statement(p);
         }
     }
     m.complete(p, IF_STMT);
@@ -155,7 +168,7 @@ fn while_stmt(p: &mut Parser<'_>, m: Marker) {
     p.expect(T!['(']);
     expressions::expr(p);
     p.expect(T![')']);
-    expressions::try_block_expr(p);
+    block_or_statement(p);
     m.complete(p, WHILE_STMT);
 }
 
@@ -178,11 +191,8 @@ fn for_stmt(p: &mut Parser<'_>, m: Marker) {
     }
     m1.complete(p, FOR_ITERABLE);
     // The body of the for loop
-    if p.at(T!['{']) {
-        expressions::block_expr(p);
-    } else {
-        expressions::stmt(p);
-    }
+    // Look first for curlies denoting a block, then a single statement.
+    block_or_statement(p);
     m.complete(p, FOR_STMT);
 }
 
@@ -257,6 +267,7 @@ fn gate_definition(p: &mut Parser<'_>, m: Marker) {
     m.complete(p, GATE);
 }
 
+/// Parse `defcal` block.
 fn defcal_(p: &mut Parser<'_>, m: Marker) {
     // Must read the keyword `gate`
     p.bump(T![defcal]);
@@ -336,6 +347,7 @@ fn io_declaration_stmt(p: &mut Parser<'_>, m: Marker) {
     m.complete(p, I_O_DECLARATION_STATEMENT);
 }
 
+/// Parse a subroutine defintion.
 fn def_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![def]));
     p.bump_any();
@@ -383,6 +395,7 @@ fn include(p: &mut Parser<'_>, m: Marker) {
 
 // FIXME: block_expr is copied from r-a where it is used, as here, without recovery.
 // Should we implement recovery?
+/// Parse a `cal` block
 fn cal_(p: &mut Parser<'_>, m: Marker) {
     p.bump(T![cal]);
     expressions::try_block_expr(p);
@@ -425,7 +438,7 @@ fn delay_stmt(p: &mut Parser<'_>, m: Marker) {
 // alias or `let` statement
 fn alias_stmt(p: &mut Parser<'_>, m: Marker) {
     assert!(p.at(T![let]));
-    p.bump_any(); // we know it is `let`.
+    p.bump_any(); // consume `let` token.
     name_r(p, ITEM_RECOVERY_SET);
     p.expect(T![=]);
     expressions::expr(p);

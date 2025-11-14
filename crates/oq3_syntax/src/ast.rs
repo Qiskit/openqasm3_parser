@@ -24,9 +24,9 @@ use crate::{
 };
 
 pub use self::{
-    expr_ext::{ArrayExprKind, ElseBranch, LiteralKind, TimeUnit},
+    expr_ext::{ArrayExprKind, LiteralKind, TimeUnit},
     generated::{nodes::*, tokens::*},
-    node_ext::HasTextName,
+    node_ext::{BlockOrStmt, HasTextNode},
     operators::{ArithOp, BinaryOp, CmpOp, LogicOp, Ordering, RangeOp, UnaryOp},
     token_ext::{CommentKind, CommentShape, IsString, QuoteOffsets, Radix},
     traits::{HasArgList, HasLoopBody, HasName},
