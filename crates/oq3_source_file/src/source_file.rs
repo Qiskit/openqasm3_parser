@@ -26,11 +26,6 @@ pub(crate) fn parse_source_and_includes<P: AsRef<Path>>(
     (parsed_source, included)
 }
 
-pub trait ErrorTrait {
-    fn message(&self) -> String;
-    fn range(&self) -> TextRange;
-}
-
 pub(crate) fn range_to_span(range: &TextRange) -> std::ops::Range<usize> {
     let r1: usize = range.start().into();
     let r2: usize = range.end().into();
@@ -38,6 +33,11 @@ pub(crate) fn range_to_span(range: &TextRange) -> std::ops::Range<usize> {
     // In any case, for ariadne, r2 > r1 is a requirement. Often not satisfied by the r-a crates
     // r1..(r2+1) <--- However, this sometimes is past EOF.
     r1..r2
+}
+
+pub trait ErrorTrait {
+    fn message(&self) -> String;
+    fn range(&self) -> TextRange;
 }
 
 impl ErrorTrait for oq3_syntax::SyntaxError {
