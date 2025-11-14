@@ -243,7 +243,16 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             };
             with_scope!(context,  ScopeType::Local,
                         let loop_var_symbol_id = context.new_binding(loop_var.string().as_ref(), &ty, &loop_var);
-                        let loop_body = from_block_expr(for_stmt.body().unwrap(), context);
+                        // If the body of the for loop is a single statement, with no curlies,
+                        // we wrap it in a `Block`. The result is the same as if there were
+                        // as single statement in a pair of `{` `}`.
+                        let loop_body = if let Some(body) = for_stmt.body() {
+                            from_block_expr(body, context)
+                        } else if let Some(stmt) = for_stmt.stmt() {
+                            asg::Block::new(vec![from_stmt(stmt, context).unwrap()])
+                        } else {
+                            panic!("Error in oq3_syntax");
+                        };
             );
             Some(asg::ForStmt::new(loop_var_symbol_id, iterable, loop_body).to_stmt())
         }
