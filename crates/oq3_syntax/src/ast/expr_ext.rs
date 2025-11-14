@@ -11,7 +11,7 @@ use crate::{
         operators::{ArithOp, BinaryOp, CmpOp, LogicOp, Ordering, UnaryOp},
         support, AstChildren, AstNode,
     },
-    AstToken, HasTextName,
+    AstToken, HasTextNode,
     SyntaxKind::*,
     SyntaxToken, T,
 };
@@ -22,70 +22,10 @@ impl ast::Expr {
     pub fn is_block_like(&self) -> bool {
         matches!(
             self,
-            // ast::Expr::IfExpr(_)
-            //     | ast::Expr::ForExpr(_)
-            //     | ast::Expr::WhileExpr(_)
-                | ast::Expr::BlockExpr(_)
+            ast::Expr::BlockExpr(_) // ast::Expr::IfExpr(_)
+                                    //     | ast::Expr::ForExpr(_)
+                                    //     | ast::Expr::WhileExpr(_)
         )
-    }
-}
-
-// FIXME: I mysteriously had to make this public when changing flow control to Stmt
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ElseBranch {
-    Block(ast::BlockExpr),
-    IfStmt(ast::IfStmt),
-}
-
-impl From<ast::BlockExpr> for ElseBranch {
-    fn from(block_expr: ast::BlockExpr) -> Self {
-        Self::Block(block_expr)
-    }
-}
-
-impl From<ast::IfStmt> for ElseBranch {
-    fn from(if_stmt: ast::IfStmt) -> Self {
-        Self::IfStmt(if_stmt)
-    }
-}
-
-// FIXME: Other flow control, such as WhileStmt is in node_ext.rs
-// This belongs there. But do we jettison all the extra structs above, or
-// fix them and carry them along?
-impl ast::IfStmt {
-    pub fn condition(&self) -> Option<ast::Expr> {
-        // If the condition is a BlockExpr, check if the then body is missing.
-        // If it is assume the condition is the expression that is missing instead.
-        let mut exprs = support::children(self.syntax());
-        let first = exprs.next();
-        match first {
-            Some(ast::Expr::BlockExpr(_)) => exprs.next().and(first),
-            first => first,
-        }
-    }
-
-    pub fn then_branch(&self) -> Option<ast::BlockExpr> {
-        match support::children(self.syntax()).nth(1)? {
-            ast::Expr::BlockExpr(block) => Some(block),
-            _ => None,
-        }
-    }
-
-    // FIXME: this may have supported more than what is below.
-    // OQ3 appears not to have `elif`-like construct. So this is not useful.
-    // pub fn else_branch(&self) -> Option<ElseBranch> {
-    //     match support::children(self.syntax()).nth(2)? {
-    //         ast::Expr::BlockExpr(block) => Some(ElseBranch::Block(block)),
-    //         ast::Expr::IfExpr(elif) => Some(ElseBranch::IfExpr(elif)),
-    //         _ => None,
-    //     }
-    // }
-
-    pub fn else_branch(&self) -> Option<ast::BlockExpr> {
-        match support::children(self.syntax()).nth(2)? {
-            ast::Expr::BlockExpr(block) => Some(block),
-            _ => None,
-        }
     }
 }
 

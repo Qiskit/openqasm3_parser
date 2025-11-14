@@ -45,7 +45,7 @@ use std::marker::PhantomData;
 use triomphe::Arc;
 
 pub use crate::{
-    ast::{AstNode, AstToken, HasTextName},
+    ast::{AstNode, AstToken, BlockOrStmt, HasTextNode},
     parsing::parse_text,
     ptr::{AstPtr, SyntaxNodePtr},
     syntax_error::SyntaxError,

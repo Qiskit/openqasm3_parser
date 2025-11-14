@@ -4,28 +4,28 @@
 use super::*;
 
 pub(super) fn param_list_gate_params(p: &mut Parser<'_>) {
-    _param_list_openqasm(p, DefFlavor::GateParams, None);
+    _param_list_openqasm(p, DefFlavor::GateParams);
 }
 pub(super) fn param_list_gate_qubits(p: &mut Parser<'_>) {
-    _param_list_openqasm(p, DefFlavor::GateQubits, None);
+    _param_list_openqasm(p, DefFlavor::GateQubits);
 }
 
 pub(super) fn arg_list_gate_call_qubits(p: &mut Parser<'_>) {
-    _param_list_openqasm(p, DefFlavor::GateCallQubits, None);
+    _param_list_openqasm(p, DefFlavor::GateCallQubits);
 }
 
 pub(super) fn param_list_def_params(p: &mut Parser<'_>) {
-    _param_list_openqasm(p, DefFlavor::DefParams, None);
+    _param_list_openqasm(p, DefFlavor::DefParams);
 }
 pub(super) fn param_list_defcal_params(p: &mut Parser<'_>) {
-    _param_list_openqasm(p, DefFlavor::DefCalParams, None);
+    _param_list_openqasm(p, DefFlavor::DefCalParams);
 }
 pub(super) fn param_list_defcal_qubits(p: &mut Parser<'_>) {
-    _param_list_openqasm(p, DefFlavor::DefCalQubits, None);
+    _param_list_openqasm(p, DefFlavor::DefCalQubits);
 }
 
 pub(super) fn expression_list(p: &mut Parser<'_>) {
-    _param_list_openqasm(p, DefFlavor::ExpressionList, None);
+    _param_list_openqasm(p, DefFlavor::ExpressionList);
 }
 
 // Here and elsewhere "Gate" means gate def, and "GateCall" means gate call.
@@ -45,8 +45,7 @@ enum DefFlavor {
 }
 
 // Parse a list of parameters.
-// FIXME: m: Option<Marker> is unused, always called with None. Can remove.
-fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>) {
+fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
     use DefFlavor::*;
     let list_marker = p.start();
     let want_parens = matches!(flavor, GateParams | DefParams | DefCalParams);
@@ -68,13 +67,11 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         GateCallQubits => [SEMICOLON, SEMICOLON],
         DefCalQubits => [T!['{'], T![->]],
     };
-    let mut param_marker = m;
-    // let mut param_marker = None;
     let mut num_params: usize = 0;
     // Would be nice if we could used the following line instead of hacked roll your own two lines down.
     //  while !p.at(EOF) && !p.at_ts(list_end_tokens) {
     while !p.at(EOF) && !list_end_tokens.iter().any(|x| p.at(*x)) {
-        let m = param_marker.take().unwrap_or_else(|| p.start());
+        let m = p.start();
         if !(p.current().is_type() || p.at_ts(PARAM_FIRST)) {
             p.error("expected value parameter");
             m.abandon(p);
@@ -122,9 +119,9 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor, m: Option<Marker>
         GateParams | ExpressionList => {}
         GateQubits | GateCallQubits | DefParams | DefCalParams | DefCalQubits => {}
     };
-    if let Some(m) = param_marker {
-        m.abandon(p);
-    }
+    // if let Some(m) = param_marker {
+    //     m.abandon(p);
+    // }
     // Error if we don't find closing paren.
     if want_parens {
         p.expect(T![')']);

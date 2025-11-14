@@ -76,7 +76,7 @@ pub(super) const ATOM_EXPR_FIRST: TokenSet =
 pub(super) const EXPR_RECOVERY_SET: TokenSet = TokenSet::new(&[T![')'], T![']']]);
 
 /// This parses most expressions.
-/// Probably ~~a bad idea~~ impossible to include parsing of other things here.
+/// Probably ~~a bad idea~~. Impossible to include parsing of other things here.
 pub(super) fn atom_expr(
     p: &mut Parser<'_>,
     _r: Restrictions,
@@ -329,17 +329,12 @@ pub(crate) fn try_block_expr(p: &mut Parser<'_>) {
     let _ = block_expr(p);
 }
 
+// Parse a sequence of statements in a curly-enclosed block.
 pub(crate) fn block_expr(p: &mut Parser<'_>) -> CompletedMarker {
-    // FIXME: can't use this check in refactor.
-    // get this working again.
-    // if !p.at(T!['{']) {
-    //     p.error("expected a block");
-    //     return;
-    // }
     assert!(p.at(T!['{']));
     let m = p.start();
     p.bump(T!['{']);
-    expr_block_contents(p);
+    expr_block_statements(p);
     p.expect(T!['}']);
     m.complete(p, BLOCK_EXPR)
 }
@@ -347,7 +342,7 @@ pub(crate) fn block_expr(p: &mut Parser<'_>) -> CompletedMarker {
 fn return_expr(p: &mut Parser<'_>) -> CompletedMarker {
     assert!(p.at(T![return]));
     let m = p.start();
-    p.bump_any(); // return
+    p.bump_any(); // `return` token.
                   // parse possible returned expression
     if p.at_ts(EXPR_FIRST) {
         expr(p);

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::ast;
-use crate::ast::HasTextName; // for methods: text(), string()
+use crate::ast::HasTextNode; // for methods: text(), string()
                              //use oq3_syntax::ast;
                              // use std::{
                              //    fs,
