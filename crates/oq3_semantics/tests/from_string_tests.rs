@@ -247,6 +247,36 @@ float result = pauli_measure(q); // incompatible type error
 }
 
 #[test]
+fn test_subroutine_call_3() {
+    let code = r##"
+def myfunc() -> int {
+  return 1;
+}
+
+int x = myfunc();
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 2);
+}
+
+#[test]
+fn test_subroutine_call_4() {
+    let code = r##"
+def myfunc() -> int {
+  return 1;
+}
+
+int x = myfunc();
+float y = myfunc(); // casting to broader type
+complex z = myfunc();
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 4);
+}
+
+#[test]
 fn test_bit_string_literal() {
     let code = r#"
 bit[4] b = "1001";

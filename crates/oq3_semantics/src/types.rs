@@ -369,9 +369,13 @@ fn promote_base_type(ty1: &Type, ty2: &Type) -> Type {
         (Int(..), Float(..)) => ty2.clone(),
         (UInt(..), Float(..)) => ty2.clone(),
         (Float(..), Complex(..)) => ty2.clone(),
-        (Float(..), Int(..)) | (Float(..), UInt(..)) | (Complex(..), Float(..)) => {
-            promote_base_type(ty2, ty1)
-        }
+        (Int(..), Complex(..)) => ty2.clone(),
+        (UInt(..), Complex(..)) => ty2.clone(),
+        (Float(..), Int(..))
+        | (Float(..), UInt(..))
+        | (Complex(..), Float(..))
+        | (Complex(..), Int(..))
+        | (Complex(..), UInt(..)) => promote_base_type(ty2, ty1),
         _ => Void,
     }
 }
