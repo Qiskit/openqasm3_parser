@@ -279,7 +279,7 @@ IndexExpr =
 ArgList =
    '(' ExpressionList? ')'
 
-// Gate arg list has different reqs from function call arg list
+// Gate arg list has different reqs from subroutine call arg list
 // But too hard to backtrack, so we don't make the distinction
 // GateArgList =
 //   Expr (',' Expr)* ','?

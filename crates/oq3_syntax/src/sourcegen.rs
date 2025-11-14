@@ -15,7 +15,7 @@
 //! This crate contains utilities to make this kind of source-gen easy.
 
 use std::{
-    fmt, fs, mem,
+    fs, mem,
     path::{Path, PathBuf},
 };
 
@@ -136,36 +136,42 @@ impl CommentBlock {
     }
 }
 
-#[derive(Debug)]
-pub struct Location {
-    pub file: PathBuf,
-    pub line: usize,
-}
+// Add a comment so that CI workflow is triggered.
 
-// FIXME: URL for r-a is hardcoded here.
-// My guess is:
-// This is meant to display the location in the code of a test failure.
-// The tests are extracted and written and run elsewhere, so the location in
-// source is recorded so that the dev can find them.
-impl fmt::Display for Location {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let path = self
-            .file
-            .strip_prefix(project_root())
-            .unwrap()
-            .display()
-            .to_string();
-        let path = path.replace('\\', "/");
-        let name = self.file.file_name().unwrap();
-        write!(
-            f,
-            "https://github.com/rust-lang/rust-analyzer/blob/master/{}#L{}[{}]",
-            path,
-            self.line,
-            name.to_str().unwrap()
-        )
-    }
-}
+// #[derive(Debug)]
+// pub struct Location {
+//     pub file: PathBuf,
+//     pub line: usize,
+// }
+
+// Trying to get clippy to allow the following dead code, and get it to compile
+// and pass linting on a couple of versions locally and in CI is way, way, way
+// too difficult. Current rust tooling may not even allow it. It's not clear how
+// to find out. The easy solution is to comment these things out.
+// // FIXME: URL for r-a is hardcoded here.
+// // My guess is:
+// // This is meant to display the location in the code of a test failure.
+// // The tests are extracted and written and run elsewhere, so the location in
+// // source is recorded so that the dev can find them.
+// impl fmt::Display for Location {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         let path = self
+//             .file
+//             .strip_prefix(project_root())
+//             .unwrap()
+//             .display()
+//             .to_string();
+//         let path = path.replace('\\', "/");
+//         let name = self.file.file_name().unwrap();
+//         write!(
+//             f,
+//             "https://github.com/rust-lang/rust-analyzer/blob/master/{}#L{}[{}]",
+//             path,
+//             self.line,
+//             name.to_str().unwrap()
+//         )
+//     }
+// }
 
 #[allow(unused)]
 fn ensure_rustfmt(sh: &Shell) {

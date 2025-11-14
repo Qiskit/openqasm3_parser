@@ -126,7 +126,7 @@ pub enum Expr {
     IndexedIdentifier(IndexedIdentifier),
     GateOperand(GateOperand),
     Return(Box<ReturnExpression>),
-    Call, // stub function (def) call
+    SubroutineCall(SubroutineCall),
     MeasureExpression(Box<MeasureExpression>),
     SetExpression(SetExpression),
     RangeExpression(Box<RangeExpression>),
@@ -628,7 +628,7 @@ pub struct DefStmt {
     name: SymbolIdResult,
     params: Vec<SymbolIdResult>,
     block: Block,
-    return_type: Option<Type>,
+    return_type: Type,
 }
 
 impl DefStmt {
@@ -636,7 +636,7 @@ impl DefStmt {
         name: SymbolIdResult,
         params: Vec<SymbolIdResult>,
         block: Block,
-        return_type: Option<Type>,
+        return_type: Type,
     ) -> DefStmt {
         DefStmt {
             name,
@@ -662,8 +662,8 @@ impl DefStmt {
         &self.block
     }
 
-    pub fn return_type(&self) -> Option<&Type> {
-        self.return_type.as_ref()
+    pub fn return_type(&self) -> &Type {
+        &self.return_type
     }
 }
 
@@ -726,6 +726,34 @@ impl DelayStmt {
 
     pub fn qubits(&self) -> &[TExpr] {
         self.qubits.as_ref()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct SubroutineCall {
+    name: SymbolIdResult,
+    params: Option<Vec<TExpr>>,
+}
+
+impl SubroutineCall {
+    pub fn new(name: SymbolIdResult, params: Option<Vec<TExpr>>) -> SubroutineCall {
+        SubroutineCall { name, params }
+    }
+
+    pub fn name(&self) -> &SymbolIdResult {
+        &self.name
+    }
+
+    pub fn params(&self) -> Option<&[TExpr]> {
+        self.params.as_deref()
+    }
+
+    pub fn to_expr(self) -> Expr {
+        Expr::SubroutineCall(self)
+    }
+
+    pub fn to_texpr(self, typ: Type) -> TExpr {
+        TExpr::new(self.to_expr(), typ)
     }
 }
 

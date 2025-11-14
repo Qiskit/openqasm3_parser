@@ -217,6 +217,66 @@ mygate(x, y) q;
 }
 
 #[test]
+fn test_subroutine_call() {
+    let code = r##"
+def pauli_measure(qubit[2] qu) -> bit {
+    return measure qu;
+}
+
+qubit[2] q;
+bit result = pauli_measure(q);
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 3);
+}
+
+#[test]
+fn test_subroutine_call_2() {
+    let code = r##"
+def pauli_measure(qubit[2] qu) -> bit {
+    return measure qu;
+}
+
+qubit[2] q;
+float result = pauli_measure(q); // incompatible type error
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+    assert_eq!(program.len(), 3);
+}
+
+#[test]
+fn test_subroutine_call_3() {
+    let code = r##"
+def myfunc() -> int {
+  return 1;
+}
+
+int x = myfunc();
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 2);
+}
+
+#[test]
+fn test_subroutine_call_4() {
+    let code = r##"
+def myfunc() -> int {
+  return 1;
+}
+
+int x = myfunc();
+float y = myfunc(); // casting to broader type
+complex z = myfunc();
+"##;
+    let (program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+    assert_eq!(program.len(), 4);
+}
+
+#[test]
 fn test_bit_string_literal() {
     let code = r#"
 bit[4] b = "1001";
