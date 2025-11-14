@@ -610,10 +610,9 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
                     panic!("You have found a bug in oq3_parser. No operand to unary minus found.")
                 }
             },
-            Some(op) => panic!(
-                "Unary operators other than minus are not supported. Found '{:?}.'",
-                op
-            ),
+            Some(op) => {
+                panic!("Unary operators other than minus are not supported. Found '{op:?}.'")
+            }
             _ => panic!("You have found a bug in oq3_parser. No operand to unary operator found."),
         },
 
@@ -731,10 +730,9 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
         // Followng may be a parser error. But I think we will need to support BlockExpr anywhere here.
         synast::Expr::BlockExpr(_) => panic!("BlockExpr not supported."),
 
-        synast::Expr::ArrayExpr(_) => panic!("ArrayExpr not supported {:?}", expr),
-        synast::Expr::ArrayLiteral(_) => panic!("ArrayLiteral not supported {:?}", expr),
-        synast::Expr::BoxExpr(_) => panic!("BoxExpr not supported {:?}", expr),
-
+        synast::Expr::ArrayExpr(_) => panic!("ArrayExpr not supported {expr:?}"),
+        synast::Expr::ArrayLiteral(_) => panic!("ArrayLiteral not supported {expr:?}"),
+        synast::Expr::BoxExpr(_) => panic!("BoxExpr not supported {expr:?}"),
         synast::Expr::GateCallExpr(_)
         | synast::Expr::GPhaseCallExpr(_)
         | synast::Expr::ModifiedGateCallExpr(_) => panic!("You have found a bug in oq3_parser."),
@@ -1138,8 +1136,7 @@ fn from_assignment_stmt(
 ) -> Option<asg::Stmt> {
     let nameb = assignment_stmt.identifier(); // LHS of assignment
                                               // LHS is an identifier
-    if nameb.is_some() {
-        let name = nameb.as_ref().unwrap();
+    if let Some(name) = &nameb {
         let name_str = name.string();
         let mut expr = from_expr(assignment_stmt.rhs(), context).unwrap(); // rhs of `=` operator
 

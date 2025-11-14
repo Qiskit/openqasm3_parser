@@ -1,4 +1,29 @@
+## Prerequisites
+
+This project uses [`just`](https://github.com/casey/just) as a command runner.  
+
+Install it first:
+
+```sh
+cargo install just
+```
+
+### Verify Installation
+
+Run:
+
+```sh
+just --list
+```
+
+You should see a list of available recipes (such as `ci`, `sourcegen`, `check_sourcegen` and others).  
+
+
 ## Pull Requests
+
+- All pull requests must pass CI before being merged.  
+- Please commit regenerated files when modifying grammar or code generation.  
+- Use the provided `just` recipes to ensure consistency.
 
 ### Debugging / Developing
 
@@ -37,21 +62,27 @@ printed.
 ### Testing and Continuous Integration (CI)
 
 > [!IMPORTANT]
-> Don't run tests with `cargo test`. Rather use [./run_tests.sh](./run_tests.sh).
-> Or run the command contained therein:
->
-> `cargo test --lib --tests -- --skip sourcegen_ast --skip sourcegen_ast_nodes`
+All pull requests must pass CI. To run the full suite locally, use:
 
-All pull requests must pass a CI check before being merged. You can check if CI will pass locally with
-```shell
-cargo fmt --all -- --check && cargo build --verbose && cargo clippy -- -D warnings && cargo test --verbose -- --skip sourcegen_ast --skip sourcegen_ast_nodes
+```sh
+just ci
 ```
-A script for checking CI locally is [./local_CI.sh](./local_CI.sh)
+
+> Do not run `cargo test` directly — always use `just ci` to match CI.
+
+Note, the github pipeline also verifies that generated sources are up to date:
+
+```sh
+just check_sourcegen
+```
 
 ### Clippy
 
-One of the CI items is `cargo clippy`.
-To handle a lot of errors at the command line you can use (for unix-like OS) `cargo clippy --color always &| less -R`.
+Clippy is included in the `just ci` recipe. For manual inspection with paging:
+
+```sh
+cargo clippy --color always |& less -R
+```
 
 ### Modifying the ungrammar
 
@@ -60,10 +91,24 @@ An ["ungrammar"](https://docs.rs/ungrammar/latest/ungrammar/) (and [here](https:
 An ungrammar for OpenQASM 3 is
 in [./crates/oq3_syntax/openqasm3.ungram](./crates/oq3_syntax/openqasm3.ungram).
 For most work, it need not be edited.
-If the file is modified,
-three source files must be regenerated:
+
+If the file is modified, run:
+
+```sh
+just sourcegen
+```
+
+> This triggers the `build.rs` script in `op3_parser` with the `sourcegen` feature.
+
+The following three source files may be updated:
 * [./crates/oq3_parser/src/syntax_kind/syntax_kind_enum.rs](./crates/oq3_parser/src/syntax_kind/syntax_kind_enum.rs)
 * [./crates/oq3_syntax/src/ast/generated/nodes.rs](./crates/oq3_syntax/src/ast/generated/nodes.rs)
 * [./crates/oq3_syntax/src/ast/generated/tokens.rs](./crates/oq3_syntax/src/ast/generated/tokens.rs)
 
-For further information, see [./codegen_scripts/README.md](./codegen_scripts/README.md)
+Commit regenerated files along with your changes.
+
+### Style & Formatting
+
+- Code must be formatted with `cargo fmt`.  
+- Lints must pass with `cargo clippy` (warnings are treated as errors).  
+- Avoid committing debug macros (`dbg!`) — they are denied in CI.  

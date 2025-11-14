@@ -420,7 +420,7 @@ impl SymbolTable {
     /// Simple dump of all symbols. This could be improved.
     pub fn dump(&self) {
         for (n, sym) in self.all_symbols.iter().enumerate() {
-            println!("{n} {:?}", sym);
+            println!("{n} {sym:?}");
         }
     }
 }
