@@ -20,6 +20,7 @@ use crate::context::Context;
 use crate::semantic_error::{SemanticErrorKind::*, SemanticErrorList};
 use crate::symbols::{ScopeType, SymbolErrorTrait, SymbolIdResult, SymbolTable};
 use oq3_source_file::{SourceFile, SourceString, SourceTrait};
+
 use oq3_syntax::ast as synast; // Syntactic AST
 
 use crate::with_scope;
