@@ -90,8 +90,8 @@ impl ast::Expr {
 impl ast::PrefixExpr {
     pub fn op_kind(&self) -> Option<UnaryOp> {
         let res = match self.op_token()?.kind() {
-            T![~] => UnaryOp::LogicNot,
-            T![!] => UnaryOp::Not,
+            T![!] => UnaryOp::LogicNot,
+            T![~] => UnaryOp::Not,
             T![-] => UnaryOp::Neg,
             _ => return None,
         };

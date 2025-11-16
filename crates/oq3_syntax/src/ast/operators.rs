@@ -20,9 +20,9 @@ pub enum RangeOp {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum UnaryOp {
-    /// `~`
-    LogicNot,
     /// `!`
+    LogicNot,
+    /// `~`
     Not,
     /// `-`
     Neg,
