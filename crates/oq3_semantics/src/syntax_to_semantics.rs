@@ -172,12 +172,7 @@ pub fn syntax_to_semantic<T: SourceTrait>(
     // Move `errors` into `context.semantic_errors`. Save the previous value of `context.semantic_errors`
     // as `save_errors`.
     let save_errors = replace(&mut context.semantic_errors, errors);
-    let statements = parsed_source
-        .syntax_ast()
-        .as_ref()
-        .unwrap()
-        .tree()
-        .statements();
+    let statements = parsed_source.syntax_ast().unwrap().tree().statements();
     for parse_stmt in statements {
         let stmt = match parse_stmt {
             // Include does not go in the ASG, instead it is evaluated.

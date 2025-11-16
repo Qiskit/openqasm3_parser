@@ -68,7 +68,7 @@ impl ErrorTrait for oq3_syntax::SyntaxError {
 pub trait SourceTrait {
     /// Return `true` if the source file or any included files produced a parse error.
     fn any_parse_errors(&self) -> bool {
-        if let Some(the_ast) = &self.syntax_ast() {
+        if let Some(the_ast) = self.syntax_ast() {
             if !the_ast.errors().is_empty() {
                 return true;
             }
@@ -83,14 +83,14 @@ pub trait SourceTrait {
     }
 
     fn included(&self) -> &Vec<SourceFile>;
-    fn syntax_ast(&self) -> &Option<ParsedSource>;
+    fn syntax_ast(&self) -> Option<&ParsedSource>;
     fn print_syntax_errors(&self);
     fn file_path(&self) -> PathBuf;
 }
 
 impl SourceTrait for SourceFile {
-    fn syntax_ast(&self) -> &Option<ParsedSource> {
-        &self.syntax_ast
+    fn syntax_ast(&self) -> Option<&ParsedSource> {
+        self.syntax_ast.as_ref()
     }
 
     fn included(&self) -> &Vec<SourceFile> {
@@ -102,7 +102,7 @@ impl SourceTrait for SourceFile {
     }
 
     fn print_syntax_errors(&self) {
-        if let Some(the_ast) = &self.syntax_ast() {
+        if let Some(the_ast) = self.syntax_ast() {
             print_compiler_errors(the_ast.errors(), &self.file_path);
             for source_file in self.included().iter() {
                 source_file.print_syntax_errors()
@@ -279,8 +279,8 @@ pub struct SourceFile {
 }
 
 impl SourceTrait for SourceString {
-    fn syntax_ast(&self) -> &Option<ParsedSource> {
-        &self.syntax_ast
+    fn syntax_ast(&self) -> Option<&ParsedSource> {
+        self.syntax_ast.as_ref()
     }
 
     fn included(&self) -> &Vec<SourceFile> {
@@ -304,8 +304,8 @@ impl SourceTrait for SourceString {
 }
 
 impl SourceFile {
-    pub fn include_error(&self) -> &Option<IncludeError> {
-        &self.include_error
+    pub fn include_error(&self) -> Option<&IncludeError> {
+        self.include_error.as_ref()
     }
 }
 
