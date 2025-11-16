@@ -90,6 +90,7 @@ impl<'a> LexedStr<'a> {
         r.end - r.start
     }
 
+    /// Unused
     pub fn error(&self, i: usize) -> Option<&str> {
         assert!(i < self.len());
         let err = self
