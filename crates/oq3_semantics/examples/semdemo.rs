@@ -119,7 +119,7 @@ fn main() {
 
         Some(Commands::Parse { file_name }) => {
             let parsed_source = oq3_source_file::parse_source_file(file_name);
-            let ast = parsed_source.syntax_ast();
+            let ast = parsed_source.syntax_ast().as_ref().unwrap();
             let num_stmts = if ast.have_parse() {
                 ast.tree().statements().count()
             } else {

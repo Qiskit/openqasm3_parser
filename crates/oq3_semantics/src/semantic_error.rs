@@ -7,6 +7,7 @@ use oq3_source_file::ErrorTrait;
 use oq3_syntax::AstNode;
 use oq3_syntax::SyntaxNode;
 use std::fmt;
+use std::io;
 use std::path::{Path, PathBuf};
 
 // re-exported in lib.rs from rowan
@@ -30,6 +31,26 @@ pub enum SemanticErrorKind {
     NumGateQubitsError,
     // Number of arguments in call to a subroutine def is not equal to number of declared parameters.
     NumDefParamsError,
+    FileNotFound,
+    PermissionDenied,
+    IsADirectory,
+    InvalidFilename,
+    // Generic IO error. Any io::ErrorKind that we do not translated explicitly
+    IOError,
+}
+
+impl SemanticErrorKind {
+    /// Convert a variant of io::ErrorKind to a variant of SemanticErrorKind
+    pub fn from_io_error(io_error: io::ErrorKind) -> SemanticErrorKind {
+        match io_error {
+            io::ErrorKind::NotFound => SemanticErrorKind::FileNotFound,
+            io::ErrorKind::PermissionDenied => SemanticErrorKind::PermissionDenied,
+            // These two are unstable features. We can enable them when we bump the MSRV.
+            // io::ErrorKind::IsADirectory => SemanticErrorKind::IsADirectory, // Stable in Rust 1.83
+            // io::ErrorKind::InvalidFilename => SemanticErrorKind::InvalidFilename, // Stable in Rust 1.87
+            _ => SemanticErrorKind::IOError,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -114,7 +135,12 @@ impl SemanticErrorList {
     }
 
     pub fn print_errors(&self) {
-        oq3_source_file::print_compiler_errors(self, &self.source_file_path);
+        // If `source_file_path` cannot be read then there are no errors to print.
+        // But `print_compiler_errors` would attempt to read the file and panic.
+        // So if there are no errors to print, we don't even try.
+        if !self.list.is_empty() {
+            oq3_source_file::print_compiler_errors(self, &self.source_file_path);
+        }
         self.print_included_errors();
     }
 

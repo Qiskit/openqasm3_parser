@@ -17,7 +17,10 @@ use crate::types;
 use crate::types::{ArrayDims, IsConst, Type};
 
 use crate::context::Context;
-use crate::semantic_error::{SemanticErrorKind::*, SemanticErrorList};
+use crate::semantic_error::{
+    SemanticErrorKind::{self, *},
+    SemanticErrorList,
+};
 use crate::symbols::{ScopeType, SymbolErrorTrait, SymbolIdResult, SymbolTable};
 use oq3_source_file::{SourceFile, SourceString, SourceTrait};
 
@@ -166,8 +169,16 @@ pub fn syntax_to_semantic<T: SourceTrait>(
     errors: SemanticErrorList,
 ) -> (Context, SemanticErrorList) {
     let mut included_iter = parsed_source.included().iter();
+    // Move `errors` into `context.semantic_errors`. Save the previous value of `context.semantic_errors`
+    // as `save_errors`.
     let save_errors = replace(&mut context.semantic_errors, errors);
-    for parse_stmt in parsed_source.syntax_ast().tree().statements() {
+    let statements = parsed_source
+        .syntax_ast()
+        .as_ref()
+        .unwrap()
+        .tree()
+        .statements();
+    for parse_stmt in statements {
         let stmt = match parse_stmt {
             // Include does not go in the ASG, instead it is evaluated.
             // So we include the parsed code, collect errors, and return `None`.
@@ -183,28 +194,49 @@ pub fn syntax_to_semantic<T: SourceTrait>(
                     // We do not use a file for standard library, but rather create the symbols.
                     context.standard_library_gates(&include);
                 } else {
-                    let next_parsed_included_source = included_iter.next();
-                    // Get SourceFile object with syntax AST for the next included file.
-                    // If an error prevented including the source file, then this is None.
-                    if let Some(included_parsed_source) = next_parsed_included_source {
-                        // Allocate an empty list for possible semantic errors in the included file.
-                        let mut errors_in_included =
-                            SemanticErrorList::new(included_parsed_source.file_path().clone());
-                        // The following path is likely never taken
-                        if context.symbol_table().current_scope_type() != ScopeType::Global {
-                            context.insert_error(IncludeNotInGlobalScopeError, &include);
-                        }
-                        // Call this function recursively passing the new, empty, storage for errors.
-                        // Note that `errors_in_included` will be swapped into `context` upon entering `syntax_to_semantic`.
-                        (context, errors_in_included) =
-                            syntax_to_semantic(included_parsed_source, context, errors_in_included);
-                        // Just before exiting the previous call, `errors_in_included` and `errors` are swapped again in `context`.
-                        // Push the newly-populated list of errors onto the list of included errors in `context`, which now
-                        // holds `errors`, the list passed in the current call to this `syntax_to_semantic`. And `errors`
-                        // corresponds to the source in which `include` was encountered.
-                        context.push_included(errors_in_included);
-                        // Return `None` because have evaluated (and removed)the `include` statement.
+                    let included_parsed_source = included_iter.next().unwrap();
+                    // Allocate an empty list for possible semantic errors in the included source file.
+                    let mut errors_in_included =
+                        SemanticErrorList::new(included_parsed_source.file_path().clone());
+                    // The following path is likely never taken
+                    if context.symbol_table().current_scope_type() != ScopeType::Global {
+                        context.insert_error(IncludeNotInGlobalScopeError, &include);
                     }
+
+                    // If there was no error when trying to read the included code, then perform semantic analysis
+                    // on the parsed contents. If there *was* an error-- the read failed --then we insert a semantic
+                    // error for the failed read.
+                    match included_parsed_source.include_error() {
+                        None => {
+                            // Call the present function recursively, passing the new, empty, storage for errors.
+                            // Note that `errors_in_included` will be swapped into `context` upon entering `syntax_to_semantic`.
+                            (context, errors_in_included) = syntax_to_semantic(
+                                included_parsed_source,
+                                context,
+                                errors_in_included,
+                            );
+                        }
+                        Some(include_error) => {
+                            // We include the syntax element as usual, because its single field `SyntaxNode`
+                            // includes the range in the source text corresponding to the pathname causing the error.
+                            let filename_included = include_error.include.file().unwrap();
+
+                            // We are inserting this semantic error into the list of errors for the source file that we
+                            // failed to read. We should really insert it into the list of errors for the parent-- the
+                            // source code that contains the failed include statement. But that would be a bit more complicated.
+                            context.insert_error(
+                                // Convert the io::ErrorKind to a SemanticErrorKind
+                                SemanticErrorKind::from_io_error(include_error.error),
+                                &filename_included,
+                            );
+                        }
+                    }
+                    // Just before exiting the previous call, `errors_in_included` and `errors` are swapped again in `context`.
+                    // Push the newly-populated list of errors onto the list of included errors in `context`, which now
+                    // holds `errors`, the list passed in the current call to this `syntax_to_semantic`. And `errors`
+                    // corresponds to the source in which `include` was encountered.
+                    context.push_errors_from_included_file(errors_in_included);
+                    // Return `None` because have evaluated (and removed)the `include` statement.
                 }
                 None
             } // end `synast::Stmt::Include(include) => {`
@@ -222,6 +254,7 @@ pub fn syntax_to_semantic<T: SourceTrait>(
         }
     }
 
+    // TODO: wtf?
     // Upon entering the current call, the errors in `context` were swapped out and replaced with `errors`.
     // This `errors` was also passed in, in the current call.
     // Now retrieve `errors` from `context` and restore `saved_errors` to `context`.
@@ -826,8 +859,8 @@ fn from_gate_call_expr(
         let num_qubits: usize = gate_operands.len();
         if def_num_qubits != num_qubits {
             if num_qubits == 0 {
-                // This probably can't happen because no qubit args is not recognized syntactially
-                // as a gate call.
+                // This probably can't happen because if there are no qubit args,
+                // then the call is not recognized syntactially as a gate call.
                 context.insert_error(NumGateQubitsError, &gate_call_expr);
             } else {
                 context.insert_error(NumGateQubitsError, &gate_call_expr.qubit_list().unwrap());
