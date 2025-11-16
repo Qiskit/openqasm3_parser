@@ -27,9 +27,10 @@ impl<'a> Cursor<'a> {
         }
     }
 
-    pub fn as_str(&self) -> &'a str {
-        self.chars.as_str()
-    }
+    // Unused, so commenting out.
+    // fn as_str(&self) -> &'a str {
+    //     self.chars.as_str()
+    // }
 
     /// Returns the last eaten symbol (or `'\0'` in release builds).
     /// (For debug assertions only.)

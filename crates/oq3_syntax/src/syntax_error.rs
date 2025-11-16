@@ -24,26 +24,31 @@ pub struct SyntaxError(String, TextRange);
 // }
 
 impl SyntaxError {
+    /// Create a new syntax error with message `message`.
+    /// The text range into the source file given by `range`.
     pub fn new(message: impl Into<String>, range: TextRange) -> Self {
         Self(message.into(), range)
     }
 
     // Note that this is meant to convert from `TextSize` to `TextRange`, whatever these mean.
+    /// This method of creating a SynatxError is used in `shortcuts.rs`. (elsewhere ?)
     pub fn new_at_offset(message: impl Into<String>, offset: TextSize) -> Self {
         Self(message.into(), TextRange::empty(offset))
-    }
-
-    pub fn range(&self) -> TextRange {
-        self.1
-    }
-
-    pub fn message(&self) -> &str {
-        self.0.as_ref()
     }
 
     pub fn with_range(mut self, range: TextRange) -> Self {
         self.1 = range;
         self
+    }
+
+    /// Return the text range for this SyntaxError.
+    pub fn range(&self) -> TextRange {
+        self.1
+    }
+
+    /// Return the message for this SyntaxError.
+    pub fn message(&self) -> &str {
+        self.0.as_ref()
     }
 }
 

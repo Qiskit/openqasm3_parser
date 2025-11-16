@@ -8,16 +8,20 @@ use rowan::TextRange;
 
 use crate::{syntax_node::GreenNode, SyntaxError, SyntaxTreeBuilder};
 
-pub fn parse_text(text: &str) -> (GreenNode, Vec<SyntaxError>) {
-    let lexed = oq3_parser::LexedStr::new(text);
+/// This function is sort of obsolete. We can likely replace all uses by `parse_text_check_lex`.
+pub fn parse_text(openqasm_code_text: &str) -> (GreenNode, Vec<SyntaxError>) {
+    let lexed = oq3_parser::LexedStr::new(openqasm_code_text);
     let parser_input = lexed.to_input();
     let parser_output = oq3_parser::TopEntryPoint::SourceFile.parse(&parser_input);
     let (node, errors, _eof) = build_tree(lexed, parser_output);
     (node, errors)
 }
 
-pub fn parse_text_check_lex(text: &str) -> (Option<GreenNode>, Vec<SyntaxError>) {
-    let lexed = oq3_parser::LexedStr::new(text);
+/// Lex `openqasm_code_text`. If there are no lexing errors, parse the result
+/// returning the AST as `Option<GreenNode>`, as well as errors.
+/// If lexing errors do occur, do no parsing, but rather, return the lexing errors.
+pub fn parse_text_check_lex(openqasm_code_text: &str) -> (Option<GreenNode>, Vec<SyntaxError>) {
+    let lexed = oq3_parser::LexedStr::new(openqasm_code_text);
     if lexed.errors_len() > 0 {
         return (None, just_errors(lexed));
     }
@@ -27,6 +31,12 @@ pub fn parse_text_check_lex(text: &str) -> (Option<GreenNode>, Vec<SyntaxError>)
     (Some(node), errors)
 }
 
+/// The lexer stores error messages on encountering lexing errors.
+/// Here we iterate over the lexing errors,"converting" them to parsing
+/// errors: `SyntaxError`. This is for convenience in handling and reporting
+/// these errors. We only actually parse the lexed text if there were no lexer
+/// errors. So when the semantic analyzer gets the syntax tree, any associated
+/// errors are either all from the lexer, or all from the parser.
 fn just_errors(lexed: oq3_parser::LexedStr<'_>) -> Vec<SyntaxError> {
     let mut errors = Vec::<SyntaxError>::new();
     for (i, err) in lexed.errors() {

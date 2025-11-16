@@ -38,6 +38,11 @@ pub struct SemanticError {
     node: SyntaxNode, // Includes span and api functions to retrieve text, etc.
 }
 
+/// `SemanticErrorList` stores errors associated with parsing the file in `source_file_path`.
+/// The file in `source_file_path` may include more source via the `include` statement.
+/// Each such included file is parsed and it gets its own `SemanticErrorList`.
+/// The error lists for all files included at the top level of `source_file_path`
+/// are stored in `include_errors`.
 #[derive(Clone, Debug)]
 pub struct SemanticErrorList {
     source_file_path: PathBuf,
@@ -72,6 +77,9 @@ impl SemanticErrorList {
         }
     }
 
+    /// Push a (newly populated) `SemanticErrorList` into the list of
+    /// list of errors found in `include`d files.
+    /// This function is called after including a file and collecting errors.
     pub fn push_included(&mut self, new_errors: SemanticErrorList) {
         self.include_errors.push(new_errors);
     }

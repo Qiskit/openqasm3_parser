@@ -46,7 +46,7 @@ use triomphe::Arc;
 
 pub use crate::{
     ast::{AstNode, AstToken, BlockOrStmt, HasTextNode},
-    parsing::parse_text,
+    parsing::{parse_text, parse_text_check_lex},
     ptr::{AstPtr, SyntaxNodePtr},
     syntax_error::SyntaxError,
     syntax_node::{
@@ -162,14 +162,25 @@ impl Parse<SourceFile> {
 //   by the parser, implies a bug outside the parser.
 //   A syntactically incorrect ast being ingested by the semantic analyzer implies a bug
 //   outside the semantic analyzer.
+
 /// Same as Parse<T> except that the `GreenNode` is wrapped in `Option`.
+/// Possible values of the fields of this struct are:
+/// Case 1:
+///  `green` is `None`
+///  `errors` is not empty.
+///   all errors in `errors` are lexer errors.
+/// Case 2:
+///   `green` is `Some`
+///   if `errors` is empty, then lexing and parsing succeeded without error.
+///   if `errors` is not empty, then all errors are parser errors. There are no lexer errors.
+///
 /// The `Option` is `None` if lexer errors were recorded, in which case no
 /// parsing was done. In the same case, all errors will be lexer errors.
 /// If there are no lexer errors, the parsing was done, and there is a `GreenNode`.
 /// In this case any errors are parser errors.
 #[derive(Debug, PartialEq, Eq)]
 pub struct ParseOrErrors<T> {
-    green: Option<GreenNode>,
+    green_maybe: Option<GreenNode>,
     errors: Arc<Vec<SyntaxError>>,
     _ty: PhantomData<fn() -> T>,
 }
@@ -177,7 +188,7 @@ pub struct ParseOrErrors<T> {
 impl<T> Clone for ParseOrErrors<T> {
     fn clone(&self) -> ParseOrErrors<T> {
         ParseOrErrors {
-            green: self.green.clone(),
+            green_maybe: self.green_maybe.clone(),
             errors: self.errors.clone(),
             _ty: PhantomData,
         }
@@ -186,13 +197,14 @@ impl<T> Clone for ParseOrErrors<T> {
 
 impl<T> ParseOrErrors<T> {
     pub fn syntax_node(&self) -> SyntaxNode {
-        SyntaxNode::new_root(self.green.clone().unwrap())
+        SyntaxNode::new_root(self.green_maybe.clone().unwrap())
     }
     pub fn errors(&self) -> &[SyntaxError] {
         &self.errors
     }
+    /// Return `true` if a generated parse structure is available.
     pub fn have_parse(&self) -> bool {
-        self.green.is_some()
+        self.green_maybe.is_some()
     }
 }
 
@@ -206,8 +218,11 @@ impl<T: AstNode> ParseOrErrors<T> {
 pub use crate::ast::SourceFile;
 
 impl SourceFile {
-    pub fn parse(text: &str) -> Parse<SourceFile> {
-        let (green, mut errors) = parsing::parse_text(text);
+    /// This function is semi-obsolete, having been replaced by parse_check_lex.
+    /// `parse` is called in a few demos and tests, etc.
+    ///  Calls to this function could/should be replace by calls to parse_check_lex.
+    pub fn parse(openqasm_code_text: &str) -> Parse<SourceFile> {
+        let (green, mut errors) = parsing::parse_text(openqasm_code_text);
         let root = SyntaxNode::new_root(green.clone());
         errors.extend(validation::validate(&root));
         assert_eq!(root.kind(), SyntaxKind::SOURCE_FILE);
@@ -222,15 +237,17 @@ impl SourceFile {
     /// The green tree is wrapped in `Option` to account for the case
     /// that there *are* lexing errors and no parsing is done and no
     /// tree is built.
-    pub fn parse_check_lex(text: &str) -> ParseOrErrors<SourceFile> {
-        let (green_maybe, mut errors) = parsing::parse_text_check_lex(text);
+    /// In the latter case, the lexing errors are stored as if they were
+    /// syntax errors.
+    pub fn parse_check_lex(openqasm_code_text: &str) -> ParseOrErrors<SourceFile> {
+        let (green_maybe, mut errors) = parsing::parse_text_check_lex(openqasm_code_text);
         if let Some(ref green) = green_maybe {
             let root = SyntaxNode::new_root(green.clone());
             errors.extend(validation::validate(&root));
             assert_eq!(root.kind(), SyntaxKind::SOURCE_FILE);
         }
         ParseOrErrors {
-            green: green_maybe,
+            green_maybe,
             errors: Arc::new(errors),
             _ty: PhantomData,
         }

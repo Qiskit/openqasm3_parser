@@ -8,6 +8,7 @@
 //!
 //! The main entity of this crate is the [`TokenKind`] enum which represents common
 //! lexeme types.
+//! The entry point into this lexer is the function [`tokenize`]
 #![deny(rustc::untranslatable_diagnostic)]
 #![deny(rustc::diagnostic_outside_of_impl)]
 
@@ -197,6 +198,7 @@ pub enum Base {
     Hexadecimal = 16,
 }
 
+/// `tokenize` is the entry point into the lexer.
 /// Creates an iterator that produces tokens from the input string.
 pub fn tokenize(input: &str) -> impl Iterator<Item = Token> + '_ {
     let mut cursor = Cursor::new(input);
@@ -213,7 +215,7 @@ pub fn tokenize(input: &str) -> impl Iterator<Item = Token> + '_ {
 /// True if `c` is considered a whitespace according to Rust language definition.
 /// See [Rust language reference](https://doc.rust-lang.org/reference/whitespace.html)
 /// for definitions of these classes.
-pub fn is_whitespace(c: char) -> bool {
+fn is_whitespace(c: char) -> bool {
     // This is Pattern_White_Space.
     //
     // Note that this set is stable (ie, it doesn't change with different
@@ -246,7 +248,7 @@ pub fn is_whitespace(c: char) -> bool {
 /// True if `c` is valid as a first character of an identifier.
 /// See [Rust language reference](https://doc.rust-lang.org/reference/identifiers.html) for
 /// a formal definition of valid identifier name.
-pub fn is_id_start(c: char) -> bool {
+fn is_id_start(c: char) -> bool {
     // This is XID_Start OR '_' (which formally is not a XID_Start).
     //    c == '_' || c == '$' || unicode_xid::UnicodeXID::is_xid_start(c)
     c == '_' || unicode_xid::UnicodeXID::is_xid_start(c)
@@ -256,23 +258,24 @@ pub fn is_id_start(c: char) -> bool {
 /// True if `c` is valid as a non-first character of an identifier.
 /// See [Rust language reference](https://doc.rust-lang.org/reference/identifiers.html) for
 /// a formal definition of valid identifier name.
-pub fn is_id_continue(c: char) -> bool {
+fn is_id_continue(c: char) -> bool {
     unicode_xid::UnicodeXID::is_xid_continue(c)
 }
 
-/// The passed string is lexically an identifier.
-pub fn is_ident(string: &str) -> bool {
-    let mut chars = string.chars();
-    if let Some(start) = chars.next() {
-        is_id_start(start) && chars.all(is_id_continue)
-    } else {
-        false
-    }
-}
+// Unused, so commenting out.
+// The passed string is lexically an identifier.
+// fn is_ident(string: &str) -> bool {
+//     let mut chars = string.chars();
+//     if let Some(start) = chars.next() {
+//         is_id_start(start) && chars.all(is_id_continue)
+//     } else {
+//         false
+//     }
+// }
 
 impl Cursor<'_> {
     /// Parses a token from the input string.
-    pub fn advance_token(&mut self) -> Token {
+    fn advance_token(&mut self) -> Token {
         let first_char = match self.bump() {
             Some(c) => c,
             None => return Token::new(TokenKind::Eof, 0),
