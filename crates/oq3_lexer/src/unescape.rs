@@ -158,14 +158,15 @@ pub enum Mode {
 }
 
 impl Mode {
-    pub fn in_double_quotes(self) -> bool {
-        match self {
-            Mode::Str | Mode::BitStr | Mode::ByteStr | Mode::RawStr | Mode::RawByteStr => true,
-            //            | Mode::CStr
-            //            | Mode::RawCStr => true,
-            Mode::Char | Mode::Byte => false,
-        }
-    }
+    /// Unused, so comment out
+    // fn in_double_quotes(self) -> bool {
+    //     match self {
+    //         Mode::Str | Mode::BitStr | Mode::ByteStr | Mode::RawStr | Mode::RawByteStr => true,
+    //         //            | Mode::CStr
+    //         //            | Mode::RawCStr => true,
+    //         Mode::Char | Mode::Byte => false,
+    //     }
+    // }
 
     // /// Non-byte literals should have `\xXX` escapes that are within the ASCII range.
     // pub fn ascii_escapes_should_be_ascii(self) -> bool {
@@ -177,7 +178,7 @@ impl Mode {
     // }
 
     /// Whether characters within the literal must be within the ASCII range
-    pub fn characters_should_be_ascii(self) -> bool {
+    fn characters_should_be_ascii(self) -> bool {
         match self {
             Mode::Byte | Mode::ByteStr | Mode::RawByteStr | Mode::BitStr => true,
             Mode::Char | Mode::Str | Mode::RawStr => false,
@@ -186,7 +187,7 @@ impl Mode {
     }
 
     /// Byte literals do not allow unicode escape.
-    pub fn is_unicode_escape_disallowed(self) -> bool {
+    fn is_unicode_escape_disallowed(self) -> bool {
         match self {
             Mode::Byte | Mode::ByteStr | Mode::RawByteStr | Mode::BitStr => true,
             Mode::Char | Mode::Str | Mode::RawStr => false,
@@ -194,13 +195,14 @@ impl Mode {
         }
     }
 
-    pub fn prefix_noraw(self) -> &'static str {
-        match self {
-            Mode::Byte | Mode::ByteStr | Mode::RawByteStr => "b",
-            //            Mode::CStr | Mode::RawCStr => "c",
-            Mode::Char | Mode::Str | Mode::RawStr | Mode::BitStr => "",
-        }
-    }
+    // Unused, so comment out
+    // fn prefix_noraw(self) -> &'static str {
+    //     match self {
+    //         Mode::Byte | Mode::ByteStr | Mode::RawByteStr => "b",
+    //         //            Mode::CStr | Mode::RawCStr => "c",
+    //         Mode::Char | Mode::Str | Mode::RawStr | Mode::BitStr => "",
+    //     }
+    // }
 }
 
 fn scan_escape<T: From<u8> + From<char>>(
