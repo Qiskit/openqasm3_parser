@@ -69,18 +69,11 @@ impl ErrorTrait for oq3_syntax::SyntaxError {
 pub trait SourceTrait {
     /// Return `true` if the source file or any included files produced a parse error.
     fn any_parse_errors(&self) -> bool {
-        if let Some(the_ast) = self.syntax_ast() {
-            if !the_ast.errors().is_empty() {
-                return true;
-            }
-        } else {
-            // If there is no parsed ast, then there can be files
-            // included from within the non-existent ast. So return false.
-            return false;
-        }
-        self.included()
-            .iter()
-            .any(|inclusion| inclusion.any_parse_errors())
+        // If there is no parsed ast, then there can be no files included from within the
+        // non-existent ast. In this case return false before evaluating the final clause.
+        self.syntax_ast()
+            .is_some_and(|the_ast| !the_ast.errors().is_empty())
+            || self.included().iter().any(|inclusion| inclusion.any_parse_errors())
     }
 
     fn included(&self) -> &Vec<SourceFile>;
