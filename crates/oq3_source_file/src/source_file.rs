@@ -48,6 +48,7 @@ pub(crate) fn range_to_span(range: &TextRange) -> std::ops::Range<usize> {
 }
 
 pub trait ErrorTrait {
+    // Returning &str would be nice. But SemanticError creates the message new on every call.
     /// Return a message describing the error.
     fn message(&self) -> String;
 
