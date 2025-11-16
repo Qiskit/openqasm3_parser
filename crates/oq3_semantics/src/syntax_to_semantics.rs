@@ -153,7 +153,7 @@ fn analyze_source<T: SourceTrait>(parsed_source: T) -> ParseResult<T> {
             have_syntax_errors: true,
         };
     }
-    let errors = SemanticErrorList::new(file_path);
+    let errors = SemanticErrorList::new(file_path.clone());
     let (mut context, errors) = syntax_to_semantic(&parsed_source, context, errors);
     let _ = replace(&mut context.semantic_errors, errors);
     ParseResult {

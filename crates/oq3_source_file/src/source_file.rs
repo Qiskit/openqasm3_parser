@@ -85,7 +85,7 @@ pub trait SourceTrait {
     fn included(&self) -> &Vec<SourceFile>;
     fn syntax_ast(&self) -> Option<&ParsedSource>;
     fn print_syntax_errors(&self);
-    fn file_path(&self) -> PathBuf;
+    fn file_path(&self) -> &PathBuf;
 }
 
 impl SourceTrait for SourceFile {
@@ -97,8 +97,8 @@ impl SourceTrait for SourceFile {
         self.included.as_ref()
     }
 
-    fn file_path(&self) -> PathBuf {
-        self.file_path().clone()
+    fn file_path(&self) -> &PathBuf {
+        self.file_path()
     }
 
     fn print_syntax_errors(&self) {
@@ -287,8 +287,8 @@ impl SourceTrait for SourceString {
         self.included.as_ref()
     }
 
-    fn file_path(&self) -> PathBuf {
-        self.fake_file_path().clone()
+    fn file_path(&self) -> &PathBuf {
+        self.fake_file_path()
     }
 
     fn print_syntax_errors(&self) {
