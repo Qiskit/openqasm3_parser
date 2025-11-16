@@ -136,8 +136,8 @@ pub fn get_file_search_paths_from_env() -> Option<Vec<PathBuf>> {
 ///
 /// 1) If `file_path` is absolute, return `file_path`.
 /// 2) Else, iterate through any (directory) paths in `search_path_list`,
-///  joining `file_path` to each directory path. Return the first full path that
-///  exists, if one exists, on the filesystem.
+///    joining `file_path` to each directory path. Return the first full path that
+///    exists, if one exists, on the filesystem.
 /// 3) Else search in the same way the path list given in `QASM3_PATH`.
 /// 4) Else, finding an existing full file path failed. Return the input `file_path`.
 pub(crate) fn resolve_file_path<T: AsRef<Path>, P: AsRef<Path>>(

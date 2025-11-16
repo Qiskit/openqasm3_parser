@@ -158,7 +158,7 @@ pub enum Mode {
 }
 
 impl Mode {
-    /// Unused, so comment out
+    // Unused, so comment out
     // fn in_double_quotes(self) -> bool {
     //     match self {
     //         Mode::Str | Mode::BitStr | Mode::ByteStr | Mode::RawStr | Mode::RawByteStr => true,

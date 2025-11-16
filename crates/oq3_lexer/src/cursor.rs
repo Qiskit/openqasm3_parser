@@ -27,7 +27,7 @@ impl<'a> Cursor<'a> {
         }
     }
 
-    /// Unused, so commenting out.
+    // Unused, so commenting out.
     // fn as_str(&self) -> &'a str {
     //     self.chars.as_str()
     // }

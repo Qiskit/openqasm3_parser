@@ -262,8 +262,8 @@ fn is_id_continue(c: char) -> bool {
     unicode_xid::UnicodeXID::is_xid_continue(c)
 }
 
-/// Unused, so commenting out.
-/// The passed string is lexically an identifier.
+// Unused, so commenting out.
+// The passed string is lexically an identifier.
 // fn is_ident(string: &str) -> bool {
 //     let mut chars = string.chars();
 //     if let Some(start) = chars.next() {
