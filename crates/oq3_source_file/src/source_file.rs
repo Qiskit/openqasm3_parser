@@ -1,7 +1,8 @@
 // Copyright contributors to the openqasm-parser project
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::api::{inner_print_compiler_errors, parse_source_file, print_compiler_errors};
+use crate::api::{inner_print_compiler_errors, print_compiler_errors};
+use crate::parse_source_file_with_search;
 use oq3_syntax::ast as synast; // Syntactic AST
 use oq3_syntax::ParseOrErrors;
 use oq3_syntax::TextRange;
@@ -9,23 +10,34 @@ use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-// I think SourceFile actually just works with the source as a string.
-// Knowledge of any file is not used by synast::SourceFile;
+// `SourceFile` is a misnomer. It actually just works with the source as a string.
+// `synast::SourceFile` has no knowledge of path names, filesystems, io streams, etc.
 pub(crate) type ParsedSource = ParseOrErrors<synast::SourceFile>;
 
+/// Lex and parse the OpenQASM code in `source_string` into an AST.
+/// If any errors occur during lexing, these are stored in place of the syntax errors.
+/// and no parsing of the lexed code is actually done.
+/// In case `source_string` is successfully parsed, also parse any source code inlcuded
+/// via `include` statements.
 pub(crate) fn parse_source_and_includes<P: AsRef<Path>>(
-    source: &str,
+    source_string: &str,
     search_path_list: Option<&[P]>,
 ) -> (ParsedSource, Vec<SourceFile>) {
-    let parsed_source = synast::SourceFile::parse_check_lex(source);
-    let included = if parsed_source.have_parse() {
+    let parsed_source = synast::SourceFile::parse_check_lex(source_string);
+    let parsed_included_source = if parsed_source.have_parse() {
         parse_included_files(&parsed_source, search_path_list)
     } else {
         Vec::<SourceFile>::new()
     };
-    (parsed_source, included)
+    (parsed_source, parsed_included_source)
 }
 
+/// The crate text-range defines `TextRange`.
+/// Errors are displayed with the crate `ariadne`, which uses `Range` (I think).
+/// We have to convert from the former to the latter.
+///
+/// The origin of `TextRange` is confusing (maybe to my lsp). I think it is imported like this:
+/// text-range -> rowan -> oq3_syntax -> here.
 pub(crate) fn range_to_span(range: &TextRange) -> std::ops::Range<usize> {
     let r1: usize = range.start().into();
     let r2: usize = range.end().into();
@@ -36,7 +48,10 @@ pub(crate) fn range_to_span(range: &TextRange) -> std::ops::Range<usize> {
 }
 
 pub trait ErrorTrait {
+    /// Return a message describing the error.
     fn message(&self) -> String;
+
+    /// Return the character range in the source associated with the error.
     fn range(&self) -> TextRange;
 }
 
@@ -110,12 +125,22 @@ impl SourceFile {
     }
 }
 
-pub fn search_paths() -> Option<Vec<PathBuf>> {
+/// Read the environment variable `QASM3_PATH` and return a list of directory paths to search
+/// qasm source files.
+pub fn get_file_search_paths_from_env() -> Option<Vec<PathBuf>> {
     env::var_os("QASM3_PATH").map(|paths| env::split_paths(&paths).collect())
 }
 
-/// Expand path with search paths. Return input if expansion fails.
-pub(crate) fn expand_path<T: AsRef<Path>, P: AsRef<Path>>(
+/// Try to find `file_path`, possibly by expanding with paths in `search_path_list`.
+/// Return successfully expanded path, or return input if expansion fails.
+///
+/// 1) If `file_path` is absolute, return `file_path`.
+/// 2) Else, iterate through any (directory) paths in `search_path_list`,
+///  joining `file_path` to each directory path. Return the first full path that
+///  exists, if one exists, on the filesystem.
+/// 3) Else search in the same way the path list given in `QASM3_PATH`.
+/// 4) Else, finding an existing full file path failed. Return the input `file_path`.
+pub(crate) fn resolve_file_path<T: AsRef<Path>, P: AsRef<Path>>(
     file_path: T,
     search_path_list: Option<&[P]>,
 ) -> PathBuf {
@@ -134,13 +159,15 @@ pub(crate) fn expand_path<T: AsRef<Path>, P: AsRef<Path>>(
                 return full_path;
             }
         }
-    } else if let Some(paths) = search_paths() {
+    } else if let Some(paths) = get_file_search_paths_from_env() {
         for path in paths {
             if let Some(full_path) = try_path(path.as_ref()) {
                 return full_path;
             }
         }
     }
+    // `file_path` is not absolute, and it is not found on any of the search paths.
+    // Return the input `file_path`.
     file_path
 }
 
@@ -158,6 +185,8 @@ pub(crate) fn read_source_file(file_path: &Path) -> String {
 
 // FIXME: prevent a file from including itself. Then there are two-file cycles, etc.
 ///  Recursively parse any files `include`d in the program `syntax_ast`.
+/// `syntax_ast` -- the already-parsed parent source file.
+/// `search_path_list` -- a list of paths used for resolving filenams in `include` statements.
 pub(crate) fn parse_included_files<P: AsRef<Path>>(
     syntax_ast: &ParsedSource,
     search_path_list: Option<&[P]>,
@@ -173,7 +202,7 @@ pub(crate) fn parse_included_files<P: AsRef<Path>>(
                 if file_path == "stdgates.inc" {
                     None
                 } else {
-                    Some(parse_source_file(file_path, search_path_list))
+                    Some(parse_source_file_with_search(file_path, search_path_list))
                 }
             }
             _ => None,

@@ -15,6 +15,6 @@ mod source_file;
 pub use source_file::{ErrorTrait, SourceFile, SourceString, SourceTrait};
 
 pub use api::{
-    inner_print_compiler_errors, parse_source_file, parse_source_string, print_compiler_errors,
-    report_error,
+    inner_print_compiler_errors, parse_source_file, parse_source_file_with_search,
+    parse_source_string, print_compiler_errors, report_error,
 };
