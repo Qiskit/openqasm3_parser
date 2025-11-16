@@ -9,11 +9,21 @@ use crate::types::Type;
 use oq3_syntax::ast::AstNode;
 use std::path::PathBuf;
 
+/// `Context` stores the state associated with parsing (and semantic analysis) of a program.
 #[derive(Clone, Debug)]
 pub struct Context {
+    /// The abstract semantic graph. The representation of the semantic analysis.
     pub program: asg::Program,
+
+    /// A list of errors found while analyzing the program.
     pub semantic_errors: SemanticErrorList,
+
+    /// The symbol table built during analysis.
     pub symbol_table: SymbolTable,
+
+    /// Temporary storage for annoations. Annotations are pushed here as they are
+    /// parsed. When the annotated function definition is parsed, the annotations are attached
+    /// to the representation of the function definition.
     pub annotations: Vec<asg::Annotation>,
 }
 
@@ -27,18 +37,24 @@ impl Context {
         }
     }
 
+    /// Push a list of errors onto the list of lists of errors
+    /// found in included files. This is called after parsing an
+    /// included file and collecting errors.
     pub fn push_included(&mut self, errors: SemanticErrorList) {
         self.semantic_errors.push_included(errors);
     }
 
+    /// Return the list of semantic errors found during semantic analysis.
     pub fn errors(&self) -> &SemanticErrorList {
         &self.semantic_errors
     }
 
+    /// Return the ASG.
     pub fn program(&self) -> &asg::Program {
         &self.program
     }
 
+    /// Return the symbol table
     pub fn symbol_table(&self) -> &SymbolTable {
         &self.symbol_table
     }

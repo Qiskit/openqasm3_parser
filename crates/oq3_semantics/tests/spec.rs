@@ -13,9 +13,7 @@ use oq3_semantics::syntax_to_semantics::parse_source_string;
 // these tests are designed to pass. The
 
 fn parse_string(code: &str) -> (asg::Program, SemanticErrorList, SymbolTable) {
-    parse_source_string(code, None, None::<&[&std::path::Path]>)
-        .take_context()
-        .as_tuple()
+    parse_source_string(code, None).take_context().as_tuple()
 }
 
 //
