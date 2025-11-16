@@ -935,7 +935,8 @@ mod sourcegen {
             .collect::<Vec<_>>();
 
         // FIXME: find out how to insert a plain old comment in the quoted thing.
-        // Usual double slash quotes are ommited. trip slash quotes are converted to some kind of doc macro.
+        // Usual double slash quotes are omitted.
+        // Triple slash quotes are converted to some kind of doc macro.
         let ast = quote! {
             #![allow(bad_style, missing_docs, unreachable_pub)]
             /// The kind of syntax node, e.g. `IDENT`, `USE_KW`, or `STRUCT`.
