@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::api::{inner_print_compiler_errors, print_compiler_errors};
-use crate::parse_source_file_with_search;
 use oq3_syntax::ast as synast; // Syntactic AST
 use oq3_syntax::ParseOrErrors;
 use oq3_syntax::TextRange;
 use std::env;
 use std::fs;
+use std::io;
 use std::path::{Path, PathBuf};
 
 // `SourceFile` is a misnomer. It actually just works with the source as a string.
@@ -22,14 +22,14 @@ pub(crate) type ParsedSource = ParseOrErrors<synast::SourceFile>;
 pub(crate) fn parse_source_and_includes<P: AsRef<Path>>(
     source_string: &str,
     search_path_list: Option<&[P]>,
-) -> (ParsedSource, Vec<SourceFile>) {
+) -> (Option<ParsedSource>, Vec<SourceFile>) {
     let parsed_source = synast::SourceFile::parse_check_lex(source_string);
     let parsed_included_source = if parsed_source.have_parse() {
         parse_included_files(&parsed_source, search_path_list)
     } else {
         Vec::<SourceFile>::new()
     };
-    (parsed_source, parsed_included_source)
+    (Some(parsed_source), parsed_included_source)
 }
 
 /// The crate text-range defines `TextRange`.
@@ -48,6 +48,7 @@ pub(crate) fn range_to_span(range: &TextRange) -> std::ops::Range<usize> {
 }
 
 pub trait ErrorTrait {
+    // Returning &str would be nice. But SemanticError creates the message new on every call.
     /// Return a message describing the error.
     fn message(&self) -> String;
 
@@ -68,37 +69,41 @@ impl ErrorTrait for oq3_syntax::SyntaxError {
 pub trait SourceTrait {
     /// Return `true` if the source file or any included files produced a parse error.
     fn any_parse_errors(&self) -> bool {
-        if !&self.syntax_ast().errors().is_empty() {
-            return true;
-        }
-        self.included()
-            .iter()
-            .any(|inclusion| inclusion.any_parse_errors())
+        // If there is no parsed ast, then there can be no files included from within the
+        // non-existent ast. In this case return false before evaluating the final clause.
+        self.syntax_ast()
+            .is_some_and(|the_ast| !the_ast.errors().is_empty())
+            || self
+                .included()
+                .iter()
+                .any(|inclusion| inclusion.any_parse_errors())
     }
 
     fn included(&self) -> &Vec<SourceFile>;
-    fn syntax_ast(&self) -> &ParsedSource;
+    fn syntax_ast(&self) -> Option<&ParsedSource>;
     fn print_syntax_errors(&self);
-    fn file_path(&self) -> PathBuf;
+    fn file_path(&self) -> &PathBuf;
 }
 
 impl SourceTrait for SourceFile {
-    fn syntax_ast(&self) -> &ParsedSource {
-        &self.syntax_ast
+    fn syntax_ast(&self) -> Option<&ParsedSource> {
+        self.syntax_ast.as_ref()
     }
 
     fn included(&self) -> &Vec<SourceFile> {
         self.included.as_ref()
     }
 
-    fn file_path(&self) -> PathBuf {
-        self.file_path().clone()
+    fn file_path(&self) -> &PathBuf {
+        self.file_path()
     }
 
     fn print_syntax_errors(&self) {
-        print_compiler_errors(self.syntax_ast().errors(), &self.file_path);
-        for source_file in self.included().iter() {
-            source_file.print_syntax_errors()
+        if let Some(the_ast) = self.syntax_ast() {
+            print_compiler_errors(the_ast.errors(), &self.file_path);
+            for source_file in self.included().iter() {
+                source_file.print_syntax_errors()
+            }
         }
     }
 }
@@ -106,17 +111,22 @@ impl SourceTrait for SourceFile {
 impl SourceFile {
     pub fn new<F: AsRef<Path>>(
         file_path: F,
-        syntax_ast: ParsedSource,
+        syntax_ast: Option<ParsedSource>,
         included: Vec<SourceFile>,
+        include_error: Option<IncludeError>,
     ) -> SourceFile {
         let file_path = match fs::canonicalize(file_path.as_ref()) {
             Ok(file_path) => file_path,
-            Err(e) => panic!("Unable to find {:?}\n{:?}", file_path.as_ref(), e),
+            Err(_) => {
+                assert!(include_error.is_some());
+                file_path.as_ref().to_path_buf()
+            }
         };
         SourceFile {
             file_path,
             syntax_ast,
             included,
+            include_error,
         }
     }
 
@@ -202,7 +212,32 @@ pub(crate) fn parse_included_files<P: AsRef<Path>>(
                 if file_path == "stdgates.inc" {
                     None
                 } else {
-                    Some(parse_source_file_with_search(file_path, search_path_list))
+                    let full_path = resolve_file_path(&file_path, search_path_list);
+                    let maybe_source_string = fs::read_to_string(&full_path);
+                    match maybe_source_string {
+                        Ok(source_string) => {
+                            let (syntax_ast, parsed_included_source) =
+                                parse_source_and_includes(source_string.as_str(), search_path_list);
+                            Some(SourceFile::new(
+                                full_path,
+                                syntax_ast,
+                                parsed_included_source,
+                                None,
+                            ))
+                        }
+                        Err(error) => {
+                            let include_error = Some(IncludeError {
+                                error: error.kind(),
+                                include,
+                            });
+                            Some(SourceFile::new(
+                                full_path,
+                                None,
+                                Vec::<SourceFile>::new(),
+                                include_error,
+                            ))
+                        }
+                    }
                 }
             }
             _ => None,
@@ -216,39 +251,48 @@ pub(crate) fn parse_included_files<P: AsRef<Path>>(
 /// QASM read from source files.
 #[derive(Clone, Debug)]
 pub struct SourceString {
-    pub(crate) fake_file_path: PathBuf, // Option<String>, // Typical name is "no file".
+    pub(crate) fake_file_path: PathBuf, // Typical name is "no file".
     pub(crate) source: String,
-    pub(crate) syntax_ast: ParsedSource,
+    // For SourceFile, the next field needs to be an option.
+    // But for SourceString, it will always have the Some variant.
+    pub(crate) syntax_ast: Option<ParsedSource>,
     pub(crate) included: Vec<SourceFile>,
+}
+
+/// Information on error encountered when reading a file
+/// via an OQ3 `include` statement.
+#[derive(Clone, Debug)]
+pub struct IncludeError {
+    pub error: io::ErrorKind,
+    pub include: synast::Include,
 }
 
 #[derive(Clone, Debug)]
 pub struct SourceFile {
     file_path: PathBuf,
-    syntax_ast: ParsedSource,
+    syntax_ast: Option<ParsedSource>,
     included: Vec<SourceFile>,
+    include_error: Option<IncludeError>,
 }
 
 impl SourceTrait for SourceString {
-    fn syntax_ast(&self) -> &ParsedSource {
-        &self.syntax_ast
+    fn syntax_ast(&self) -> Option<&ParsedSource> {
+        self.syntax_ast.as_ref()
     }
 
     fn included(&self) -> &Vec<SourceFile> {
         self.included.as_ref()
     }
 
-    fn file_path(&self) -> PathBuf {
-        self.fake_file_path().clone()
+    fn file_path(&self) -> &PathBuf {
+        self.fake_file_path()
     }
 
     fn print_syntax_errors(&self) {
         // Print errors from top level source.
-        inner_print_compiler_errors(
-            self.syntax_ast().errors(),
-            self.fake_file_path(),
-            self.source(),
-        );
+        if let Some(the_ast) = self.syntax_ast() {
+            inner_print_compiler_errors(the_ast.errors(), self.fake_file_path(), self.source());
+        }
         // Print from included source files (recursively).
         for source_file in self.included().iter() {
             source_file.print_syntax_errors()
@@ -256,11 +300,17 @@ impl SourceTrait for SourceString {
     }
 }
 
+impl SourceFile {
+    pub fn include_error(&self) -> Option<&IncludeError> {
+        self.include_error.as_ref()
+    }
+}
+
 impl SourceString {
     pub fn new<T: AsRef<str>, P: AsRef<Path>>(
         source: T,
         fake_file_path: P,
-        syntax_ast: ParsedSource,
+        syntax_ast: Option<ParsedSource>,
         included: Vec<SourceFile>,
     ) -> SourceString {
         SourceString {

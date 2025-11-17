@@ -40,7 +40,7 @@ impl Context {
     /// Push a list of errors onto the list of lists of errors
     /// found in included files. This is called after parsing an
     /// included file and collecting errors.
-    pub fn push_included(&mut self, errors: SemanticErrorList) {
+    pub fn push_errors_from_included_file(&mut self, errors: SemanticErrorList) {
         self.semantic_errors.push_included(errors);
     }
 
