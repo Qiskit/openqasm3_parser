@@ -4,8 +4,9 @@
 use crate::asg;
 use crate::semantic_error::SemanticErrorKind::*;
 use crate::semantic_error::{SemanticErrorKind, SemanticErrorList};
-use crate::symbols::{SymbolIdResult, SymbolRecordResult, SymbolTable};
+use crate::symbols::{SymbolId, SymbolIdResult, SymbolRecordResult, SymbolTable};
 use crate::types::Type;
+use hashbrown::HashMap;
 use oq3_syntax::ast::AstNode;
 use std::path::PathBuf;
 
@@ -21,6 +22,8 @@ pub struct Context {
     /// The symbol table built during analysis.
     pub symbol_table: SymbolTable,
 
+    pub const_values: HashMap<SymbolId, asg::TExpr>,
+
     /// Temporary storage for annoations. Annotations are pushed here as they are
     /// parsed. When the annotated function definition is parsed, the annotations are attached
     /// to the representation of the function definition.
@@ -33,6 +36,7 @@ impl Context {
             program: asg::Program::new(),
             semantic_errors: SemanticErrorList::new(file_path),
             symbol_table: SymbolTable::new(),
+            const_values: HashMap::<SymbolId, asg::TExpr>::new(),
             annotations: Vec::<asg::Annotation>::new(),
         }
     }
@@ -58,6 +62,19 @@ impl Context {
     pub fn symbol_table(&self) -> &SymbolTable {
         &self.symbol_table
     }
+
+    pub fn insert_const_value(&mut self, id: SymbolId, value: asg::TExpr) {
+        self.const_values.insert(id, value);
+    }
+
+    pub fn get_const_value(&self, id: SymbolId) -> Option<&asg::TExpr> {
+        self.const_values.get(&id)
+    }
+
+    // Unused
+    // pub fn const_value_len(&self) -> usize {
+    //     self.const_values.len()
+    // }
 
     // `SymbolTable::standard_library_gates()` returns a vector of
     // all names that were already bound. We record a redeclaration error

@@ -1314,3 +1314,63 @@ uint a = -99;
     let (_program, errors, _symbol_table) = parse_string(code);
     assert_eq!(errors.len(), 1);
 }
+
+#[test]
+fn test_from_string_const_designator_1() {
+    let code = r##"
+const int n = 3;
+int[n] x;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+}
+
+#[test]
+fn test_from_string_const_designator_2() {
+    let code = r##"
+const int n = -3;
+int[n] x;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+}
+
+#[test]
+fn test_from_string_const_designator_3() {
+    let code = r##"
+const int SIZE = 4;
+qubit[SIZE] q2;  // Declare a 4-qubit register.
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+}
+
+#[test]
+fn test_from_string_const_designator_4() {
+    let code = r##"
+const uint SIZE = 4;
+qubit[SIZE] q2;  // Declare a 4-qubit register.
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+}
+
+#[test]
+fn test_from_string_const_designator_5() {
+    let code = r##"
+const uint n = 10;
+int[n] x;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 0);
+}
+
+#[test]
+fn test_from_string_const_designator_6() {
+    let code = r##"
+const float n = 3.0;
+int[n] x;
+"##;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert_eq!(errors.len(), 1);
+}

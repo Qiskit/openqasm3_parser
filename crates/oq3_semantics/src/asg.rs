@@ -163,6 +163,35 @@ impl TExpr {
     }
 }
 
+#[derive(Debug)]
+pub struct TryFromU32Error(pub(crate) ());
+
+impl TryFrom<&TExpr> for u32 {
+    type Error = TryFromU32Error;
+    fn try_from(value: &TExpr) -> Result<Self, TryFromU32Error> {
+        match &value.expression {
+            Expr::Cast(thecast) => {
+                match **thecast {
+                    Cast {
+                        operand:
+                            TExpr {
+                                expression:
+                                    Expr::Literal(Literal::Int(IntLiteral {
+                                        value: int_value,
+                                        sign: true,
+                                    })),
+                                ty: _, // Type::Int(_, _),
+                            },
+                        typ: _, // Type::Int(_, _),
+                    } => u32::try_from(int_value).map_err(|_| TryFromU32Error(())),
+                    _ => Err(TryFromU32Error(())),
+                }
+            }
+            _ => Err(TryFromU32Error(())),
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum Stmt {
     Alias(Box<Alias>),

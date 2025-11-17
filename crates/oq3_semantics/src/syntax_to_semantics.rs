@@ -237,7 +237,7 @@ pub fn syntax_to_semantic<T: SourceTrait>(
             } // end `synast::Stmt::Include(include) => {`
 
             // Everything other than `include` only needs `context`.
-            stmt => from_stmt(stmt, &mut context),
+            stmt => stmt_to_asg_stmt(stmt, &mut context),
         };
         if let Some(stmt) = stmt {
             if context.annotations_is_empty() {
@@ -260,37 +260,37 @@ pub fn syntax_to_semantic<T: SourceTrait>(
 }
 
 // Main entry point for converting statements in AST to ASG
-fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
+fn stmt_to_asg_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
     match stmt {
         synast::Stmt::IfStmt(if_stmt) => {
-            let condition = from_expr(if_stmt.condition(), context);
+            let condition = expr_to_asg_texpr(if_stmt.condition(), context);
             with_scope!(context,  ScopeType::Local,
-                        let then_branch = from_block_or_stmt(if_stmt.true_body_block_or_stmt(), context);
+                        let then_branch = block_or_stmt_to_asg_type(if_stmt.true_body_block_or_stmt(), context);
             );
             with_scope!(context,  ScopeType::Local,
-                        let else_branch = if_stmt.false_body_block_or_stmt().map(|bors| from_block_or_stmt(bors, context));
+                        let else_branch = if_stmt.false_body_block_or_stmt().map(|bors| block_or_stmt_to_asg_type(bors, context));
             );
             Some(asg::If::new(condition.unwrap(), then_branch, else_branch).to_stmt())
         }
 
         synast::Stmt::WhileStmt(while_stmt) => {
-            let condition = from_expr(while_stmt.condition(), context);
+            let condition = expr_to_asg_texpr(while_stmt.condition(), context);
             with_scope!(context,  ScopeType::Local,
-                        let loop_body = from_block_or_stmt(while_stmt.block_or_stmt(), context);
+                        let loop_body = block_or_stmt_to_asg_type(while_stmt.block_or_stmt(), context);
             );
             Some(asg::While::new(condition.unwrap(), loop_body).to_stmt())
         }
 
         synast::Stmt::ForStmt(for_stmt) => {
             let loop_var = for_stmt.loop_var().unwrap();
-            let ty = from_scalar_type(&for_stmt.scalar_type().unwrap(), false, context);
+            let ty = scalar_type_to_type(&for_stmt.scalar_type().unwrap(), false, context);
             let iterable_ast = for_stmt.for_iterable().unwrap();
             let iterable = if let Some(set_expression) = iterable_ast.set_expression() {
-                asg::ForIterable::SetExpression(from_set_expression(set_expression, context))
+                asg::ForIterable::SetExpression(set_expression_to_asg_type(set_expression, context))
             } else if let Some(range_expression) = iterable_ast.range_expr() {
-                asg::ForIterable::RangeExpression(from_range_expression(range_expression, context))
+                asg::ForIterable::RangeExpression(range_expression_to_asg_type(range_expression, context))
             } else if let Some(expression) = iterable_ast.for_iterable_expr() {
-                asg::ForIterable::Expr(from_expr(Some(expression), context).unwrap())
+                asg::ForIterable::Expr(expr_to_asg_texpr(Some(expression), context).unwrap())
             } else {
                 // It would be nice to use an enum on the other side.
                 // This error should be caught before semantic analysis. Eg in validation of the AST
@@ -298,7 +298,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             };
             with_scope!(context,  ScopeType::Local,
                         let loop_var_symbol_id = context.new_binding(loop_var.string().as_ref(), &ty, &loop_var);
-                        let loop_body = from_block_or_stmt(for_stmt.block_or_stmt(), context);
+                        let loop_body = block_or_stmt_to_asg_type(for_stmt.block_or_stmt(), context);
             );
             Some(asg::ForStmt::new(loop_var_symbol_id, iterable, loop_body).to_stmt())
         }
@@ -306,16 +306,16 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         // Note: The outer curlies do not entail a new scope. But the inner curlies do entail a
         // new scope, one for each case.
         synast::Stmt::SwitchCaseStmt(switch_case_stmt) => {
-            let control = from_expr(switch_case_stmt.control(), context);
+            let control = expr_to_asg_texpr(switch_case_stmt.control(), context);
             let case_exprs = switch_case_stmt.case_exprs().map(|case_expr| {
-                let int_exprs = inner_expression_list(case_expr.expression_list().unwrap(), context);
+                let int_exprs = expression_list_to_asg_texpr(case_expr.expression_list().unwrap(), context);
                 with_scope!(context,  ScopeType::Local,
-                            let statements = statement_list_from_block(case_expr.block_expr().unwrap(), context);
+                            let statements = block_expr_to_asg_stmt_list(case_expr.block_expr().unwrap(), context);
                 );
                 asg::CaseExpr::new(int_exprs, statements)
             }).collect::<Vec<_>>();
             with_scope!(context,  ScopeType::Local,
-                        let default_statements = switch_case_stmt.default_block().map(|block| statement_list_from_block(block, context));
+                        let default_statements = switch_case_stmt.default_block().map(|block| block_expr_to_asg_stmt_list(block, context));
             );
             Some(
                 asg::SwitchCaseStmt::new(control.unwrap(), case_exprs, default_statements)
@@ -324,11 +324,11 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         }
 
         synast::Stmt::ClassicalDeclarationStatement(type_decl) => {
-            Some(from_classical_declaration_statement(&type_decl, context))
+            Some(classical_declaration_statement_to_asg_stmt(&type_decl, context))
         }
 
         synast::Stmt::IODeclarationStatement(type_decl) => {
-            Some(from_io_declaration_statement(&type_decl, context))
+            Some(io_declaration_statement_to_asg_stmt(&type_decl, context))
         }
 
         synast::Stmt::QuantumDeclarationStatement(q_decl) => {
@@ -339,23 +339,10 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
                 name_str.string()
             } else {
                 let hw_qubit = q_decl.hardware_qubit().unwrap();
-                return Some(asg::DeclareHardwareQubit::new(ast_hardware_qubit(&hw_qubit)).to_stmt());
+                return Some(asg::DeclareHardwareQubit::new(hardware_qubit_to_asg_type(&hw_qubit)).to_stmt());
             };
             let qubit_type = q_decl.qubit_type().unwrap();
-            let width = match from_designator(qubit_type.designator()) {
-                Some(synast::Expr::Literal(ref literal)) => {
-                    match literal.kind() {
-                        synast::LiteralKind::IntNumber(int_num) => {
-                            Some(int_num.value().unwrap() as u32)
-                        }
-                        // Non-integer literals cause a syntax error to be logged in `fn designator` in expressions.rs.
-                        // Semantic analysis (eg in the present function) is not performed if there is a syntax error.
-                        _ => panic!("You have found a bug in oq3_parser. A literal type designator must be an integer."),
-                    }
-                }
-                None => None,
-                _ => panic!("Only literal designators are supported."),
-            };
+            let width = designator_to_asg(qubit_type.designator().as_ref(), context);
             let typ = match width {
                 Some(width) => Type::QubitArray(ArrayDims::D1(width as usize)),
                 None => Type::Qubit,
@@ -365,7 +352,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         }
 
         synast::Stmt::AssignmentStmt(assignment_stmt) => {
-            from_assignment_stmt(&assignment_stmt, context)
+            assignment_stmt_to_asg_stmt(&assignment_stmt, context)
         }
 
         synast::Stmt::BreakStmt(_) => Some(asg::Stmt::Break),
@@ -413,7 +400,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             with_scope!(context,  ScopeType::Subroutine,
                         let params = bind_parameter_list(gate.angle_params(), &Type::Angle(None, IsConst::True), context);
                         let qubits = bind_parameter_list(gate.qubit_params(), &Type::Qubit, context).unwrap();
-                        let block = from_block_expr(gate.body().unwrap(), context);
+                        let block = block_expr_to_asg_type(gate.body().unwrap(), context);
             );
             let num_params = match params {
                 Some(ref params) => params.len(),
@@ -437,7 +424,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             }
             with_scope!(context,  ScopeType::Subroutine,
                         let params = bind_typed_parameter_list(def_stmt.typed_param_list(), context);
-                        let block = from_block_expr(def_stmt.body().unwrap(), context);
+                        let block = block_expr_to_asg_type(def_stmt.body().unwrap(), context);
             );
             // FIXME: Should we let subroutines have a parameterized type?
             // This would be very convenient for matching signatures.
@@ -451,7 +438,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             };
             let return_type = def_stmt.return_signature()
                 .and_then(|x| x.scalar_type())
-                .map(|x| from_scalar_type(&x, true, context));
+                .map(|x| scalar_type_to_type(&x, true, context));
             let return_type = match return_type {
                 Some(typ) => typ,
                 _ => Type::Void
@@ -467,13 +454,13 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
         }
 
         synast::Stmt::Barrier(barrier) => {
-            let gate_operands = from_qubit_list(barrier.qubit_list(), context);
+            let gate_operands = qubit_list_to_asg_texpr(barrier.qubit_list(), context);
             Some(asg::Stmt::Barrier(asg::Barrier::new(Some(gate_operands))))
         }
 
         synast::Stmt::DelayStmt(delay_stmt) => {
-            let gate_operands = from_qubit_list(delay_stmt.qubit_list(), context);
-            let duration = from_expr(delay_stmt.designator().unwrap().expr(), context).unwrap();
+            let gate_operands = qubit_list_to_asg_texpr(delay_stmt.qubit_list(), context);
+            let duration = expr_to_asg_texpr(delay_stmt.designator().unwrap().expr(), context).unwrap();
             if !matches!(duration.get_type(), Type::Duration(_)) {
                 context.insert_error(IncompatibleTypesError, &delay_stmt.designator().unwrap());
             }
@@ -485,7 +472,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
 
         synast::Stmt::Reset(reset) => {
             let gate_operand = reset.gate_operand().unwrap(); // FIXME: check this
-            let gate_operand_asg = from_gate_operand(gate_operand, context);
+            let gate_operand_asg = gate_operand_to_asg_texpr(gate_operand, context);
             Some(asg::Reset::new(gate_operand_asg).to_stmt())
         }
 
@@ -499,7 +486,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
             }
         }
 
-        synast::Stmt::ExprStmt(expr_stmt) => from_expr_stmt(expr_stmt, context),
+        synast::Stmt::ExprStmt(expr_stmt) => expr_stmt_to_asg_stmt(expr_stmt, context),
 
         synast::Stmt::VersionString(version_string) => {
             let version = version_string.version().unwrap().version().unwrap();
@@ -523,7 +510,7 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
 
         synast::Stmt::AliasDeclarationStatement(alias_stmt) => {
             let name_str = alias_stmt.name().unwrap().string();
-            let rhs = from_expr(alias_stmt.expr(), context).unwrap();
+            let rhs = expr_to_asg_texpr(alias_stmt.expr(), context).unwrap();
             // Bind the name to the RHS, giving it the same type as the RHS.
             let symbol_id = context.new_binding(name_str.as_ref(), rhs.get_type(), &alias_stmt);
             Some(asg::Alias::new(symbol_id, rhs).to_stmt())
@@ -539,14 +526,14 @@ fn from_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::Stmt> {
     }
 }
 
-fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<asg::Stmt> {
+fn expr_stmt_to_asg_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<asg::Stmt> {
     use synast::Expr::{GPhaseCallExpr, GateCallExpr, ModifiedGateCallExpr};
     // At present, three expressions, those for gate calls, are handled specially. In oq3_syntax, gate calls
     // are expressions wrapped in `ExprStmt`. But in the ASG, gate calls are are variant of `Stmt`. All
     // other `synast::ExprStmt` are translated to `asg::ExprStmt`.
     match expr_stmt.expr() {
         Some(GateCallExpr(gate_call)) => {
-            from_gate_call_expr(gate_call, Vec::<asg::GateModifier>::new(), context)
+            gate_call_expr_to_asg_stmt(gate_call, Vec::<asg::GateModifier>::new(), context)
         }
         Some(ModifiedGateCallExpr(mod_gate_call)) => {
             let modifiers = mod_gate_call
@@ -556,21 +543,22 @@ fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<
 
                     synast::Modifier::PowModifier(pow_mod) => {
                         let exponent =
-                            from_paren_expr(pow_mod.paren_expr().unwrap(), context).unwrap();
+                            paren_expr_to_asg_texpr(pow_mod.paren_expr().unwrap(), context)
+                                .unwrap();
                         asg::GateModifier::Pow(exponent)
                     }
 
                     synast::Modifier::CtrlModifier(ctrl_mod) => {
                         let exponent = ctrl_mod
                             .paren_expr()
-                            .and_then(|x| from_paren_expr(x, context));
+                            .and_then(|x| paren_expr_to_asg_texpr(x, context));
                         asg::GateModifier::Ctrl(exponent)
                     }
 
                     synast::Modifier::NegCtrlModifier(neg_ctrl_mod) => {
                         let exponent = neg_ctrl_mod
                             .paren_expr()
-                            .and_then(|x| from_paren_expr(x, context));
+                            .and_then(|x| paren_expr_to_asg_texpr(x, context));
                         asg::GateModifier::NegCtrl(exponent)
                     }
                 })
@@ -579,10 +567,10 @@ fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<
             // `synast::ModifiedGateCallExpr` may wrap either gate call or gphase call,
             // which is treated separately.
             if let Some(gate_call) = mod_gate_call.gate_call_expr() {
-                from_gate_call_expr(gate_call, modifiers, context)
+                gate_call_expr_to_asg_stmt(gate_call, modifiers, context)
             } else {
                 let gphase = mod_gate_call.g_phase_call_expr().unwrap();
-                let arg = from_expr(gphase.arg(), context).unwrap();
+                let arg = expr_to_asg_texpr(gphase.arg(), context).unwrap();
                 Some(asg::Stmt::ModifiedGPhaseCall(asg::ModifiedGPhaseCall::new(
                     arg, modifiers,
                 )))
@@ -590,12 +578,12 @@ fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<
         }
 
         Some(GPhaseCallExpr(gphase)) => {
-            let arg = from_expr(gphase.arg(), context).unwrap();
+            let arg = expr_to_asg_texpr(gphase.arg(), context).unwrap();
             Some(asg::Stmt::GPhaseCall(asg::GPhaseCall::new(arg)))
         }
 
         syn_expr => {
-            let expr = from_expr(syn_expr, context);
+            let expr = expr_to_asg_texpr(syn_expr, context);
             expr.map_or_else(
                 || panic!("expr::ExprStmt is None. Expression not implemented in the ASG."),
                 |ex| Some(asg::Stmt::ExprStmt(ex)),
@@ -604,22 +592,28 @@ fn from_expr_stmt(expr_stmt: synast::ExprStmt, context: &mut Context) -> Option<
     }
 }
 
-fn from_paren_expr(paren_expr: synast::ParenExpr, context: &mut Context) -> Option<asg::TExpr> {
-    from_expr(paren_expr.expr(), context)
+fn paren_expr_to_asg_texpr(
+    paren_expr: synast::ParenExpr,
+    context: &mut Context,
+) -> Option<asg::TExpr> {
+    expr_to_asg_texpr(paren_expr.expr(), context)
 }
 
-fn negative_float(f: synast::FloatNumber) -> asg::FloatLiteral {
+fn negative_float_number_to_asg_type(f: synast::FloatNumber) -> asg::FloatLiteral {
     let num = f.value().unwrap();
     let float = format!("-{num}");
     asg::FloatLiteral::new(float)
 }
 
-fn negative_int(n: synast::IntNumber) -> asg::IntLiteral {
+fn negative_int_to_asg_type(n: synast::IntNumber) -> asg::IntLiteral {
     let num = n.value_u128().unwrap(); // fn value_u128 is kind of a hack
     asg::IntLiteral::new(num, false) // `false` means negative
 }
 
-fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<asg::TExpr> {
+fn expr_to_asg_texpr(
+    expr_maybe: Option<synast::Expr>,
+    context: &mut Context,
+) -> Option<asg::TExpr> {
     let expr = expr_maybe?;
     match expr {
         // FIXME: Ugh. could clean up logic here
@@ -628,8 +622,10 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
         synast::Expr::PrefixExpr(prefix_expr) => match prefix_expr.op_kind() {
             Some(synast::UnaryOp::Neg) => match prefix_expr.expr() {
                 Some(synast::Expr::Literal(ref literal)) => Some(match literal.kind() {
-                    synast::LiteralKind::FloatNumber(f) => negative_float(f).to_texpr(),
-                    synast::LiteralKind::IntNumber(n) => negative_int(n).to_texpr(),
+                    synast::LiteralKind::FloatNumber(f) => {
+                        negative_float_number_to_asg_type(f).to_texpr()
+                    }
+                    synast::LiteralKind::IntNumber(n) => negative_int_to_asg_type(n).to_texpr(),
                     _ => {
                         panic!("Only integers and floats are supported as operands to unary minus.")
                     }
@@ -640,10 +636,10 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
                         synast::TimeUnit::Imaginary => {
                             Some(match timing_literal.literal().unwrap().kind() {
                                 synast::LiteralKind::FloatNumber(f) => {
-                                    negative_float(f).to_imaginary_texpr()
+                                    negative_float_number_to_asg_type(f).to_imaginary_texpr()
                                 }
                                 synast::LiteralKind::IntNumber(n) => {
-                                    negative_int(n).to_imaginary_texpr()
+                                    negative_int_to_asg_type(n).to_imaginary_texpr()
                                 }
                                 _ => panic!("You have found a bug in oq3_syntax or oq3_parser"),
                             })
@@ -657,7 +653,7 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
                 Some(synexpr) => Some(
                     asg::UnaryExpr::new(
                         asg::UnaryOp::Minus,
-                        from_expr(Some(synexpr), context).unwrap(),
+                        expr_to_asg_texpr(Some(synexpr), context).unwrap(),
                     )
                     .to_texpr(),
                 ),
@@ -672,16 +668,16 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
             _ => panic!("You have found a bug in oq3_parser. No operand to unary operator found."),
         },
 
-        synast::Expr::ParenExpr(paren_expr) => from_paren_expr(paren_expr, context),
+        synast::Expr::ParenExpr(paren_expr) => paren_expr_to_asg_texpr(paren_expr, context),
 
         synast::Expr::BinExpr(bin_expr) => {
             let synast_op = bin_expr.op_kind().unwrap();
             let left_syn = bin_expr.lhs();
             let right_syn = bin_expr.rhs();
 
-            let op = ast_from_binary_op(synast_op);
-            let left = from_expr(left_syn, context).unwrap();
-            let right = from_expr(right_syn, context).unwrap();
+            let op = binary_op_to_asg_type(synast_op);
+            let left = expr_to_asg_texpr(left_syn, context).unwrap();
+            let right = expr_to_asg_texpr(right_syn, context).unwrap();
             // There are no binary ops that accept quantum operands.
             if left.get_type().is_quantum() {
                 // Generate the ast node again, for the borrow checker. But we are already
@@ -694,7 +690,7 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
             Some(asg::BinaryExpr::new_texpr_with_cast(op, left, right))
         }
 
-        synast::Expr::Literal(ref literal) => from_literal(literal),
+        synast::Expr::Literal(ref literal) => literal_to_asg_texpr(literal),
 
         // We also handle imaginary literals here along with timing literals.
         // This makes no sense on the level of semantics. But at all eariler points,
@@ -739,36 +735,37 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
         }
 
         synast::Expr::Identifier(identifier) => {
-            let (sym, typ) = ast_identifier(&identifier, context);
+            let (sym, typ) = lookup_identifier(&identifier, context);
             Some(asg::TExpr::new(asg::Expr::Identifier(sym), typ))
         }
 
-        synast::Expr::HardwareQubit(hwq) => Some(ast_hardware_qubit(&hwq).to_texpr()),
+        synast::Expr::HardwareQubit(hwq) => Some(hardware_qubit_to_asg_type(&hwq).to_texpr()),
 
         // Range expressions are not allowed everywhere. Maybe remove from expr tree
         synast::Expr::RangeExpr(range_expr) => {
-            Some(from_range_expression(range_expr, context).to_texpr())
+            Some(range_expression_to_asg_type(range_expr, context).to_texpr())
         }
 
         synast::Expr::IndexExpr(index_expr) => {
-            let expr = from_expr(index_expr.expr(), context);
-            let index = ast_from_index_operator(index_expr.index_operator().unwrap(), context);
+            let expr = expr_to_asg_texpr(index_expr.expr(), context);
+            let index = index_operator_to_asg_type(index_expr.index_operator().unwrap(), context);
             Some(asg::IndexExpression::new(expr.unwrap(), index).to_texpr())
         }
 
         synast::Expr::IndexedIdentifier(indexed_identifier) => {
-            let (indexed_identifier, _typ) = ast_indexed_identifier(&indexed_identifier, context);
+            let (indexed_identifier, _typ) =
+                indexed_identifier_to_asg_type(&indexed_identifier, context);
             Some(indexed_identifier.to_texpr())
         }
 
         synast::Expr::MeasureExpression(ref measure_expr) => {
             let gate_operand = measure_expr.gate_operand().unwrap(); // FIXME: check this
-            let gate_operand_asg = from_gate_operand(gate_operand, context);
+            let gate_operand_asg = gate_operand_to_asg_texpr(gate_operand, context);
             Some(asg::MeasureExpression::new(gate_operand_asg).to_texpr())
         }
 
         synast::Expr::ReturnExpr(ref return_expr) => {
-            let expr_asg = from_expr(return_expr.expr(), context);
+            let expr_asg = expr_to_asg_texpr(return_expr.expr(), context);
             if context.symbol_table().current_scope_type() == ScopeType::Global {
                 context.insert_error(ReturnInGlobalScopeError, &expr);
             }
@@ -776,12 +773,12 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
         }
 
         synast::Expr::CastExpression(cast) => {
-            let typ = from_scalar_type(&cast.scalar_type().unwrap(), true, context);
-            let expr = from_expr(cast.expr(), context);
+            let typ = scalar_type_to_type(&cast.scalar_type().unwrap(), true, context);
+            let expr = expr_to_asg_texpr(cast.expr(), context);
             Some(asg::Cast::new(expr.unwrap(), typ).to_texpr())
         }
 
-        synast::Expr::CallExpr(call_expr) => Some(from_subroutine_call_expr(call_expr, context)),
+        synast::Expr::CallExpr(call_expr) => Some(call_expr_to_asg_texpr(call_expr, context)),
 
         // Followng may be a parser error. But I think we will need to support BlockExpr anywhere here.
         synast::Expr::BlockExpr(_) => panic!("BlockExpr not supported."),
@@ -795,36 +792,36 @@ fn from_expr(expr_maybe: Option<synast::Expr>, context: &mut Context) -> Option<
     }
 }
 
-fn from_set_expression(
+fn set_expression_to_asg_type(
     set_expression: synast::SetExpression,
     context: &mut Context,
 ) -> asg::SetExpression {
-    asg::SetExpression::new(inner_expression_list(
+    asg::SetExpression::new(expression_list_to_asg_texpr(
         set_expression.expression_list().unwrap(),
         context,
     ))
 }
 
-fn from_range_expression(
+fn range_expression_to_asg_type(
     range_expr: synast::RangeExpr,
     context: &mut Context,
 ) -> asg::RangeExpression {
     let (start, step, stop) = range_expr.start_step_stop();
-    let start = from_expr(start, context).unwrap();
-    let stop = from_expr(stop, context).unwrap();
-    let step = from_expr(step, context);
+    let start = expr_to_asg_texpr(start, context).unwrap();
+    let stop = expr_to_asg_texpr(stop, context).unwrap();
+    let step = expr_to_asg_texpr(step, context);
     asg::RangeExpression::new(start, step, stop)
 }
 
-fn from_gate_call_expr(
+fn gate_call_expr_to_asg_stmt(
     gate_call_expr: synast::GateCallExpr,
     modifiers: Vec<asg::GateModifier>,
     context: &mut Context,
 ) -> Option<asg::Stmt> {
-    let gate_operands: Vec<_> = from_qubit_list(gate_call_expr.qubit_list(), context);
+    let gate_operands: Vec<_> = qubit_list_to_asg_texpr(gate_call_expr.qubit_list(), context);
     let param_list = gate_call_expr
         .arg_list()
-        .map(|ex| inner_expression_list(ex.expression_list().unwrap(), context));
+        .map(|ex| expression_list_to_asg_texpr(ex.expression_list().unwrap(), context));
     let num_params = match param_list {
         Some(ref params) => params.len(),
         None => 0,
@@ -873,10 +870,10 @@ fn from_gate_call_expr(
     )))
 }
 
-fn from_subroutine_call_expr(call_expr: synast::CallExpr, context: &mut Context) -> asg::TExpr {
+fn call_expr_to_asg_texpr(call_expr: synast::CallExpr, context: &mut Context) -> asg::TExpr {
     let param_list = call_expr
         .arg_list()
-        .map(|ex| inner_expression_list(ex.expression_list().unwrap(), context));
+        .map(|ex| expression_list_to_asg_texpr(ex.expression_list().unwrap(), context));
     let subroutine_id = call_expr.identifier();
     let subroutine_name = call_expr.identifier().unwrap().string();
     let (symbol_result, call_type) = context
@@ -899,20 +896,25 @@ fn from_subroutine_call_expr(call_expr: synast::CallExpr, context: &mut Context)
     asg::SubroutineCall::new(symbol_result, param_list).to_texpr(*typ)
 }
 
-fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -> asg::TExpr {
+fn gate_operand_to_asg_texpr(
+    gate_operand: synast::GateOperand,
+    context: &mut Context,
+) -> asg::TExpr {
     match gate_operand {
         synast::GateOperand::HardwareQubit(ref hwq) => {
-            asg::GateOperand::HardwareQubit(ast_hardware_qubit(hwq)).to_texpr(Type::HardwareQubit)
+            asg::GateOperand::HardwareQubit(hardware_qubit_to_asg_type(hwq))
+                .to_texpr(Type::HardwareQubit)
         }
         synast::GateOperand::Identifier(ref identifier) => {
-            let (sym, typ) = ast_identifier(identifier, context);
+            let (sym, typ) = lookup_identifier(identifier, context);
             if !matches!(typ, Type::Qubit | Type::HardwareQubit | Type::QubitArray(_)) {
                 context.insert_error(IncompatibleTypesError, &gate_operand);
             }
             asg::GateOperand::Identifier(sym).to_texpr(typ)
         }
         synast::GateOperand::IndexedIdentifier(ref indexed_identifier) => {
-            let (indexed_identifier, typ) = ast_indexed_identifier(indexed_identifier, context);
+            let (indexed_identifier, typ) =
+                indexed_identifier_to_asg_type(indexed_identifier, context);
             if !matches!(typ, Type::QubitArray(_)) {
                 context.insert_error(IncompatibleTypesError, &gate_operand);
             }
@@ -921,29 +923,36 @@ fn from_gate_operand(gate_operand: synast::GateOperand, context: &mut Context) -
     }
 }
 
-fn ast_from_index_operator(
+fn get_ast_designator_expression(arg: Option<&synast::Designator>) -> Option<synast::Expr> {
+    arg.and_then(|desg| desg.expr())
+    // NOTE: Other uses of this pattern above have certain error checking,
+    // but because it was not standardized, it is not included
+    // in this helper function
+}
+
+fn index_operator_to_asg_type(
     index_op: synast::IndexOperator,
     context: &mut Context,
 ) -> asg::IndexOperator {
     match index_op.index_kind().unwrap() {
         synast::IndexKind::SetExpression(set_expression) => {
-            asg::IndexOperator::SetExpression(from_set_expression(set_expression, context))
+            asg::IndexOperator::SetExpression(set_expression_to_asg_type(set_expression, context))
         }
 
-        synast::IndexKind::ExpressionList(expression_list) => {
-            asg::IndexOperator::ExpressionList(from_expression_list(expression_list, context))
-        }
+        synast::IndexKind::ExpressionList(expression_list) => asg::IndexOperator::ExpressionList(
+            expression_list_to_asg_type(expression_list, context),
+        ),
     }
 }
 
-fn from_expression_list(
+fn expression_list_to_asg_type(
     expression_list: synast::ExpressionList,
     context: &mut Context,
 ) -> asg::ExpressionList {
-    asg::ExpressionList::new(inner_expression_list(expression_list, context))
+    asg::ExpressionList::new(expression_list_to_asg_texpr(expression_list, context))
 }
 
-fn from_qubit_list(
+fn qubit_list_to_asg_texpr(
     qubit_list: Option<synast::QubitList>,
     context: &mut Context,
 ) -> Vec<asg::TExpr> {
@@ -952,23 +961,23 @@ fn from_qubit_list(
     qubit_list
         .unwrap()
         .gate_operands()
-        .map(|qubit| from_gate_operand(qubit, context))
+        .map(|qubit| gate_operand_to_asg_texpr(qubit, context))
         .collect()
 }
 
 // Return a Vec of TExpr.  There is no reason to return an iterator, because if it were an
 // iterator, then at every call site this would be collected immediately.
-fn inner_expression_list(
+fn expression_list_to_asg_texpr(
     expression_list: synast::ExpressionList,
     context: &mut Context,
 ) -> Vec<asg::TExpr> {
     expression_list
         .exprs()
-        .filter_map(|x| from_expr(Some(x), context))
+        .filter_map(|x| expr_to_asg_texpr(Some(x), context))
         .collect()
 }
 
-fn ast_from_binary_op(synast_op: synast::BinaryOp) -> asg::BinaryOp {
+fn binary_op_to_asg_type(synast_op: synast::BinaryOp) -> asg::BinaryOp {
     match synast_op {
         synast::BinaryOp::ArithOp(arith_op) => {
             use asg::BinaryOp::ArithOp;
@@ -998,7 +1007,7 @@ fn ast_from_binary_op(synast_op: synast::BinaryOp) -> asg::BinaryOp {
     }
 }
 
-fn from_literal(literal: &synast::Literal) -> Option<asg::TExpr> {
+fn literal_to_asg_texpr(literal: &synast::Literal) -> Option<asg::TExpr> {
     let literal_texpr = match literal.kind() {
         synast::LiteralKind::Bool(bool_val) => asg::BoolLiteral::new(bool_val).to_texpr(),
 
@@ -1027,31 +1036,31 @@ fn from_literal(literal: &synast::Literal) -> Option<asg::TExpr> {
 // Convert a block of statements in the AST to a list of ASG statements
 // We don't convert to asg::Block, because these lists of statements go into
 // other block-like structures as well.
-fn statement_list_from_block(block: synast::BlockExpr, context: &mut Context) -> Vec<asg::Stmt> {
+fn block_expr_to_asg_stmt_list(block: synast::BlockExpr, context: &mut Context) -> Vec<asg::Stmt> {
     block
         .statements()
-        .filter_map(|syn_stmt| from_stmt(syn_stmt, context))
+        .filter_map(|syn_stmt| stmt_to_asg_stmt(syn_stmt, context))
         .collect::<Vec<_>>()
 }
 
-fn from_block_expr(block_synast: synast::BlockExpr, context: &mut Context) -> asg::Block {
-    asg::Block::new(statement_list_from_block(block_synast, context))
+fn block_expr_to_asg_type(block_synast: synast::BlockExpr, context: &mut Context) -> asg::Block {
+    asg::Block::new(block_expr_to_asg_stmt_list(block_synast, context))
 }
 
 // If the body of the for loop is a single statement, with no curlies,
 // we wrap it in a `Block`. The result is the same as if there were
 // as single statement in a pair of `{` `}`.
-fn from_block_or_stmt(val: oq3_syntax::BlockOrStmt, context: &mut Context) -> asg::Block {
+fn block_or_stmt_to_asg_type(val: oq3_syntax::BlockOrStmt, context: &mut Context) -> asg::Block {
     match val {
-        oq3_syntax::BlockOrStmt::BlockExpr(body) => from_block_expr(body, context),
+        oq3_syntax::BlockOrStmt::BlockExpr(body) => block_expr_to_asg_type(body, context),
         oq3_syntax::BlockOrStmt::Stmt(stmt) => {
-            asg::Block::new(vec![from_stmt(stmt, context).unwrap()])
+            asg::Block::new(vec![stmt_to_asg_stmt(stmt, context).unwrap()])
         }
     }
 }
 
 // Convert AST scalar type to a `types::Type`
-fn from_scalar_type(
+fn scalar_type_to_type(
     scalar_type: &synast::ScalarType,
     isconst: bool,
     context: &mut Context,
@@ -1072,22 +1081,7 @@ fn from_scalar_type(
         // not complex
         scalar_type.designator()
     };
-    let width = match from_designator(designator) {
-        // We only support literal integer designators at the moment.
-        Some(synast::Expr::Literal(ref literal)) => {
-            match literal.kind() {
-                synast::LiteralKind::IntNumber(int_num) => Some(int_num.value().unwrap() as u32),
-                _ => {
-                    // FIXME: This error should be done when validating syntax. Before the semantic analysis
-                    context.insert_error(ConstIntegerError, literal);
-                    None // FIXME. This should be something signifying an invalid type
-                         // `None` signifies a valid type.
-                }
-            }
-        }
-        Some(expr) => panic!("Unsupported designator type: {:?}", type_name_of(expr)),
-        None => None,
-    };
+    let width = designator_to_asg(designator.as_ref(), context);
     match scalar_type.kind() {
         synast::ScalarTypeKind::Angle => Type::Angle(width, isconst.into()),
         synast::ScalarTypeKind::Bit => match width {
@@ -1099,7 +1093,6 @@ fn from_scalar_type(
         synast::ScalarTypeKind::Duration => Type::Duration(isconst.into()),
         synast::ScalarTypeKind::Float => Type::Float(width, isconst.into()),
         synast::ScalarTypeKind::Int => Type::Int(width, isconst.into()),
-        synast::ScalarTypeKind::None => panic!("You have found a bug in oq3_parser"),
         synast::ScalarTypeKind::Stretch => Type::Stretch(isconst.into()),
         synast::ScalarTypeKind::UInt => Type::UInt(width, isconst.into()),
         // The spec says a qubit register is equivalent to a 1D qubit array.
@@ -1109,6 +1102,47 @@ fn from_scalar_type(
             Some(width) => Type::QubitArray(ArrayDims::D1(width as usize)),
             None => Type::Qubit,
         },
+        synast::ScalarTypeKind::None => panic!("You have found a bug in oq3_parser"),
+    }
+}
+
+fn designator_to_asg(
+    designator: Option<&synast::Designator>,
+    context: &mut Context,
+) -> Option<u32> {
+    //  Get the width of the type.
+    match get_ast_designator_expression(designator) {
+        Some(synast::Expr::Literal(ref literal)) => {
+            match literal.kind() {
+                synast::LiteralKind::IntNumber(int_num) => Some(int_num.value().unwrap() as u32),
+                _ => {
+                    // FIXME: This error should be done when validating syntax. Before the semantic analysis
+                    context.insert_error(ConstIntegerError, literal);
+                    None // FIXME. This should be something signifying an invalid type
+                         // `None` signifies a valid type.
+                }
+            }
+        }
+        Some(synast::Expr::Identifier(identifier)) => {
+            let (sym, typ) = lookup_identifier(&identifier, context);
+            if typ.is_const() {
+                let const_value = context.get_const_value(sym.unwrap());
+                let width = match u32::try_from(const_value.unwrap()) {
+                    Ok(width) => width,
+                    Err(_) => {
+                        context.insert_error(InvalidDesignatorError, &identifier);
+                        // It's not clear what value to substitute for the width if we don't have a valid one.
+                        // We choose zero.
+                        0
+                    }
+                };
+                Some(width)
+            } else {
+                None
+            }
+        }
+        Some(expr) => panic!("Unsupported designator type: {:?}", type_name_of(expr)),
+        None => None,
     }
 }
 
@@ -1122,7 +1156,7 @@ fn can_cast_literal(lhs_type: &Type, init_type: &Type, literal: &asg::Literal) -
     types::can_cast_literal(lhs_type, init_type)
 }
 
-fn from_classical_declaration_statement(
+fn classical_declaration_statement_to_asg_stmt(
     type_decl: &synast::ClassicalDeclarationStatement,
     context: &mut Context,
 ) -> asg::Stmt {
@@ -1133,14 +1167,17 @@ fn from_classical_declaration_statement(
         panic!("Array types are not supported yet in the ASG");
     }
     let scalar_type = type_decl.scalar_type().unwrap();
-    let lhs_type = from_scalar_type(&scalar_type, type_decl.const_token().is_some(), context);
+    let lhs_type = scalar_type_to_type(&scalar_type, type_decl.const_token().is_some(), context);
     let name_str = type_decl.name().unwrap().string();
-    let initializer = from_expr(type_decl.expr(), context);
+    let initializer = expr_to_asg_texpr(type_decl.expr(), context);
     let symbol_id = context.new_binding(name_str.as_ref(), &lhs_type, type_decl);
     // If there is an initializer, check that types are compatible and if there is
     // an implicit cast, make it explicit.
     if let Some(initializer) = initializer {
         let init_type = initializer.get_type();
+        // TODO: Find what we want here. Equal up to base type, constness.
+        // Also literals are probably treated differently.
+        // Is this in the spec, or somewhat up to the implementation?
         if types::equal_up_to_constness(&lhs_type, init_type) {
             return asg::DeclareClassical::new(symbol_id, Some(initializer)).to_stmt();
         }
@@ -1150,10 +1187,10 @@ fn from_classical_declaration_statement(
             if can_cast_literal(&lhs_type, init_type, literal) {
                 let new_initializer =
                     asg::Cast::new(initializer.clone(), lhs_type.clone()).to_texpr();
-                return asg::DeclareClassical::new(symbol_id, Some(new_initializer)).to_stmt();
+                return declare_classical_helper(symbol_id, Some(new_initializer), context);
             } else {
                 context.insert_error(IncompatibleTypesError, type_decl);
-                return asg::DeclareClassical::new(symbol_id, Some(initializer)).to_stmt();
+                return declare_classical_helper(symbol_id, Some(initializer), context);
             }
         }
         let promoted_type = types::promote_types_not_equal(&lhs_type, init_type);
@@ -1173,12 +1210,25 @@ fn from_classical_declaration_statement(
             }
             initializer
         };
-        return asg::DeclareClassical::new(symbol_id, Some(new_initializer)).to_stmt();
+        return declare_classical_helper(symbol_id, Some(new_initializer), context);
+    }
+    declare_classical_helper(symbol_id, initializer, context)
+}
+
+fn declare_classical_helper(
+    symbol_id: SymbolIdResult,
+    initializer: Option<asg::TExpr>,
+    context: &mut Context,
+) -> asg::Stmt {
+    if let Some(initializer) = &initializer {
+        if initializer.get_type().is_const() {
+            context.insert_const_value(symbol_id.clone().unwrap(), initializer.clone());
+        }
     }
     asg::DeclareClassical::new(symbol_id, initializer).to_stmt()
 }
 
-fn from_io_declaration_statement(
+fn io_declaration_statement_to_asg_stmt(
     type_decl: &synast::IODeclarationStatement,
     context: &mut Context,
 ) -> asg::Stmt {
@@ -1187,7 +1237,7 @@ fn from_io_declaration_statement(
     }
     let scalar_type = type_decl.scalar_type().unwrap();
     // Assume that input / ouput variables are not constant.
-    let typ = from_scalar_type(&scalar_type, false, context);
+    let typ = scalar_type_to_type(&scalar_type, false, context);
     let name_str = type_decl.name().unwrap().string();
     let symbol_id = context.new_binding(name_str.as_ref(), &typ, &type_decl.name().unwrap());
     if type_decl.input_token().is_some() {
@@ -1198,7 +1248,7 @@ fn from_io_declaration_statement(
 }
 
 // FIXME: Refactor this. It was done in a hurry.
-fn from_assignment_stmt(
+fn assignment_stmt_to_asg_stmt(
     assignment_stmt: &synast::AssignmentStmt,
     context: &mut Context,
 ) -> Option<asg::Stmt> {
@@ -1206,7 +1256,7 @@ fn from_assignment_stmt(
                                               // LHS is an identifier
     if let Some(name) = &nameb {
         let name_str = name.string();
-        let mut expr = from_expr(assignment_stmt.rhs(), context).unwrap(); // rhs of `=` operator
+        let mut expr = expr_to_asg_texpr(assignment_stmt.rhs(), context).unwrap(); // rhs of `=` operator
 
         let (symbol_id, symbol_type) = context.lookup_symbol(name_str.as_str(), name).as_tuple();
         let symbol_ok = symbol_id.is_ok();
@@ -1250,7 +1300,8 @@ fn from_assignment_stmt(
     }
     // LHS is *not* an identifier, rather an indexed identifier
     let indexed_identifier_ast = assignment_stmt.indexed_identifier().unwrap();
-    let (indexed_identifier, typ) = ast_indexed_identifier(&indexed_identifier_ast, context);
+    let (indexed_identifier, typ) =
+        indexed_identifier_to_asg_type(&indexed_identifier_ast, context);
     // Examine number of indexing operators. Eg. `d[1][2]` has two operations.
     // We only check expressions with a single indexing op for now.
     if indexed_identifier.indexes().len() == 1 {
@@ -1268,7 +1319,7 @@ fn from_assignment_stmt(
         //     }
         // }
     }
-    let expr = from_expr(assignment_stmt.rhs(), context).unwrap(); // rhs of `=` operator
+    let expr = expr_to_asg_texpr(assignment_stmt.rhs(), context).unwrap(); // rhs of `=` operator
     let lvalue = asg::LValue::IndexedIdentifier(indexed_identifier);
     Some(asg::Assignment::new(lvalue, expr).to_stmt())
 }
@@ -1283,12 +1334,13 @@ fn from_assignment_stmt(
 // Sometimes construction of the object on the one hand and wrapping it in a type and in an
 // `enum` variant on the other are not so easily separated into two parts. See for example
 // asg::BinaryExpr.new_texpr_with_cast.
+//
 
-fn ast_hardware_qubit(hwq: &synast::HardwareQubit) -> asg::HardwareQubit {
+fn hardware_qubit_to_asg_type(hwq: &synast::HardwareQubit) -> asg::HardwareQubit {
     asg::HardwareQubit::new(hwq.string())
 }
 
-fn ast_identifier(
+fn lookup_identifier(
     identifier: &synast::Identifier,
     context: &mut Context,
 ) -> (SymbolIdResult, Type) {
@@ -1299,7 +1351,7 @@ fn ast_identifier(
     (symbol_id, typ)
 }
 
-fn ast_indexed_identifier(
+fn indexed_identifier_to_asg_type(
     indexed_identifier: &synast::IndexedIdentifier,
     context: &mut Context,
 ) -> (asg::IndexedIdentifier, Type) {
@@ -1309,7 +1361,7 @@ fn ast_indexed_identifier(
         .as_tuple();
     let indexes = indexed_identifier
         .index_operators()
-        .map(|index| ast_from_index_operator(index, context))
+        .map(|index| index_operator_to_asg_type(index, context))
         .collect();
     (asg::IndexedIdentifier::new(symbol_id, indexes), typ)
 }
@@ -1337,19 +1389,12 @@ fn bind_typed_parameter_list(
         param_list
             .typed_params()
             .map(|param| {
-                let typ = from_scalar_type(&param.scalar_type().unwrap(), false, context);
+                let typ = scalar_type_to_type(&param.scalar_type().unwrap(), false, context);
                 let namestr = param.name().unwrap().string();
                 context.new_binding(namestr.as_ref(), &typ, &param)
             })
             .collect()
     })
-}
-
-fn from_designator(arg: Option<synast::Designator>) -> Option<synast::Expr> {
-    arg.and_then(|desg| desg.expr())
-    // NOTE: Other uses of this pattern above have certain error checking,
-    // but because it was not standardized, it is not included
-    // in this helper function
 }
 
 // This works, but using it is pretty clumsy.

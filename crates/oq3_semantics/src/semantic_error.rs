@@ -35,6 +35,7 @@ pub enum SemanticErrorKind {
     PermissionDenied,
     IsADirectory,
     InvalidFilename,
+    InvalidDesignatorError,
     // Generic IO error. Any io::ErrorKind that we do not translated explicitly
     IOError,
 }
