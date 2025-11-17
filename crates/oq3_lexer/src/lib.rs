@@ -346,11 +346,28 @@ impl Cursor<'_> {
                 }
             }
 
+            '.' => match self.first() {
+                '0'..='9' => {
+                    let literal_kind = self.float_with_no_leading_digit();
+                    let suffix_start = self.pos_within_token();
+                    // If this a timing (or duration) literal, we will parse the
+                    // time unit as another token.  So we don't eat the suffix if it
+                    // is a time unit.
+                    if !self.has_timing_or_imaginary_suffix() {
+                        self.eat_literal_suffix();
+                    }
+                    TokenKind::Literal {
+                        kind: literal_kind,
+                        suffix_start,
+                    }
+                }
+                _ => Dot,
+            },
+
             '$' => self.hardware_ident(),
-            // One-symbol tokens.
+            // One-symbol tokens. n.b. a few are treated above, as well.
             ';' => Semi,
             ',' => Comma,
-            '.' => Dot,
             '(' => OpenParen,
             ')' => CloseParen,
             '{' => OpenBrace,
@@ -511,6 +528,27 @@ impl Cursor<'_> {
         //     // '#' | '"' | '\'' => UnknownPrefix,
         //     _ => InvalidIdent,
         // }
+    }
+
+    fn float_with_no_leading_digit(&mut self) -> LiteralKind {
+        let base = Base::Decimal;
+        // n.b. example of `empty_exponent` : 3.4e; This is a syntax error
+        let mut empty_exponent = false;
+        // We did not eat the digit that matched before entering this function.
+        // So the first character must be an ascii digit
+        debug_assert!(self.first().is_ascii_digit());
+        self.eat_decimal_digits();
+        match self.first() {
+            'e' | 'E' => {
+                self.bump();
+                empty_exponent = !self.eat_float_exponent();
+            }
+            _ => (),
+        }
+        Float {
+            base,
+            empty_exponent,
+        }
     }
 
     // In OQ3, whitespace *is* allowed between an imaginary literal and `im`. So to be consistent, these

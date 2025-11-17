@@ -202,3 +202,17 @@ fn test_spec_types_8() {
     assert!(errors.is_empty());
     assert_eq!(program.len(), 2);
 }
+
+#[test]
+fn test_spec_types_float_leading_dot() {
+    let code = r#"
+   float my_machine_float = .1e3;
+   float w = .2;
+   float x = .1234_5678;
+   float y = .1e-3;
+   float z = .1e+3;
+  //
+"#;
+    let (_program, errors, _symbol_table) = parse_string(code);
+    assert!(errors.is_empty());
+}
