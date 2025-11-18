@@ -164,7 +164,7 @@ impl TExpr {
 }
 
 #[derive(Debug)]
-pub struct TryFromU32Error(pub(crate) ());
+pub struct TryFromU32Error;
 
 impl TryFrom<&TExpr> for u32 {
     type Error = TryFromU32Error;
@@ -183,11 +183,11 @@ impl TryFrom<&TExpr> for u32 {
                                 ty: _, // Type::Int(_, _),
                             },
                         typ: _, // Type::Int(_, _),
-                    } => u32::try_from(int_value).map_err(|_| TryFromU32Error(())),
-                    _ => Err(TryFromU32Error(())),
+                    } => u32::try_from(int_value).map_err(|_| TryFromU32Error),
+                    _ => Err(TryFromU32Error),
                 }
             }
-            _ => Err(TryFromU32Error(())),
+            _ => Err(TryFromU32Error),
         }
     }
 }
