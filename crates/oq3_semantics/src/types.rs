@@ -43,6 +43,37 @@ pub enum IOType {
 /// Bit width of primitive classical types
 type Width = Option<u32>;
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub enum BaseType {
+    Bit,
+    Qubit,
+    HardwareQubit,
+    Int,
+    UInt,
+    Float,
+    Angle,
+    Complex,
+    Bool,
+    Duration,
+    Stretch,
+    BitArray,
+    QubitArray,
+    IntArray,
+    UIntArray,
+    FloatArray,
+    AngleArray,
+    ComplexArray,
+    BoolArray,
+    DurationArray,
+    Gate,
+    SubroutineDef,
+    Range,
+    Set,
+    Void,
+    ToDo,
+    Undefined,
+}
+
 #[allow(dead_code)]
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Type {
@@ -82,6 +113,40 @@ pub enum Type {
     Undefined,
 }
 
+impl Type {
+    pub fn base_type(&self) -> BaseType {
+        match self {
+            Type::Bit(_) => BaseType::Bit,
+            Type::Qubit => BaseType::Qubit,
+            Type::HardwareQubit => BaseType::HardwareQubit,
+            Type::Int(_, _) => BaseType::Int,
+            Type::UInt(_, _) => BaseType::UInt,
+            Type::Float(_, _) => BaseType::Float,
+            Type::Angle(_, _) => BaseType::Angle,
+            Type::Complex(_, _) => BaseType::Complex,
+            Type::Bool(_) => BaseType::Bool,
+            Type::Duration(_) => BaseType::Duration,
+            Type::Stretch(_) => BaseType::Stretch,
+            Type::BitArray(_, _) => BaseType::BitArray,
+            Type::QubitArray(_) => BaseType::QubitArray,
+            Type::IntArray(_) => BaseType::IntArray,
+            Type::UIntArray(_) => BaseType::UIntArray,
+            Type::FloatArray(_) => BaseType::FloatArray,
+            Type::AngleArray(_) => BaseType::AngleArray,
+            Type::ComplexArray(_) => BaseType::ComplexArray,
+            Type::BoolArray(_) => BaseType::BoolArray,
+            Type::DurationArray(_) => BaseType::DurationArray,
+            Type::Gate(_, _) => BaseType::Gate,
+            Type::SubroutineDef(_) => BaseType::SubroutineDef,
+            Type::Range => BaseType::Range,
+            Type::Set => BaseType::Set,
+            Type::Void => BaseType::Void,
+            Type::ToDo => BaseType::ToDo,
+            Type::Undefined => BaseType::Undefined,
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SubroutineDef {
     pub num_params: usize,
@@ -91,6 +156,7 @@ pub struct SubroutineDef {
 // wow. Is there a less boiler-plated way?
 // Return `true` if `ty1 == ty2` except that the `is_const`
 // property is allowed to differ.
+/// Return `true` if `ty1` and `ty2` are equal except possibly for const flag.
 pub(crate) fn equal_up_to_constness(ty1: &Type, ty2: &Type) -> bool {
     use Type::*;
     // FIXME: Make sure we can remove following. Looks inefficient
@@ -98,38 +164,32 @@ pub(crate) fn equal_up_to_constness(ty1: &Type, ty2: &Type) -> bool {
         return true;
     }
     match (ty1, ty2) {
-        (Bit(_), Bit(_)) => true,
-        (Duration(_), Duration(_)) => true,
-        (Bool(_), Bool(_)) => true,
-        (Stretch(_), Stretch(_)) => true,
-        (Int(w1, _), Int(w2, _)) => w1 == w2,
-        (UInt(w1, _), UInt(w2, _)) => w1 == w2,
-        (Float(w1, _), Float(w2, _)) => w1 == w2,
-        (Complex(w1, _), Complex(w2, _)) => w1 == w2,
-        (Angle(w1, _), Angle(w2, _)) => w1 == w2,
-        (BitArray(dims1, _), BitArray(dims2, _)) => dims1 == dims2,
+        (Bit(_), Bit(_))
+        | (Duration(_), Duration(_))
+        | (Bool(_), Bool(_))
+        | (Stretch(_), Stretch(_)) => true,
+
+        // Base type and width must be equal.
+        (Int(w1, _), Int(w2, _))
+        | (UInt(w1, _), UInt(w2, _))
+        | (Float(w1, _), Float(w2, _))
+        | (Complex(w1, _), Complex(w2, _))
+        | (Angle(w1, _), Angle(w2, _))
+            if w1 == w2 =>
+        {
+            true
+        }
+
+        (BitArray(dims1, _), BitArray(dims2, _)) if dims1 == dims2 => true,
+
         _ => false,
     }
 }
 
 // Are the base types of the scalars equal?
-// (That is modulo width anc constness?)
-// Returns `false` for all array types. Not sure what
-// we need from arrays.
-fn equal_base_type(ty1: &Type, ty2: &Type) -> bool {
-    use Type::*;
-    matches!(
-        (ty1, ty2),
-        (Bit(_), Bit(_))
-            | (Duration(_), Duration(_))
-            | (Bool(_), Bool(_))
-            | (Stretch(_), Stretch(_))
-            | (Int(..), Int(..))
-            | (UInt(..), UInt(..))
-            | (Float(..), Float(..))
-            | (Complex(..), Complex(..))
-            | (Angle(..), Angle(..))
-    )
+// (That is modulo width and constness?)
+pub fn equal_base_type(ty1: &Type, ty2: &Type) -> bool {
+    ty1.base_type() == ty2.base_type()
 }
 
 // OQ3 supports arrays with number of dims up to seven.

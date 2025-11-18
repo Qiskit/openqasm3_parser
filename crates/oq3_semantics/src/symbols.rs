@@ -25,7 +25,7 @@ pub enum ScopeType {
 // This wrapped `usize` serves as
 // * A unique label for instances of `Symbol`.
 // * An index into `all_symbols: Vec<Symbol>`.
-// * The values in `SymbolMap`.
+// * The values in `ScopeSymbolTable`.
 //
 // I am assuming that we can clone `SymbolId` willy-nilly
 // because it is no more expensive than a reference.
@@ -102,7 +102,7 @@ impl SymbolType for Symbol {
 /// * `symbol_id` wraps a `usize` that serves as
 ///     * a unique label
 ///     * the index into the `Vec` of all symbols.
-///     * the value in `SymbolMap`: `name` -> `symbol_id`.
+///     * the value in `ScopeSymbolTable`: `name` -> `symbol_id`.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SymbolRecord<'a> {
     symbol: &'a Symbol,
@@ -159,51 +159,59 @@ impl SymbolType for SymbolRecord<'_> {
     }
 }
 
-/// A `SymbolMap` is a map from `names` to `SymbolId` for a single instance
-/// of a scope.
-/// A `SymbolTable` is a stack of `SymbolMap`s together with a `Vec` mapping
+/// A `ScopeSymbolTable` is a map from `names` to `SymbolId` for a single instance of a scope.
+/// A `SymbolTable` is a stack of `ScopeSymbolTable`s together with a `Vec` mapping
 /// `SymbolId as usize` to `Symbol`s.
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[allow(dead_code)]
-struct SymbolMap {
-    table: HashMap<String, SymbolId>,
+struct ScopeSymbolTable {
+    /// A map of identifiers to symbol ids for a single scope.
+    scope_table: HashMap<String, SymbolId>,
+    /// E.g.: Global, Subroutine, Calibration, Local
     scope_type: ScopeType,
 }
 
-impl SymbolMap {
-    fn new(scope_type: ScopeType) -> SymbolMap {
-        SymbolMap {
-            table: HashMap::<String, SymbolId>::new(),
+impl ScopeSymbolTable {
+    fn new(scope_type: ScopeType) -> ScopeSymbolTable {
+        ScopeSymbolTable {
+            scope_table: HashMap::<String, SymbolId>::new(),
             scope_type,
         }
     }
 
+    /// Insert a new symbol/id pair into the table for this scope.
     pub fn insert<T: ToString>(&mut self, name: T, sym: SymbolId) {
-        self.table.insert(name.to_string(), sym);
+        self.scope_table.insert(name.to_string(), sym);
     }
 
+    /// Retrieve a symbol id for `name` for this table. Or `None` if not found.
     pub fn get_symbol_id(&self, name: &str) -> Option<&SymbolId> {
-        self.table.get(name)
+        self.scope_table.get(name)
     }
 
+    /// The number of entries this this scope's symbol table.
     pub fn len(&self) -> usize {
-        self.table.len()
+        self.scope_table.len()
     }
 
+    /// Return true if the identifier `name` is found in this scope's symbol table.
     pub fn contains_name(&self, name: &str) -> bool {
-        self.table.contains_key(name)
+        self.scope_table.contains_key(name)
     }
 
-    /// Return the `ScopeType` of the `SymbolMap` of the current, or top-most, scope.
+    /// Return the `ScopeType` of this scope's symbol table.
     pub fn scope_type(&self) -> ScopeType {
         self.scope_type.clone()
     }
 }
 
+/// The symbol table for the entire analysis pass. This really more than just a "symbol table".
+/// It includes a stack of scope-specific symbol tables, one for each live scope.
+/// It includes other data that we need to track as well.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SymbolTable {
     /// A stack each of whose elements represent a scope mapping `name: String` to `SymbolId`.
-    symbol_table_stack: Vec<SymbolMap>,
+    scope_symbol_table_stack: Vec<ScopeSymbolTable>,
     /// A list of all `Symbol`s with no explicit scope information. Indices are `SymbolId as usize`.
     all_symbols: Vec<Symbol>,
     /// A counter that is incremented after each new symbol is created.
@@ -291,7 +299,7 @@ impl SymbolTable {
     pub fn new() -> SymbolTable {
         let mut symbol_table = SymbolTable {
             symbol_id_counter: SymbolId::new(),
-            symbol_table_stack: Vec::<SymbolMap>::new(),
+            scope_symbol_table_stack: Vec::<ScopeSymbolTable>::new(),
             all_symbols: Vec::<Symbol>::new(),
         };
         symbol_table.enter_scope(ScopeType::Global);
@@ -305,7 +313,7 @@ impl SymbolTable {
     }
 
     fn number_of_scopes(&self) -> usize {
-        self.symbol_table_stack.len()
+        self.scope_symbol_table_stack.len()
     }
 
     /// Enter a new scope of type `scope_type`. New bindings will occur in this
@@ -315,14 +323,15 @@ impl SymbolTable {
         if scope_type == ScopeType::Global && self.number_of_scopes() > 0 {
             panic!("The unique global scope must be the first scope.")
         }
-        self.symbol_table_stack.push(SymbolMap::new(scope_type))
+        self.scope_symbol_table_stack
+            .push(ScopeSymbolTable::new(scope_type))
     }
 
     /// Exit the current scope and return to the enclosing scope.
     pub fn exit_scope(&mut self) {
         // Trying to exit the global scope is a programming error.
-        assert!(self.symbol_table_stack.len() > 1);
-        self.symbol_table_stack.pop();
+        assert!(self.scope_symbol_table_stack.len() > 1);
+        self.scope_symbol_table_stack.pop();
     }
 
     // Make a new binding without checking first whether a binding exists in
@@ -358,13 +367,13 @@ impl SymbolTable {
     }
 
     // Symbol table for current (latest) scope in stack, mutable ref
-    fn current_scope_mut(&mut self) -> &mut SymbolMap {
-        self.symbol_table_stack.last_mut().unwrap()
+    fn current_scope_mut(&mut self) -> &mut ScopeSymbolTable {
+        self.scope_symbol_table_stack.last_mut().unwrap()
     }
 
     // Symbol table for current (latest) scope in stack, immutable ref
-    fn current_scope(&self) -> &SymbolMap {
-        self.symbol_table_stack.last().unwrap()
+    fn current_scope(&self) -> &ScopeSymbolTable {
+        self.scope_symbol_table_stack.last().unwrap()
     }
 
     /// Return the `ScopeType` of the current, or top-most, scope.
@@ -397,7 +406,7 @@ impl SymbolTable {
     /// Look up `name` in the stack of symbol tables. Return `SymbolRecord`
     /// if the symbol is found. Otherwise `Err(SymbolError::MissingBinding)`.
     pub fn lookup(&self, name: &str) -> Result<SymbolRecord<'_>, SymbolError> {
-        for table in self.symbol_table_stack.iter().rev() {
+        for table in self.scope_symbol_table_stack.iter().rev() {
             if let Some(symbol_id) = table.get_symbol_id(name) {
                 return Ok(SymbolRecord::new(
                     &self.all_symbols[symbol_id.0],
