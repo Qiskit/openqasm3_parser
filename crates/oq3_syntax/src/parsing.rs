@@ -22,7 +22,7 @@ pub fn parse_text(openqasm_code_text: &str) -> (GreenNode, Vec<SyntaxError>) {
 /// If lexing errors do occur, do no parsing, but rather, return the lexing errors.
 pub fn parse_text_check_lex(openqasm_code_text: &str) -> (Option<GreenNode>, Vec<SyntaxError>) {
     let lexed = oq3_parser::LexedStr::new(openqasm_code_text);
-    if lexed.errors_len() > 0 {
+    if !lexed.errors_is_empty() {
         return (None, just_errors(lexed));
     }
     let parser_input = lexed.to_input();

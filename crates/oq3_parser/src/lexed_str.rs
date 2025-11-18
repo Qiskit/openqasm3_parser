@@ -106,8 +106,8 @@ impl<'a> LexedStr<'a> {
             .map(|it| (it.token as usize, it.msg.as_str()))
     }
 
-    pub fn errors_len(&self) -> usize {
-        self.error.len()
+    pub fn errors_is_empty(&self) -> bool {
+        self.error.is_empty()
     }
 
     fn push(&mut self, kind: SyntaxKind, offset: usize) {
