@@ -158,3 +158,26 @@ fn literal_suffixes() {
         "#]],
     )
 }
+
+#[test]
+fn float_with_leading_point() {
+    check_lexing(
+        r#"
+.123
+.123e4
+.123e-4
+.123e+4
+"#,
+        expect![[r#"
+            Token { kind: Whitespace, len: 1 }
+            Token { kind: Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 4 }, len: 4 }
+            Token { kind: Whitespace, len: 1 }
+            Token { kind: Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 6 }, len: 6 }
+            Token { kind: Whitespace, len: 1 }
+            Token { kind: Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 7 }, len: 7 }
+            Token { kind: Whitespace, len: 1 }
+            Token { kind: Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 7 }, len: 7 }
+            Token { kind: Whitespace, len: 1 }
+        "#]],
+    )
+}

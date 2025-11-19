@@ -22,8 +22,8 @@ pub fn parse_text(openqasm_code_text: &str) -> (GreenNode, Vec<SyntaxError>) {
 /// If lexing errors do occur, do no parsing, but rather, return the lexing errors.
 pub fn parse_text_check_lex(openqasm_code_text: &str) -> (Option<GreenNode>, Vec<SyntaxError>) {
     let lexed = oq3_parser::LexedStr::new(openqasm_code_text);
-    if lexed.errors_len() > 0 {
-        return (None, just_errors(lexed));
+    if !lexed.errors_is_empty() {
+        return (None, lexer_errors_to_syntax_errors(lexed));
     }
     let parser_input = lexed.to_input();
     let parser_output = oq3_parser::TopEntryPoint::SourceFile.parse(&parser_input);
@@ -32,12 +32,12 @@ pub fn parse_text_check_lex(openqasm_code_text: &str) -> (Option<GreenNode>, Vec
 }
 
 /// The lexer stores error messages on encountering lexing errors.
-/// Here we iterate over the lexing errors,"converting" them to parsing
+/// Here we iterate over the lexing errors, "converting" them to parsing
 /// errors: `SyntaxError`. This is for convenience in handling and reporting
 /// these errors. We only actually parse the lexed text if there were no lexer
 /// errors. So when the semantic analyzer gets the syntax tree, any associated
 /// errors are either all from the lexer, or all from the parser.
-fn just_errors(lexed: oq3_parser::LexedStr<'_>) -> Vec<SyntaxError> {
+fn lexer_errors_to_syntax_errors(lexed: oq3_parser::LexedStr<'_>) -> Vec<SyntaxError> {
     let mut errors = Vec::<SyntaxError>::new();
     for (i, err) in lexed.errors() {
         let text_range = lexed.text_range(i);
