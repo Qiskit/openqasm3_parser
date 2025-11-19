@@ -28,6 +28,9 @@ pub(crate) struct Parser<'t> {
     inp: &'t Input,
     pos: usize, // Ordinal token number
     events: Vec<Event>,
+
+    /// `steps` is advanced in `nth()` and is reset in `do_bump()`
+    /// `steps` records a lookahead.
     steps: Cell<u32>,
 }
 
@@ -43,6 +46,8 @@ impl<'t> Parser<'t> {
         }
     }
 
+    /// Move `events` out of this `Parser`.
+    /// After calling `finish`, the events are proccesed into the syntax tree.
     pub(crate) fn finish(self) -> Vec<Event> {
         self.events
     }
@@ -86,6 +91,8 @@ impl<'t> Parser<'t> {
         self.nth_at(0, kind)
     }
 
+    /// Checks if the `n`th token from the current position is `kind`.
+    /// If `kind` is a composite token, it is interpreted as single token.
     pub(crate) fn nth_at(&self, n: usize, kind: SyntaxKind) -> bool {
         match kind {
             T![-=] => self.at_composite2(n, T![-], T![=]),
@@ -119,7 +126,7 @@ impl<'t> Parser<'t> {
         }
     }
 
-    /// Consume the next token if `kind` matches and return `true`.
+    /// If `kind` matches, consume the next token and return `true`.
     /// Otherwise return `false`.
     pub(crate) fn eat(&mut self, kind: SyntaxKind) -> bool {
         if !self.at(kind) {
