@@ -68,7 +68,8 @@ impl<'t> Parser<'t> {
     /// If parser has already reached the end of input,
     /// the special `EOF` kind is returned.
     pub(crate) fn current(&self) -> SyntaxKind {
-        self.nth(0)
+        // This has the same effect as self.nth(0)
+        self.inp.kind(self.pos)
     }
 
     /// Lookahead operation: returns the kind of the next nth
