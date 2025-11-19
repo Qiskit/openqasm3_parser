@@ -198,7 +198,7 @@ impl<'t> Parser<'t> {
 
     /// Advances the parser by one token
     pub(crate) fn bump_any(&mut self) {
-        let kind = self.nth(0);
+        let kind = self.current();
         if kind == EOF {
             return;
         }
@@ -235,19 +235,20 @@ impl<'t> Parser<'t> {
     //     (ends_in_dot, marker)
     // }
 
-    /// Advances the parser by one token, remapping its kind.
-    /// This is useful to create contextual keywords from
-    /// identifiers. For example, the lexer creates a `union`
-    /// *identifier* token, but the parser remaps it to the
-    /// `union` keyword, and keyword is what ends up in the
-    /// final tree.
-    pub(crate) fn _bump_remap(&mut self, kind: SyntaxKind) {
-        if self.nth(0) == EOF {
-            // FIXME: panic!?
-            return;
-        }
-        self.do_bump(kind, 1);
-    }
+    // Unused. OQ3 has no contextual keywords.
+    // /// Advances the parser by one token, remapping its kind.
+    // /// This is useful to create contextual keywords from
+    // /// identifiers. For example, the lexer creates a `union`
+    // /// *identifier* token, but the parser remaps it to the
+    // /// `union` keyword, and keyword is what ends up in the
+    // /// final tree.
+    // pub(crate) fn _bump_remap(&mut self, kind: SyntaxKind) {
+    //     if self.current() == EOF {
+    //         // FIXME: panic!?
+    //         return;
+    //     }
+    //     self.do_bump(kind, 1);
+    // }
 
     /// Emit error with the `message`.
     /// FIXME (not GJL): this should be much more fancy and support
