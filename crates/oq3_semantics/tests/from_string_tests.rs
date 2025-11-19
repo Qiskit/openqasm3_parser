@@ -4,13 +4,30 @@
 use oq3_semantics::asg;
 use oq3_semantics::semantic_error::{SemanticErrorKind, SemanticErrorList};
 use oq3_semantics::symbols::{SymbolTable, SymbolType};
-use oq3_semantics::syntax_to_semantics::parse_source_string_with_path_search;
+use oq3_semantics::syntax_to_semantics::parse_source_string;
 use oq3_semantics::types::{ArrayDims, IsConst, Type};
 
-fn parse_string(code: &str) -> (asg::Program, SemanticErrorList, SymbolTable) {
-    parse_source_string_with_path_search(code, None, None::<&[&std::path::Path]>)
-        .take_context()
-        .as_tuple()
+fn parse_string(code: &str) -> (asg::Program, SemanticErrorList, SymbolTable, bool) {
+    let parsed_source = parse_source_string(code, None);
+    let have_syntax_errors = parsed_source.any_syntax_errors();
+    let (program, errors, symbol_table) = parsed_source.take_context().as_tuple();
+    (program, errors, symbol_table, have_syntax_errors)
+}
+
+fn no_errors(code: &str) -> bool {
+    let (_program, errors, _symbol_table, have_syntax_errors) = parse_string(code);
+    errors.is_empty() && !have_syntax_errors
+}
+
+fn only_syntax_errors(code: &str) -> bool {
+    let (_program, errors, _symbol_table, have_syntax_errors) = parse_string(code);
+    errors.is_empty() && have_syntax_errors
+}
+
+/// Exactly n semantic errors and zero syntax errors
+fn only_n_semantic_errors(code: &str, n: usize) -> bool {
+    let (_program, errors, _symbol_table, have_syntax_errors) = parse_string(code);
+    errors.len() == n && !have_syntax_errors
 }
 
 #[test]
@@ -18,7 +35,7 @@ fn test_from_string_one_qubit_decl() {
     let code = r#"
 qubit q;
 "#;
-    let (program, errors, symbol_table) = parse_string(code);
+    let (program, errors, symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let stmt = program.first();
@@ -40,7 +57,7 @@ if (true) {
    1;
 }
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let if_stmt = match program.first() {
@@ -82,7 +99,7 @@ while (false) {
   2;
 }
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let while_stmt = match program.first() {
@@ -125,7 +142,7 @@ while (false) {
 }
 x = 2;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(!errors.is_empty() && matches!(&errors[0].kind(), SemanticErrorKind::UndefVarError));
     assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 2);
@@ -136,7 +153,7 @@ fn test_from_string_while_stmt_no_block() {
     let code = r##"
 while (false) true;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);
 }
@@ -149,7 +166,7 @@ if (false) {
 }
 x = 2;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(matches!(
         &errors[0].kind(),
         SemanticErrorKind::UndefVarError
@@ -166,7 +183,7 @@ if (false) {
 }
 int x = 2;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
 }
@@ -176,7 +193,7 @@ fn test_from_string_if_stmt_no_block() {
     let code = r##"
 if (false) int x = 1;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);
 }
@@ -187,7 +204,7 @@ fn test_from_string_if_stmt_no_block_2() {
 if (false) {int x = 1;}
 else { 3 + 4;}
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);
 
@@ -205,7 +222,7 @@ fn test_from_string_if_stmt_no_block_3() {
 if (false) {int x = 1;}
 else  3 + 4;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);
     let if_stmt = match program.first() {
@@ -220,7 +237,7 @@ fn test_indexed_identifier() {
     let code = r##"
 x[1];
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 1);
 }
@@ -231,7 +248,7 @@ fn test_gate_decl_1() {
 gate mygate(x, y) q, p, r {
 }
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);
 }
@@ -242,7 +259,7 @@ fn test_gate_decl_2() {
 gate mygate q, p, r {
 }
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);
 }
@@ -255,7 +272,7 @@ gate bell q0, q1 {
   cx q0, q1;
 }
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 2); // h and cx undefined
     assert_eq!(program.len(), 1);
 }
@@ -265,7 +282,7 @@ fn test_gate_call() {
     let code = r##"
 mygate(x, y) q;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 5);
     assert_eq!(program.len(), 1);
 }
@@ -280,7 +297,7 @@ def pauli_measure(qubit[2] qu) -> bit {
 qubit[2] q;
 bit result = pauli_measure(q);
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 3);
 }
@@ -295,7 +312,7 @@ def pauli_measure(qubit[2] qu) -> bit {
 qubit[2] q;
 float result = pauli_measure(q); // incompatible type error
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 3);
 }
@@ -309,7 +326,7 @@ def myfunc() -> int {
 
 int x = myfunc();
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
 }
@@ -325,7 +342,7 @@ int x = myfunc();
 float y = myfunc(); // casting to broader type
 complex z = myfunc();
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 4);
 }
@@ -335,7 +352,7 @@ fn test_bit_string_literal() {
     let code = r#"
 bit[4] b = "1001";
 "#;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);
 }
@@ -345,7 +362,7 @@ fn test_from_string_qubit_register_decl() {
     let code = r#"
 qubit[3] q;
 "#;
-    let (program, errors, symbol_table) = parse_string(code);
+    let (program, errors, symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let stmt = program.first();
@@ -368,7 +385,7 @@ fn test_from_string_measure() {
 qubit q;
 measure q;
 "#;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 2);
 }
@@ -381,7 +398,7 @@ qubit q;
 bit c;
 c = measure q;
 "#;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 3);
 }
@@ -392,7 +409,7 @@ fn test_from_string_measure_indexed() {
 qubit[2] q;
 measure q[1];
 "#;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 2);
 }
@@ -403,7 +420,7 @@ fn test_from_string_measure_hardware() {
 measure $0;
 measure $42;
 "#;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 2);
 }
@@ -415,7 +432,7 @@ gate h q {}
 qubit[2] q;
 h q[1];
 "#;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 3);
 }
@@ -427,7 +444,7 @@ gate h q {}
 qubit q;
 inv @ h q;
 "#;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 3);
 }
@@ -439,7 +456,7 @@ gate h q {}
 qubit q;
 ctrl(3) @ inv @ h q;
 "#;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 3);
 }
@@ -451,7 +468,7 @@ qubit[5] q;
 barrier q;
 barrier $0, $1;
 "#;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 3);
 }
@@ -465,7 +482,7 @@ c[0] = measure q;
 bit k;
 k = measure q;
 "#;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     let assignment = match &program[2] {
         asg::Stmt::Assignment(assignment) => assignment,
         _ => unreachable!(),
@@ -497,7 +514,7 @@ OPENQASM 3.0;
 bit[2] out;
 out[0] = measure $0;
 "#;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 2);
 }
@@ -533,7 +550,7 @@ fn test_from_string_unary_minus() {
     let code = r##"
 - a;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     let expr = expr_from_expr_stmt(&program[0]);
     assert!(matches!(&expr, asg::Expr::UnaryExpr(_)));
@@ -544,7 +561,7 @@ fn test_from_string_pos_lit_float() {
     let code = r##"
 1.23;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -556,7 +573,7 @@ fn test_from_string_neg_lit_float() {
     let code = r##"
 -1.23;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -568,7 +585,7 @@ fn test_from_string_pos_lit_int() {
     let code = r##"
 123;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -580,7 +597,7 @@ fn test_from_string_neg_lit_int() {
     let code = r##"
 -123;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -592,7 +609,7 @@ fn test_from_string_neg_lit_int_im() {
     let code = r##"
 -1 im;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -604,7 +621,7 @@ fn test_from_string_neg_lit_float_im() {
     let code = r##"
 -10.1 im;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -616,7 +633,7 @@ fn test_from_string_neg_spc_lit_int() {
     let code = r##"
 - 123;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -628,7 +645,7 @@ fn test_from_string_neg_spc_lit_float() {
     let code = r##"
 -  1.23;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -640,7 +657,7 @@ fn test_from_string_hex_literal() {
     let code = r##"
 0xFF;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -652,7 +669,7 @@ fn test_from_string_hex_literal_capital() {
     let code = r##"
 0XFF;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -664,7 +681,7 @@ fn test_from_string_octal_literal() {
     let code = r##"
 0o77;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -676,7 +693,7 @@ fn test_from_string_octal_literal_capital() {
     let code = r##"
 0O77;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -688,7 +705,7 @@ fn test_from_string_binary_literal() {
     let code = r##"
 0b11;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -700,7 +717,7 @@ fn test_from_string_binary_literal_capital() {
     let code = r##"
 0B11;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert!(errors.is_empty());
     assert_eq!(program.len(), 1);
     let expr = literal_value(&program[0]).unwrap();
@@ -713,7 +730,7 @@ fn test_from_string_bin_expr_no_spc() {
     let code = r##"
 a-1.23;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 1);
     assert!(matches!(
@@ -738,7 +755,7 @@ switch(c) {
    }
 }
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
     assert!(matches!(&program[1], asg::Stmt::SwitchCaseStmt(_)));
@@ -758,7 +775,7 @@ switch(c) {
 }
 int x = 3;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 3);
     assert!(matches!(&program[1], asg::Stmt::SwitchCaseStmt(_)));
@@ -770,7 +787,7 @@ fn test_from_string_cast_width() {
 float x;
 int[32](x);
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
     assert!(matches!(&program[1], asg::Stmt::ExprStmt(_)));
@@ -782,7 +799,7 @@ fn test_from_string_alias_stmt() {
 qubit[10] q;
 let r = q[0:3] ++ q[5:9];
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
     assert!(matches!(&program[1], asg::Stmt::Alias(_)));
@@ -793,7 +810,7 @@ fn test_from_string_duration_decl() {
     let code = r##"
 duration x = 100 ns;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);
     let stmt = &program[0];
@@ -815,7 +832,7 @@ fn test_from_string_delay_1() {
 qubit q;
 delay[100ms] q;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
 }
@@ -827,7 +844,7 @@ qubit q;
 int x;
 delay[x] q;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 3);
 }
@@ -838,7 +855,7 @@ fn test_from_string_def_1() {
 gate h q {}
 def xmeasure(qubit q) -> bit { h q; return measure q; }
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
 }
@@ -855,7 +872,7 @@ def pmeasure(angle[32] theta, qubit q) -> bit {
   return measure q;
 }
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 3);
 }
@@ -872,7 +889,7 @@ def xcheck(qubit[4] d, qubit a) -> bit {
   return measure a;
 }
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
 }
@@ -884,7 +901,7 @@ include "stdgates.inc";
 qubit q;
 h q;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
 }
@@ -895,7 +912,7 @@ fn test_from_string_stdgates_2() {
 gate h q {}
 include "stdgates.inc";
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 1);
 }
@@ -907,7 +924,7 @@ bit[3] b;
 qubit[2] q;
 b = measure q;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert!(matches!(
         &errors[0].kind(),
@@ -923,7 +940,7 @@ float b;
 qubit[2] q;
 b = measure q;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert!(matches!(
         &errors[0].kind(),
@@ -933,6 +950,7 @@ b = measure q;
 }
 
 // Bug
+// Syntax error on first line.
 #[test]
 fn test_from_string_check_assign_types_3() {
     let code = r##"
@@ -940,8 +958,7 @@ float b[2];
 qubit[2] q;
 b[1] = measure q;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 0);
+    assert!(only_syntax_errors(code));
 }
 
 #[test]
@@ -950,8 +967,7 @@ fn test_from_string_check_assign_types_4() {
 float x0;
 x0 = 1;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 0);
+    assert!(no_errors(code));
 }
 
 #[test]
@@ -960,8 +976,7 @@ fn test_from_string_check_assign_types_5() {
 uint x0;
 x0 = 1;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 0);
+    assert!(no_errors(code));
 }
 
 #[test]
@@ -970,7 +985,7 @@ fn test_from_string_check_assign_types_6() {
 uint x0;
 x0 = -1;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
+    let (_program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert!(matches!(&errors[0].kind(), SemanticErrorKind::CastError));
 }
@@ -981,7 +996,7 @@ fn test_from_string_check_assign_types_7() {
 int x0;
 x0 = 2.0;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
+    let (_program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert!(matches!(
         &errors[0].kind(),
@@ -996,7 +1011,7 @@ float xx = 3;
 int yy;
 yy = xx;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
+    let (_program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert!(matches!(
         &errors[0].kind(),
@@ -1009,7 +1024,7 @@ fn test_from_string_imaginary_int_literal_1() {
     let code = r##"
 10 im;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     let stmt = &program[0];
     match stmt {
@@ -1026,7 +1041,7 @@ fn test_from_string_imaginary_int_literal_2() {
     let code = r##"
 10im;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     let stmt = &program[0];
     match stmt {
@@ -1043,7 +1058,7 @@ fn test_from_string_imaginary_float_literal_1() {
     let code = r##"
 12.3 im;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     let stmt = &program[0];
     match stmt {
@@ -1061,7 +1076,7 @@ fn test_from_string_init_bit_with_measure() {
     let code = r##"
 bit mid = measure $1;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);
 }
@@ -1073,7 +1088,7 @@ fn test_from_string_declaration_type_check_1() {
 qubit q;
 float a = q;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 2);
     assert!(matches!(
@@ -1089,7 +1104,7 @@ fn test_from_string_declaration_type_check_2() {
 float c = 2.1;
 int d = c;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 2);
     assert!(matches!(
@@ -1105,7 +1120,7 @@ fn test_from_string_declaration_type_check_3() {
 float c = 2.1;
 int d = c;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert_eq!(program.len(), 2);
     assert!(matches!(
@@ -1141,7 +1156,7 @@ fn test_from_string_declaration_type_check_4() {
 int a = 2;
 float b = a;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
     _check_cast_type(&program[1], &Type::Float(None, IsConst::False));
@@ -1153,7 +1168,7 @@ fn test_from_string_declaration_type_check_5() {
 int a = 2;
 float[64] b = a;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
     _check_cast_type(&program[1], &Type::Float(Some(64), IsConst::False));
@@ -1165,7 +1180,7 @@ fn test_from_string_declaration_type_check_6() {
 float[32] a;
 float[64] b = a;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
     _check_cast_type(&program[1], &Type::Float(Some(64), IsConst::False));
@@ -1177,7 +1192,7 @@ fn test_from_string_declaration_type_check_7() {
 float[32] a;
 const float[64] b = a;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 2);
     _check_cast_type(&program[1], &Type::Float(Some(64), IsConst::True));
@@ -1189,7 +1204,7 @@ fn test_from_string_declaration_type_check_8() {
 float a;
 float[64] b = a;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
+    let (_program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert!(matches!(
         &errors[0].kind(),
@@ -1202,7 +1217,7 @@ fn test_from_string_declaration_type_check_9() {
     let code = r##"
 duration a = 2.0;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
+    let (_program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
     assert!(matches!(
         &errors[0].kind(),
@@ -1216,7 +1231,7 @@ fn test_from_string_declaration_type_check_10() {
     let code = r##"
 complex[float[64]] c1 = 1.0 + 2.0im;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);
 }
@@ -1227,8 +1242,8 @@ fn test_from_string_declaration_type_check_11() {
     let code = r##"
 const int[64] i1 = 4;
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 0);
+    let (program, _errors, _symbol_table, _have_syntax_errors) = parse_string(code);
+    assert!(no_errors(code));
     assert_eq!(program.len(), 1);
 }
 
@@ -1238,7 +1253,7 @@ fn test_from_string_declaration_type_check_12() {
     let code = r##"
 const bit[8] b2 = "0010_1010";
 "##;
-    let (program, errors, _symbol_table) = parse_string(code);
+    let (program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 0);
     assert_eq!(program.len(), 1);
 }
@@ -1248,8 +1263,7 @@ fn test_from_string_declaration_type_check_13() {
     let code = r##"
 float[64] c1 = 1.0 + 2.0im;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 1);
+    assert!(only_n_semantic_errors(code, 1));
 }
 
 #[test]
@@ -1257,8 +1271,7 @@ fn test_from_string_declaration_type_check_14() {
     let code = r##"
 float c1 = 1.0 + 2.0im;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 1);
+    assert!(only_n_semantic_errors(code, 1));
 }
 
 #[test]
@@ -1266,8 +1279,7 @@ fn test_from_string_declaration_type_check_15() {
     let code = r##"
 int c1 = 1.0 + 2.0im;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 1);
+    assert!(only_n_semantic_errors(code, 1));
 }
 
 #[test]
@@ -1275,8 +1287,7 @@ fn test_from_string_declaration_type_check_16() {
     let code = r##"
 int[8] c1 = 1.0 + 2.0im;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 1);
+    assert!(only_n_semantic_errors(code, 1));
 }
 
 #[test]
@@ -1284,8 +1295,7 @@ fn test_from_string_declaration_type_check_17() {
     let code = r##"
 uint a = 1;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 0);
+    assert!(no_errors(code));
 }
 
 #[test]
@@ -1293,8 +1303,7 @@ fn test_from_string_declaration_type_check_18() {
     let code = r##"
 uint[64] a = 22;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 0);
+    assert!(no_errors(code));
 }
 
 #[test]
@@ -1302,8 +1311,7 @@ fn test_from_string_declaration_type_check_19() {
     let code = r##"
 uint[64] a = -1;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 1);
+    assert!(only_n_semantic_errors(code, 1));
 }
 
 #[test]
@@ -1311,7 +1319,7 @@ fn test_from_string_declaration_type_check_20() {
     let code = r##"
 uint a = -99;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
+    let (_program, errors, _symbol_table, _have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
 }
 
@@ -1321,8 +1329,7 @@ fn test_from_string_const_designator_1() {
 const int n = 3;
 int[n] x;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 0);
+    assert!(no_errors(code));
 }
 
 #[test]
@@ -1331,8 +1338,9 @@ fn test_from_string_const_designator_2() {
 const int n = -3;
 int[n] x;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
+    let (_program, errors, _symbol_table, have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
+    assert!(!have_syntax_errors);
 }
 
 #[test]
@@ -1341,8 +1349,7 @@ fn test_from_string_const_designator_3() {
 const int SIZE = 4;
 qubit[SIZE] q2;  // Declare a 4-qubit register.
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 0);
+    assert!(no_errors(code));
 }
 
 #[test]
@@ -1351,8 +1358,7 @@ fn test_from_string_const_designator_4() {
 const uint SIZE = 4;
 qubit[SIZE] q2;  // Declare a 4-qubit register.
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 0);
+    assert!(no_errors(code));
 }
 
 #[test]
@@ -1361,8 +1367,7 @@ fn test_from_string_const_designator_5() {
 const uint n = 10;
 int[n] x;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
-    assert_eq!(errors.len(), 0);
+    assert!(no_errors(code));
 }
 
 #[test]
@@ -1371,6 +1376,36 @@ fn test_from_string_const_designator_6() {
 const float n = 3.0;
 int[n] x;
 "##;
-    let (_program, errors, _symbol_table) = parse_string(code);
+    let (_program, errors, _symbol_table, have_syntax_errors) = parse_string(code);
     assert_eq!(errors.len(), 1);
+    assert!(!have_syntax_errors);
+}
+
+#[test]
+fn test_from_string_block_trailing_semicolon() {
+    let code = r##"
+if (true) {
+  1 + 2;
+};
+"##;
+    assert!(only_syntax_errors(code));
+}
+
+#[test]
+fn test_from_string_block_no_trailing_semicolon() {
+    let code = r##"
+if (true) {
+  1 + 2;
+}
+"##;
+    assert!(no_errors(code));
+}
+
+#[test]
+fn test_from_string_block_no_trailing_semicolon2() {
+    let code = r##"
+1 + 2
+3 + 5
+"##;
+    assert!(only_syntax_errors(code));
 }

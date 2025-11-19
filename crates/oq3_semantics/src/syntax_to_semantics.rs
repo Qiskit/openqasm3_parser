@@ -52,6 +52,14 @@ impl<T: SourceTrait> ParseResult<T> {
         self.any_syntax_errors() || self.any_semantic_errors()
     }
 
+    pub fn semantic_errors(&self) -> &SemanticErrorList {
+        self.context.errors()
+    }
+
+    pub fn num_syntax_errors(&self) -> usize {
+        self.syntax_result.num_syntax_errors()
+    }
+
     pub fn take_context(self) -> Context {
         self.context
     }
@@ -142,10 +150,12 @@ where
     analyze_source(parsed_source)
 }
 
+/// Perform semantic analysis on the output of the parser.
+/// But only if no parser or lexer errors were recorded.
 fn analyze_source<T: SourceTrait>(parsed_source: T) -> ParseResult<T> {
     let file_path = parsed_source.file_path();
-    let context = Context::new(file_path.clone());
-    if parsed_source.any_parse_errors() {
+    let context = Context::new(file_path.to_path_buf());
+    if parsed_source.have_syntax_errors() {
         // on syntax errors, do not continue with semantic analysis.
         return ParseResult {
             syntax_result: parsed_source,
@@ -153,7 +163,7 @@ fn analyze_source<T: SourceTrait>(parsed_source: T) -> ParseResult<T> {
             have_syntax_errors: true,
         };
     }
-    let errors = SemanticErrorList::new(file_path.clone());
+    let errors = SemanticErrorList::new(file_path.to_path_buf());
     let (mut context, errors) = syntax_to_semantic(&parsed_source, context, errors);
     let _ = replace(&mut context.semantic_errors, errors);
     ParseResult {
@@ -192,7 +202,7 @@ pub fn syntax_to_semantic<T: SourceTrait>(
                     let included_parsed_source = included_iter.next().unwrap();
                     // Allocate an empty list for possible semantic errors in the included source file.
                     let mut errors_in_included =
-                        SemanticErrorList::new(included_parsed_source.file_path().clone());
+                        SemanticErrorList::new(included_parsed_source.file_path().to_path_buf());
                     // The following path is likely never taken
                     if context.symbol_table().current_scope_type() != ScopeType::Global {
                         context.insert_error(IncludeNotInGlobalScopeError, &include);

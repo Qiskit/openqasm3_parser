@@ -114,7 +114,7 @@ pub(crate) fn stmt(p: &mut Parser<'_>) {
             // Then we parse just a semicolon.
             let m = cm.precede(p);
             if blocklike.is_block() {
-                p.eat(T![;]);
+                let _ = p.eat(T![;]);
             } else if !p.eat(T![;]) {
                 p.error("Expecting semicolon terminating statement");
             }

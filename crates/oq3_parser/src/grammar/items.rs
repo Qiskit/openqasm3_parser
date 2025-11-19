@@ -34,10 +34,7 @@ pub(super) fn item(p: &mut Parser<'_>, stop_on_r_curly: bool) {
     let m = match opt_item(p, m) {
         Ok(()) => {
             if p.at(T![;]) {
-                p.err_and_bump(
-                    "expected statement, found `;`\n\
-                     consider removing this semicolon",
-                );
+                p.err_and_bump("expected statement, found `;`");
             }
             return;
         }
