@@ -46,10 +46,12 @@ impl TopEntryPoint {
         let entry_point: fn(&'_ mut parser::Parser<'_>) = match self {
             TopEntryPoint::SourceFile => grammar::entry::top::source_file,
             //            TopEntryPoint::Type => grammar::entry::top::type_,
+            // This entry point is unused.
             TopEntryPoint::Expr => grammar::entry::top::expr,
         };
         let mut p = parser::Parser::new(input);
         entry_point(&mut p);
+        // move `events` out of the parser `p`.
         let events = p.finish();
         let res = event::process(events);
 

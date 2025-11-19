@@ -54,6 +54,8 @@ pub(crate) mod entry {
     pub(crate) mod top {
         use super::*;
 
+        // This is the entry point into the parser.
+        // It produces a SOURCE_FILE token: FIXME understand this and fix the language
         pub(crate) fn source_file(p: &mut Parser<'_>) {
             let m = p.start();
             items::source_file_contents(p, false);

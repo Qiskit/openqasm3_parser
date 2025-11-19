@@ -44,8 +44,8 @@ impl LexedStr<'_> {
                         res.was_joint();
                     }
                     res.push(kind);
-                    // Tag the token as joint if it is float with a fractional part
-                    // we use this jointness to inform the parser about what token split
+                    // Tag the token as joint if it is float with a fractional part.
+                    // We use this jointness to inform the parser about what token split
                     // event to emit when we encounter a float literal in a field access
                     if kind == SyntaxKind::FLOAT_NUMBER && !self.text(i).ends_with('.') {
                         res.was_joint();
