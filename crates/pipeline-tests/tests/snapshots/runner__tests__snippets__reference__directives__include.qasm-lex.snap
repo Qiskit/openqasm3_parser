@@ -1,0 +1,40 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/reference/directives/include.qasm
+expect-lex: Ok
+--- source ---
+// lex: ok
+// parse: panic
+// sema: panic
+
+include 'foo2';
+include "foo";
+include "001";
+--- lexer ---
+ok: true
+errors: 0
+[0] LineComment "// lex: ok" @0..10
+[1] Whitespace "\n" @10..11
+[2] LineComment "// parse: panic" @11..26
+[3] Whitespace "\n" @26..27
+[4] LineComment "// sema: panic" @27..41
+[5] Whitespace "\n\n" @41..43
+[6] Ident "include" @43..50
+[7] Whitespace " " @50..51
+[8] Unknown "'" @51..52
+[9] Ident "foo2" @52..56
+[10] Unknown "'" @56..57
+[11] Semi ";" @57..58
+[12] Whitespace "\n" @58..59
+[13] Ident "include" @59..66
+[14] Whitespace " " @66..67
+[15] Literal { kind: Str { terminated: true }, suffix_start: 5 } ""foo"" @67..72
+[16] Semi ";" @72..73
+[17] Whitespace "\n" @73..74
+[18] Ident "include" @74..81
+[19] Whitespace " " @81..82
+[20] Literal { kind: BitStr { terminated: true, consecutive_underscores: false }, suffix_start: 5 } ""001"" @82..87
+[21] Semi ";" @87..88
+[22] Whitespace "\n" @88..89

@@ -1,0 +1,51 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/control_flow/branch_binop.qasm
+expect-parse: Ok
+--- parser ---
+ok: true
+panicked: false
+errors: 0
+--- ast ---
+SOURCE_FILE@0..89: // lex: ok
+// parse: ok
+// sema: panic
+
+if(spec[i] == 0 && spec[n+i] == 1) {
+  x q[i];
+}
+
+IF_STMT@40..88: if(spec[i] == 0 && spec[n+i] == 1) {
+  x q[i];
+}
+BIN_EXPR@43..73: spec[i] == 0 && spec[n+i] == 1
+BIN_EXPR@43..55: spec[i] == 0
+INDEXED_IDENTIFIER@43..50: spec[i]
+IDENTIFIER@43..47: spec
+INDEX_OPERATOR@47..50: [i]
+EXPRESSION_LIST@48..49: i
+IDENTIFIER@48..49: i
+LITERAL@54..55: 0
+BIN_EXPR@59..73: spec[n+i] == 1
+INDEXED_IDENTIFIER@59..68: spec[n+i]
+IDENTIFIER@59..63: spec
+INDEX_OPERATOR@63..68: [n+i]
+EXPRESSION_LIST@64..67: n+i
+BIN_EXPR@64..67: n+i
+IDENTIFIER@64..65: n
+IDENTIFIER@66..67: i
+LITERAL@72..73: 1
+BLOCK_EXPR@75..88: {
+  x q[i];
+}
+EXPR_STMT@79..86: x q[i];
+GATE_CALL_EXPR@79..85: x q[i]
+IDENTIFIER@79..80: x
+QUBIT_LIST@81..85: q[i]
+INDEXED_IDENTIFIER@81..85: q[i]
+IDENTIFIER@81..82: q
+INDEX_OPERATOR@82..85: [i]
+EXPRESSION_LIST@83..84: i
+IDENTIFIER@83..84: i

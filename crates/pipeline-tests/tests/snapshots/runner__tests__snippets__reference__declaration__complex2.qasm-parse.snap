@@ -1,0 +1,28 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/declaration/complex2.qasm
+expect-parse: Todo
+--- parser ---
+ok: false
+panicked: false
+errors: 2
+--- ast ---
+SOURCE_FILE@0..72: // lex: ok
+// parse: todo
+// sema: todo
+
+complex[float[32]] c = a ** b;
+
+CLASSICAL_DECLARATION_STATEMENT@41..68: complex[float[32]] c = a **
+SCALAR_TYPE@41..59: complex[float[32]]
+SCALAR_TYPE@49..58: float[32]
+DESIGNATOR@54..58: [32]
+LITERAL@55..57: 32
+NAME@60..61: c
+BIN_EXPR@64..68: a **
+IDENTIFIER@64..65: a
+ERROR@67..68: *
+EXPR_STMT@69..71: b;
+IDENTIFIER@69..70: b

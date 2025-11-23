@@ -1,0 +1,270 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/reference/assignment/slices.qasm
+expect-lex: Ok
+--- source ---
+// lex: ok
+// parse: todo
+// sema: todo
+
+array[uint[16], 2, 2] a = {{1, 2}, {3, 4}};
+array[uint[16], 2, 4] b = {{1, 2, 3, 4}, {5, 6, 7, 8}};
+// Various forms of testing that assignments can be made to indexed
+// identifiers, and from indexed identifiers.
+a = b[0:1][0:1];
+a[0:1] = b[0:1][0:1];
+a[0] = b[0][0:1];
+a[0][0] = b[0][0];
+a[0][0:1] = b[1][1:2:3];
+a[0:1][0] = b[0:1][0];
+a[0:1][0:1] = b[0:1][0:1];
+--- lexer ---
+ok: true
+errors: 0
+[0] LineComment "// lex: ok" @0..10
+[1] Whitespace "\n" @10..11
+[2] LineComment "// parse: todo" @11..25
+[3] Whitespace "\n" @25..26
+[4] LineComment "// sema: todo" @26..39
+[5] Whitespace "\n\n" @39..41
+[6] Ident "array" @41..46
+[7] OpenBracket "[" @46..47
+[8] Ident "uint" @47..51
+[9] OpenBracket "[" @51..52
+[10] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @52..54
+[11] CloseBracket "]" @54..55
+[12] Comma "," @55..56
+[13] Whitespace " " @56..57
+[14] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @57..58
+[15] Comma "," @58..59
+[16] Whitespace " " @59..60
+[17] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @60..61
+[18] CloseBracket "]" @61..62
+[19] Whitespace " " @62..63
+[20] Ident "a" @63..64
+[21] Whitespace " " @64..65
+[22] Eq "=" @65..66
+[23] Whitespace " " @66..67
+[24] OpenBrace "{" @67..68
+[25] OpenBrace "{" @68..69
+[26] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @69..70
+[27] Comma "," @70..71
+[28] Whitespace " " @71..72
+[29] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @72..73
+[30] CloseBrace "}" @73..74
+[31] Comma "," @74..75
+[32] Whitespace " " @75..76
+[33] OpenBrace "{" @76..77
+[34] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @77..78
+[35] Comma "," @78..79
+[36] Whitespace " " @79..80
+[37] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @80..81
+[38] CloseBrace "}" @81..82
+[39] CloseBrace "}" @82..83
+[40] Semi ";" @83..84
+[41] Whitespace "\n" @84..85
+[42] Ident "array" @85..90
+[43] OpenBracket "[" @90..91
+[44] Ident "uint" @91..95
+[45] OpenBracket "[" @95..96
+[46] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @96..98
+[47] CloseBracket "]" @98..99
+[48] Comma "," @99..100
+[49] Whitespace " " @100..101
+[50] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @101..102
+[51] Comma "," @102..103
+[52] Whitespace " " @103..104
+[53] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @104..105
+[54] CloseBracket "]" @105..106
+[55] Whitespace " " @106..107
+[56] Ident "b" @107..108
+[57] Whitespace " " @108..109
+[58] Eq "=" @109..110
+[59] Whitespace " " @110..111
+[60] OpenBrace "{" @111..112
+[61] OpenBrace "{" @112..113
+[62] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @113..114
+[63] Comma "," @114..115
+[64] Whitespace " " @115..116
+[65] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @116..117
+[66] Comma "," @117..118
+[67] Whitespace " " @118..119
+[68] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @119..120
+[69] Comma "," @120..121
+[70] Whitespace " " @121..122
+[71] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @122..123
+[72] CloseBrace "}" @123..124
+[73] Comma "," @124..125
+[74] Whitespace " " @125..126
+[75] OpenBrace "{" @126..127
+[76] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "5" @127..128
+[77] Comma "," @128..129
+[78] Whitespace " " @129..130
+[79] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "6" @130..131
+[80] Comma "," @131..132
+[81] Whitespace " " @132..133
+[82] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "7" @133..134
+[83] Comma "," @134..135
+[84] Whitespace " " @135..136
+[85] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @136..137
+[86] CloseBrace "}" @137..138
+[87] CloseBrace "}" @138..139
+[88] Semi ";" @139..140
+[89] Whitespace "\n" @140..141
+[90] LineComment "// Various forms of testing that assignments can be made to indexed" @141..208
+[91] Whitespace "\n" @208..209
+[92] LineComment "// identifiers, and from indexed identifiers." @209..254
+[93] Whitespace "\n" @254..255
+[94] Ident "a" @255..256
+[95] Whitespace " " @256..257
+[96] Eq "=" @257..258
+[97] Whitespace " " @258..259
+[98] Ident "b" @259..260
+[99] OpenBracket "[" @260..261
+[100] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @261..262
+[101] Colon ":" @262..263
+[102] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @263..264
+[103] CloseBracket "]" @264..265
+[104] OpenBracket "[" @265..266
+[105] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @266..267
+[106] Colon ":" @267..268
+[107] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @268..269
+[108] CloseBracket "]" @269..270
+[109] Semi ";" @270..271
+[110] Whitespace "\n" @271..272
+[111] Ident "a" @272..273
+[112] OpenBracket "[" @273..274
+[113] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @274..275
+[114] Colon ":" @275..276
+[115] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @276..277
+[116] CloseBracket "]" @277..278
+[117] Whitespace " " @278..279
+[118] Eq "=" @279..280
+[119] Whitespace " " @280..281
+[120] Ident "b" @281..282
+[121] OpenBracket "[" @282..283
+[122] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @283..284
+[123] Colon ":" @284..285
+[124] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @285..286
+[125] CloseBracket "]" @286..287
+[126] OpenBracket "[" @287..288
+[127] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @288..289
+[128] Colon ":" @289..290
+[129] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @290..291
+[130] CloseBracket "]" @291..292
+[131] Semi ";" @292..293
+[132] Whitespace "\n" @293..294
+[133] Ident "a" @294..295
+[134] OpenBracket "[" @295..296
+[135] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @296..297
+[136] CloseBracket "]" @297..298
+[137] Whitespace " " @298..299
+[138] Eq "=" @299..300
+[139] Whitespace " " @300..301
+[140] Ident "b" @301..302
+[141] OpenBracket "[" @302..303
+[142] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @303..304
+[143] CloseBracket "]" @304..305
+[144] OpenBracket "[" @305..306
+[145] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @306..307
+[146] Colon ":" @307..308
+[147] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @308..309
+[148] CloseBracket "]" @309..310
+[149] Semi ";" @310..311
+[150] Whitespace "\n" @311..312
+[151] Ident "a" @312..313
+[152] OpenBracket "[" @313..314
+[153] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @314..315
+[154] CloseBracket "]" @315..316
+[155] OpenBracket "[" @316..317
+[156] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @317..318
+[157] CloseBracket "]" @318..319
+[158] Whitespace " " @319..320
+[159] Eq "=" @320..321
+[160] Whitespace " " @321..322
+[161] Ident "b" @322..323
+[162] OpenBracket "[" @323..324
+[163] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @324..325
+[164] CloseBracket "]" @325..326
+[165] OpenBracket "[" @326..327
+[166] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @327..328
+[167] CloseBracket "]" @328..329
+[168] Semi ";" @329..330
+[169] Whitespace "\n" @330..331
+[170] Ident "a" @331..332
+[171] OpenBracket "[" @332..333
+[172] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @333..334
+[173] CloseBracket "]" @334..335
+[174] OpenBracket "[" @335..336
+[175] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @336..337
+[176] Colon ":" @337..338
+[177] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @338..339
+[178] CloseBracket "]" @339..340
+[179] Whitespace " " @340..341
+[180] Eq "=" @341..342
+[181] Whitespace " " @342..343
+[182] Ident "b" @343..344
+[183] OpenBracket "[" @344..345
+[184] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @345..346
+[185] CloseBracket "]" @346..347
+[186] OpenBracket "[" @347..348
+[187] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @348..349
+[188] Colon ":" @349..350
+[189] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @350..351
+[190] Colon ":" @351..352
+[191] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @352..353
+[192] CloseBracket "]" @353..354
+[193] Semi ";" @354..355
+[194] Whitespace "\n" @355..356
+[195] Ident "a" @356..357
+[196] OpenBracket "[" @357..358
+[197] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @358..359
+[198] Colon ":" @359..360
+[199] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @360..361
+[200] CloseBracket "]" @361..362
+[201] OpenBracket "[" @362..363
+[202] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @363..364
+[203] CloseBracket "]" @364..365
+[204] Whitespace " " @365..366
+[205] Eq "=" @366..367
+[206] Whitespace " " @367..368
+[207] Ident "b" @368..369
+[208] OpenBracket "[" @369..370
+[209] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @370..371
+[210] Colon ":" @371..372
+[211] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @372..373
+[212] CloseBracket "]" @373..374
+[213] OpenBracket "[" @374..375
+[214] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @375..376
+[215] CloseBracket "]" @376..377
+[216] Semi ";" @377..378
+[217] Whitespace "\n" @378..379
+[218] Ident "a" @379..380
+[219] OpenBracket "[" @380..381
+[220] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @381..382
+[221] Colon ":" @382..383
+[222] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @383..384
+[223] CloseBracket "]" @384..385
+[224] OpenBracket "[" @385..386
+[225] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @386..387
+[226] Colon ":" @387..388
+[227] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @388..389
+[228] CloseBracket "]" @389..390
+[229] Whitespace " " @390..391
+[230] Eq "=" @391..392
+[231] Whitespace " " @392..393
+[232] Ident "b" @393..394
+[233] OpenBracket "[" @394..395
+[234] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @395..396
+[235] Colon ":" @396..397
+[236] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @397..398
+[237] CloseBracket "]" @398..399
+[238] OpenBracket "[" @399..400
+[239] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @400..401
+[240] Colon ":" @401..402
+[241] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @402..403
+[242] CloseBracket "]" @403..404
+[243] Semi ";" @404..405
+[244] Whitespace "\n" @405..406

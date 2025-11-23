@@ -1,0 +1,76 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/reference/pulse/defcal.qasm
+expect-lex: Todo
+--- source ---
+// lex: todo
+// parse: todo
+// sema: todo
+
+defcal x $0 {}
+defcal measure $0 -> bit {Outer {nested} outer}
+defcal rz(angle[20] theta) q {£$&£*(")}
+defcal rz(pi / 2) q {Symbolic expression.}
+--- lexer ---
+ok: false
+errors: 1
+[0] LineComment "// lex: todo" @0..12
+[1] Whitespace "\n" @12..13
+[2] LineComment "// parse: todo" @13..27
+[3] Whitespace "\n" @27..28
+[4] LineComment "// sema: todo" @28..41
+[5] Whitespace "\n\n" @41..43
+[6] Ident "defcal" @43..49
+[7] Whitespace " " @49..50
+[8] Ident "x" @50..51
+[9] Whitespace " " @51..52
+[10] HardwareIdent "$0" @52..54
+[11] Whitespace " " @54..55
+[12] OpenBrace "{" @55..56
+[13] CloseBrace "}" @56..57
+[14] Whitespace "\n" @57..58
+[15] Ident "defcal" @58..64
+[16] Whitespace " " @64..65
+[17] Ident "measure" @65..72
+[18] Whitespace " " @72..73
+[19] HardwareIdent "$0" @73..75
+[20] Whitespace " " @75..76
+[21] Minus "-" @76..77
+[22] Gt ">" @77..78
+[23] Whitespace " " @78..79
+[24] Ident "bit" @79..82
+[25] Whitespace " " @82..83
+[26] OpenBrace "{" @83..84
+[27] Ident "Outer" @84..89
+[28] Whitespace " " @89..90
+[29] OpenBrace "{" @90..91
+[30] Ident "nested" @91..97
+[31] CloseBrace "}" @97..98
+[32] Whitespace " " @98..99
+[33] Ident "outer" @99..104
+[34] CloseBrace "}" @104..105
+[35] Whitespace "\n" @105..106
+[36] Ident "defcal" @106..112
+[37] Whitespace " " @112..113
+[38] Ident "rz" @113..115
+[39] OpenParen "(" @115..116
+[40] Ident "angle" @116..121
+[41] OpenBracket "[" @121..122
+[42] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "20" @122..124
+[43] CloseBracket "]" @124..125
+[44] Whitespace " " @125..126
+[45] Ident "theta" @126..131
+[46] CloseParen ")" @131..132
+[47] Whitespace " " @132..133
+[48] Ident "q" @133..134
+[49] Whitespace " " @134..135
+[50] OpenBrace "{" @135..136
+[51] Unknown "£" @136..138
+[52] Dollar "$" @138..139
+[53] And "&" @139..140
+[54] Unknown "£" @140..142
+[55] Star "*" @142..143
+[56] OpenParen "(" @143..144
+[57] Literal { kind: Str { terminated: false }, suffix_start: 47 } "")}\ndefcal rz(pi / 2) q {Symbolic expression.}\n" @144..191

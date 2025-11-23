@@ -1,0 +1,164 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/control_flow/switch.qasm
+expect-parse: Todo
+--- parser ---
+ok: false
+panicked: false
+errors: 2
+--- ast ---
+SOURCE_FILE@0..304: // lex: ok
+// parse: todo
+// sema: skip
+
+switch (i) {
+  case 0 {
+    x $0;
+  }
+  case 1, 2 {
+    x $0;
+    z $1;
+  }
+  case 3, {
+  }
+  default {
+    cx $0, $1;
+  }
+}
+
+switch (i + j) {
+  default {
+    switch (2 * k) {
+      case 0 {
+        x $0;
+      }
+      default {
+        z $0;
+      }
+    }
+  }
+}
+
+SWITCH_CASE_STMT@41..165: switch (i) {
+  case 0 {
+    x $0;
+  }
+  case 1, 2 {
+    x $0;
+    z $1;
+  }
+  case 3, {
+  }
+  default {
+    cx $0, $1;
+  }
+}
+IDENTIFIER@49..50: i
+CASE_EXPR@56..78: case 0 {
+    x $0;
+  }
+EXPRESSION_LIST@61..62: 0
+LITERAL@61..62: 0
+BLOCK_EXPR@63..78: {
+    x $0;
+  }
+EXPR_STMT@69..74: x $0;
+GATE_CALL_EXPR@69..73: x $0
+IDENTIFIER@69..70: x
+QUBIT_LIST@71..73: $0
+HARDWARE_QUBIT@71..73: $0
+CASE_EXPR@81..116: case 1, 2 {
+    x $0;
+    z $1;
+  }
+EXPRESSION_LIST@86..90: 1, 2
+LITERAL@86..87: 1
+LITERAL@89..90: 2
+BLOCK_EXPR@91..116: {
+    x $0;
+    z $1;
+  }
+EXPR_STMT@97..102: x $0;
+GATE_CALL_EXPR@97..101: x $0
+IDENTIFIER@97..98: x
+QUBIT_LIST@99..101: $0
+HARDWARE_QUBIT@99..101: $0
+EXPR_STMT@107..112: z $1;
+GATE_CALL_EXPR@107..111: z $1
+IDENTIFIER@107..108: z
+QUBIT_LIST@109..111: $1
+HARDWARE_QUBIT@109..111: $1
+CASE_EXPR@119..132: case 3, {
+  }
+EXPRESSION_LIST@124..126: 3,
+LITERAL@124..125: 3
+BLOCK_EXPR@127..132: {
+  }
+BLOCK_EXPR@143..163: {
+    cx $0, $1;
+  }
+EXPR_STMT@149..159: cx $0, $1;
+GATE_CALL_EXPR@149..158: cx $0, $1
+IDENTIFIER@149..151: cx
+QUBIT_LIST@152..158: $0, $1
+HARDWARE_QUBIT@152..154: $0
+HARDWARE_QUBIT@156..158: $1
+SWITCH_CASE_STMT@167..303: switch (i + j) {
+  default {
+    switch (2 * k) {
+      case 0 {
+        x $0;
+      }
+      default {
+        z $0;
+      }
+    }
+  }
+}
+BIN_EXPR@175..180: i + j
+IDENTIFIER@175..176: i
+IDENTIFIER@179..180: j
+BLOCK_EXPR@194..301: {
+    switch (2 * k) {
+      case 0 {
+        x $0;
+      }
+      default {
+        z $0;
+      }
+    }
+  }
+SWITCH_CASE_STMT@200..297: switch (2 * k) {
+      case 0 {
+        x $0;
+      }
+      default {
+        z $0;
+      }
+    }
+BIN_EXPR@208..213: 2 * k
+LITERAL@208..209: 2
+IDENTIFIER@212..213: k
+CASE_EXPR@223..253: case 0 {
+        x $0;
+      }
+EXPRESSION_LIST@228..229: 0
+LITERAL@228..229: 0
+BLOCK_EXPR@230..253: {
+        x $0;
+      }
+EXPR_STMT@240..245: x $0;
+GATE_CALL_EXPR@240..244: x $0
+IDENTIFIER@240..241: x
+QUBIT_LIST@242..244: $0
+HARDWARE_QUBIT@242..244: $0
+BLOCK_EXPR@268..291: {
+        z $0;
+      }
+EXPR_STMT@278..283: z $0;
+GATE_CALL_EXPR@278..282: z $0
+IDENTIFIER@278..279: z
+QUBIT_LIST@280..282: $0
+HARDWARE_QUBIT@280..282: $0

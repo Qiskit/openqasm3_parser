@@ -1,0 +1,14 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: sema_snap
+---
+id: tests/snippets/reference/directives/pragma.qasm
+expect-sema: Todo
+--- sema ---
+ok: true
+panicked: false
+errors: 0
+--- asg ---
+Pragma(Pragma { pragma_text: " IO_BIND[2:3]" })
+
+Pragma(Pragma { pragma_text: "  __directive_info__ 0" })

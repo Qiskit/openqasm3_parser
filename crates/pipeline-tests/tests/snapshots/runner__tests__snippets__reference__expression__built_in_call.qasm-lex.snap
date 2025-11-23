@@ -1,0 +1,141 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/reference/expression/built_in_call.qasm
+expect-lex: Ok
+--- source ---
+// lex: ok
+// parse: ok
+// sema: panic
+
+int[32](10);
+sin(π);
+arcsin(π);
+cos(π);
+arccos(π);
+tan(π);
+arctan(π);
+exp(π);
+ln(π);
+sqrt(π);
+rotl(π);
+rotr(π);
+popcount(π);
+sizeof(x);
+sizeof(x, 0);
+sizeof(x, 1);
+--- lexer ---
+ok: true
+errors: 0
+[0] LineComment "// lex: ok" @0..10
+[1] Whitespace "\n" @10..11
+[2] LineComment "// parse: ok" @11..23
+[3] Whitespace "\n" @23..24
+[4] LineComment "// sema: panic" @24..38
+[5] Whitespace "\n\n" @38..40
+[6] Ident "int" @40..43
+[7] OpenBracket "[" @43..44
+[8] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @44..46
+[9] CloseBracket "]" @46..47
+[10] OpenParen "(" @47..48
+[11] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "10" @48..50
+[12] CloseParen ")" @50..51
+[13] Semi ";" @51..52
+[14] Whitespace "\n" @52..53
+[15] Ident "sin" @53..56
+[16] OpenParen "(" @56..57
+[17] Ident "π" @57..59
+[18] CloseParen ")" @59..60
+[19] Semi ";" @60..61
+[20] Whitespace "\n" @61..62
+[21] Ident "arcsin" @62..68
+[22] OpenParen "(" @68..69
+[23] Ident "π" @69..71
+[24] CloseParen ")" @71..72
+[25] Semi ";" @72..73
+[26] Whitespace "\n" @73..74
+[27] Ident "cos" @74..77
+[28] OpenParen "(" @77..78
+[29] Ident "π" @78..80
+[30] CloseParen ")" @80..81
+[31] Semi ";" @81..82
+[32] Whitespace "\n" @82..83
+[33] Ident "arccos" @83..89
+[34] OpenParen "(" @89..90
+[35] Ident "π" @90..92
+[36] CloseParen ")" @92..93
+[37] Semi ";" @93..94
+[38] Whitespace "\n" @94..95
+[39] Ident "tan" @95..98
+[40] OpenParen "(" @98..99
+[41] Ident "π" @99..101
+[42] CloseParen ")" @101..102
+[43] Semi ";" @102..103
+[44] Whitespace "\n" @103..104
+[45] Ident "arctan" @104..110
+[46] OpenParen "(" @110..111
+[47] Ident "π" @111..113
+[48] CloseParen ")" @113..114
+[49] Semi ";" @114..115
+[50] Whitespace "\n" @115..116
+[51] Ident "exp" @116..119
+[52] OpenParen "(" @119..120
+[53] Ident "π" @120..122
+[54] CloseParen ")" @122..123
+[55] Semi ";" @123..124
+[56] Whitespace "\n" @124..125
+[57] Ident "ln" @125..127
+[58] OpenParen "(" @127..128
+[59] Ident "π" @128..130
+[60] CloseParen ")" @130..131
+[61] Semi ";" @131..132
+[62] Whitespace "\n" @132..133
+[63] Ident "sqrt" @133..137
+[64] OpenParen "(" @137..138
+[65] Ident "π" @138..140
+[66] CloseParen ")" @140..141
+[67] Semi ";" @141..142
+[68] Whitespace "\n" @142..143
+[69] Ident "rotl" @143..147
+[70] OpenParen "(" @147..148
+[71] Ident "π" @148..150
+[72] CloseParen ")" @150..151
+[73] Semi ";" @151..152
+[74] Whitespace "\n" @152..153
+[75] Ident "rotr" @153..157
+[76] OpenParen "(" @157..158
+[77] Ident "π" @158..160
+[78] CloseParen ")" @160..161
+[79] Semi ";" @161..162
+[80] Whitespace "\n" @162..163
+[81] Ident "popcount" @163..171
+[82] OpenParen "(" @171..172
+[83] Ident "π" @172..174
+[84] CloseParen ")" @174..175
+[85] Semi ";" @175..176
+[86] Whitespace "\n" @176..177
+[87] Ident "sizeof" @177..183
+[88] OpenParen "(" @183..184
+[89] Ident "x" @184..185
+[90] CloseParen ")" @185..186
+[91] Semi ";" @186..187
+[92] Whitespace "\n" @187..188
+[93] Ident "sizeof" @188..194
+[94] OpenParen "(" @194..195
+[95] Ident "x" @195..196
+[96] Comma "," @196..197
+[97] Whitespace " " @197..198
+[98] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @198..199
+[99] CloseParen ")" @199..200
+[100] Semi ";" @200..201
+[101] Whitespace "\n" @201..202
+[102] Ident "sizeof" @202..208
+[103] OpenParen "(" @208..209
+[104] Ident "x" @209..210
+[105] Comma "," @210..211
+[106] Whitespace " " @211..212
+[107] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @212..213
+[108] CloseParen ")" @213..214
+[109] Semi ";" @214..215
+[110] Whitespace "\n" @215..216

@@ -1,0 +1,59 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/comments/comments_cnot.qasm
+expect-parse: Ok
+--- parser ---
+ok: true
+panicked: false
+errors: 0
+--- ast ---
+SOURCE_FILE@0..332: // lex: ok
+// parse: ok
+// sema: diag
+
+OPENQASM 3.0;
+// Line comment before include
+include "stdgates.inc"; // Inline comment
+/* Block comment before declaration */
+qubit[2] q; /* Inline block comment */
+
+// Comment before gate
+h q[0]; // Gate with comment
+/* Multi-line block comment
+   spanning multiple lines */
+cnot q[0], q[1];
+
+VERSION_STRING@39..52: OPENQASM 3.0;
+VERSION@48..52: 3.0;
+INCLUDE@84..107: include "stdgates.inc";
+FILE_PATH@92..106: "stdgates.inc"
+QUANTUM_DECLARATION_STATEMENT@165..176: qubit[2] q;
+QUBIT_TYPE@165..173: qubit[2]
+DESIGNATOR@170..173: [2]
+LITERAL@171..172: 2
+NAME@174..175: q
+EXPR_STMT@228..235: h q[0];
+GATE_CALL_EXPR@228..234: h q[0]
+IDENTIFIER@228..229: h
+QUBIT_LIST@230..234: q[0]
+INDEXED_IDENTIFIER@230..234: q[0]
+IDENTIFIER@230..231: q
+INDEX_OPERATOR@231..234: [0]
+EXPRESSION_LIST@232..233: 0
+LITERAL@232..233: 0
+EXPR_STMT@315..331: cnot q[0], q[1];
+GATE_CALL_EXPR@315..330: cnot q[0], q[1]
+IDENTIFIER@315..319: cnot
+QUBIT_LIST@320..330: q[0], q[1]
+INDEXED_IDENTIFIER@320..324: q[0]
+IDENTIFIER@320..321: q
+INDEX_OPERATOR@321..324: [0]
+EXPRESSION_LIST@322..323: 0
+LITERAL@322..323: 0
+INDEXED_IDENTIFIER@326..330: q[1]
+IDENTIFIER@326..327: q
+INDEX_OPERATOR@327..330: [1]
+EXPRESSION_LIST@328..329: 1
+LITERAL@328..329: 1

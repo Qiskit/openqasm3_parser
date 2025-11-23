@@ -1,0 +1,56 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/control_flow/loop.qasm
+expect-parse: Ok
+--- parser ---
+ok: true
+panicked: false
+errors: 0
+--- ast ---
+SOURCE_FILE@0..135: // lex: ok
+// parse: ok
+// sema: panic
+
+while (i < 10) {
+  for uint j in {1, 4, 6} reset q[j];
+  if (i == 8) break;
+  else continue;
+}
+
+WHILE_STMT@40..134: while (i < 10) {
+  for uint j in {1, 4, 6} reset q[j];
+  if (i == 8) break;
+  else continue;
+}
+BIN_EXPR@47..53: i < 10
+IDENTIFIER@47..48: i
+LITERAL@51..53: 10
+BLOCK_EXPR@55..134: {
+  for uint j in {1, 4, 6} reset q[j];
+  if (i == 8) break;
+  else continue;
+}
+FOR_STMT@59..94: for uint j in {1, 4, 6} reset q[j];
+SCALAR_TYPE@63..67: uint
+NAME@68..69: j
+FOR_ITERABLE@73..82: {1, 4, 6}
+SET_EXPRESSION@73..82: {1, 4, 6}
+EXPRESSION_LIST@74..81: 1, 4, 6
+LITERAL@74..75: 1
+LITERAL@77..78: 4
+LITERAL@80..81: 6
+RESET@83..94: reset q[j];
+INDEXED_IDENTIFIER@89..93: q[j]
+IDENTIFIER@89..90: q
+INDEX_OPERATOR@90..93: [j]
+EXPRESSION_LIST@91..92: j
+IDENTIFIER@91..92: j
+IF_STMT@97..132: if (i == 8) break;
+  else continue;
+BIN_EXPR@101..107: i == 8
+IDENTIFIER@101..102: i
+LITERAL@106..107: 8
+BREAK_STMT@109..115: break;
+CONTINUE_STMT@123..132: continue;

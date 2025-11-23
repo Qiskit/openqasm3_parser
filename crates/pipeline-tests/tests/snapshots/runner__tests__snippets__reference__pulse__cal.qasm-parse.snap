@@ -1,0 +1,40 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/pulse/cal.qasm
+expect-parse: Todo
+--- parser ---
+ok: false
+panicked: false
+errors: 7
+--- ast ---
+SOURCE_FILE@0..116: // lex: ok
+// parse: todo
+// sema: todo
+
+cal {}
+cal {One long, otherwise invalid token.}
+cal {Outer {nested} outer}
+
+CAL@41..47: cal {}
+BLOCK_EXPR@45..47: {}
+CAL@48..88: cal {One long, otherwise invalid token.}
+BLOCK_EXPR@52..88: {One long, otherwise invalid token.}
+EXPR_STMT@53..86: One long, otherwise invalid token
+GATE_CALL_EXPR@53..86: One long, otherwise invalid token
+IDENTIFIER@53..56: One
+QUBIT_LIST@57..86: long, otherwise invalid token
+IDENTIFIER@57..61: long
+IDENTIFIER@63..72: otherwise
+IDENTIFIER@73..80: invalid
+IDENTIFIER@81..86: token
+ERROR@86..87: .
+CAL@89..115: cal {Outer {nested} outer}
+BLOCK_EXPR@93..115: {Outer {nested} outer}
+EXPR_STMT@94..99: Outer
+IDENTIFIER@94..99: Outer
+EXPR_STMT@100..108: {nested}
+BLOCK_EXPR@100..108: {nested}
+IDENTIFIER@101..107: nested
+IDENTIFIER@109..114: outer

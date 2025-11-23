@@ -1,0 +1,95 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/directives/annotations.qasm
+expect-parse: Ok
+--- parser ---
+ok: true
+panicked: false
+errors: 0
+--- ast ---
+SOURCE_FILE@0..274: // lex: ok
+// parse: ok
+// sema: diag
+
+@bind [2:3]
+input uint[16] x;
+
+@rename other
+output float[64] var;
+
+@hello world
+int[8] x;
+
+@outer
+def fn() {
+  @inner word1
+  uint[16] x;
+  @inner word2
+  return;
+}
+
+@first
+@second @not_third
+uint[16] x;
+
+@binds tightly
+x = 1; x = 2;
+
+ANNOTATION_STATEMENT@39..50: @bind [2:3]
+I_O_DECLARATION_STATEMENT@51..68: input uint[16] x;
+SCALAR_TYPE@57..65: uint[16]
+DESIGNATOR@61..65: [16]
+LITERAL@62..64: 16
+NAME@66..67: x
+ANNOTATION_STATEMENT@70..83: @rename other
+I_O_DECLARATION_STATEMENT@84..105: output float[64] var;
+SCALAR_TYPE@91..100: float[64]
+DESIGNATOR@96..100: [64]
+LITERAL@97..99: 64
+NAME@101..104: var
+ANNOTATION_STATEMENT@107..119: @hello world
+CLASSICAL_DECLARATION_STATEMENT@120..129: int[8] x;
+SCALAR_TYPE@120..126: int[8]
+DESIGNATOR@123..126: [8]
+LITERAL@124..125: 8
+NAME@127..128: x
+ANNOTATION_STATEMENT@131..137: @outer
+DEF@138..204: def fn() {
+  @inner word1
+  uint[16] x;
+  @inner word2
+  return;
+}
+NAME@142..144: fn
+TYPED_PARAM_LIST@144..146: ()
+BLOCK_EXPR@147..204: {
+  @inner word1
+  uint[16] x;
+  @inner word2
+  return;
+}
+ANNOTATION_STATEMENT@151..163: @inner word1
+CLASSICAL_DECLARATION_STATEMENT@166..177: uint[16] x;
+SCALAR_TYPE@166..174: uint[16]
+DESIGNATOR@170..174: [16]
+LITERAL@171..173: 16
+NAME@175..176: x
+ANNOTATION_STATEMENT@180..192: @inner word2
+EXPR_STMT@195..202: return;
+RETURN_EXPR@195..201: return
+ANNOTATION_STATEMENT@206..212: @first
+ANNOTATION_STATEMENT@213..231: @second @not_third
+CLASSICAL_DECLARATION_STATEMENT@232..243: uint[16] x;
+SCALAR_TYPE@232..240: uint[16]
+DESIGNATOR@236..240: [16]
+LITERAL@237..239: 16
+NAME@241..242: x
+ANNOTATION_STATEMENT@245..259: @binds tightly
+ASSIGNMENT_STMT@260..266: x = 1;
+IDENTIFIER@260..261: x
+LITERAL@264..265: 1
+ASSIGNMENT_STMT@267..273: x = 2;
+IDENTIFIER@267..268: x
+LITERAL@271..272: 2

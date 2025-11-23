@@ -152,7 +152,7 @@ where
 
 /// Perform semantic analysis on the output of the parser.
 /// But only if no parser or lexer errors were recorded.
-fn analyze_source<T: SourceTrait>(parsed_source: T) -> ParseResult<T> {
+pub fn analyze_source<T: SourceTrait>(parsed_source: T) -> ParseResult<T> {
     let file_path = parsed_source.file_path();
     let context = Context::new(file_path.to_path_buf());
     if parsed_source.have_syntax_errors() {

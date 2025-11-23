@@ -1,0 +1,63 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/control_flow/branching.qasm
+expect-parse: Ok
+--- parser ---
+ok: true
+panicked: false
+errors: 0
+--- ast ---
+SOURCE_FILE@0..135: // lex: ok
+// parse: ok
+// sema: panic
+
+include "stdgates.inc";
+if (x == a) {
+  for uint i in [0:2:4] x[i] += 1;
+}
+else CX x[0], x[1];
+
+INCLUDE@40..63: include "stdgates.inc";
+FILE_PATH@48..62: "stdgates.inc"
+IF_STMT@64..134: if (x == a) {
+  for uint i in [0:2:4] x[i] += 1;
+}
+else CX x[0], x[1];
+BIN_EXPR@68..74: x == a
+IDENTIFIER@68..69: x
+IDENTIFIER@73..74: a
+BLOCK_EXPR@76..114: {
+  for uint i in [0:2:4] x[i] += 1;
+}
+FOR_STMT@80..112: for uint i in [0:2:4] x[i] += 1;
+SCALAR_TYPE@84..88: uint
+NAME@89..90: i
+FOR_ITERABLE@94..101: [0:2:4]
+RANGE_EXPR@94..101: [0:2:4]
+LITERAL@95..96: 0
+LITERAL@97..98: 2
+LITERAL@99..100: 4
+EXPR_STMT@102..112: x[i] += 1;
+BIN_EXPR@102..111: x[i] += 1
+INDEXED_IDENTIFIER@102..106: x[i]
+IDENTIFIER@102..103: x
+INDEX_OPERATOR@103..106: [i]
+EXPRESSION_LIST@104..105: i
+IDENTIFIER@104..105: i
+LITERAL@110..111: 1
+EXPR_STMT@120..134: CX x[0], x[1];
+GATE_CALL_EXPR@120..133: CX x[0], x[1]
+IDENTIFIER@120..122: CX
+QUBIT_LIST@123..133: x[0], x[1]
+INDEXED_IDENTIFIER@123..127: x[0]
+IDENTIFIER@123..124: x
+INDEX_OPERATOR@124..127: [0]
+EXPRESSION_LIST@125..126: 0
+LITERAL@125..126: 0
+INDEXED_IDENTIFIER@129..133: x[1]
+IDENTIFIER@129..130: x
+INDEX_OPERATOR@130..133: [1]
+EXPRESSION_LIST@131..132: 1
+LITERAL@131..132: 1
