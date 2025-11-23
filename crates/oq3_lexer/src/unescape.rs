@@ -376,8 +376,10 @@ where
         .bytes()
         .position(|b| b != b' ' && b != b'\t' && b != b'\n' && b != b'\r')
         .unwrap_or(tail.len());
-    if tail.get(1..first_non_space)
-      .map_or(false, |s| s.as_bytes().contains(&b'\n')) {
+    if tail
+        .get(1..first_non_space)
+        .is_some_and(|s| s.as_bytes().contains(&b'\n'))
+    {
         // The +1 accounts for the escaping slash.
         let end = start + first_non_space + 1;
         callback(start..end, EscapeError::MultipleSkippedLinesWarning);
