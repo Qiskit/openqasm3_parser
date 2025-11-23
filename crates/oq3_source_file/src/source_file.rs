@@ -66,7 +66,7 @@ impl ErrorTrait for oq3_syntax::SyntaxError {
 }
 
 pub trait SourceTrait {
-    /// Return =true= if =self= or any included file recorded any syntax errors.
+    /// Return `true` if `self` or any included file recorded any syntax errors.
     fn have_syntax_errors(&self) -> bool {
         // If there is no parsed ast, then there can be no files included from within the
         // non-existent ast. In this case return false before evaluating the final clause.
@@ -99,11 +99,6 @@ pub trait SourceTrait {
         let included = self.included().iter().flat_map(move |inc| {
             Box::new(inc.all_syntax_errors()) as Box<dyn Iterator<Item = &'a SyntaxError> + 'a>
         });
-        // .map(move |inc| {
-        //     Box::new(inc.all_syntax_errors())
-        //         as Box<dyn Iterator<Item = &'a SyntaxError> + 'a>
-        // })
-        // .flatten();
 
         own_errors.chain(included)
     }
