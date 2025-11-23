@@ -9,6 +9,12 @@
 //! The main entity of this crate is the [`TokenKind`] enum which represents common
 //! lexeme types.
 //! The entry point into this lexer is the function [`tokenize`]
+//! Guarantees
+//! - Accepts any valid UTF-8 input; never panics in release builds.
+//! - Produces a stream of `Token { kind, len }` such that the sum of `len`
+//!   over the stream equals `input.len()`.
+//! - No diagnostics are produced here; higher stages attach errors.
+//! - Data for producing diagnostics is stored in variants of `TokenKind`.
 #![deny(rustc::untranslatable_diagnostic)]
 #![deny(rustc::diagnostic_outside_of_impl)]
 
