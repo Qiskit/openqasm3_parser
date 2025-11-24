@@ -416,3 +416,8 @@ fn check(path: &Path) -> datatest_stable::Result<()> {
 datatest_stable::harness! {
     { test = check, root = ROOT, pattern = r".*\.qasm$" },
 }
+#[cfg(target_os = "windows")]
+#[test]
+fn snapshots_skipped_on_windows() {
+    eprintln!("Skipping snippet snapshots on Windows");
+}
