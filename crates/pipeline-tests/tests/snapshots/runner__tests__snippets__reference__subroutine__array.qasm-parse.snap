@@ -7,6 +7,118 @@ expect-parse: Todo
 --- parser ---
 ok: false
 panicked: false
-errors: 4
+errors: 56
 --- ast ---
-(no ast)
+SOURCE_FILE@0..414: // lex: ok
+// parse: todo
+// sema: todo
+
+def test_array_1(mutable array[uint[16], 4, 2] a) {}
+def test_array_2(readonly array[uint[16], 4, 2] a) {}
+def test_array_3(mutable array[uint[16], #dim=2] a) {}
+def test_array_4(readonly array[uint[16], #dim=2*n] a) {}
+def test_array_5(readonly array[int[8], #dim=1] a, mutable array[complex[float[64]], #dim=3] b, readonly array[complex[float[64]], 2, 2] c) -> int[8] {}
+
+DEF@41..58: def test_array_1(
+NAME@45..57: test_array_1
+TYPED_PARAM_LIST@57..58: (
+ERROR@58..65: mutable
+ARRAY_TYPE@66..87: array[uint[16], 4, 2]
+SCALAR_TYPE@72..80: uint[16]
+DESIGNATOR@76..80: [16]
+LITERAL@77..79: 16
+LITERAL@82..83: 4
+LITERAL@85..86: 2
+NAME@88..89: a
+ERROR@89..90: )
+EXPR_STMT@91..93: {}
+BLOCK_EXPR@91..93: {}
+DEF@94..111: def test_array_2(
+NAME@98..110: test_array_2
+TYPED_PARAM_LIST@110..111: (
+ERROR@111..119: readonly
+ARRAY_TYPE@120..141: array[uint[16], 4, 2]
+SCALAR_TYPE@126..134: uint[16]
+DESIGNATOR@130..134: [16]
+LITERAL@131..133: 16
+LITERAL@136..137: 4
+LITERAL@139..140: 2
+NAME@142..143: a
+ERROR@143..144: )
+EXPR_STMT@145..147: {}
+BLOCK_EXPR@145..147: {}
+DEF@148..165: def test_array_3(
+NAME@152..164: test_array_3
+TYPED_PARAM_LIST@164..165: (
+ERROR@165..172: mutable
+ARRAY_TYPE@173..196: array[uint[16], #dim=2]
+SCALAR_TYPE@179..187: uint[16]
+DESIGNATOR@183..187: [16]
+LITERAL@184..186: 16
+ERROR@189..193: #dim
+ERROR@193..194: =
+LITERAL@194..195: 2
+NAME@197..198: a
+ERROR@198..199: )
+EXPR_STMT@200..202: {}
+BLOCK_EXPR@200..202: {}
+DEF@203..220: def test_array_4(
+NAME@207..219: test_array_4
+TYPED_PARAM_LIST@219..220: (
+ERROR@220..228: readonly
+ARRAY_TYPE@229..254: array[uint[16], #dim=2*n]
+SCALAR_TYPE@235..243: uint[16]
+DESIGNATOR@239..243: [16]
+LITERAL@240..242: 16
+ERROR@245..249: #dim
+ERROR@249..250: =
+BIN_EXPR@250..253: 2*n
+LITERAL@250..251: 2
+IDENTIFIER@252..253: n
+NAME@255..256: a
+ERROR@256..257: )
+EXPR_STMT@258..260: {}
+BLOCK_EXPR@258..260: {}
+DEF@261..278: def test_array_5(
+NAME@265..277: test_array_5
+TYPED_PARAM_LIST@277..278: (
+ERROR@278..286: readonly
+ARRAY_TYPE@287..308: array[int[8], #dim=1]
+SCALAR_TYPE@293..299: int[8]
+DESIGNATOR@296..299: [8]
+LITERAL@297..298: 8
+ERROR@301..305: #dim
+ERROR@305..306: =
+LITERAL@306..307: 1
+NAME@309..310: a
+ERROR@310..311: ,
+ERROR@312..319: mutable
+ARRAY_TYPE@320..353: array[complex[float[64]], #dim=3]
+SCALAR_TYPE@326..344: complex[float[64]]
+SCALAR_TYPE@334..343: float[64]
+DESIGNATOR@339..343: [64]
+LITERAL@340..342: 64
+ERROR@346..350: #dim
+ERROR@350..351: =
+LITERAL@351..352: 3
+NAME@354..355: b
+ERROR@355..356: ,
+ERROR@357..365: readonly
+ARRAY_TYPE@366..397: array[complex[float[64]], 2, 2]
+SCALAR_TYPE@372..390: complex[float[64]]
+SCALAR_TYPE@380..389: float[64]
+DESIGNATOR@385..389: [64]
+LITERAL@386..388: 64
+LITERAL@392..393: 2
+LITERAL@395..396: 2
+NAME@398..399: c
+ERROR@399..400: )
+EXPR_STMT@401..403: ->
+PREFIX_EXPR@401..403: ->
+ERROR@402..403: >
+SCALAR_TYPE@404..410: int[8]
+DESIGNATOR@407..410: [8]
+LITERAL@408..409: 8
+NAME@411..411: 
+EXPR_STMT@411..413: {}
+BLOCK_EXPR@411..413: {}

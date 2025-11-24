@@ -110,6 +110,8 @@ impl Expr {
             // (N+1, N) -- infix, right to left associative
             // N is odd
             //
+            // Bind tightly in #dim = n
+            DimExpr(_) => (25, 26),
             ReturnExpr(_) => (0, 1),
             RangeExpr(_) => (5, 5),
             BinExpr(e) => {
@@ -205,8 +207,8 @@ impl Expr {
                 ReturnExpr(e) => e.return_token(),
                 ArrayLiteral(_) => todo!(),
                 MeasureExpression(_) => todo!(),
-                ArrayExpr(_) | Literal(_) | TimingLiteral(_) | ParenExpr(_) | Identifier(_)
-                | HardwareQubit(_) | BlockExpr(_) => None,
+                DimExpr(_) | ArrayExpr(_) | Literal(_) | TimingLiteral(_) | ParenExpr(_)
+                | Identifier(_) | HardwareQubit(_) | BlockExpr(_) => None,
             };
             token
                 .map(|t| t.text_range())
@@ -220,6 +222,7 @@ impl Expr {
 
         match self {
             ArrayExpr(_)
+            | DimExpr(_)
             | BlockExpr(_)
             | CallExpr(_)
             | GPhaseCallExpr(_)

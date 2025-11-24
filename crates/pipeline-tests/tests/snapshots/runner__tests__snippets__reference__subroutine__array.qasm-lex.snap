@@ -3,9 +3,9 @@ source: crates/pipeline-tests/tests/runner.rs
 expression: lex_snap
 ---
 id: tests/snippets/reference/subroutine/array.qasm
-expect-lex: Todo
+expect-lex: Ok
 --- source ---
-// lex: todo
+// lex: ok
 // parse: todo
 // sema: todo
 
@@ -15,195 +15,191 @@ def test_array_3(mutable array[uint[16], #dim=2] a) {}
 def test_array_4(readonly array[uint[16], #dim=2*n] a) {}
 def test_array_5(readonly array[int[8], #dim=1] a, mutable array[complex[float[64]], #dim=3] b, readonly array[complex[float[64]], 2, 2] c) -> int[8] {}
 --- lexer ---
-ok: false
-errors: 1
-[0] LineComment "// lex: todo" @0..12
-[1] Whitespace "\n" @12..13
-[2] LineComment "// parse: todo" @13..27
-[3] Whitespace "\n" @27..28
-[4] LineComment "// sema: todo" @28..41
-[5] Whitespace "\n\n" @41..43
-[6] Ident "def" @43..46
-[7] Whitespace " " @46..47
-[8] Ident "test_array_1" @47..59
-[9] OpenParen "(" @59..60
-[10] Ident "mutable" @60..67
-[11] Whitespace " " @67..68
-[12] Ident "array" @68..73
-[13] OpenBracket "[" @73..74
-[14] Ident "uint" @74..78
-[15] OpenBracket "[" @78..79
-[16] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @79..81
-[17] CloseBracket "]" @81..82
-[18] Comma "," @82..83
-[19] Whitespace " " @83..84
-[20] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @84..85
-[21] Comma "," @85..86
-[22] Whitespace " " @86..87
-[23] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @87..88
-[24] CloseBracket "]" @88..89
-[25] Whitespace " " @89..90
-[26] Ident "a" @90..91
-[27] CloseParen ")" @91..92
-[28] Whitespace " " @92..93
-[29] OpenBrace "{" @93..94
-[30] CloseBrace "}" @94..95
-[31] Whitespace "\n" @95..96
-[32] Ident "def" @96..99
-[33] Whitespace " " @99..100
-[34] Ident "test_array_2" @100..112
-[35] OpenParen "(" @112..113
-[36] Ident "readonly" @113..121
-[37] Whitespace " " @121..122
-[38] Ident "array" @122..127
-[39] OpenBracket "[" @127..128
-[40] Ident "uint" @128..132
-[41] OpenBracket "[" @132..133
-[42] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @133..135
-[43] CloseBracket "]" @135..136
-[44] Comma "," @136..137
-[45] Whitespace " " @137..138
-[46] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @138..139
-[47] Comma "," @139..140
-[48] Whitespace " " @140..141
-[49] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @141..142
-[50] CloseBracket "]" @142..143
-[51] Whitespace " " @143..144
-[52] Ident "a" @144..145
-[53] CloseParen ")" @145..146
-[54] Whitespace " " @146..147
-[55] OpenBrace "{" @147..148
-[56] CloseBrace "}" @148..149
-[57] Whitespace "\n" @149..150
-[58] Ident "def" @150..153
-[59] Whitespace " " @153..154
-[60] Ident "test_array_3" @154..166
-[61] OpenParen "(" @166..167
-[62] Ident "mutable" @167..174
-[63] Whitespace " " @174..175
-[64] Ident "array" @175..180
-[65] OpenBracket "[" @180..181
-[66] Ident "uint" @181..185
-[67] OpenBracket "[" @185..186
-[68] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @186..188
-[69] CloseBracket "]" @188..189
-[70] Comma "," @189..190
-[71] Whitespace " " @190..191
-[72] InvalidIdent "#" @191..192
-[73] Ident "dim" @192..195
-[74] Eq "=" @195..196
-[75] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @196..197
-[76] CloseBracket "]" @197..198
-[77] Whitespace " " @198..199
-[78] Ident "a" @199..200
-[79] CloseParen ")" @200..201
-[80] Whitespace " " @201..202
-[81] OpenBrace "{" @202..203
-[82] CloseBrace "}" @203..204
-[83] Whitespace "\n" @204..205
-[84] Ident "def" @205..208
-[85] Whitespace " " @208..209
-[86] Ident "test_array_4" @209..221
-[87] OpenParen "(" @221..222
-[88] Ident "readonly" @222..230
-[89] Whitespace " " @230..231
-[90] Ident "array" @231..236
-[91] OpenBracket "[" @236..237
-[92] Ident "uint" @237..241
-[93] OpenBracket "[" @241..242
-[94] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @242..244
-[95] CloseBracket "]" @244..245
-[96] Comma "," @245..246
-[97] Whitespace " " @246..247
-[98] InvalidIdent "#" @247..248
-[99] Ident "dim" @248..251
-[100] Eq "=" @251..252
-[101] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @252..253
-[102] Star "*" @253..254
-[103] Ident "n" @254..255
-[104] CloseBracket "]" @255..256
-[105] Whitespace " " @256..257
-[106] Ident "a" @257..258
-[107] CloseParen ")" @258..259
-[108] Whitespace " " @259..260
-[109] OpenBrace "{" @260..261
-[110] CloseBrace "}" @261..262
-[111] Whitespace "\n" @262..263
-[112] Ident "def" @263..266
-[113] Whitespace " " @266..267
-[114] Ident "test_array_5" @267..279
-[115] OpenParen "(" @279..280
-[116] Ident "readonly" @280..288
-[117] Whitespace " " @288..289
-[118] Ident "array" @289..294
-[119] OpenBracket "[" @294..295
-[120] Ident "int" @295..298
-[121] OpenBracket "[" @298..299
-[122] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @299..300
-[123] CloseBracket "]" @300..301
-[124] Comma "," @301..302
-[125] Whitespace " " @302..303
-[126] InvalidIdent "#" @303..304
-[127] Ident "dim" @304..307
-[128] Eq "=" @307..308
-[129] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @308..309
-[130] CloseBracket "]" @309..310
-[131] Whitespace " " @310..311
-[132] Ident "a" @311..312
-[133] Comma "," @312..313
-[134] Whitespace " " @313..314
-[135] Ident "mutable" @314..321
-[136] Whitespace " " @321..322
-[137] Ident "array" @322..327
-[138] OpenBracket "[" @327..328
-[139] Ident "complex" @328..335
-[140] OpenBracket "[" @335..336
-[141] Ident "float" @336..341
-[142] OpenBracket "[" @341..342
-[143] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "64" @342..344
-[144] CloseBracket "]" @344..345
-[145] CloseBracket "]" @345..346
-[146] Comma "," @346..347
-[147] Whitespace " " @347..348
-[148] InvalidIdent "#" @348..349
-[149] Ident "dim" @349..352
-[150] Eq "=" @352..353
-[151] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @353..354
-[152] CloseBracket "]" @354..355
-[153] Whitespace " " @355..356
-[154] Ident "b" @356..357
-[155] Comma "," @357..358
-[156] Whitespace " " @358..359
-[157] Ident "readonly" @359..367
-[158] Whitespace " " @367..368
-[159] Ident "array" @368..373
-[160] OpenBracket "[" @373..374
-[161] Ident "complex" @374..381
-[162] OpenBracket "[" @381..382
-[163] Ident "float" @382..387
-[164] OpenBracket "[" @387..388
-[165] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "64" @388..390
-[166] CloseBracket "]" @390..391
-[167] CloseBracket "]" @391..392
-[168] Comma "," @392..393
-[169] Whitespace " " @393..394
-[170] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @394..395
-[171] Comma "," @395..396
-[172] Whitespace " " @396..397
-[173] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @397..398
-[174] CloseBracket "]" @398..399
-[175] Whitespace " " @399..400
-[176] Ident "c" @400..401
-[177] CloseParen ")" @401..402
-[178] Whitespace " " @402..403
-[179] Minus "-" @403..404
-[180] Gt ">" @404..405
-[181] Whitespace " " @405..406
-[182] Ident "int" @406..409
-[183] OpenBracket "[" @409..410
-[184] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @410..411
-[185] CloseBracket "]" @411..412
-[186] Whitespace " " @412..413
-[187] OpenBrace "{" @413..414
-[188] CloseBrace "}" @414..415
-[189] Whitespace "\n" @415..416
+ok: true
+errors: 0
+[0] LineComment "// lex: ok" @0..10
+[1] Whitespace "\n" @10..11
+[2] LineComment "// parse: todo" @11..25
+[3] Whitespace "\n" @25..26
+[4] LineComment "// sema: todo" @26..39
+[5] Whitespace "\n\n" @39..41
+[6] Ident "def" @41..44
+[7] Whitespace " " @44..45
+[8] Ident "test_array_1" @45..57
+[9] OpenParen "(" @57..58
+[10] Ident "mutable" @58..65
+[11] Whitespace " " @65..66
+[12] Ident "array" @66..71
+[13] OpenBracket "[" @71..72
+[14] Ident "uint" @72..76
+[15] OpenBracket "[" @76..77
+[16] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @77..79
+[17] CloseBracket "]" @79..80
+[18] Comma "," @80..81
+[19] Whitespace " " @81..82
+[20] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @82..83
+[21] Comma "," @83..84
+[22] Whitespace " " @84..85
+[23] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @85..86
+[24] CloseBracket "]" @86..87
+[25] Whitespace " " @87..88
+[26] Ident "a" @88..89
+[27] CloseParen ")" @89..90
+[28] Whitespace " " @90..91
+[29] OpenBrace "{" @91..92
+[30] CloseBrace "}" @92..93
+[31] Whitespace "\n" @93..94
+[32] Ident "def" @94..97
+[33] Whitespace " " @97..98
+[34] Ident "test_array_2" @98..110
+[35] OpenParen "(" @110..111
+[36] Ident "readonly" @111..119
+[37] Whitespace " " @119..120
+[38] Ident "array" @120..125
+[39] OpenBracket "[" @125..126
+[40] Ident "uint" @126..130
+[41] OpenBracket "[" @130..131
+[42] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @131..133
+[43] CloseBracket "]" @133..134
+[44] Comma "," @134..135
+[45] Whitespace " " @135..136
+[46] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @136..137
+[47] Comma "," @137..138
+[48] Whitespace " " @138..139
+[49] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @139..140
+[50] CloseBracket "]" @140..141
+[51] Whitespace " " @141..142
+[52] Ident "a" @142..143
+[53] CloseParen ")" @143..144
+[54] Whitespace " " @144..145
+[55] OpenBrace "{" @145..146
+[56] CloseBrace "}" @146..147
+[57] Whitespace "\n" @147..148
+[58] Ident "def" @148..151
+[59] Whitespace " " @151..152
+[60] Ident "test_array_3" @152..164
+[61] OpenParen "(" @164..165
+[62] Ident "mutable" @165..172
+[63] Whitespace " " @172..173
+[64] Ident "array" @173..178
+[65] OpenBracket "[" @178..179
+[66] Ident "uint" @179..183
+[67] OpenBracket "[" @183..184
+[68] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @184..186
+[69] CloseBracket "]" @186..187
+[70] Comma "," @187..188
+[71] Whitespace " " @188..189
+[72] Dim "#dim" @189..193
+[73] Eq "=" @193..194
+[74] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @194..195
+[75] CloseBracket "]" @195..196
+[76] Whitespace " " @196..197
+[77] Ident "a" @197..198
+[78] CloseParen ")" @198..199
+[79] Whitespace " " @199..200
+[80] OpenBrace "{" @200..201
+[81] CloseBrace "}" @201..202
+[82] Whitespace "\n" @202..203
+[83] Ident "def" @203..206
+[84] Whitespace " " @206..207
+[85] Ident "test_array_4" @207..219
+[86] OpenParen "(" @219..220
+[87] Ident "readonly" @220..228
+[88] Whitespace " " @228..229
+[89] Ident "array" @229..234
+[90] OpenBracket "[" @234..235
+[91] Ident "uint" @235..239
+[92] OpenBracket "[" @239..240
+[93] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @240..242
+[94] CloseBracket "]" @242..243
+[95] Comma "," @243..244
+[96] Whitespace " " @244..245
+[97] Dim "#dim" @245..249
+[98] Eq "=" @249..250
+[99] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @250..251
+[100] Star "*" @251..252
+[101] Ident "n" @252..253
+[102] CloseBracket "]" @253..254
+[103] Whitespace " " @254..255
+[104] Ident "a" @255..256
+[105] CloseParen ")" @256..257
+[106] Whitespace " " @257..258
+[107] OpenBrace "{" @258..259
+[108] CloseBrace "}" @259..260
+[109] Whitespace "\n" @260..261
+[110] Ident "def" @261..264
+[111] Whitespace " " @264..265
+[112] Ident "test_array_5" @265..277
+[113] OpenParen "(" @277..278
+[114] Ident "readonly" @278..286
+[115] Whitespace " " @286..287
+[116] Ident "array" @287..292
+[117] OpenBracket "[" @292..293
+[118] Ident "int" @293..296
+[119] OpenBracket "[" @296..297
+[120] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @297..298
+[121] CloseBracket "]" @298..299
+[122] Comma "," @299..300
+[123] Whitespace " " @300..301
+[124] Dim "#dim" @301..305
+[125] Eq "=" @305..306
+[126] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @306..307
+[127] CloseBracket "]" @307..308
+[128] Whitespace " " @308..309
+[129] Ident "a" @309..310
+[130] Comma "," @310..311
+[131] Whitespace " " @311..312
+[132] Ident "mutable" @312..319
+[133] Whitespace " " @319..320
+[134] Ident "array" @320..325
+[135] OpenBracket "[" @325..326
+[136] Ident "complex" @326..333
+[137] OpenBracket "[" @333..334
+[138] Ident "float" @334..339
+[139] OpenBracket "[" @339..340
+[140] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "64" @340..342
+[141] CloseBracket "]" @342..343
+[142] CloseBracket "]" @343..344
+[143] Comma "," @344..345
+[144] Whitespace " " @345..346
+[145] Dim "#dim" @346..350
+[146] Eq "=" @350..351
+[147] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @351..352
+[148] CloseBracket "]" @352..353
+[149] Whitespace " " @353..354
+[150] Ident "b" @354..355
+[151] Comma "," @355..356
+[152] Whitespace " " @356..357
+[153] Ident "readonly" @357..365
+[154] Whitespace " " @365..366
+[155] Ident "array" @366..371
+[156] OpenBracket "[" @371..372
+[157] Ident "complex" @372..379
+[158] OpenBracket "[" @379..380
+[159] Ident "float" @380..385
+[160] OpenBracket "[" @385..386
+[161] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "64" @386..388
+[162] CloseBracket "]" @388..389
+[163] CloseBracket "]" @389..390
+[164] Comma "," @390..391
+[165] Whitespace " " @391..392
+[166] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @392..393
+[167] Comma "," @393..394
+[168] Whitespace " " @394..395
+[169] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @395..396
+[170] CloseBracket "]" @396..397
+[171] Whitespace " " @397..398
+[172] Ident "c" @398..399
+[173] CloseParen ")" @399..400
+[174] Whitespace " " @400..401
+[175] Minus "-" @401..402
+[176] Gt ">" @402..403
+[177] Whitespace " " @403..404
+[178] Ident "int" @404..407
+[179] OpenBracket "[" @407..408
+[180] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @408..409
+[181] CloseBracket "]" @409..410
+[182] Whitespace " " @410..411
+[183] OpenBrace "{" @411..412
+[184] CloseBrace "}" @412..413
+[185] Whitespace "\n" @413..414

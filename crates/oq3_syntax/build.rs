@@ -328,6 +328,7 @@ mod sourcegen {
             "let",
             "measure",
             "pragma",
+            "dim",
             "reset",
             // Flow control
             "break",
@@ -400,6 +401,7 @@ mod sourcegen {
             "SOURCE_FILE",
             "TIMING_LITERAL",
             // atoms
+            "DIM_EXPR",
             "ARRAY_EXPR",
             "BLOCK_EXPR",
             "BOX_EXPR",

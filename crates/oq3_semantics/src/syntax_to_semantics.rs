@@ -798,6 +798,7 @@ fn expr_to_asg_texpr(
         synast::Expr::BoxExpr(_) => panic!("BoxExpr not supported {expr:?}"),
         synast::Expr::GateCallExpr(_)
         | synast::Expr::GPhaseCallExpr(_)
+        | synast::Expr::DimExpr(_)
         | synast::Expr::ModifiedGateCallExpr(_) => panic!("You have found a bug in oq3_parser."),
     }
 }

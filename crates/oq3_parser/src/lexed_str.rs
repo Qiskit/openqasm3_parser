@@ -279,6 +279,7 @@ fn inner_extend_token<'a>(
             oq3_lexer::TokenKind::Percent => T![%],
             oq3_lexer::TokenKind::Unknown => ERROR,
             oq3_lexer::TokenKind::Eof => EOF,
+            oq3_lexer::TokenKind::Dim => T![dim],
         }
     };
     (err, syntax_kind, token_text.len())

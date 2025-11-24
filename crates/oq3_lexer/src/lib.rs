@@ -78,6 +78,8 @@ pub enum TokenKind {
 
     Pragma,
 
+    Dim,
+
     Annotation,
 
     /// Needed for OpenQASM 3 ?
@@ -336,6 +338,17 @@ impl Cursor<'_> {
                                     }
                                 }
                             }
+                        }
+                    }
+                } else if self.first() == 'd' {
+                    self.bump();
+                    if self.first() == 'i' {
+                        self.bump();
+                        if self.first() == 'm' {
+                            self.bump();
+                            let res = Token::new(Dim, self.pos_within_token());
+                            self.reset_pos_within_token();
+                            return res;
                         }
                     }
                 }

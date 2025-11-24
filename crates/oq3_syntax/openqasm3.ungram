@@ -99,6 +99,11 @@ AnnotationStatement =
 PragmaStatement =
    'pragma'
 
+// Using '#dim' is a problem. The code gen at some places does not like it.
+// crate quote, file runtime.rs: "#dim_token" is not a valid Ident
+DimExpr =
+   'dim' '=' Expr
+
 SwitchCaseStmt =
     'switch' '(' control:Expr ')' '{' (CaseExpr*) ('default' default_block:BlockExpr)? '}'
 
@@ -222,6 +227,7 @@ Expr =
 | PrefixExpr
 | RangeExpr
 | ReturnExpr
+| DimExpr
 
 Identifier =
     'ident'
