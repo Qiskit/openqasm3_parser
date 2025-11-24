@@ -10,7 +10,7 @@ use oq3_lexer::unescape::{unescape_byte, unescape_char, unescape_literal, Mode};
 
 use crate::{
     ast::{self, AstToken},
-    TextRange, TextSize,
+    TextRange, // TextSize,
 };
 
 impl ast::Comment {
@@ -108,42 +108,49 @@ impl ast::Whitespace {
     }
 }
 
+/// Offsets of a quoted literal within a single token.
+/// - quotes.0: range of the opening quote character
+/// - quotes.1: range of the closing quote character
+/// - contents: range between them (may be empty)
+///   Ranges are relative to the provided token text.
+///   Returns None unless the text starts and ends with the same quote (' or ").
 pub struct QuoteOffsets {
     pub quotes: (TextRange, TextRange),
     pub contents: TextRange,
 }
 
 impl QuoteOffsets {
-    fn new(literal: &str) -> Option<QuoteOffsets> {
-        let left_quote = literal.find('"')?;
-        let right_quote = literal.rfind('"')?;
-        if left_quote == right_quote {
-            // `literal` only contains one quote
+    pub fn new(text: &str) -> Option<Self> {
+        use rowan::{TextRange, TextSize};
+
+        let bs = text.as_bytes();
+        if bs.len() < 2 {
             return None;
         }
 
-        let start = TextSize::from(0);
-        let left_quote = TextSize::try_from(left_quote).unwrap() + TextSize::of('"');
-        let right_quote = TextSize::try_from(right_quote).unwrap();
-        let end = TextSize::of(literal);
+        let delim = bs[0];
+        if delim != b'"' && delim != b'\'' {
+            return None;
+        }
+        if bs[bs.len() - 1] != delim {
+            return None;
+        }
 
-        let res = QuoteOffsets {
-            quotes: (
-                TextRange::new(start, left_quote),
-                TextRange::new(right_quote, end),
-            ),
-            contents: TextRange::new(left_quote, right_quote),
-        };
-        Some(res)
+        let ts = |n: usize| TextSize::from(n as u32);
+
+        let open = TextRange::new(ts(0), ts(1));
+        let close = TextRange::new(ts(bs.len() - 1), ts(bs.len()));
+        let contents = TextRange::new(ts(1), ts(bs.len() - 1));
+
+        Some(QuoteOffsets {
+            quotes: (open, close),
+            contents,
+        })
     }
 }
 
 pub trait IsString: AstToken {
-    const RAW_PREFIX: &'static str;
     const MODE: Mode;
-    fn is_raw(&self) -> bool {
-        self.text().starts_with(Self::RAW_PREFIX)
-    }
     fn quote_offsets(&self) -> Option<QuoteOffsets> {
         let text = self.text();
         let offsets = QuoteOffsets::new(text)?;
@@ -192,19 +199,11 @@ pub trait IsString: AstToken {
 }
 
 impl IsString for ast::String {
-    const RAW_PREFIX: &'static str = "r";
     const MODE: Mode = Mode::Str;
 }
 
 impl ast::String {
     pub fn value(&self) -> Option<Cow<'_, str>> {
-        if self.is_raw() {
-            let text = self.text();
-            let text =
-                &text[self.text_range_between_quotes()? - self.syntax().text_range().start()];
-            return Some(Cow::Borrowed(text));
-        }
-
         let text = self.text();
         let text = &text[self.text_range_between_quotes()? - self.syntax().text_range().start()];
 
@@ -235,21 +234,18 @@ impl ast::String {
     }
 }
 
-// FIXME: RAW_PREFIX is a crufty artifact. It's not used in OQ3.
 impl IsString for ast::BitString {
-    const RAW_PREFIX: &'static str = "br";
     const MODE: Mode = Mode::BitStr;
 }
 
 impl ast::BitString {
-    // The bitstring has only '0' and '1'
+    // Accepts both '0101' and "0101"
     pub fn value(&self) -> Option<Cow<'_, str>> {
         let text = self.text();
         let text = &text[self.text_range_between_quotes()? - self.syntax().text_range().start()];
         Some(Cow::Borrowed(text))
     }
 
-    // FIXME: find a good name for this function
     pub fn str(&self) -> Option<&str> {
         let text = self.text();
         Some(&text[self.text_range_between_quotes()? - self.syntax().text_range().start()])

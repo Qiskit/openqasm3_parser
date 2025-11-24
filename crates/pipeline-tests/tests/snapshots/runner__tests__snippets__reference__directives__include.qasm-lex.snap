@@ -23,18 +23,16 @@ errors: 0
 [5] Whitespace "\n\n" @41..43
 [6] Ident "include" @43..50
 [7] Whitespace " " @50..51
-[8] Unknown "'" @51..52
-[9] Ident "foo2" @52..56
-[10] Unknown "'" @56..57
-[11] Semi ";" @57..58
-[12] Whitespace "\n" @58..59
-[13] Ident "include" @59..66
-[14] Whitespace " " @66..67
-[15] Literal { kind: Str { terminated: true }, suffix_start: 5 } ""foo"" @67..72
-[16] Semi ";" @72..73
-[17] Whitespace "\n" @73..74
-[18] Ident "include" @74..81
-[19] Whitespace " " @81..82
-[20] Literal { kind: BitStr { terminated: true, consecutive_underscores: false }, suffix_start: 5 } ""001"" @82..87
-[21] Semi ";" @87..88
-[22] Whitespace "\n" @88..89
+[8] Literal { kind: Str { terminated: true }, suffix_start: 6 } "'foo2'" @51..57
+[9] Semi ";" @57..58
+[10] Whitespace "\n" @58..59
+[11] Ident "include" @59..66
+[12] Whitespace " " @66..67
+[13] Literal { kind: Str { terminated: true }, suffix_start: 5 } ""foo"" @67..72
+[14] Semi ";" @72..73
+[15] Whitespace "\n" @73..74
+[16] Ident "include" @74..81
+[17] Whitespace " " @81..82
+[18] Literal { kind: BitStr { terminated: true, consecutive_underscores: false }, suffix_start: 5 } ""001"" @82..87
+[19] Semi ";" @87..88
+[20] Whitespace "\n" @88..89

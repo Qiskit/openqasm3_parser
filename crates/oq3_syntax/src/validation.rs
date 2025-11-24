@@ -12,17 +12,10 @@ pub use oq3_parser::T;
 //use rowan::Direction;
 use oq3_lexer::unescape::{self, unescape_literal, Mode};
 
-use crate::{
-    ast::{self, IsString},
-    match_ast, AstNode, HasTextNode, SyntaxError, SyntaxNode, TextSize,
-};
+use crate::{ast, match_ast, AstNode, HasTextNode, SyntaxError, SyntaxNode, TextSize};
 
 // FIXME: GJL, I think I disabled many of these. Some should be used.
 pub(crate) fn validate(root: &SyntaxNode) -> Vec<SyntaxError> {
-    // FIXME: fixme note *not* added by GJL.
-    // * Add unescape validation of raw string literals and raw byte string literals
-    // * Add validation of doc comments are being attached to nodes
-
     let mut errors = Vec::new();
     for node in root.descendants() {
         match_ast! {
@@ -135,15 +128,13 @@ fn validate_literal(literal: ast::Literal, acc: &mut Vec<SyntaxError>) {
     };
 
     match literal.kind() {
-        ast::LiteralKind::String(s) => {
-            if !s.is_raw() {
-                if let Some(without_quotes) = unquote(text, 1, '"') {
-                    unescape_literal(without_quotes, Mode::Str, &mut |range, char| {
-                        if let Err(err) = char {
-                            push_err(1, range.start, err);
-                        }
-                    });
-                }
+        ast::LiteralKind::String(_s) => {
+            if let Some(without_quotes) = unquote(text, 1, '"') {
+                unescape_literal(without_quotes, Mode::Str, &mut |range, char| {
+                    if let Err(err) = char {
+                        push_err(1, range.start, err);
+                    }
+                });
             }
         }
         ast::LiteralKind::BitString(_s) => {
