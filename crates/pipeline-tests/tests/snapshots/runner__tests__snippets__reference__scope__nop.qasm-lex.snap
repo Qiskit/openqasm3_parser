@@ -1,0 +1,84 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/reference/scope/nop.qasm
+expect-lex: Ok
+--- source ---
+// lex: ok
+// parse: todo
+// sema: todo
+
+nop;
+nop $0;
+nop $1, $2;
+nop q, q[0],;
+box {
+  nop $0;
+}
+gate x q {
+  nop q;
+}
+--- lexer ---
+ok: true
+errors: 0
+[0] LineComment "// lex: ok" @0..10
+[1] Whitespace "\n" @10..11
+[2] LineComment "// parse: todo" @11..25
+[3] Whitespace "\n" @25..26
+[4] LineComment "// sema: todo" @26..39
+[5] Whitespace "\n\n" @39..41
+[6] Ident "nop" @41..44
+[7] Semi ";" @44..45
+[8] Whitespace "\n" @45..46
+[9] Ident "nop" @46..49
+[10] Whitespace " " @49..50
+[11] HardwareIdent "$0" @50..52
+[12] Semi ";" @52..53
+[13] Whitespace "\n" @53..54
+[14] Ident "nop" @54..57
+[15] Whitespace " " @57..58
+[16] HardwareIdent "$1" @58..60
+[17] Comma "," @60..61
+[18] Whitespace " " @61..62
+[19] HardwareIdent "$2" @62..64
+[20] Semi ";" @64..65
+[21] Whitespace "\n" @65..66
+[22] Ident "nop" @66..69
+[23] Whitespace " " @69..70
+[24] Ident "q" @70..71
+[25] Comma "," @71..72
+[26] Whitespace " " @72..73
+[27] Ident "q" @73..74
+[28] OpenBracket "[" @74..75
+[29] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @75..76
+[30] CloseBracket "]" @76..77
+[31] Comma "," @77..78
+[32] Semi ";" @78..79
+[33] Whitespace "\n" @79..80
+[34] Ident "box" @80..83
+[35] Whitespace " " @83..84
+[36] OpenBrace "{" @84..85
+[37] Whitespace "\n  " @85..88
+[38] Ident "nop" @88..91
+[39] Whitespace " " @91..92
+[40] HardwareIdent "$0" @92..94
+[41] Semi ";" @94..95
+[42] Whitespace "\n" @95..96
+[43] CloseBrace "}" @96..97
+[44] Whitespace "\n" @97..98
+[45] Ident "gate" @98..102
+[46] Whitespace " " @102..103
+[47] Ident "x" @103..104
+[48] Whitespace " " @104..105
+[49] Ident "q" @105..106
+[50] Whitespace " " @106..107
+[51] OpenBrace "{" @107..108
+[52] Whitespace "\n  " @108..111
+[53] Ident "nop" @111..114
+[54] Whitespace " " @114..115
+[55] Ident "q" @115..116
+[56] Semi ";" @116..117
+[57] Whitespace "\n" @117..118
+[58] CloseBrace "}" @118..119
+[59] Whitespace "\n" @119..120

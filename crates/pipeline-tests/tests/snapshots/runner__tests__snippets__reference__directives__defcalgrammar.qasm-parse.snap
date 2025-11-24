@@ -1,0 +1,28 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/directives/defcalgrammar.qasm
+expect-parse: Todo
+--- parser ---
+ok: false
+panicked: false
+errors: 5
+--- ast ---
+SOURCE_FILE@0..116: // lex: ok
+// parse: todo
+// sema: todo
+
+defcalgrammar 'openpulse';
+defcalgrammar "openpulse";
+defcalgrammar "001";
+
+DEF_CAL_GRAMMAR@41..56: defcalgrammar '
+ERROR@55..56: '
+EXPR_STMT@56..65: openpulse
+IDENTIFIER@56..65: openpulse
+ERROR@65..66: '
+DEF_CAL_GRAMMAR@68..94: defcalgrammar "openpulse";
+FILE_PATH@82..93: "openpulse"
+DEF_CAL_GRAMMAR@95..115: defcalgrammar "001";
+ERROR@109..114: "001"

@@ -1,0 +1,13 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/directives/include.qasm
+expect-parse: Panic
+--- parser ---
+ok: false
+panicked: true
+panic: called `Option::unwrap()` on a `None` value
+errors: 0
+--- ast ---
+(no ast)

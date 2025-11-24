@@ -1,0 +1,88 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/reference/control_flow/branching.qasm
+expect-lex: Ok
+--- source ---
+// lex: ok
+// parse: ok
+// sema: panic
+
+include "stdgates.inc";
+if (x == a) {
+  for uint i in [0:2:4] x[i] += 1;
+}
+else CX x[0], x[1];
+--- lexer ---
+ok: true
+errors: 0
+[0] LineComment "// lex: ok" @0..10
+[1] Whitespace "\n" @10..11
+[2] LineComment "// parse: ok" @11..23
+[3] Whitespace "\n" @23..24
+[4] LineComment "// sema: panic" @24..38
+[5] Whitespace "\n\n" @38..40
+[6] Ident "include" @40..47
+[7] Whitespace " " @47..48
+[8] Literal { kind: Str { terminated: true }, suffix_start: 14 } ""stdgates.inc"" @48..62
+[9] Semi ";" @62..63
+[10] Whitespace "\n" @63..64
+[11] Ident "if" @64..66
+[12] Whitespace " " @66..67
+[13] OpenParen "(" @67..68
+[14] Ident "x" @68..69
+[15] Whitespace " " @69..70
+[16] Eq "=" @70..71
+[17] Eq "=" @71..72
+[18] Whitespace " " @72..73
+[19] Ident "a" @73..74
+[20] CloseParen ")" @74..75
+[21] Whitespace " " @75..76
+[22] OpenBrace "{" @76..77
+[23] Whitespace "\n  " @77..80
+[24] Ident "for" @80..83
+[25] Whitespace " " @83..84
+[26] Ident "uint" @84..88
+[27] Whitespace " " @88..89
+[28] Ident "i" @89..90
+[29] Whitespace " " @90..91
+[30] Ident "in" @91..93
+[31] Whitespace " " @93..94
+[32] OpenBracket "[" @94..95
+[33] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @95..96
+[34] Colon ":" @96..97
+[35] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @97..98
+[36] Colon ":" @98..99
+[37] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @99..100
+[38] CloseBracket "]" @100..101
+[39] Whitespace " " @101..102
+[40] Ident "x" @102..103
+[41] OpenBracket "[" @103..104
+[42] Ident "i" @104..105
+[43] CloseBracket "]" @105..106
+[44] Whitespace " " @106..107
+[45] Plus "+" @107..108
+[46] Eq "=" @108..109
+[47] Whitespace " " @109..110
+[48] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @110..111
+[49] Semi ";" @111..112
+[50] Whitespace "\n" @112..113
+[51] CloseBrace "}" @113..114
+[52] Whitespace "\n" @114..115
+[53] Ident "else" @115..119
+[54] Whitespace " " @119..120
+[55] Ident "CX" @120..122
+[56] Whitespace " " @122..123
+[57] Ident "x" @123..124
+[58] OpenBracket "[" @124..125
+[59] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @125..126
+[60] CloseBracket "]" @126..127
+[61] Comma "," @127..128
+[62] Whitespace " " @128..129
+[63] Ident "x" @129..130
+[64] OpenBracket "[" @130..131
+[65] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @131..132
+[66] CloseBracket "]" @132..133
+[67] Semi ";" @133..134
+[68] Whitespace "\n" @134..135

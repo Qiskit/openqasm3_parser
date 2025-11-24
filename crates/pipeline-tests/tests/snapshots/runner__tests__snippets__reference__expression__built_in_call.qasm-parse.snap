@@ -1,0 +1,130 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/expression/built_in_call.qasm
+expect-parse: Ok
+--- parser ---
+ok: true
+panicked: false
+errors: 0
+--- ast ---
+SOURCE_FILE@0..216: // lex: ok
+// parse: ok
+// sema: panic
+
+int[32](10);
+sin(π);
+arcsin(π);
+cos(π);
+arccos(π);
+tan(π);
+arctan(π);
+exp(π);
+ln(π);
+sqrt(π);
+rotl(π);
+rotr(π);
+popcount(π);
+sizeof(x);
+sizeof(x, 0);
+sizeof(x, 1);
+
+EXPR_STMT@40..52: int[32](10);
+CAST_EXPRESSION@40..51: int[32](10)
+SCALAR_TYPE@40..47: int[32]
+DESIGNATOR@43..47: [32]
+LITERAL@44..46: 32
+LITERAL@48..50: 10
+EXPR_STMT@53..61: sin(π);
+CALL_EXPR@53..60: sin(π)
+IDENTIFIER@53..56: sin
+ARG_LIST@56..60: (π)
+EXPRESSION_LIST@56..60: (π)
+IDENTIFIER@57..59: π
+EXPR_STMT@62..73: arcsin(π);
+CALL_EXPR@62..72: arcsin(π)
+IDENTIFIER@62..68: arcsin
+ARG_LIST@68..72: (π)
+EXPRESSION_LIST@68..72: (π)
+IDENTIFIER@69..71: π
+EXPR_STMT@74..82: cos(π);
+CALL_EXPR@74..81: cos(π)
+IDENTIFIER@74..77: cos
+ARG_LIST@77..81: (π)
+EXPRESSION_LIST@77..81: (π)
+IDENTIFIER@78..80: π
+EXPR_STMT@83..94: arccos(π);
+CALL_EXPR@83..93: arccos(π)
+IDENTIFIER@83..89: arccos
+ARG_LIST@89..93: (π)
+EXPRESSION_LIST@89..93: (π)
+IDENTIFIER@90..92: π
+EXPR_STMT@95..103: tan(π);
+CALL_EXPR@95..102: tan(π)
+IDENTIFIER@95..98: tan
+ARG_LIST@98..102: (π)
+EXPRESSION_LIST@98..102: (π)
+IDENTIFIER@99..101: π
+EXPR_STMT@104..115: arctan(π);
+CALL_EXPR@104..114: arctan(π)
+IDENTIFIER@104..110: arctan
+ARG_LIST@110..114: (π)
+EXPRESSION_LIST@110..114: (π)
+IDENTIFIER@111..113: π
+EXPR_STMT@116..124: exp(π);
+CALL_EXPR@116..123: exp(π)
+IDENTIFIER@116..119: exp
+ARG_LIST@119..123: (π)
+EXPRESSION_LIST@119..123: (π)
+IDENTIFIER@120..122: π
+EXPR_STMT@125..132: ln(π);
+CALL_EXPR@125..131: ln(π)
+IDENTIFIER@125..127: ln
+ARG_LIST@127..131: (π)
+EXPRESSION_LIST@127..131: (π)
+IDENTIFIER@128..130: π
+EXPR_STMT@133..142: sqrt(π);
+CALL_EXPR@133..141: sqrt(π)
+IDENTIFIER@133..137: sqrt
+ARG_LIST@137..141: (π)
+EXPRESSION_LIST@137..141: (π)
+IDENTIFIER@138..140: π
+EXPR_STMT@143..152: rotl(π);
+CALL_EXPR@143..151: rotl(π)
+IDENTIFIER@143..147: rotl
+ARG_LIST@147..151: (π)
+EXPRESSION_LIST@147..151: (π)
+IDENTIFIER@148..150: π
+EXPR_STMT@153..162: rotr(π);
+CALL_EXPR@153..161: rotr(π)
+IDENTIFIER@153..157: rotr
+ARG_LIST@157..161: (π)
+EXPRESSION_LIST@157..161: (π)
+IDENTIFIER@158..160: π
+EXPR_STMT@163..176: popcount(π);
+CALL_EXPR@163..175: popcount(π)
+IDENTIFIER@163..171: popcount
+ARG_LIST@171..175: (π)
+EXPRESSION_LIST@171..175: (π)
+IDENTIFIER@172..174: π
+EXPR_STMT@177..187: sizeof(x);
+CALL_EXPR@177..186: sizeof(x)
+IDENTIFIER@177..183: sizeof
+ARG_LIST@183..186: (x)
+EXPRESSION_LIST@183..186: (x)
+IDENTIFIER@184..185: x
+EXPR_STMT@188..201: sizeof(x, 0);
+CALL_EXPR@188..200: sizeof(x, 0)
+IDENTIFIER@188..194: sizeof
+ARG_LIST@194..200: (x, 0)
+EXPRESSION_LIST@194..200: (x, 0)
+IDENTIFIER@195..196: x
+LITERAL@198..199: 0
+EXPR_STMT@202..215: sizeof(x, 1);
+CALL_EXPR@202..214: sizeof(x, 1)
+IDENTIFIER@202..208: sizeof
+ARG_LIST@208..214: (x, 1)
+EXPRESSION_LIST@208..214: (x, 1)
+IDENTIFIER@209..210: x
+LITERAL@212..213: 1

@@ -157,6 +157,13 @@ impl SourceFile {
     pub fn file_path(&self) -> &Path {
         &self.file_path
     }
+
+    pub fn ast(&self) -> Option<&ParsedSource> {
+        self.syntax_ast.as_ref()
+    }
+    pub fn included_files(&self) -> &[SourceFile] {
+        &self.included
+    }
 }
 
 /// Read the environment variable `QASM3_PATH` and return a list of directory paths to search

@@ -1,0 +1,13 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: sema_snap
+---
+id: tests/snippets/reference/expression/built_in_call.qasm
+expect-sema: Panic
+--- sema ---
+ok: false
+panicked: true
+panic: true
+errors: 0
+--- asg ---
+(no asg)

@@ -1,0 +1,72 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/reference/expression/sub_and_extern_call.qasm
+expect-lex: Ok
+--- source ---
+// lex: ok
+// parse: ok
+// sema: panic
+
+bit x = sub_call(10, "01", q1[0], q2);
+int[2] y = extern_call(0.5, 10dt);
+ambiguous_call(pi);
+--- lexer ---
+ok: true
+errors: 0
+[0] LineComment "// lex: ok" @0..10
+[1] Whitespace "\n" @10..11
+[2] LineComment "// parse: ok" @11..23
+[3] Whitespace "\n" @23..24
+[4] LineComment "// sema: panic" @24..38
+[5] Whitespace "\n\n" @38..40
+[6] Ident "bit" @40..43
+[7] Whitespace " " @43..44
+[8] Ident "x" @44..45
+[9] Whitespace " " @45..46
+[10] Eq "=" @46..47
+[11] Whitespace " " @47..48
+[12] Ident "sub_call" @48..56
+[13] OpenParen "(" @56..57
+[14] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "10" @57..59
+[15] Comma "," @59..60
+[16] Whitespace " " @60..61
+[17] Literal { kind: BitStr { terminated: true, consecutive_underscores: false }, suffix_start: 4 } ""01"" @61..65
+[18] Comma "," @65..66
+[19] Whitespace " " @66..67
+[20] Ident "q1" @67..69
+[21] OpenBracket "[" @69..70
+[22] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @70..71
+[23] CloseBracket "]" @71..72
+[24] Comma "," @72..73
+[25] Whitespace " " @73..74
+[26] Ident "q2" @74..76
+[27] CloseParen ")" @76..77
+[28] Semi ";" @77..78
+[29] Whitespace "\n" @78..79
+[30] Ident "int" @79..82
+[31] OpenBracket "[" @82..83
+[32] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @83..84
+[33] CloseBracket "]" @84..85
+[34] Whitespace " " @85..86
+[35] Ident "y" @86..87
+[36] Whitespace " " @87..88
+[37] Eq "=" @88..89
+[38] Whitespace " " @89..90
+[39] Ident "extern_call" @90..101
+[40] OpenParen "(" @101..102
+[41] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "0.5" @102..105
+[42] Comma "," @105..106
+[43] Whitespace " " @106..107
+[44] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "10" @107..109
+[45] Ident "dt" @109..111
+[46] CloseParen ")" @111..112
+[47] Semi ";" @112..113
+[48] Whitespace "\n" @113..114
+[49] Ident "ambiguous_call" @114..128
+[50] OpenParen "(" @128..129
+[51] Ident "pi" @129..131
+[52] CloseParen ")" @131..132
+[53] Semi ";" @132..133
+[54] Whitespace "\n" @133..134

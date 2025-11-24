@@ -1,0 +1,20 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/directives/pragma.qasm
+expect-parse: Todo
+--- parser ---
+ok: true
+panicked: false
+errors: 0
+--- ast ---
+SOURCE_FILE@0..91: // lex: ok
+// parse: todo
+// sema: todo
+
+pragma IO_BIND[2:3]
+#pragma  __directive_info__ 0
+
+PRAGMA_STATEMENT@41..60: pragma IO_BIND[2:3]
+PRAGMA_STATEMENT@61..90: #pragma  __directive_info__ 0

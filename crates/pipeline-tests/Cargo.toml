@@ -1,0 +1,20 @@
+[package]
+name = "pipeline-tests"
+version = "0.1.0"
+edition = "2021"
+
+[dev-dependencies]
+glob = "0.3"
+insta = "1"
+datatest-stable = "0.3.3"
+
+[dependencies]
+oq3_lexer.workspace = true
+oq3_parser.workspace = true
+oq3_syntax.workspace = true
+oq3_semantics.workspace = true
+oq3_source_file.workspace = true
+
+[[test]]
+name = "runner"
+harness = false

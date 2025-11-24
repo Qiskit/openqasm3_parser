@@ -1,0 +1,22 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: sema_snap
+---
+id: tests/snippets/reference/gate/gate_modifiers.qasm
+expect-sema: Ok
+--- sema ---
+ok: true
+panicked: false
+errors: 0
+--- asg ---
+DeclareQuantum(DeclareQuantum { name: Ok(SymbolId(7)) })
+
+GateDefinition(GateDefinition { name: Ok(SymbolId(9)), params: None, qubits: [Ok(SymbolId(8))], block: Block { statements: [] } })
+
+GateCall(GateCall { name: Ok(SymbolId(9)), params: None, qubits: [TExpr { expression: GateOperand(Identifier(Ok(SymbolId(7)))), ty: Qubit }], modifiers: [Ctrl(Some(TExpr { expression: Literal(Int(IntLiteral { value: 2, sign: true })), ty: Int(Some(128), True) }))] })
+
+GateCall(GateCall { name: Ok(SymbolId(9)), params: None, qubits: [TExpr { expression: GateOperand(Identifier(Ok(SymbolId(7)))), ty: Qubit }], modifiers: [NegCtrl(Some(TExpr { expression: Literal(Int(IntLiteral { value: 3, sign: true })), ty: Int(Some(128), True) }))] })
+
+GateCall(GateCall { name: Ok(SymbolId(9)), params: None, qubits: [TExpr { expression: GateOperand(Identifier(Ok(SymbolId(7)))), ty: Qubit }], modifiers: [Pow(TExpr { expression: BinaryExpr(BinaryExpr { op: ArithOp(Div), left: TExpr { expression: Literal(Float(FloatLiteral { value: "-1" })), ty: Float(Some(64), True) }, right: TExpr { expression: Literal(Float(FloatLiteral { value: "2" })), ty: Float(Some(64), True) } }), ty: Float(Some(64), True) })] })
+
+GateCall(GateCall { name: Ok(SymbolId(9)), params: None, qubits: [TExpr { expression: GateOperand(Identifier(Ok(SymbolId(7)))), ty: Qubit }], modifiers: [Inv] })

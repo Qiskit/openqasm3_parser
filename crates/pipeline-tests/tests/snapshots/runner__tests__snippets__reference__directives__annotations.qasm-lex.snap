@@ -1,0 +1,132 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/reference/directives/annotations.qasm
+expect-lex: Ok
+--- source ---
+// lex: ok
+// parse: ok
+// sema: diag
+
+@bind [2:3]
+input uint[16] x;
+
+@rename other
+output float[64] var;
+
+@hello world
+int[8] x;
+
+@outer
+def fn() {
+  @inner word1
+  uint[16] x;
+  @inner word2
+  return;
+}
+
+@first
+@second @not_third
+uint[16] x;
+
+@binds tightly
+x = 1; x = 2;
+--- lexer ---
+ok: true
+errors: 0
+[0] LineComment "// lex: ok" @0..10
+[1] Whitespace "\n" @10..11
+[2] LineComment "// parse: ok" @11..23
+[3] Whitespace "\n" @23..24
+[4] LineComment "// sema: diag" @24..37
+[5] Whitespace "\n\n" @37..39
+[6] Annotation "@bind [2:3]" @39..50
+[7] Whitespace "\n" @50..51
+[8] Ident "input" @51..56
+[9] Whitespace " " @56..57
+[10] Ident "uint" @57..61
+[11] OpenBracket "[" @61..62
+[12] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @62..64
+[13] CloseBracket "]" @64..65
+[14] Whitespace " " @65..66
+[15] Ident "x" @66..67
+[16] Semi ";" @67..68
+[17] Whitespace "\n\n" @68..70
+[18] Annotation "@rename other" @70..83
+[19] Whitespace "\n" @83..84
+[20] Ident "output" @84..90
+[21] Whitespace " " @90..91
+[22] Ident "float" @91..96
+[23] OpenBracket "[" @96..97
+[24] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "64" @97..99
+[25] CloseBracket "]" @99..100
+[26] Whitespace " " @100..101
+[27] Ident "var" @101..104
+[28] Semi ";" @104..105
+[29] Whitespace "\n\n" @105..107
+[30] Annotation "@hello world" @107..119
+[31] Whitespace "\n" @119..120
+[32] Ident "int" @120..123
+[33] OpenBracket "[" @123..124
+[34] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @124..125
+[35] CloseBracket "]" @125..126
+[36] Whitespace " " @126..127
+[37] Ident "x" @127..128
+[38] Semi ";" @128..129
+[39] Whitespace "\n\n" @129..131
+[40] Annotation "@outer" @131..137
+[41] Whitespace "\n" @137..138
+[42] Ident "def" @138..141
+[43] Whitespace " " @141..142
+[44] Ident "fn" @142..144
+[45] OpenParen "(" @144..145
+[46] CloseParen ")" @145..146
+[47] Whitespace " " @146..147
+[48] OpenBrace "{" @147..148
+[49] Whitespace "\n  " @148..151
+[50] Annotation "@inner word1" @151..163
+[51] Whitespace "\n  " @163..166
+[52] Ident "uint" @166..170
+[53] OpenBracket "[" @170..171
+[54] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @171..173
+[55] CloseBracket "]" @173..174
+[56] Whitespace " " @174..175
+[57] Ident "x" @175..176
+[58] Semi ";" @176..177
+[59] Whitespace "\n  " @177..180
+[60] Annotation "@inner word2" @180..192
+[61] Whitespace "\n  " @192..195
+[62] Ident "return" @195..201
+[63] Semi ";" @201..202
+[64] Whitespace "\n" @202..203
+[65] CloseBrace "}" @203..204
+[66] Whitespace "\n\n" @204..206
+[67] Annotation "@first" @206..212
+[68] Whitespace "\n" @212..213
+[69] Annotation "@second @not_third" @213..231
+[70] Whitespace "\n" @231..232
+[71] Ident "uint" @232..236
+[72] OpenBracket "[" @236..237
+[73] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @237..239
+[74] CloseBracket "]" @239..240
+[75] Whitespace " " @240..241
+[76] Ident "x" @241..242
+[77] Semi ";" @242..243
+[78] Whitespace "\n\n" @243..245
+[79] Annotation "@binds tightly" @245..259
+[80] Whitespace "\n" @259..260
+[81] Ident "x" @260..261
+[82] Whitespace " " @261..262
+[83] Eq "=" @262..263
+[84] Whitespace " " @263..264
+[85] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @264..265
+[86] Semi ";" @265..266
+[87] Whitespace " " @266..267
+[88] Ident "x" @267..268
+[89] Whitespace " " @268..269
+[90] Eq "=" @269..270
+[91] Whitespace " " @270..271
+[92] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @271..272
+[93] Semi ";" @272..273
+[94] Whitespace "\n" @273..274

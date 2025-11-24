@@ -1,0 +1,16 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: sema_snap
+---
+id: tests/snippets/reference/comments/comments_cnot.qasm
+expect-sema: Diag
+--- sema ---
+ok: false
+panicked: false
+errors: 1
+--- asg ---
+DeclareQuantum(DeclareQuantum { name: Ok(SymbolId(39)) })
+
+GateCall(GateCall { name: Ok(SymbolId(10)), params: None, qubits: [TExpr { expression: GateOperand(IndexedIdentifier(IndexedIdentifier { identifier: Ok(SymbolId(39)), indexes: [ExpressionList(ExpressionList { expressions: [TExpr { expression: Literal(Int(IntLiteral { value: 0, sign: true })), ty: Int(Some(128), True) }] })] })), ty: QubitArray(D1(2)) }], modifiers: [] })
+
+GateCall(GateCall { name: Err(MissingBinding), params: None, qubits: [TExpr { expression: GateOperand(IndexedIdentifier(IndexedIdentifier { identifier: Ok(SymbolId(39)), indexes: [ExpressionList(ExpressionList { expressions: [TExpr { expression: Literal(Int(IntLiteral { value: 0, sign: true })), ty: Int(Some(128), True) }] })] })), ty: QubitArray(D1(2)) }, TExpr { expression: GateOperand(IndexedIdentifier(IndexedIdentifier { identifier: Ok(SymbolId(39)), indexes: [ExpressionList(ExpressionList { expressions: [TExpr { expression: Literal(Int(IntLiteral { value: 1, sign: true })), ty: Int(Some(128), True) }] })] })), ty: QubitArray(D1(2)) }], modifiers: [] })

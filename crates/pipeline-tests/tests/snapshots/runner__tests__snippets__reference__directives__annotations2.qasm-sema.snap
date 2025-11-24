@@ -1,0 +1,24 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: sema_snap
+---
+id: tests/snippets/reference/directives/annotations2.qasm
+expect-sema: Ok
+--- sema ---
+ok: true
+panicked: false
+errors: 0
+--- asg ---
+AnnotatedStmt(AnnotatedStmt { stmt: InputDeclaration(InputDeclaration { name: Ok(SymbolId(7)) }), annotations: [Annotation { annotation_text: "@bind [2:3]" }] })
+
+AnnotatedStmt(AnnotatedStmt { stmt: OutputDeclaration(OutputDeclaration { name: Ok(SymbolId(8)) }), annotations: [Annotation { annotation_text: "@rename other" }] })
+
+AnnotatedStmt(AnnotatedStmt { stmt: DeclareClassical(DeclareClassical { name: Ok(SymbolId(9)), initializer: None }), annotations: [Annotation { annotation_text: "@hello world" }] })
+
+AnnotatedStmt(AnnotatedStmt { stmt: DefStmt(DefStmt { name: Ok(SymbolId(11)), params: [], block: Block { statements: [DeclareClassical(DeclareClassical { name: Ok(SymbolId(10)), initializer: None }), ExprStmt(TExpr { expression: Return(ReturnExpression { value: None }), ty: Void })] }, return_type: Void }), annotations: [Annotation { annotation_text: "@outer" }, Annotation { annotation_text: "@inner word1" }, Annotation { annotation_text: "@inner word2" }] })
+
+AnnotatedStmt(AnnotatedStmt { stmt: DeclareClassical(DeclareClassical { name: Ok(SymbolId(12)), initializer: None }), annotations: [Annotation { annotation_text: "@first" }, Annotation { annotation_text: "@second @not_third" }] })
+
+AnnotatedStmt(AnnotatedStmt { stmt: Assignment(Assignment { lvalue: Identifier(Ok(SymbolId(7))), rvalue: TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(Int(IntLiteral { value: 1, sign: true })), ty: Int(Some(128), True) }, typ: UInt(Some(16), False) }), ty: UInt(Some(16), False) } }), annotations: [Annotation { annotation_text: "@binds tightly" }] })
+
+Assignment(Assignment { lvalue: Identifier(Ok(SymbolId(7))), rvalue: TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(Int(IntLiteral { value: 2, sign: true })), ty: Int(Some(128), True) }, typ: UInt(Some(16), False) }), ty: UInt(Some(16), False) } })

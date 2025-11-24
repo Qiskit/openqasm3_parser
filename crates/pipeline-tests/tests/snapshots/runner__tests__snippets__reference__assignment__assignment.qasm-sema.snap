@@ -1,0 +1,12 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: sema_snap
+---
+id: tests/snippets/reference/assignment/assignment.qasm
+expect-sema: Skip
+--- sema ---
+ok: true
+panicked: false
+errors: 0
+--- asg ---
+(no asg)

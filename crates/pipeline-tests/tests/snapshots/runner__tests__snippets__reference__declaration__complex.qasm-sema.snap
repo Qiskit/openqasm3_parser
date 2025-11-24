@@ -1,0 +1,22 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: sema_snap
+---
+id: tests/snippets/reference/declaration/complex.qasm
+expect-sema: Todo
+--- sema ---
+ok: false
+panicked: false
+errors: 1
+--- asg ---
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(7)), initializer: None })
+
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(8)), initializer: Some(TExpr { expression: BinaryExpr(BinaryExpr { op: ArithOp(Sub), left: TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(Int(IntLiteral { value: 4, sign: true })), ty: Int(Some(128), True) }, typ: Complex(Some(64), True) }), ty: Complex(Some(64), True) }, right: TExpr { expression: Literal(ImaginaryFloat(FloatLiteral { value: "5.5" })), ty: Complex(Some(64), True) } }), ty: Complex(Some(64), True) }) })
+
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(9)), initializer: Some(TExpr { expression: BinaryExpr(BinaryExpr { op: ArithOp(Add), left: TExpr { expression: Identifier(Ok(SymbolId(7))), ty: Complex(None, False) }, right: TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(ImaginaryInt(IntLiteral { value: 3, sign: true })), ty: Int(Some(64), True) }, typ: Complex(None, False) }), ty: Complex(None, False) } }), ty: Complex(None, False) }) })
+
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(10)), initializer: Some(TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(ImaginaryInt(IntLiteral { value: 1, sign: true })), ty: Int(Some(64), True) }, typ: Complex(None, False) }), ty: Complex(None, False) }) })
+
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(11)), initializer: Some(TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(ImaginaryInt(IntLiteral { value: 1, sign: true })), ty: Int(Some(64), True) }, typ: Complex(None, False) }), ty: Complex(None, False) }) })
+
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(12)), initializer: None })

@@ -1,0 +1,12 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/reference/subroutine/array.qasm
+expect-parse: Todo
+--- parser ---
+ok: false
+panicked: false
+errors: 4
+--- ast ---
+(no ast)
