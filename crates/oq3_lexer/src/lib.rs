@@ -429,6 +429,25 @@ impl Cursor<'_> {
                 };
                 Literal { kind, suffix_start }
             }
+
+            // String literal.
+            '\'' => {
+                let (terminated, only_ones_and_zeros, consecutive_underscores) =
+                    self.single_quoted_string();
+                let suffix_start = self.pos_within_token();
+                if terminated {
+                    self.eat_literal_suffix();
+                }
+                let kind = match only_ones_and_zeros {
+                    true => BitStr {
+                        terminated,
+                        consecutive_underscores,
+                    },
+                    false => Str { terminated },
+                };
+                Literal { kind, suffix_start }
+            }
+
             // OQ3 can error on this as well.
             // Identifier starting with an emoji. Only lexed for graceful error recovery.
             c if !c.is_ascii() && c.is_emoji_char() => self.fake_ident_or_unknown_prefix(),
@@ -740,6 +759,54 @@ impl Cursor<'_> {
                     return (terminated, only_ones_and_zeros, consecutive_underscores);
                 }
                 '\\' if self.first() == '\\' || self.first() == '"' => {
+                    // Bump again to skip escaped character.
+                    only_ones_and_zeros = false;
+                    self.bump();
+                }
+                '\n' => {
+                    count_newlines += 1;
+                    if count_newlines > 1 {
+                        only_ones_and_zeros = false;
+                    }
+                }
+                '_' => {
+                    if prev_char == '_' {
+                        consecutive_underscores = true;
+                    }
+                }
+                '0' | '1' => (),
+                _ => {
+                    only_ones_and_zeros = false;
+                }
+            }
+            prev_char = c;
+        }
+        // This will skip the case that an unterminated bitstring is the last
+        // characters in a file. Probably not too common.
+        if count_newlines > 0 && !(count_newlines == 1 && prev_char == '\n') {
+            only_ones_and_zeros = false;
+        }
+        // End of file reached.
+        (terminated, only_ones_and_zeros, consecutive_underscores)
+    }
+
+    fn single_quoted_string(&mut self) -> (bool, bool, bool) {
+        debug_assert!(self.prev() == '\'');
+        let mut only_ones_and_zeros = true;
+        let mut terminated = false;
+        let mut consecutive_underscores = false;
+        let mut count_newlines = 0;
+        let mut prev_char = '\0';
+        while let Some(c) = self.bump() {
+            match c {
+                '\'' => {
+                    terminated = true;
+                    if count_newlines > 0 {
+                        only_ones_and_zeros = false;
+                    }
+                    return (terminated, only_ones_and_zeros, consecutive_underscores);
+                }
+                '\\' if self.first() == '\\' || self.first() == '\'' => {
                     // Bump again to skip escaped character.
                     only_ones_and_zeros = false;
                     self.bump();

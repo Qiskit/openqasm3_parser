@@ -23,18 +23,16 @@ errors: 0
 [5] Whitespace "\n\n" @39..41
 [6] Ident "defcalgrammar" @41..54
 [7] Whitespace " " @54..55
-[8] Unknown "'" @55..56
-[9] Ident "openpulse" @56..65
-[10] Unknown "'" @65..66
-[11] Semi ";" @66..67
-[12] Whitespace "\n" @67..68
-[13] Ident "defcalgrammar" @68..81
-[14] Whitespace " " @81..82
-[15] Literal { kind: Str { terminated: true }, suffix_start: 11 } ""openpulse"" @82..93
-[16] Semi ";" @93..94
-[17] Whitespace "\n" @94..95
-[18] Ident "defcalgrammar" @95..108
-[19] Whitespace " " @108..109
-[20] Literal { kind: BitStr { terminated: true, consecutive_underscores: false }, suffix_start: 5 } ""001"" @109..114
-[21] Semi ";" @114..115
-[22] Whitespace "\n" @115..116
+[8] Literal { kind: Str { terminated: true }, suffix_start: 11 } "'openpulse'" @55..66
+[9] Semi ";" @66..67
+[10] Whitespace "\n" @67..68
+[11] Ident "defcalgrammar" @68..81
+[12] Whitespace " " @81..82
+[13] Literal { kind: Str { terminated: true }, suffix_start: 11 } ""openpulse"" @82..93
+[14] Semi ";" @93..94
+[15] Whitespace "\n" @94..95
+[16] Ident "defcalgrammar" @95..108
+[17] Whitespace " " @108..109
+[18] Literal { kind: BitStr { terminated: true, consecutive_underscores: false }, suffix_start: 5 } ""001"" @109..114
+[19] Semi ";" @114..115
+[20] Whitespace "\n" @115..116
