@@ -7,7 +7,7 @@ expect-parse: Todo
 --- parser ---
 ok: false
 panicked: false
-errors: 56
+errors: 40
 --- ast ---
 SOURCE_FILE@0..414: // lex: ok
 // parse: todo
@@ -55,8 +55,7 @@ ARRAY_TYPE@173..196: array[uint[16], #dim=2]
 SCALAR_TYPE@179..187: uint[16]
 DESIGNATOR@183..187: [16]
 LITERAL@184..186: 16
-ERROR@189..193: #dim
-ERROR@193..194: =
+DIM_EXPR@189..196: #dim=2]
 LITERAL@194..195: 2
 NAME@197..198: a
 ERROR@198..199: )
@@ -70,8 +69,7 @@ ARRAY_TYPE@229..254: array[uint[16], #dim=2*n]
 SCALAR_TYPE@235..243: uint[16]
 DESIGNATOR@239..243: [16]
 LITERAL@240..242: 16
-ERROR@245..249: #dim
-ERROR@249..250: =
+DIM_EXPR@245..254: #dim=2*n]
 BIN_EXPR@250..253: 2*n
 LITERAL@250..251: 2
 IDENTIFIER@252..253: n
@@ -87,8 +85,7 @@ ARRAY_TYPE@287..308: array[int[8], #dim=1]
 SCALAR_TYPE@293..299: int[8]
 DESIGNATOR@296..299: [8]
 LITERAL@297..298: 8
-ERROR@301..305: #dim
-ERROR@305..306: =
+DIM_EXPR@301..308: #dim=1]
 LITERAL@306..307: 1
 NAME@309..310: a
 ERROR@310..311: ,
@@ -98,8 +95,7 @@ SCALAR_TYPE@326..344: complex[float[64]]
 SCALAR_TYPE@334..343: float[64]
 DESIGNATOR@339..343: [64]
 LITERAL@340..342: 64
-ERROR@346..350: #dim
-ERROR@350..351: =
+DIM_EXPR@346..353: #dim=3]
 LITERAL@351..352: 3
 NAME@354..355: b
 ERROR@355..356: ,

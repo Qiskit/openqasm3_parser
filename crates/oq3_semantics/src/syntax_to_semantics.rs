@@ -1171,14 +1171,16 @@ fn classical_declaration_statement_to_asg_stmt(
     type_decl: &synast::ClassicalDeclarationStatement,
     context: &mut Context,
 ) -> asg::Stmt {
-    if type_decl.array_type().is_some() {
+    let lhs_type = if type_decl.array_type().is_some() {
         if !context.symbol_table().in_global_scope() {
             context.insert_error(NotInGlobalScopeError, type_decl);
         }
-        panic!("Array types are not supported yet in the ASG");
-    }
-    let scalar_type = type_decl.scalar_type().unwrap();
-    let lhs_type = scalar_type_to_type(&scalar_type, type_decl.const_token().is_some(), context);
+        context.insert_error(NotImplementedError, type_decl);
+        Type::ToDo
+    } else {
+        let scalar_type = type_decl.scalar_type().unwrap();
+        scalar_type_to_type(&scalar_type, type_decl.const_token().is_some(), context)
+    };
     let name_str = type_decl.name().unwrap().string();
     let initializer = expr_to_asg_texpr(type_decl.expr(), context);
     let symbol_id = context.new_binding(name_str.as_ref(), &lhs_type, type_decl);
