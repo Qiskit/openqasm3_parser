@@ -33,6 +33,13 @@ use crate::utils::type_name_of; // for debugging
 // traits
 use synast::{HasArgList, HasName, HasTextNode};
 
+macro_rules! not_impl {
+    ($ctx:expr, $node:expr) => {{
+        $ctx.insert_error(NotImplementedError, &$node);
+        Some(asg::Stmt::NullStmt)
+    }};
+}
+
 pub struct ParseResult<T: SourceTrait> {
     syntax_result: T, // syntax tree and errors
     context: Context, // semantic asg and errors
@@ -298,7 +305,10 @@ fn stmt_to_asg_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::St
             let iterable = if let Some(set_expression) = iterable_ast.set_expression() {
                 asg::ForIterable::SetExpression(set_expression_to_asg_type(set_expression, context))
             } else if let Some(range_expression) = iterable_ast.range_expr() {
-                asg::ForIterable::RangeExpression(range_expression_to_asg_type(range_expression, context))
+                asg::ForIterable::RangeExpression(range_expression_to_asg_type(
+                    range_expression,
+                    context,
+                ))
             } else if let Some(expression) = iterable_ast.for_iterable_expr() {
                 asg::ForIterable::Expr(expr_to_asg_texpr(Some(expression), context).unwrap())
             } else {
@@ -333,9 +343,9 @@ fn stmt_to_asg_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::St
             )
         }
 
-        synast::Stmt::ClassicalDeclarationStatement(type_decl) => {
-            Some(classical_declaration_statement_to_asg_stmt(&type_decl, context))
-        }
+        synast::Stmt::ClassicalDeclarationStatement(type_decl) => Some(
+            classical_declaration_statement_to_asg_stmt(&type_decl, context),
+        ),
 
         synast::Stmt::IODeclarationStatement(type_decl) => {
             Some(io_declaration_statement_to_asg_stmt(&type_decl, context))
@@ -349,7 +359,9 @@ fn stmt_to_asg_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::St
                 name_str.string()
             } else {
                 let hw_qubit = q_decl.hardware_qubit().unwrap();
-                return Some(asg::DeclareHardwareQubit::new(hardware_qubit_to_asg_type(&hw_qubit)).to_stmt());
+                return Some(
+                    asg::DeclareHardwareQubit::new(hardware_qubit_to_asg_type(&hw_qubit)).to_stmt(),
+                );
             };
             let qubit_type = q_decl.qubit_type().unwrap();
             let width = designator_to_asg(qubit_type.designator().as_ref(), context);
@@ -418,10 +430,7 @@ fn stmt_to_asg_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::St
             };
             let gate_name_symbol_id = context.new_binding(
                 name_node.string().as_ref(),
-                &Type::Gate(
-                    num_params,
-                    qubits.len(),
-                ),
+                &Type::Gate(num_params, qubits.len()),
                 &name_node,
             );
             Some(asg::GateDefinition::new(gate_name_symbol_id, params, qubits, block).to_stmt())
@@ -446,21 +455,26 @@ fn stmt_to_asg_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::St
                 Some(ref params) => params.len(),
                 None => 0,
             };
-            let return_type = def_stmt.return_signature()
+            let return_type = def_stmt
+                .return_signature()
                 .and_then(|x| x.scalar_type())
                 .map(|x| scalar_type_to_type(&x, true, context));
             let return_type = match return_type {
                 Some(typ) => typ,
-                _ => Type::Void
+                _ => Type::Void,
             };
             let def_name_symbol_id = context.new_binding(
                 name_node.string().as_ref(),
-                &Type::SubroutineDef(
-                    types::SubroutineDef{ num_params, return_type: Box::new(return_type.clone()) }
-                ),
+                &Type::SubroutineDef(types::SubroutineDef {
+                    num_params,
+                    return_type: Box::new(return_type.clone()),
+                }),
                 &name_node,
             );
-            Some(asg::DefStmt::new(def_name_symbol_id, params.unwrap(), block, return_type).to_stmt())
+            Some(
+                asg::DefStmt::new(def_name_symbol_id, params.unwrap(), block, return_type)
+                    .to_stmt(),
+            )
         }
 
         synast::Stmt::Barrier(barrier) => {
@@ -470,7 +484,8 @@ fn stmt_to_asg_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::St
 
         synast::Stmt::DelayStmt(delay_stmt) => {
             let gate_operands = qubit_list_to_asg_texpr(delay_stmt.qubit_list(), context);
-            let duration = expr_to_asg_texpr(delay_stmt.designator().unwrap().expr(), context).unwrap();
+            let duration =
+                expr_to_asg_texpr(delay_stmt.designator().unwrap().expr(), context).unwrap();
             if !matches!(duration.get_type(), Type::Duration(_)) {
                 context.insert_error(IncompatibleTypesError, &delay_stmt.designator().unwrap());
             }
@@ -526,13 +541,11 @@ fn stmt_to_asg_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::St
             Some(asg::Alias::new(symbol_id, rhs).to_stmt())
         }
 
-        synast::Stmt::Cal(_)
-            | synast::Stmt::DefCal(_)
-            | synast::Stmt::DefCalGrammar(_)
-            // The following two should probably be removed from the syntax parser.
-            | synast::Stmt::LetStmt(_)
-            | synast::Stmt::Measure(_)
-            => panic!("Unsupported statement {stmt}"),
+        synast::Stmt::DefCal(ast_code) => not_impl!(context, ast_code),
+        synast::Stmt::Cal(n) => not_impl!(context, n),
+        synast::Stmt::DefCalGrammar(n) => not_impl!(context, n),
+        synast::Stmt::LetStmt(n) => not_impl!(context, n),
+        synast::Stmt::Measure(n) => not_impl!(context, n),
     }
 }
 
@@ -637,6 +650,10 @@ fn expr_to_asg_texpr(
                     }
                     synast::LiteralKind::IntNumber(n) => negative_int_to_asg_type(n).to_texpr(),
                     _ => {
+                        // This will take some work
+                        //                        context.insert_error(NotImplementedError, &prefix_expr);
+                        //                        Some(asg::Expr::NullExpr).to_texpr()
+                        //                        Some(asg::Stmt::NullStmt)
                         panic!("Only integers and floats are supported as operands to unary minus.")
                     }
                 }),
