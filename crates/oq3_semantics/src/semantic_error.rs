@@ -38,6 +38,7 @@ pub enum SemanticErrorKind {
     InvalidDesignatorError,
     // Generic IO error. Any io::ErrorKind that we do not translated explicitly
     IOError,
+    NotImplementedError,
 }
 
 impl SemanticErrorKind {

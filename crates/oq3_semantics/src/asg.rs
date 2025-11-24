@@ -130,6 +130,7 @@ pub enum Expr {
     MeasureExpression(Box<MeasureExpression>),
     SetExpression(SetExpression),
     RangeExpression(Box<RangeExpression>),
+    NullExpr,
 }
 
 /// Typed expression implemented by tagging an `Expr` with a `Type`.

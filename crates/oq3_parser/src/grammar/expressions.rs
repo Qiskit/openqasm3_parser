@@ -397,13 +397,29 @@ pub(crate) fn array_type_spec(p: &mut Parser<'_>) -> bool {
     type_spec(p);
     p.expect(COMMA);
     // Parse the dimensions.
-    loop {
-        expr(p);
+    if p.at(T![dim]) {
+        let m = p.start();
+        p.bump_any();
+        if p.eat(T![=]) {
+            expr(p);
+        } else {
+            p.error("Expecting '=' after #dim");
+        }
         if p.at(T![']']) {
             p.bump_any();
-            break;
+        } else {
+            p.error("Expecting ']' after #dim specification");
         }
-        p.expect(COMMA);
+        m.complete(p, DIM_EXPR);
+    } else {
+        loop {
+            expr(p);
+            if p.at(T![']']) {
+                p.bump_any();
+                break;
+            }
+            p.expect(COMMA);
+        }
     }
     m.complete(p, ARRAY_TYPE);
     true
