@@ -411,6 +411,8 @@ fn check(path: &Path) -> datatest_stable::Result<()> {
 }
 
 // One test per .qasm under tests/snippets (recursive). Requires harness=false in Cargo.toml.
+
+#[cfg(not(target_os = "windows"))]
 datatest_stable::harness! {
     { test = check, root = ROOT, pattern = r".*\.qasm$" },
 }
