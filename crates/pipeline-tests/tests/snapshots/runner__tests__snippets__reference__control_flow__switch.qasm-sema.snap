@@ -3,10 +3,18 @@ source: crates/pipeline-tests/tests/runner.rs
 expression: sema_snap
 ---
 id: tests/snippets/reference/control_flow/switch.qasm
-expect-sema: Skip
+expect-sema: Ok
 --- sema ---
 ok: true
 panicked: false
 errors: 0
 --- asg ---
-(no asg)
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(39)), initializer: Some(TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(Int(IntLiteral { value: 1, sign: true })), ty: Int(Some(128), True) }, typ: Int(None, False) }), ty: Int(None, False) }) })
+
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(40)), initializer: Some(TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(Int(IntLiteral { value: 2, sign: true })), ty: Int(Some(128), True) }, typ: Int(None, False) }), ty: Int(None, False) }) })
+
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(41)), initializer: Some(TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(Int(IntLiteral { value: 3, sign: true })), ty: Int(Some(128), True) }, typ: Int(None, False) }), ty: Int(None, False) }) })
+
+SwitchCaseStmt(SwitchCaseStmt { control: TExpr { expression: Identifier(Ok(SymbolId(39))), ty: Int(None, False) }, cases: [CaseExpr { control_values: [TExpr { expression: Literal(Int(IntLiteral { value: 0, sign: true })), ty: Int(Some(128), True) }], statements: [GateCall(GateCall { name: Ok(SymbolId(7)), params: None, qubits: [TExpr { expression: GateOperand(HardwareQubit(HardwareQubit { identifier: "$0" })), ty: HardwareQubit }], modifiers: [] })] }, CaseExpr { control_values: [TExpr { expression: Literal(Int(IntLiteral { value: 1, sign: true })), ty: Int(Some(128), True) }, TExpr { expression: Literal(Int(IntLiteral { value: 2, sign: true })), ty: Int(Some(128), True) }], statements: [GateCall(GateCall { name: Ok(SymbolId(7)), params: None, qubits: [TExpr { expression: GateOperand(HardwareQubit(HardwareQubit { identifier: "$0" })), ty: HardwareQubit }], modifiers: [] }), GateCall(GateCall { name: Ok(SymbolId(9)), params: None, qubits: [TExpr { expression: GateOperand(HardwareQubit(HardwareQubit { identifier: "$1" })), ty: HardwareQubit }], modifiers: [] })] }, CaseExpr { control_values: [TExpr { expression: Literal(Int(IntLiteral { value: 3, sign: true })), ty: Int(Some(128), True) }], statements: [] }], default_block: Some([GateCall(GateCall { name: Ok(SymbolId(25)), params: None, qubits: [TExpr { expression: GateOperand(HardwareQubit(HardwareQubit { identifier: "$0" })), ty: HardwareQubit }, TExpr { expression: GateOperand(HardwareQubit(HardwareQubit { identifier: "$1" })), ty: HardwareQubit }], modifiers: [] })]) })
+
+SwitchCaseStmt(SwitchCaseStmt { control: TExpr { expression: BinaryExpr(BinaryExpr { op: ArithOp(Add), left: TExpr { expression: Identifier(Ok(SymbolId(39))), ty: Int(None, False) }, right: TExpr { expression: Identifier(Ok(SymbolId(40))), ty: Int(None, False) } }), ty: Int(None, False) }, cases: [], default_block: Some([SwitchCaseStmt(SwitchCaseStmt { control: TExpr { expression: BinaryExpr(BinaryExpr { op: ArithOp(Mul), left: TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(Int(IntLiteral { value: 2, sign: true })), ty: Int(Some(128), True) }, typ: Int(None, False) }), ty: Int(None, False) }, right: TExpr { expression: Identifier(Ok(SymbolId(41))), ty: Int(None, False) } }), ty: Int(None, False) }, cases: [CaseExpr { control_values: [TExpr { expression: Literal(Int(IntLiteral { value: 0, sign: true })), ty: Int(Some(128), True) }], statements: [GateCall(GateCall { name: Ok(SymbolId(7)), params: None, qubits: [TExpr { expression: GateOperand(HardwareQubit(HardwareQubit { identifier: "$0" })), ty: HardwareQubit }], modifiers: [] })] }], default_block: Some([GateCall(GateCall { name: Ok(SymbolId(9)), params: None, qubits: [TExpr { expression: GateOperand(HardwareQubit(HardwareQubit { identifier: "$0" })), ty: HardwareQubit }], modifiers: [] })]) })]) })

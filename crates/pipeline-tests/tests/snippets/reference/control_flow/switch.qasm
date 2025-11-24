@@ -1,6 +1,12 @@
 // lex: ok
-// parse: todo
-// sema: skip
+// parse: ok
+// sema: ok
+
+include "stdgates.inc";
+
+int i = 1;
+int j = 2;
+int k = 3;
 
 switch (i) {
   case 0 {

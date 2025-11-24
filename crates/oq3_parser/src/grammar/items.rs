@@ -112,13 +112,13 @@ fn switch_case_stmt(p: &mut Parser<'_>, m: Marker) {
     expressions::expr(p);
     p.expect(T![')']);
     p.expect(T!['{']);
-    if !p.at(T![case]) {
-        p.error("expecting `case` keyword");
+    if !p.at(T![case]) && !p.at(T![default]) {
+        p.error("expecting `case` or `default` keyword");
     }
     while p.at(T![case]) {
         let m1 = p.start();
         p.bump(T![case]);
-        params::expression_list(p);
+        params::case_value_list(p);
         expressions::try_block_expr(p);
         m1.complete(p, CASE_EXPR);
     }
