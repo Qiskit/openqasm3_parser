@@ -486,6 +486,21 @@ impl WhileStmt {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct DimExpr {
+    pub(crate) syntax: SyntaxNode,
+}
+impl DimExpr {
+    pub fn dim_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![dim])
+    }
+    pub fn eq_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![=])
+    }
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct CaseExpr {
     pub(crate) syntax: SyntaxNode,
 }
@@ -1131,6 +1146,7 @@ pub enum Expr {
     PrefixExpr(PrefixExpr),
     RangeExpr(RangeExpr),
     ReturnExpr(ReturnExpr),
+    DimExpr(DimExpr),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GateOperand {
@@ -1583,6 +1599,21 @@ impl AstNode for VersionString {
 impl AstNode for WhileStmt {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == WHILE_STMT
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for DimExpr {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == DIM_EXPR
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2601,6 +2632,11 @@ impl From<ReturnExpr> for Expr {
         Expr::ReturnExpr(node)
     }
 }
+impl From<DimExpr> for Expr {
+    fn from(node: DimExpr) -> Expr {
+        Expr::DimExpr(node)
+    }
+}
 impl AstNode for Expr {
     fn can_cast(kind: SyntaxKind) -> bool {
         matches!(
@@ -2626,6 +2662,7 @@ impl AstNode for Expr {
                 | PREFIX_EXPR
                 | RANGE_EXPR
                 | RETURN_EXPR
+                | DIM_EXPR
         )
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
@@ -2651,6 +2688,7 @@ impl AstNode for Expr {
             PREFIX_EXPR => Expr::PrefixExpr(PrefixExpr { syntax }),
             RANGE_EXPR => Expr::RangeExpr(RangeExpr { syntax }),
             RETURN_EXPR => Expr::ReturnExpr(ReturnExpr { syntax }),
+            DIM_EXPR => Expr::DimExpr(DimExpr { syntax }),
             _ => return None,
         };
         Some(res)
@@ -2678,6 +2716,7 @@ impl AstNode for Expr {
             Expr::PrefixExpr(it) => &it.syntax,
             Expr::RangeExpr(it) => &it.syntax,
             Expr::ReturnExpr(it) => &it.syntax,
+            Expr::DimExpr(it) => &it.syntax,
         }
     }
 }
@@ -3013,6 +3052,11 @@ impl std::fmt::Display for VersionString {
     }
 }
 impl std::fmt::Display for WhileStmt {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for DimExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

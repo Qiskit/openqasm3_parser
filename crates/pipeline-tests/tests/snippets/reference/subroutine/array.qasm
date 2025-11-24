@@ -1,4 +1,4 @@
-// lex: todo
+// lex: ok
 // parse: todo
 // sema: todo
 
