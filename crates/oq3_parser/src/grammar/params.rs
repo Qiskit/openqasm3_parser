@@ -172,7 +172,8 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
             // These two have different requirements but share this entry point.
             DefParams | DefCalParams => param_typed(p, m),
             // Untyped parameters/qubits.
-            GateParams | GateQubits | DefCalQubits => param_untyped(p, m),
+            GateParams | GateQubits => param_untyped(p, m),
+            DefCalQubits => param_untyped_or_hardware_qubit(p, m),
         };
         if !found_param {
             break;
@@ -354,6 +355,22 @@ fn param_untyped(p: &mut Parser<'_>, m: Marker) -> bool {
     p.bump(IDENT);
     m.complete(p, PARAM);
     true
+}
+
+fn param_untyped_or_hardware_qubit(p: &mut Parser<'_>, m: Marker) -> bool {
+    if p.at(IDENT) {
+        p.bump(IDENT);
+        m.complete(p, PARAM);
+        true
+    } else if p.at(HARDWAREIDENT) {
+        m.abandon(p);
+        expressions::atom::hardware_qubit(p);
+        true
+    } else {
+        p.error("Expected parameter name");
+        m.abandon(p);
+        false
+    }
 }
 
 fn param_typed(p: &mut Parser<'_>, m: Marker) -> bool {

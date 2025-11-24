@@ -144,8 +144,6 @@ CX $0, $1;
 }
 
 // 17dedf
-// Bug
-// Incorrect syntax error recorded.
 // Not supported in the semantic analysis.
 // Issue #210
 #[test]
@@ -154,8 +152,10 @@ fn test_spec_types_5() {
 defcal h $0 { }
 "#;
     let (program, errors, _symbol_table) = parse_string(code);
-    assert!(errors.is_empty());
-    assert_eq!(program.len(), 0);
+    assert_eq!(errors.len(), 1);
+    assert_eq!(program.len(), 1);
+    let stmt = program.first();
+    assert!(matches!(stmt, Some(asg::Stmt::NullStmt)));
 }
 
 // 17dedf
