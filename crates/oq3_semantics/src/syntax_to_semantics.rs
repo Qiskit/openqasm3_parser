@@ -1015,16 +1015,16 @@ fn binary_op_to_asg_type(synast_op: synast::BinaryOp) -> asg::BinaryOp {
             use asg::BinaryOp::ArithOp;
             use synast::ArithOp::*;
             match arith_op {
-                Add   => ArithOp(asg::ArithOp::Add),
-                Sub   => ArithOp(asg::ArithOp::Sub),
-                Mul   => ArithOp(asg::ArithOp::Mul),
-                Div   => ArithOp(asg::ArithOp::Div),
-                Rem   => ArithOp(asg::ArithOp::Rem),
-                Shl   => ArithOp(asg::ArithOp::Shl),
-                Shr   => ArithOp(asg::ArithOp::Shr),
+                Add => ArithOp(asg::ArithOp::Add),
+                Sub => ArithOp(asg::ArithOp::Sub),
+                Mul => ArithOp(asg::ArithOp::Mul),
+                Div => ArithOp(asg::ArithOp::Div),
+                Rem => ArithOp(asg::ArithOp::Rem),
+                Shl => ArithOp(asg::ArithOp::Shl),
+                Shr => ArithOp(asg::ArithOp::Shr),
                 BitOr => ArithOp(asg::ArithOp::BitOr),
-                BitXor=> ArithOp(asg::ArithOp::BitXOr),
-                BitAnd=> ArithOp(asg::ArithOp::BitAnd),
+                BitXor => ArithOp(asg::ArithOp::BitXOr),
+                BitAnd => ArithOp(asg::ArithOp::BitAnd),
             }
             // match arith_op {
             //     Add => ArithOp(asg::ArithOp::Add),

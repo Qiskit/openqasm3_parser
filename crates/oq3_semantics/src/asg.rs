@@ -1576,6 +1576,5 @@ pub fn implicit_cast_type(op: &ArithOp, ty1: &Type, ty2: &Type) -> Type {
                 Type::Float(None, IsConst::False)
             }
         }
-
     }
 }
