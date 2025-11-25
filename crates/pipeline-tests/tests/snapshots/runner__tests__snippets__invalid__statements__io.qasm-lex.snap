@@ -1,0 +1,102 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/invalid/statements/io.qasm
+expect-lex: Ok
+--- source ---
+// lex: ok
+// parse: diag
+// sema: skip
+
+input int[8];
+output int[8];
+input qreg myvar[4];
+output qreg myvar[4];
+input int[8] myvar = 32;
+output int[8] myvar = 32;
+input myvar;
+output myvar;
+--- lexer ---
+ok: true
+errors: 0
+[0] LineComment "// lex: ok" @0..10
+[1] Whitespace "\n" @10..11
+[2] LineComment "// parse: diag" @11..25
+[3] Whitespace "\n" @25..26
+[4] LineComment "// sema: skip" @26..39
+[5] Whitespace "\n\n" @39..41
+[6] Ident "input" @41..46
+[7] Whitespace " " @46..47
+[8] Ident "int" @47..50
+[9] OpenBracket "[" @50..51
+[10] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @51..52
+[11] CloseBracket "]" @52..53
+[12] Semi ";" @53..54
+[13] Whitespace "\n" @54..55
+[14] Ident "output" @55..61
+[15] Whitespace " " @61..62
+[16] Ident "int" @62..65
+[17] OpenBracket "[" @65..66
+[18] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @66..67
+[19] CloseBracket "]" @67..68
+[20] Semi ";" @68..69
+[21] Whitespace "\n" @69..70
+[22] Ident "input" @70..75
+[23] Whitespace " " @75..76
+[24] Ident "qreg" @76..80
+[25] Whitespace " " @80..81
+[26] Ident "myvar" @81..86
+[27] OpenBracket "[" @86..87
+[28] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @87..88
+[29] CloseBracket "]" @88..89
+[30] Semi ";" @89..90
+[31] Whitespace "\n" @90..91
+[32] Ident "output" @91..97
+[33] Whitespace " " @97..98
+[34] Ident "qreg" @98..102
+[35] Whitespace " " @102..103
+[36] Ident "myvar" @103..108
+[37] OpenBracket "[" @108..109
+[38] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @109..110
+[39] CloseBracket "]" @110..111
+[40] Semi ";" @111..112
+[41] Whitespace "\n" @112..113
+[42] Ident "input" @113..118
+[43] Whitespace " " @118..119
+[44] Ident "int" @119..122
+[45] OpenBracket "[" @122..123
+[46] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @123..124
+[47] CloseBracket "]" @124..125
+[48] Whitespace " " @125..126
+[49] Ident "myvar" @126..131
+[50] Whitespace " " @131..132
+[51] Eq "=" @132..133
+[52] Whitespace " " @133..134
+[53] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @134..136
+[54] Semi ";" @136..137
+[55] Whitespace "\n" @137..138
+[56] Ident "output" @138..144
+[57] Whitespace " " @144..145
+[58] Ident "int" @145..148
+[59] OpenBracket "[" @148..149
+[60] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @149..150
+[61] CloseBracket "]" @150..151
+[62] Whitespace " " @151..152
+[63] Ident "myvar" @152..157
+[64] Whitespace " " @157..158
+[65] Eq "=" @158..159
+[66] Whitespace " " @159..160
+[67] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @160..162
+[68] Semi ";" @162..163
+[69] Whitespace "\n" @163..164
+[70] Ident "input" @164..169
+[71] Whitespace " " @169..170
+[72] Ident "myvar" @170..175
+[73] Semi ";" @175..176
+[74] Whitespace "\n" @176..177
+[75] Ident "output" @177..183
+[76] Whitespace " " @183..184
+[77] Ident "myvar" @184..189
+[78] Semi ";" @189..190
+[79] Whitespace "\n" @190..191

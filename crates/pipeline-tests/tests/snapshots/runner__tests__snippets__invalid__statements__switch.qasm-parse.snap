@@ -1,0 +1,55 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/invalid/statements/switch.qasm
+expect-parse: Diag
+--- parser ---
+ok: false
+panicked: false
+errors: 20
+--- ast ---
+SOURCE_FILE@0..187: // lex: ok
+// parse: diag
+// sema: skip
+
+switch () {}
+switch (i) { x $0 }
+switch (i) { case {} }
+switch (i) { case 1,, {} }
+switch (i) { default 0 {} }
+switch (i) { default, default {} }
+
+SWITCH_CASE_STMT@41..53: switch () {}
+SWITCH_CASE_STMT@54..66: switch (i) {
+IDENTIFIER@62..63: i
+GATE_CALL_EXPR@67..71: x $0
+IDENTIFIER@67..68: x
+QUBIT_LIST@69..71: $0
+HARDWARE_QUBIT@69..71: $0
+ERROR@72..73: }
+SWITCH_CASE_STMT@74..96: switch (i) { case {} }
+IDENTIFIER@82..83: i
+CASE_EXPR@87..94: case {}
+EXPRESSION_LIST@92..92: 
+BLOCK_EXPR@92..94: {}
+SWITCH_CASE_STMT@97..117: switch (i) { case 1,
+IDENTIFIER@105..106: i
+CASE_EXPR@110..117: case 1,
+EXPRESSION_LIST@115..117: 1,
+LITERAL@115..116: 1
+ERROR@117..118: ,
+BLOCK_EXPR@119..121: {}
+ERROR@122..123: }
+SWITCH_CASE_STMT@124..144: switch (i) { default
+IDENTIFIER@132..133: i
+EXPR_STMT@145..146: 0
+LITERAL@145..146: 0
+BLOCK_EXPR@147..149: {}
+ERROR@150..151: }
+SWITCH_CASE_STMT@152..172: switch (i) { default
+IDENTIFIER@160..161: i
+ERROR@172..173: ,
+ERROR@174..181: default
+BLOCK_EXPR@182..184: {}
+ERROR@185..186: }

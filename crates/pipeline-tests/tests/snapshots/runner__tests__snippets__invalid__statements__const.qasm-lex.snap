@@ -1,0 +1,93 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/invalid/statements/const.qasm
+expect-lex: Ok
+--- source ---
+// lex: ok
+// parse: diag
+// sema: skip
+
+const myvar;
+const myvar = ;
+const myvar = 8.0;
+input const myvar = 8;
+output const myvar = 8;
+const input myvar = 8;
+const output myvar = 8;
+--- lexer ---
+ok: true
+errors: 0
+[0] LineComment "// lex: ok" @0..10
+[1] Whitespace "\n" @10..11
+[2] LineComment "// parse: diag" @11..25
+[3] Whitespace "\n" @25..26
+[4] LineComment "// sema: skip" @26..39
+[5] Whitespace "\n\n" @39..41
+[6] Ident "const" @41..46
+[7] Whitespace " " @46..47
+[8] Ident "myvar" @47..52
+[9] Semi ";" @52..53
+[10] Whitespace "\n" @53..54
+[11] Ident "const" @54..59
+[12] Whitespace " " @59..60
+[13] Ident "myvar" @60..65
+[14] Whitespace " " @65..66
+[15] Eq "=" @66..67
+[16] Whitespace " " @67..68
+[17] Semi ";" @68..69
+[18] Whitespace "\n" @69..70
+[19] Ident "const" @70..75
+[20] Whitespace " " @75..76
+[21] Ident "myvar" @76..81
+[22] Whitespace " " @81..82
+[23] Eq "=" @82..83
+[24] Whitespace " " @83..84
+[25] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "8.0" @84..87
+[26] Semi ";" @87..88
+[27] Whitespace "\n" @88..89
+[28] Ident "input" @89..94
+[29] Whitespace " " @94..95
+[30] Ident "const" @95..100
+[31] Whitespace " " @100..101
+[32] Ident "myvar" @101..106
+[33] Whitespace " " @106..107
+[34] Eq "=" @107..108
+[35] Whitespace " " @108..109
+[36] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @109..110
+[37] Semi ";" @110..111
+[38] Whitespace "\n" @111..112
+[39] Ident "output" @112..118
+[40] Whitespace " " @118..119
+[41] Ident "const" @119..124
+[42] Whitespace " " @124..125
+[43] Ident "myvar" @125..130
+[44] Whitespace " " @130..131
+[45] Eq "=" @131..132
+[46] Whitespace " " @132..133
+[47] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @133..134
+[48] Semi ";" @134..135
+[49] Whitespace "\n" @135..136
+[50] Ident "const" @136..141
+[51] Whitespace " " @141..142
+[52] Ident "input" @142..147
+[53] Whitespace " " @147..148
+[54] Ident "myvar" @148..153
+[55] Whitespace " " @153..154
+[56] Eq "=" @154..155
+[57] Whitespace " " @155..156
+[58] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @156..157
+[59] Semi ";" @157..158
+[60] Whitespace "\n" @158..159
+[61] Ident "const" @159..164
+[62] Whitespace " " @164..165
+[63] Ident "output" @165..171
+[64] Whitespace " " @171..172
+[65] Ident "myvar" @172..177
+[66] Whitespace " " @177..178
+[67] Eq "=" @178..179
+[68] Whitespace " " @179..180
+[69] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @180..181
+[70] Semi ";" @181..182
+[71] Whitespace "\n" @182..183

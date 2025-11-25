@@ -1,0 +1,80 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/invalid/statements/tokens.qasm
+expect-lex: Diag
+--- source ---
+// lex: diag
+// parse: diag
+// sema: skip
+
+#;
+3x;
+x@x;
+3.4.3;
+3.4e3e3;
+// Bad integer literals.
+3__4;
+3_4_;
+0b123;
+0B123;
+0o789;
+0O789;
+0x12g;
+0X12g;
+12af;
+--- lexer ---
+ok: false
+errors: 1
+[0] LineComment "// lex: diag" @0..12
+[1] Whitespace "\n" @12..13
+[2] LineComment "// parse: diag" @13..27
+[3] Whitespace "\n" @27..28
+[4] LineComment "// sema: skip" @28..41
+[5] Whitespace "\n\n" @41..43
+[6] InvalidIdent "#" @43..44
+[7] Semi ";" @44..45
+[8] Whitespace "\n" @45..46
+[9] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3x" @46..48
+[10] Semi ";" @48..49
+[11] Whitespace "\n" @49..50
+[12] Ident "x" @50..51
+[13] Annotation "@x;" @51..54
+[14] Whitespace "\n" @54..55
+[15] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "3.4" @55..58
+[16] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 2 } ".3" @58..60
+[17] Semi ";" @60..61
+[18] Whitespace "\n" @61..62
+[19] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 5 } "3.4e3e3" @62..69
+[20] Semi ";" @69..70
+[21] Whitespace "\n" @70..71
+[22] LineComment "// Bad integer literals." @71..95
+[23] Whitespace "\n" @95..96
+[24] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 4 } "3__4" @96..100
+[25] Semi ";" @100..101
+[26] Whitespace "\n" @101..102
+[27] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 4 } "3_4_" @102..106
+[28] Semi ";" @106..107
+[29] Whitespace "\n" @107..108
+[30] Literal { kind: Int { base: Binary, empty_int: false }, suffix_start: 5 } "0b123" @108..113
+[31] Semi ";" @113..114
+[32] Whitespace "\n" @114..115
+[33] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0B123" @115..120
+[34] Semi ";" @120..121
+[35] Whitespace "\n" @121..122
+[36] Literal { kind: Int { base: Octal, empty_int: false }, suffix_start: 5 } "0o789" @122..127
+[37] Semi ";" @127..128
+[38] Whitespace "\n" @128..129
+[39] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0O789" @129..134
+[40] Semi ";" @134..135
+[41] Whitespace "\n" @135..136
+[42] Literal { kind: Int { base: Hexadecimal, empty_int: false }, suffix_start: 4 } "0x12g" @136..141
+[43] Semi ";" @141..142
+[44] Whitespace "\n" @142..143
+[45] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0X12g" @143..148
+[46] Semi ";" @148..149
+[47] Whitespace "\n" @149..150
+[48] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "12af" @150..154
+[49] Semi ";" @154..155
+[50] Whitespace "\n" @155..156
