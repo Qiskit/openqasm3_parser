@@ -6,7 +6,7 @@ id: tests/snippets/reference/subroutine/extern.qasm
 expect-lex: Ok
 --- source ---
 // lex: ok
-// parse: todo
+// parse: ok
 // sema: todo
 
 extern test_kern(bit[5], uint[10], float[16], complex[float[64]]) -> float[6];
@@ -15,47 +15,47 @@ ok: true
 errors: 0
 [0] LineComment "// lex: ok" @0..10
 [1] Whitespace "\n" @10..11
-[2] LineComment "// parse: todo" @11..25
-[3] Whitespace "\n" @25..26
-[4] LineComment "// sema: todo" @26..39
-[5] Whitespace "\n\n" @39..41
-[6] Ident "extern" @41..47
-[7] Whitespace " " @47..48
-[8] Ident "test_kern" @48..57
-[9] OpenParen "(" @57..58
-[10] Ident "bit" @58..61
-[11] OpenBracket "[" @61..62
-[12] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "5" @62..63
-[13] CloseBracket "]" @63..64
-[14] Comma "," @64..65
-[15] Whitespace " " @65..66
-[16] Ident "uint" @66..70
-[17] OpenBracket "[" @70..71
-[18] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "10" @71..73
-[19] CloseBracket "]" @73..74
-[20] Comma "," @74..75
-[21] Whitespace " " @75..76
-[22] Ident "float" @76..81
-[23] OpenBracket "[" @81..82
-[24] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @82..84
-[25] CloseBracket "]" @84..85
-[26] Comma "," @85..86
-[27] Whitespace " " @86..87
-[28] Ident "complex" @87..94
-[29] OpenBracket "[" @94..95
-[30] Ident "float" @95..100
-[31] OpenBracket "[" @100..101
-[32] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "64" @101..103
-[33] CloseBracket "]" @103..104
-[34] CloseBracket "]" @104..105
-[35] CloseParen ")" @105..106
-[36] Whitespace " " @106..107
-[37] Minus "-" @107..108
-[38] Gt ">" @108..109
-[39] Whitespace " " @109..110
-[40] Ident "float" @110..115
-[41] OpenBracket "[" @115..116
-[42] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "6" @116..117
-[43] CloseBracket "]" @117..118
-[44] Semi ";" @118..119
-[45] Whitespace "\n" @119..120
+[2] LineComment "// parse: ok" @11..23
+[3] Whitespace "\n" @23..24
+[4] LineComment "// sema: todo" @24..37
+[5] Whitespace "\n\n" @37..39
+[6] Ident "extern" @39..45
+[7] Whitespace " " @45..46
+[8] Ident "test_kern" @46..55
+[9] OpenParen "(" @55..56
+[10] Ident "bit" @56..59
+[11] OpenBracket "[" @59..60
+[12] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "5" @60..61
+[13] CloseBracket "]" @61..62
+[14] Comma "," @62..63
+[15] Whitespace " " @63..64
+[16] Ident "uint" @64..68
+[17] OpenBracket "[" @68..69
+[18] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "10" @69..71
+[19] CloseBracket "]" @71..72
+[20] Comma "," @72..73
+[21] Whitespace " " @73..74
+[22] Ident "float" @74..79
+[23] OpenBracket "[" @79..80
+[24] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @80..82
+[25] CloseBracket "]" @82..83
+[26] Comma "," @83..84
+[27] Whitespace " " @84..85
+[28] Ident "complex" @85..92
+[29] OpenBracket "[" @92..93
+[30] Ident "float" @93..98
+[31] OpenBracket "[" @98..99
+[32] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "64" @99..101
+[33] CloseBracket "]" @101..102
+[34] CloseBracket "]" @102..103
+[35] CloseParen ")" @103..104
+[36] Whitespace " " @104..105
+[37] Minus "-" @105..106
+[38] Gt ">" @106..107
+[39] Whitespace " " @107..108
+[40] Ident "float" @108..113
+[41] OpenBracket "[" @113..114
+[42] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "6" @114..115
+[43] CloseBracket "]" @115..116
+[44] Semi ";" @116..117
+[45] Whitespace "\n" @117..118

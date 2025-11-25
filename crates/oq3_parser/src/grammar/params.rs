@@ -35,6 +35,14 @@ pub(super) fn param_list_def_params(p: &mut Parser<'_>) {
     _param_list_openqasm(p, DefFlavor::DefParams);
 }
 
+pub(super) fn scalar_type_list(p: &mut Parser<'_>) {
+    // List of scalar types: (t0, t1, ...)
+    // - parens: yes
+    // - types only
+    // - terminator: ')'
+    _param_list_openqasm(p, DefFlavor::TypeListFlavor);
+}
+
 pub(super) fn param_list_defcal_params(p: &mut Parser<'_>) {
     // DefCal parameter list: (p0, t1 p1, ...)
     // - parens: yes
@@ -118,6 +126,8 @@ enum DefFlavor {
     // - typed: no
     // - terminator: '{'
     CaseValues,
+
+    TypeListFlavor,
 }
 
 // Parse a list of comma-separated items according to the chosen flavor.
@@ -131,9 +141,12 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
     let list_marker = p.start();
 
     // Only GateParams, DefParams, and DefCalParams open with '(' ... ')'.
-    let want_parens = matches!(flavor, GateParams | DefParams | DefCalParams);
+    let want_parens = matches!(
+        flavor,
+        GateParams | DefParams | DefCalParams | TypeListFlavor
+    );
     match flavor {
-        GateParams | DefParams | DefCalParams => p.bump(T!['(']),
+        GateParams | DefParams | DefCalParams | TypeListFlavor => p.bump(T!['(']),
         GateQubits | GateCallQubits | DefCalQubits | ExpressionList | CaseValues => (),
     }
 
@@ -141,7 +154,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
     let list_end_tokens = match flavor {
         ExpressionList => [T![']'], T![']']],
         CaseValues => [T!['{'], T!['{']],
-        GateParams | DefParams | DefCalParams => [T![')'], T![')']],
+        GateParams | DefParams | DefCalParams | TypeListFlavor => [T![')'], T![')']],
         // When no parens are present '{' terminates the gate param list.
         GateQubits => [T!['{'], T!['{']],
         GateCallQubits => [SEMICOLON, SEMICOLON],
@@ -171,6 +184,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
             GateCallQubits => arg_gate_call_qubit(p, m),
             // These two have different requirements but share this entry point.
             DefParams | DefCalParams => param_typed(p, m),
+            TypeListFlavor => scalar_type(p, m),
             // Untyped parameters/qubits.
             GateParams | GateQubits => param_untyped(p, m),
             DefCalQubits => param_untyped_or_hardware_qubit(p, m),
@@ -203,7 +217,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
             p.error("expected one or more parameters");
         }
         GateParams | ExpressionList | CaseValues => {}
-        GateQubits | GateCallQubits | DefParams | DefCalParams | DefCalQubits => {}
+        GateQubits | GateCallQubits | DefParams | DefCalParams | DefCalQubits | TypeListFlavor => {}
     };
 
     // Close parens for the paren-using flavors.
@@ -219,6 +233,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
         ExpressionList | CaseValues => EXPRESSION_LIST,
         DefParams | DefCalParams => TYPED_PARAM_LIST,
         GateParams => PARAM_LIST,
+        TypeListFlavor => TYPE_LIST,
     };
     list_marker.complete(p, kind);
 }
@@ -377,6 +392,12 @@ fn param_typed(p: &mut Parser<'_>, m: Marker) -> bool {
     expressions::type_spec(p);
     expressions::var_name(p);
     m.complete(p, TYPED_PARAM);
+    true
+}
+
+fn scalar_type(p: &mut Parser<'_>, m: Marker) -> bool {
+    expressions::type_spec(p);
+    m.complete(p, SCALAR_TYPE);
     true
 }
 
