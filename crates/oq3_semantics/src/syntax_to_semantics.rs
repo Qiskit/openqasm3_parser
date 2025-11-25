@@ -347,6 +347,10 @@ fn stmt_to_asg_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::St
             classical_declaration_statement_to_asg_stmt(&type_decl, context),
         ),
 
+        oq3_syntax::ast::Stmt::OldStyleDeclarationStatement(n) => {
+            not_impl!(context, n)
+        }
+
         synast::Stmt::IODeclarationStatement(type_decl) => {
             Some(io_declaration_statement_to_asg_stmt(&type_decl, context))
         }

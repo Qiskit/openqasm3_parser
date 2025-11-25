@@ -84,6 +84,7 @@ Stmt =
 | IODeclarationStatement
 | LetStmt
 | Measure
+| OldStyleDeclarationStatement
 | PragmaStatement
 | QuantumDeclarationStatement
 | Reset

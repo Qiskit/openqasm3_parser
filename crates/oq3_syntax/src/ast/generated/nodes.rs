@@ -383,6 +383,25 @@ impl Measure {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct OldStyleDeclarationStatement {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ast::HasName for OldStyleDeclarationStatement {}
+impl OldStyleDeclarationStatement {
+    pub fn creg_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![creg])
+    }
+    pub fn qreg_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![qreg])
+    }
+    pub fn designator(&self) -> Option<Designator> {
+        support::child(&self.syntax)
+    }
+    pub fn semicolon_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![;])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PragmaStatement {
     pub(crate) syntax: SyntaxNode,
 }
@@ -1075,25 +1094,6 @@ impl QubitType {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct OldStyleDeclarationStatement {
-    pub(crate) syntax: SyntaxNode,
-}
-impl ast::HasName for OldStyleDeclarationStatement {}
-impl OldStyleDeclarationStatement {
-    pub fn creg_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![creg])
-    }
-    pub fn qreg_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![qreg])
-    }
-    pub fn designator(&self) -> Option<Designator> {
-        support::child(&self.syntax)
-    }
-    pub fn semicolon_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![;])
-    }
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Stmt {
     AliasDeclarationStatement(AliasDeclarationStatement),
     AnnotationStatement(AnnotationStatement),
@@ -1116,6 +1116,7 @@ pub enum Stmt {
     IODeclarationStatement(IODeclarationStatement),
     LetStmt(LetStmt),
     Measure(Measure),
+    OldStyleDeclarationStatement(OldStyleDeclarationStatement),
     PragmaStatement(PragmaStatement),
     QuantumDeclarationStatement(QuantumDeclarationStatement),
     Reset(Reset),
@@ -1509,6 +1510,21 @@ impl AstNode for LetStmt {
 impl AstNode for Measure {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == MEASURE
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for OldStyleDeclarationStatement {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == OLD_STYLE_DECLARATION_STATEMENT
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2271,21 +2287,6 @@ impl AstNode for QubitType {
         &self.syntax
     }
 }
-impl AstNode for OldStyleDeclarationStatement {
-    fn can_cast(kind: SyntaxKind) -> bool {
-        kind == OLD_STYLE_DECLARATION_STATEMENT
-    }
-    fn cast(syntax: SyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &SyntaxNode {
-        &self.syntax
-    }
-}
 impl From<AliasDeclarationStatement> for Stmt {
     fn from(node: AliasDeclarationStatement) -> Stmt {
         Stmt::AliasDeclarationStatement(node)
@@ -2391,6 +2392,11 @@ impl From<Measure> for Stmt {
         Stmt::Measure(node)
     }
 }
+impl From<OldStyleDeclarationStatement> for Stmt {
+    fn from(node: OldStyleDeclarationStatement) -> Stmt {
+        Stmt::OldStyleDeclarationStatement(node)
+    }
+}
 impl From<PragmaStatement> for Stmt {
     fn from(node: PragmaStatement) -> Stmt {
         Stmt::PragmaStatement(node)
@@ -2446,6 +2452,7 @@ impl AstNode for Stmt {
                 | I_O_DECLARATION_STATEMENT
                 | LET_STMT
                 | MEASURE
+                | OLD_STYLE_DECLARATION_STATEMENT
                 | PRAGMA_STATEMENT
                 | QUANTUM_DECLARATION_STATEMENT
                 | RESET
@@ -2483,6 +2490,9 @@ impl AstNode for Stmt {
             }
             LET_STMT => Stmt::LetStmt(LetStmt { syntax }),
             MEASURE => Stmt::Measure(Measure { syntax }),
+            OLD_STYLE_DECLARATION_STATEMENT => {
+                Stmt::OldStyleDeclarationStatement(OldStyleDeclarationStatement { syntax })
+            }
             PRAGMA_STATEMENT => Stmt::PragmaStatement(PragmaStatement { syntax }),
             QUANTUM_DECLARATION_STATEMENT => {
                 Stmt::QuantumDeclarationStatement(QuantumDeclarationStatement { syntax })
@@ -2518,6 +2528,7 @@ impl AstNode for Stmt {
             Stmt::IODeclarationStatement(it) => &it.syntax,
             Stmt::LetStmt(it) => &it.syntax,
             Stmt::Measure(it) => &it.syntax,
+            Stmt::OldStyleDeclarationStatement(it) => &it.syntax,
             Stmt::PragmaStatement(it) => &it.syntax,
             Stmt::QuantumDeclarationStatement(it) => &it.syntax,
             Stmt::Reset(it) => &it.syntax,
@@ -2870,13 +2881,13 @@ impl AstNode for AnyHasName {
                 | GATE
                 | I_O_DECLARATION_STATEMENT
                 | LET_STMT
+                | OLD_STYLE_DECLARATION_STATEMENT
                 | QUANTUM_DECLARATION_STATEMENT
                 | PARAM
                 | TYPED_PARAM
                 | GATE_CALL_EXPR
                 | HARDWARE_QUBIT
                 | INDEXED_IDENTIFIER
-                | OLD_STYLE_DECLARATION_STATEMENT
         )
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
@@ -3022,6 +3033,11 @@ impl std::fmt::Display for LetStmt {
     }
 }
 impl std::fmt::Display for Measure {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for OldStyleDeclarationStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -3272,11 +3288,6 @@ impl std::fmt::Display for SetExpression {
     }
 }
 impl std::fmt::Display for QubitType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for OldStyleDeclarationStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
