@@ -1266,6 +1266,7 @@ pub enum BinaryOp {
     ArithOp(ArithOp),
     CmpOp(CmpOp),
     ConcatenationOp,
+    PowerOp,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -1332,7 +1333,7 @@ impl BinaryExpr {
                 };
                 BinaryExpr::new(op, new_left, new_right).to_texpr(promoted_type)
             }
-            BinaryOp::CmpOp(_) | BinaryOp::ConcatenationOp => {
+            BinaryOp::CmpOp(_) | BinaryOp::ConcatenationOp | BinaryOp::PowerOp => {
                 BinaryExpr::new(op, left, right).to_texpr(Type::ToDo)
             }
         }

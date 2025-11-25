@@ -5,8 +5,8 @@ expression: sema_snap
 id: tests/snippets/reference/declaration/complex2.qasm
 expect-sema: Todo
 --- sema ---
-ok: true
+ok: false
 panicked: false
-errors: 0
+errors: 1
 --- asg ---
-(no asg)
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(7)), initializer: Some(TExpr { expression: BinaryExpr(BinaryExpr { op: ConcatenationOp, left: TExpr { expression: Identifier(Err(MissingBinding)), ty: Undefined }, right: TExpr { expression: Identifier(Err(MissingBinding)), ty: Undefined } }), ty: ToDo }) })

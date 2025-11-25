@@ -3,10 +3,11 @@ source: crates/pipeline-tests/tests/runner.rs
 expression: sema_snap
 ---
 id: tests/snippets/reference/expression/binary_expr.qasm
-expect-sema: Todo
+expect-sema: Panic
 --- sema ---
-ok: true
-panicked: false
+ok: false
+panicked: true
+panic: true
 errors: 0
 --- asg ---
 (no asg)

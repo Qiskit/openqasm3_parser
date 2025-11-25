@@ -6,7 +6,7 @@ id: tests/snippets/reference/declaration/complex2.qasm
 expect-lex: Ok
 --- source ---
 // lex: ok
-// parse: todo
+// parse: ok
 // sema: todo
 
 complex[float[32]] c = a ** b;
@@ -15,27 +15,27 @@ ok: true
 errors: 0
 [0] LineComment "// lex: ok" @0..10
 [1] Whitespace "\n" @10..11
-[2] LineComment "// parse: todo" @11..25
-[3] Whitespace "\n" @25..26
-[4] LineComment "// sema: todo" @26..39
-[5] Whitespace "\n\n" @39..41
-[6] Ident "complex" @41..48
-[7] OpenBracket "[" @48..49
-[8] Ident "float" @49..54
-[9] OpenBracket "[" @54..55
-[10] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @55..57
-[11] CloseBracket "]" @57..58
-[12] CloseBracket "]" @58..59
-[13] Whitespace " " @59..60
-[14] Ident "c" @60..61
-[15] Whitespace " " @61..62
-[16] Eq "=" @62..63
-[17] Whitespace " " @63..64
-[18] Ident "a" @64..65
-[19] Whitespace " " @65..66
-[20] Star "*" @66..67
-[21] Star "*" @67..68
-[22] Whitespace " " @68..69
-[23] Ident "b" @69..70
-[24] Semi ";" @70..71
-[25] Whitespace "\n" @71..72
+[2] LineComment "// parse: ok" @11..23
+[3] Whitespace "\n" @23..24
+[4] LineComment "// sema: todo" @24..37
+[5] Whitespace "\n\n" @37..39
+[6] Ident "complex" @39..46
+[7] OpenBracket "[" @46..47
+[8] Ident "float" @47..52
+[9] OpenBracket "[" @52..53
+[10] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @53..55
+[11] CloseBracket "]" @55..56
+[12] CloseBracket "]" @56..57
+[13] Whitespace " " @57..58
+[14] Ident "c" @58..59
+[15] Whitespace " " @59..60
+[16] Eq "=" @60..61
+[17] Whitespace " " @61..62
+[18] Ident "a" @62..63
+[19] Whitespace " " @63..64
+[20] Star "*" @64..65
+[21] Star "*" @65..66
+[22] Whitespace " " @66..67
+[23] Ident "b" @67..68
+[24] Semi ";" @68..69
+[25] Whitespace "\n" @69..70

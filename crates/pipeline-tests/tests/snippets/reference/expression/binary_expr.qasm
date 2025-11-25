@@ -1,6 +1,6 @@
 // lex: ok
-// parse: todo
-// sema: todo
+// parse: ok
+// sema: panic
 
 2+2;
 2**2;

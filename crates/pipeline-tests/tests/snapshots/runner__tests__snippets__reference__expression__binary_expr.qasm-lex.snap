@@ -6,8 +6,8 @@ id: tests/snippets/reference/expression/binary_expr.qasm
 expect-lex: Ok
 --- source ---
 // lex: ok
-// parse: todo
-// sema: todo
+// parse: ok
+// sema: panic
 
 2+2;
 2**2;
@@ -17,26 +17,26 @@ ok: true
 errors: 0
 [0] LineComment "// lex: ok" @0..10
 [1] Whitespace "\n" @10..11
-[2] LineComment "// parse: todo" @11..25
-[3] Whitespace "\n" @25..26
-[4] LineComment "// sema: todo" @26..39
-[5] Whitespace "\n\n" @39..41
-[6] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @41..42
-[7] Plus "+" @42..43
-[8] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @43..44
-[9] Semi ";" @44..45
-[10] Whitespace "\n" @45..46
-[11] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @46..47
-[12] Star "*" @47..48
-[13] Star "*" @48..49
-[14] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @49..50
-[15] Semi ";" @50..51
-[16] Whitespace "\n" @51..52
-[17] Ident "x" @52..53
-[18] Whitespace " " @53..54
-[19] Lt "<" @54..55
-[20] Lt "<" @55..56
-[21] Whitespace " " @56..57
-[22] Ident "y" @57..58
-[23] Semi ";" @58..59
-[24] Whitespace "\n" @59..60
+[2] LineComment "// parse: ok" @11..23
+[3] Whitespace "\n" @23..24
+[4] LineComment "// sema: panic" @24..38
+[5] Whitespace "\n\n" @38..40
+[6] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @40..41
+[7] Plus "+" @41..42
+[8] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @42..43
+[9] Semi ";" @43..44
+[10] Whitespace "\n" @44..45
+[11] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @45..46
+[12] Star "*" @46..47
+[13] Star "*" @47..48
+[14] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @48..49
+[15] Semi ";" @49..50
+[16] Whitespace "\n" @50..51
+[17] Ident "x" @51..52
+[18] Whitespace " " @52..53
+[19] Lt "<" @53..54
+[20] Lt "<" @54..55
+[21] Whitespace " " @55..56
+[22] Ident "y" @56..57
+[23] Semi ";" @57..58
+[24] Whitespace "\n" @58..59

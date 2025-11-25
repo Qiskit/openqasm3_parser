@@ -141,6 +141,7 @@ impl ast::BinExpr {
                 T![|=]  => BinaryOp::Assignment { op: Some(ArithOp::BitOr) },
                 T![&=]  => BinaryOp::Assignment { op: Some(ArithOp::BitAnd) },
                 T![++] => BinaryOp::ConcatenationOp,
+                T![**] => BinaryOp::PowerOp,
 
                 _ => return None,
             };

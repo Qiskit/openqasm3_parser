@@ -1034,6 +1034,7 @@ fn binary_op_to_asg_type(synast_op: synast::BinaryOp) -> asg::BinaryOp {
             }
         }
         synast::BinaryOp::ConcatenationOp => asg::BinaryOp::ConcatenationOp,
+        synast::BinaryOp::PowerOp => asg::BinaryOp::ConcatenationOp,
         synast::BinaryOp::LogicOp(_) => panic!("Binary logic operators unsupported."),
         synast::BinaryOp::Assignment { .. } => panic!("Unsupported binary operator"),
     }

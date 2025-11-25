@@ -3,31 +3,29 @@ source: crates/pipeline-tests/tests/runner.rs
 expression: parse_snap
 ---
 id: tests/snippets/reference/expression/binary_expr.qasm
-expect-parse: Todo
+expect-parse: Ok
 --- parser ---
-ok: false
+ok: true
 panicked: false
-errors: 2
+errors: 0
 --- ast ---
-SOURCE_FILE@0..60: // lex: ok
-// parse: todo
-// sema: todo
+SOURCE_FILE@0..59: // lex: ok
+// parse: ok
+// sema: panic
 
 2+2;
 2**2;
 x << y;
 
-EXPR_STMT@41..45: 2+2;
-BIN_EXPR@41..44: 2+2
-LITERAL@41..42: 2
-LITERAL@43..44: 2
-EXPR_STMT@46..49: 2**
-BIN_EXPR@46..49: 2**
-LITERAL@46..47: 2
-ERROR@48..49: *
-EXPR_STMT@49..51: 2;
-LITERAL@49..50: 2
-EXPR_STMT@52..59: x << y;
-BIN_EXPR@52..58: x << y
-IDENTIFIER@52..53: x
-IDENTIFIER@57..58: y
+EXPR_STMT@40..44: 2+2;
+BIN_EXPR@40..43: 2+2
+LITERAL@40..41: 2
+LITERAL@42..43: 2
+EXPR_STMT@45..50: 2**2;
+BIN_EXPR@45..49: 2**2
+LITERAL@45..46: 2
+LITERAL@48..49: 2
+EXPR_STMT@51..58: x << y;
+BIN_EXPR@51..57: x << y
+IDENTIFIER@51..52: x
+IDENTIFIER@56..57: y
