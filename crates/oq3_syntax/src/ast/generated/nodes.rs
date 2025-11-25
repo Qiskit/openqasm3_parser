@@ -248,6 +248,25 @@ impl ExprStmt {
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct ExternStmt {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ast::HasName for ExternStmt {}
+impl ExternStmt {
+    pub fn extern_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![extern])
+    }
+    pub fn type_list(&self) -> Option<TypeList> {
+        support::child(&self.syntax)
+    }
+    pub fn return_signature(&self) -> Option<ReturnSignature> {
+        support::child(&self.syntax)
+    }
+    pub fn semicolon_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![;])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ForStmt {
     pub(crate) syntax: SyntaxNode,
 }
@@ -628,6 +647,21 @@ impl ParamList {
         support::token(&self.syntax, T!['('])
     }
     pub fn params(&self) -> AstChildren<Param> {
+        support::children(&self.syntax)
+    }
+    pub fn r_paren_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![')'])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct TypeList {
+    pub(crate) syntax: SyntaxNode,
+}
+impl TypeList {
+    pub fn l_paren_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['('])
+    }
+    pub fn scalar_types(&self) -> AstChildren<ScalarType> {
         support::children(&self.syntax)
     }
     pub fn r_paren_token(&self) -> Option<SyntaxToken> {
@@ -1109,6 +1143,7 @@ pub enum Stmt {
     DelayStmt(DelayStmt),
     EndStmt(EndStmt),
     ExprStmt(ExprStmt),
+    ExternStmt(ExternStmt),
     ForStmt(ForStmt),
     Gate(Gate),
     IfStmt(IfStmt),
@@ -1405,6 +1440,21 @@ impl AstNode for EndStmt {
 impl AstNode for ExprStmt {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == EXPR_STMT
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for ExternStmt {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == EXTERN_STMT
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -1780,6 +1830,21 @@ impl AstNode for ReturnSignature {
 impl AstNode for ParamList {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == PARAM_LIST
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for TypeList {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == TYPE_LIST
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2357,6 +2422,11 @@ impl From<ExprStmt> for Stmt {
         Stmt::ExprStmt(node)
     }
 }
+impl From<ExternStmt> for Stmt {
+    fn from(node: ExternStmt) -> Stmt {
+        Stmt::ExternStmt(node)
+    }
+}
 impl From<ForStmt> for Stmt {
     fn from(node: ForStmt) -> Stmt {
         Stmt::ForStmt(node)
@@ -2445,6 +2515,7 @@ impl AstNode for Stmt {
                 | DELAY_STMT
                 | END_STMT
                 | EXPR_STMT
+                | EXTERN_STMT
                 | FOR_STMT
                 | GATE
                 | IF_STMT
@@ -2481,6 +2552,7 @@ impl AstNode for Stmt {
             DELAY_STMT => Stmt::DelayStmt(DelayStmt { syntax }),
             END_STMT => Stmt::EndStmt(EndStmt { syntax }),
             EXPR_STMT => Stmt::ExprStmt(ExprStmt { syntax }),
+            EXTERN_STMT => Stmt::ExternStmt(ExternStmt { syntax }),
             FOR_STMT => Stmt::ForStmt(ForStmt { syntax }),
             GATE => Stmt::Gate(Gate { syntax }),
             IF_STMT => Stmt::IfStmt(IfStmt { syntax }),
@@ -2521,6 +2593,7 @@ impl AstNode for Stmt {
             Stmt::DelayStmt(it) => &it.syntax,
             Stmt::EndStmt(it) => &it.syntax,
             Stmt::ExprStmt(it) => &it.syntax,
+            Stmt::ExternStmt(it) => &it.syntax,
             Stmt::ForStmt(it) => &it.syntax,
             Stmt::Gate(it) => &it.syntax,
             Stmt::IfStmt(it) => &it.syntax,
@@ -2878,6 +2951,7 @@ impl AstNode for AnyHasName {
                 | CLASSICAL_DECLARATION_STATEMENT
                 | DEF
                 | DEF_CAL
+                | EXTERN_STMT
                 | GATE
                 | I_O_DECLARATION_STATEMENT
                 | LET_STMT
@@ -2998,6 +3072,11 @@ impl std::fmt::Display for EndStmt {
     }
 }
 impl std::fmt::Display for ExprStmt {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for ExternStmt {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -3123,6 +3202,11 @@ impl std::fmt::Display for ReturnSignature {
     }
 }
 impl std::fmt::Display for ParamList {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for TypeList {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

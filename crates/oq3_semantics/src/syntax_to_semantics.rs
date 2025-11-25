@@ -550,6 +550,7 @@ fn stmt_to_asg_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::St
         synast::Stmt::DefCalGrammar(n) => not_impl!(context, n),
         synast::Stmt::LetStmt(n) => not_impl!(context, n),
         synast::Stmt::Measure(n) => not_impl!(context, n),
+        synast::Stmt::ExternStmt(n) => not_impl!(context, n),
     }
 }
 
