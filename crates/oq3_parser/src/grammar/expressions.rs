@@ -93,6 +93,14 @@ pub(crate) fn stmt(p: &mut Parser<'_>) {
         return;
     }
 
+    if p.at(T![qreg]) {
+        return q_or_c_reg_declaration(p, m);
+    }
+
+    if p.at(T![creg]) {
+        return q_or_c_reg_declaration(p, m);
+    }
+
     // FIXME: straighten out logic
     if !(p.current().is_classical_type() && (p.nth(1) == T!['('] || p.nth(1) == T!['[']))
         && !p.at_ts(EXPR_FIRST)
@@ -130,6 +138,28 @@ pub(crate) fn stmt(p: &mut Parser<'_>) {
         p.expect(T![;]);
         m.complete(p, LET_STMT);
     }
+}
+
+fn q_or_c_reg_declaration(p: &mut Parser<'_>, m: Marker) {
+    p.bump_any();
+    if !p.at(IDENT) {
+        p.error("Expected qubit register name");
+        m.abandon(p);
+        return;
+    }
+    let m1 = p.start();
+    p.bump_any();
+    if p.at(T!['[']) && !p.at(EOF) {
+        index_operator(p);
+    } else {
+        p.error("Expected index operator");
+        m1.abandon(p);
+        m.abandon(p);
+        return;
+    }
+    m1.complete(p, INDEXED_IDENTIFIER);
+    p.expect(T![;]);
+    m.complete(p, OLD_STYLE_DECLARATION_STATEMENT);
 }
 
 // Careful, this reads til } *or* EOF. And this may be called without having read a

@@ -5,8 +5,26 @@ expression: sema_snap
 id: tests/snippets/reference/assignment/alias.qasm
 expect-sema: Todo
 --- sema ---
-ok: true
+ok: false
 panicked: false
-errors: 0
+errors: 1
 --- asg ---
-(no asg)
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(7)), initializer: None })
+
+NullStmt
+
+DeclareQuantum(DeclareQuantum { name: Ok(SymbolId(8)) })
+
+NullStmt
+
+NullStmt
+
+NullStmt
+
+NullStmt
+
+NullStmt
+
+NullStmt
+
+NullStmt

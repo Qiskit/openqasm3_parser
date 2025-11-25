@@ -1,5 +1,5 @@
 // lex: ok
-// parse: todo
+// parse: ok
 // sema: todo
 
 bit[2] a;

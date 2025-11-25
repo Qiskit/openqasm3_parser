@@ -7,7 +7,7 @@ expect-parse: Todo
 --- parser ---
 ok: false
 panicked: false
-errors: 4
+errors: 3
 --- ast ---
 SOURCE_FILE@0..201: // lex: ok
 // parse: todo
@@ -35,10 +35,8 @@ SCALAR_TYPE@51..57: bit[2]
 DESIGNATOR@54..57: [2]
 LITERAL@55..56: 2
 NAME@58..59: b
-ERROR@61..65: creg
-EXPR_STMT@66..71: b[2];
+OLD_STYLE_DECLARATION_STATEMENT@61..71: creg b[2];
 INDEXED_IDENTIFIER@66..70: b[2]
-IDENTIFIER@66..67: b
 INDEX_OPERATOR@67..70: [2]
 EXPRESSION_LIST@68..69: 2
 LITERAL@68..69: 2
