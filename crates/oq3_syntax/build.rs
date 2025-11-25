@@ -135,6 +135,7 @@ mod sourcegen {
         }
     }
 
+    #[allow(unused)]
     #[derive(Debug)]
     pub struct Location {
         pub file: PathBuf,
