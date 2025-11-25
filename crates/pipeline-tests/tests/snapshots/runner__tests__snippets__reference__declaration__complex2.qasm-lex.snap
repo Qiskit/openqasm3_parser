@@ -9,6 +9,9 @@ expect-lex: Ok
 // parse: ok
 // sema: todo
 
+complex[float[32]] a = 2.0;
+complex[float[32]] b = 1.0;
+
 complex[float[32]] c = a ** b;
 --- lexer ---
 ok: true
@@ -27,15 +30,45 @@ errors: 0
 [11] CloseBracket "]" @55..56
 [12] CloseBracket "]" @56..57
 [13] Whitespace " " @57..58
-[14] Ident "c" @58..59
+[14] Ident "a" @58..59
 [15] Whitespace " " @59..60
 [16] Eq "=" @60..61
 [17] Whitespace " " @61..62
-[18] Ident "a" @62..63
-[19] Whitespace " " @63..64
-[20] Star "*" @64..65
-[21] Star "*" @65..66
-[22] Whitespace " " @66..67
-[23] Ident "b" @67..68
-[24] Semi ";" @68..69
-[25] Whitespace "\n" @69..70
+[18] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "2.0" @62..65
+[19] Semi ";" @65..66
+[20] Whitespace "\n" @66..67
+[21] Ident "complex" @67..74
+[22] OpenBracket "[" @74..75
+[23] Ident "float" @75..80
+[24] OpenBracket "[" @80..81
+[25] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @81..83
+[26] CloseBracket "]" @83..84
+[27] CloseBracket "]" @84..85
+[28] Whitespace " " @85..86
+[29] Ident "b" @86..87
+[30] Whitespace " " @87..88
+[31] Eq "=" @88..89
+[32] Whitespace " " @89..90
+[33] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "1.0" @90..93
+[34] Semi ";" @93..94
+[35] Whitespace "\n\n" @94..96
+[36] Ident "complex" @96..103
+[37] OpenBracket "[" @103..104
+[38] Ident "float" @104..109
+[39] OpenBracket "[" @109..110
+[40] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @110..112
+[41] CloseBracket "]" @112..113
+[42] CloseBracket "]" @113..114
+[43] Whitespace " " @114..115
+[44] Ident "c" @115..116
+[45] Whitespace " " @116..117
+[46] Eq "=" @117..118
+[47] Whitespace " " @118..119
+[48] Ident "a" @119..120
+[49] Whitespace " " @120..121
+[50] Star "*" @121..122
+[51] Star "*" @122..123
+[52] Whitespace " " @123..124
+[53] Ident "b" @124..125
+[54] Semi ";" @125..126
+[55] Whitespace "\n" @126..127

@@ -9,18 +9,35 @@ ok: true
 panicked: false
 errors: 0
 --- ast ---
-SOURCE_FILE@0..70: // lex: ok
+SOURCE_FILE@0..127: // lex: ok
 // parse: ok
 // sema: todo
 
+complex[float[32]] a = 2.0;
+complex[float[32]] b = 1.0;
+
 complex[float[32]] c = a ** b;
 
-CLASSICAL_DECLARATION_STATEMENT@39..69: complex[float[32]] c = a ** b;
+CLASSICAL_DECLARATION_STATEMENT@39..66: complex[float[32]] a = 2.0;
 SCALAR_TYPE@39..57: complex[float[32]]
 SCALAR_TYPE@47..56: float[32]
 DESIGNATOR@52..56: [32]
 LITERAL@53..55: 32
-NAME@58..59: c
-BIN_EXPR@62..68: a ** b
-IDENTIFIER@62..63: a
-IDENTIFIER@67..68: b
+NAME@58..59: a
+LITERAL@62..65: 2.0
+CLASSICAL_DECLARATION_STATEMENT@67..94: complex[float[32]] b = 1.0;
+SCALAR_TYPE@67..85: complex[float[32]]
+SCALAR_TYPE@75..84: float[32]
+DESIGNATOR@80..84: [32]
+LITERAL@81..83: 32
+NAME@86..87: b
+LITERAL@90..93: 1.0
+CLASSICAL_DECLARATION_STATEMENT@96..126: complex[float[32]] c = a ** b;
+SCALAR_TYPE@96..114: complex[float[32]]
+SCALAR_TYPE@104..113: float[32]
+DESIGNATOR@109..113: [32]
+LITERAL@110..112: 32
+NAME@115..116: c
+BIN_EXPR@119..125: a ** b
+IDENTIFIER@119..120: a
+IDENTIFIER@124..125: b
