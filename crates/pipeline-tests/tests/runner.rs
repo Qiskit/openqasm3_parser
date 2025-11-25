@@ -289,52 +289,6 @@ mod suite {
         (lex_snap, parse_snap, sema_snap)
     }
 
-    // fn snapshot_forold(
-    //     id: &str,
-    //     src: &str,
-    //     exp: &Expectations,
-    //     lex: &(bool, usize, String),
-    //     parse: &(bool, usize, String, bool, String),
-    //     sema: &(bool, usize, bool, String),
-    // ) -> (String, String, String) {
-    //     use std::fmt::Write as _;
-    //     let mut s = String::new();
-    //     writeln!(&mut s, "id: {}", id).ok();
-
-    //     writeln!(&mut s, "--- expectations ---").ok();
-    //     writeln!(&mut s, "lex:   {:?}", exp.lex.unwrap_or(Expect::Skip)).ok();
-    //     writeln!(&mut s, "parse: {:?}", exp.parse.unwrap_or(Expect::Skip)).ok();
-    //     writeln!(&mut s, "sema:  {:?}", exp.sema.unwrap_or(Expect::Skip)).ok();
-
-    //     let mut lex_snap = String::new();
-    //     let _ = writeln!(&mut lex_snap, "id: {}", id);
-    //     let _ = writeln!(&mut lex_snap, "--- lexer ---");
-    //     let _ = writeln!(&mut lex_snap, "ok: {}", lex.0);
-    //     let _ = writeln!(&mut lex_snap, "errors: {}", lex.1);
-    //     lex_snap.push_str(&lex.2);
-
-    //     let mut parse_snap = String::new();
-    //     let _ = writeln!(&mut parse_snap, "id: {}", id);
-    //     let _ = writeln!(&mut parse_snap, "--- parser ---");
-    //     let _ = writeln!(&mut parse_snap, "ok: {}", parse.0);
-    //     let _ = writeln!(&mut parse_snap, "panicked: {}", parse.3);
-    //     if parse.3 && !parse.4.is_empty() { let _ = writeln!(&mut parse_snap, "panic: {}", parse.4); }
-    //     let _ = writeln!(&mut parse_snap, "errors: {}", parse.1);
-    //     let _ = writeln!(&mut parse_snap, "--- ast ---");
-    //     if parse.2.is_empty() { let _ = writeln!(&mut parse_snap, "(no ast)"); } else { parse_snap.push_str(&parse.2); }
-
-    //     let mut sema_snap = String::new();
-    //     let _ = writeln!(&mut sema_snap, "id: {}", id);
-    //     let _ = writeln!(&mut sema_snap, "--- sema ---");
-    //     let _ = writeln!(&mut sema_snap, "ok: {}", sema.0);
-    //     let _ = writeln!(&mut sema_snap, "panicked: {}", sema.2);
-    //     if sema.2 && !sema.3.is_empty() { let _ = writeln!(&mut sema_snap, "panic: {}", sema.3); }
-    //     let _ = writeln!(&mut sema_snap, "errors: {}", sema.1);
-    //     let _ = writeln!(&mut sema_snap, "--- asg ---");
-    //     if sema.3.is_empty() { let _ = writeln!(&mut sema_snap, "(no asg)"); } else { sema_snap.push_str(&sema.3); }
-
-    //     (lex_snap, parse_snap, sema_snap)
-    // }
 
     // Ok: no diags and no panic; Diag: diags >= 1 and no panic; Panic: stage panicked; Todo/Skip as defined
     pub(crate) fn apply_expect(
