@@ -3,7 +3,7 @@ source: crates/pipeline-tests/tests/runner.rs
 expression: sema_snap
 ---
 id: tests/snippets/reference/directives/pragma.qasm
-expect-sema: Todo
+expect-sema: Ok
 --- sema ---
 ok: true
 panicked: false

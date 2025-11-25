@@ -6,8 +6,8 @@ id: tests/snippets/reference/directives/pragma.qasm
 expect-lex: Ok
 --- source ---
 // lex: ok
-// parse: todo
-// sema: todo
+// parse: ok
+// sema: ok
 
 pragma IO_BIND[2:3]
 #pragma  __directive_info__ 0
@@ -16,11 +16,11 @@ ok: true
 errors: 0
 [0] LineComment "// lex: ok" @0..10
 [1] Whitespace "\n" @10..11
-[2] LineComment "// parse: todo" @11..25
-[3] Whitespace "\n" @25..26
-[4] LineComment "// sema: todo" @26..39
-[5] Whitespace "\n\n" @39..41
-[6] Pragma "pragma IO_BIND[2:3]" @41..60
-[7] Whitespace "\n" @60..61
-[8] Pragma "#pragma  __directive_info__ 0" @61..90
-[9] Whitespace "\n" @90..91
+[2] LineComment "// parse: ok" @11..23
+[3] Whitespace "\n" @23..24
+[4] LineComment "// sema: ok" @24..35
+[5] Whitespace "\n\n" @35..37
+[6] Pragma "pragma IO_BIND[2:3]" @37..56
+[7] Whitespace "\n" @56..57
+[8] Pragma "#pragma  __directive_info__ 0" @57..86
+[9] Whitespace "\n" @86..87
