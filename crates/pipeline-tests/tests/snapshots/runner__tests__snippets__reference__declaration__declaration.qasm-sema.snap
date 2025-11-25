@@ -7,7 +7,7 @@ expect-sema: Panic
 --- sema ---
 ok: false
 panicked: true
-panic: true
+panic: called `Result::unwrap()` on an `Err` value: AlreadyBound
 errors: 0
 --- asg ---
 (no asg)

@@ -7,7 +7,7 @@ expect-sema: Panic
 --- sema ---
 ok: false
 panicked: true
-panic: true
+panic: called `Option::unwrap()` on a `None` value
 errors: 0
 --- asg ---
 (no asg)
