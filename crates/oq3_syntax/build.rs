@@ -135,6 +135,7 @@ mod sourcegen {
         }
     }
 
+    #[allow(unused)]
     #[derive(Debug)]
     pub struct Location {
         pub file: PathBuf,
@@ -269,6 +270,7 @@ mod sourcegen {
             ("(", "L_PAREN"),
             (")", "R_PAREN"),
             ("*", "STAR"),
+            ("**", "DOUBLE_STAR"),
             ("*=", "STAREQ"),
             ("+", "PLUS"),
             ("++", "DOUBLE_PLUS"),
@@ -1110,6 +1112,7 @@ mod sourcegen {
                         "=" => "eq",
                         "!" => "excl",
                         "*" => "star",
+                        "**" => "double_star",
                         "&" => "amp",
                         "-" => "minus",
                         "_" => "underscore",

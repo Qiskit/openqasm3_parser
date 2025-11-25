@@ -1266,6 +1266,7 @@ pub enum BinaryOp {
     ArithOp(ArithOp),
     CmpOp(CmpOp),
     ConcatenationOp,
+    PowerOp,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -1279,6 +1280,7 @@ pub enum ArithOp {
     Shl,
     Shr,
     BitXOr,
+    BitOr,
     BitAnd,
 }
 
@@ -1332,7 +1334,7 @@ impl BinaryExpr {
                 };
                 BinaryExpr::new(op, new_left, new_right).to_texpr(promoted_type)
             }
-            BinaryOp::CmpOp(_) | BinaryOp::ConcatenationOp => {
+            BinaryOp::CmpOp(_) | BinaryOp::ConcatenationOp | BinaryOp::PowerOp => {
                 BinaryExpr::new(op, left, right).to_texpr(Type::ToDo)
             }
         }
@@ -1564,6 +1566,9 @@ pub fn implicit_cast_type(op: &ArithOp, ty1: &Type, ty2: &Type) -> Type {
     match op {
         Add | Sub | Mul => types::promote_types(ty1, ty2),
 
+        // TODO: the type promotion here is likely not correct.
+        Mod | Rem | Shl | Shr | BitXOr | BitOr | BitAnd => types::promote_types(ty1, ty2),
+
         Div => {
             if matches!(ty1, Type::Float(..)) || matches!(ty2, Type::Float(..)) {
                 types::promote_types(ty1, ty2)
@@ -1571,7 +1576,5 @@ pub fn implicit_cast_type(op: &ArithOp, ty1: &Type, ty2: &Type) -> Type {
                 Type::Float(None, IsConst::False)
             }
         }
-
-        Mod | Rem | Shl | Shr | BitXOr | BitAnd => todo!(),
     }
 }

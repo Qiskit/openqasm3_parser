@@ -223,6 +223,7 @@ fn current_op(p: &Parser<'_>) -> (u8, SyntaxKind, Associativity) {
         T![+] if p.at(T![+=])  => (1,  T![+=],  Right),
         // `++` is the concatenation op and should have some low value for bp.
         T![+] if p.at(T![++])  => (2,  T![++],  Left),
+        T![*] if p.at(T![**])  => (7,  T![**],  Left),
         T![+]                  => (10, T![+],   Left),
         T![^] if p.at(T![^=])  => (1,  T![^=],  Right),
         T![^]                  => (7,  T![^],   Left),

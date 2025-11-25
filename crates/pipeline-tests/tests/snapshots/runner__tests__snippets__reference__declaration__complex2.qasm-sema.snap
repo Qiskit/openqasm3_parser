@@ -5,8 +5,12 @@ expression: sema_snap
 id: tests/snippets/reference/declaration/complex2.qasm
 expect-sema: Todo
 --- sema ---
-ok: true
+ok: false
 panicked: false
-errors: 0
+errors: 1
 --- asg ---
-(no asg)
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(7)), initializer: Some(TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(Float(FloatLiteral { value: "2" })), ty: Float(Some(64), True) }, typ: Complex(Some(32), False) }), ty: Complex(Some(32), False) }) })
+
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(8)), initializer: Some(TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(Float(FloatLiteral { value: "1" })), ty: Float(Some(64), True) }, typ: Complex(Some(32), False) }), ty: Complex(Some(32), False) }) })
+
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(9)), initializer: Some(TExpr { expression: BinaryExpr(BinaryExpr { op: ConcatenationOp, left: TExpr { expression: Identifier(Ok(SymbolId(7))), ty: Complex(Some(32), False) }, right: TExpr { expression: Identifier(Ok(SymbolId(8))), ty: Complex(Some(32), False) } }), ty: ToDo }) })

@@ -3,31 +3,40 @@ source: crates/pipeline-tests/tests/runner.rs
 expression: parse_snap
 ---
 id: tests/snippets/reference/expression/binary_expr.qasm
-expect-parse: Todo
+expect-parse: Ok
 --- parser ---
-ok: false
+ok: true
 panicked: false
-errors: 2
+errors: 0
 --- ast ---
-SOURCE_FILE@0..60: // lex: ok
-// parse: todo
-// sema: todo
+SOURCE_FILE@0..79: // lex: ok
+// parse: ok
+// sema: ok
+
+int x = 0;
+int y = 1;
 
 2+2;
 2**2;
 x << y;
 
-EXPR_STMT@41..45: 2+2;
-BIN_EXPR@41..44: 2+2
-LITERAL@41..42: 2
-LITERAL@43..44: 2
-EXPR_STMT@46..49: 2**
-BIN_EXPR@46..49: 2**
-LITERAL@46..47: 2
-ERROR@48..49: *
-EXPR_STMT@49..51: 2;
-LITERAL@49..50: 2
-EXPR_STMT@52..59: x << y;
-BIN_EXPR@52..58: x << y
-IDENTIFIER@52..53: x
-IDENTIFIER@57..58: y
+CLASSICAL_DECLARATION_STATEMENT@37..47: int x = 0;
+SCALAR_TYPE@37..40: int
+NAME@41..42: x
+LITERAL@45..46: 0
+CLASSICAL_DECLARATION_STATEMENT@48..58: int y = 1;
+SCALAR_TYPE@48..51: int
+NAME@52..53: y
+LITERAL@56..57: 1
+EXPR_STMT@60..64: 2+2;
+BIN_EXPR@60..63: 2+2
+LITERAL@60..61: 2
+LITERAL@62..63: 2
+EXPR_STMT@65..70: 2**2;
+BIN_EXPR@65..69: 2**2
+LITERAL@65..66: 2
+LITERAL@68..69: 2
+EXPR_STMT@71..78: x << y;
+BIN_EXPR@71..77: x << y
+IDENTIFIER@71..72: x
+IDENTIFIER@76..77: y

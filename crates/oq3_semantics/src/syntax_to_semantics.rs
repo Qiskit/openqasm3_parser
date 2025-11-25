@@ -1016,11 +1016,23 @@ fn binary_op_to_asg_type(synast_op: synast::BinaryOp) -> asg::BinaryOp {
             use synast::ArithOp::*;
             match arith_op {
                 Add => ArithOp(asg::ArithOp::Add),
-                Mul => ArithOp(asg::ArithOp::Mul),
                 Sub => ArithOp(asg::ArithOp::Sub),
+                Mul => ArithOp(asg::ArithOp::Mul),
                 Div => ArithOp(asg::ArithOp::Div),
-                Rem | Shl | Shr | BitOr | BitXor | BitAnd => panic!("Unsupported binary operator"),
+                Rem => ArithOp(asg::ArithOp::Rem),
+                Shl => ArithOp(asg::ArithOp::Shl),
+                Shr => ArithOp(asg::ArithOp::Shr),
+                BitOr => ArithOp(asg::ArithOp::BitOr),
+                BitXor => ArithOp(asg::ArithOp::BitXOr),
+                BitAnd => ArithOp(asg::ArithOp::BitAnd),
             }
+            // match arith_op {
+            //     Add => ArithOp(asg::ArithOp::Add),
+            //     Mul => ArithOp(asg::ArithOp::Mul),
+            //     Sub => ArithOp(asg::ArithOp::Sub),
+            //     Div => ArithOp(asg::ArithOp::Div),
+            //     Rem | Shl | Shr | BitOr | BitXor | BitAnd => panic!("Unsupported binary operator"),
+            // }
         }
         synast::BinaryOp::CmpOp(cmp_op) => {
             use asg::BinaryOp::CmpOp;
@@ -1034,6 +1046,7 @@ fn binary_op_to_asg_type(synast_op: synast::BinaryOp) -> asg::BinaryOp {
             }
         }
         synast::BinaryOp::ConcatenationOp => asg::BinaryOp::ConcatenationOp,
+        synast::BinaryOp::PowerOp => asg::BinaryOp::ConcatenationOp,
         synast::BinaryOp::LogicOp(_) => panic!("Binary logic operators unsupported."),
         synast::BinaryOp::Assignment { .. } => panic!("Unsupported binary operator"),
     }

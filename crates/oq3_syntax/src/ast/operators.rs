@@ -34,6 +34,7 @@ pub enum BinaryOp {
     ArithOp(ArithOp),
     CmpOp(CmpOp),
     ConcatenationOp,
+    PowerOp,
     // FIXME: Don't we want to remove this?
     Assignment { op: Option<ArithOp> },
 }
@@ -133,6 +134,7 @@ impl fmt::Display for BinaryOp {
             BinaryOp::ArithOp(op) => fmt::Display::fmt(op, f),
             BinaryOp::CmpOp(op) => fmt::Display::fmt(op, f),
             BinaryOp::ConcatenationOp => fmt::Display::fmt("++", f),
+            BinaryOp::PowerOp => fmt::Display::fmt("**", f),
             BinaryOp::Assignment { op } => {
                 if let Some(op) = op {
                     fmt::Display::fmt(op, f)?;
