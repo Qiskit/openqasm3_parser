@@ -7,7 +7,10 @@ expect-lex: Ok
 --- source ---
 // lex: ok
 // parse: ok
-// sema: panic
+// sema: ok
+
+int x = 0;
+int y = 1;
 
 2+2;
 2**2;
@@ -19,24 +22,42 @@ errors: 0
 [1] Whitespace "\n" @10..11
 [2] LineComment "// parse: ok" @11..23
 [3] Whitespace "\n" @23..24
-[4] LineComment "// sema: panic" @24..38
-[5] Whitespace "\n\n" @38..40
-[6] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @40..41
-[7] Plus "+" @41..42
-[8] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @42..43
-[9] Semi ";" @43..44
-[10] Whitespace "\n" @44..45
-[11] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @45..46
-[12] Star "*" @46..47
-[13] Star "*" @47..48
-[14] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @48..49
-[15] Semi ";" @49..50
-[16] Whitespace "\n" @50..51
-[17] Ident "x" @51..52
-[18] Whitespace " " @52..53
-[19] Lt "<" @53..54
-[20] Lt "<" @54..55
-[21] Whitespace " " @55..56
-[22] Ident "y" @56..57
-[23] Semi ";" @57..58
-[24] Whitespace "\n" @58..59
+[4] LineComment "// sema: ok" @24..35
+[5] Whitespace "\n\n" @35..37
+[6] Ident "int" @37..40
+[7] Whitespace " " @40..41
+[8] Ident "x" @41..42
+[9] Whitespace " " @42..43
+[10] Eq "=" @43..44
+[11] Whitespace " " @44..45
+[12] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @45..46
+[13] Semi ";" @46..47
+[14] Whitespace "\n" @47..48
+[15] Ident "int" @48..51
+[16] Whitespace " " @51..52
+[17] Ident "y" @52..53
+[18] Whitespace " " @53..54
+[19] Eq "=" @54..55
+[20] Whitespace " " @55..56
+[21] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @56..57
+[22] Semi ";" @57..58
+[23] Whitespace "\n\n" @58..60
+[24] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @60..61
+[25] Plus "+" @61..62
+[26] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @62..63
+[27] Semi ";" @63..64
+[28] Whitespace "\n" @64..65
+[29] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @65..66
+[30] Star "*" @66..67
+[31] Star "*" @67..68
+[32] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @68..69
+[33] Semi ";" @69..70
+[34] Whitespace "\n" @70..71
+[35] Ident "x" @71..72
+[36] Whitespace " " @72..73
+[37] Lt "<" @73..74
+[38] Lt "<" @74..75
+[39] Whitespace " " @75..76
+[40] Ident "y" @76..77
+[41] Semi ";" @77..78
+[42] Whitespace "\n" @78..79

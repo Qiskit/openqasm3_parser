@@ -1,6 +1,9 @@
 // lex: ok
 // parse: ok
-// sema: panic
+// sema: ok
+
+int x = 0;
+int y = 1;
 
 2+2;
 2**2;

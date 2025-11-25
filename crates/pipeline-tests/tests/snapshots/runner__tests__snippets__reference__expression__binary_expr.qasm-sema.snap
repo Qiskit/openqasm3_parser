@@ -3,11 +3,18 @@ source: crates/pipeline-tests/tests/runner.rs
 expression: sema_snap
 ---
 id: tests/snippets/reference/expression/binary_expr.qasm
-expect-sema: Panic
+expect-sema: Ok
 --- sema ---
-ok: false
-panicked: true
-panic: true
+ok: true
+panicked: false
 errors: 0
 --- asg ---
-(no asg)
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(7)), initializer: Some(TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(Int(IntLiteral { value: 0, sign: true })), ty: Int(Some(128), True) }, typ: Int(None, False) }), ty: Int(None, False) }) })
+
+DeclareClassical(DeclareClassical { name: Ok(SymbolId(8)), initializer: Some(TExpr { expression: Cast(Cast { operand: TExpr { expression: Literal(Int(IntLiteral { value: 1, sign: true })), ty: Int(Some(128), True) }, typ: Int(None, False) }), ty: Int(None, False) }) })
+
+ExprStmt(TExpr { expression: BinaryExpr(BinaryExpr { op: ArithOp(Add), left: TExpr { expression: Literal(Int(IntLiteral { value: 2, sign: true })), ty: Int(Some(128), True) }, right: TExpr { expression: Literal(Int(IntLiteral { value: 2, sign: true })), ty: Int(Some(128), True) } }), ty: Int(Some(128), True) })
+
+ExprStmt(TExpr { expression: BinaryExpr(BinaryExpr { op: ConcatenationOp, left: TExpr { expression: Literal(Int(IntLiteral { value: 2, sign: true })), ty: Int(Some(128), True) }, right: TExpr { expression: Literal(Int(IntLiteral { value: 2, sign: true })), ty: Int(Some(128), True) } }), ty: ToDo })
+
+ExprStmt(TExpr { expression: BinaryExpr(BinaryExpr { op: ArithOp(Shl), left: TExpr { expression: Identifier(Ok(SymbolId(7))), ty: Int(None, False) }, right: TExpr { expression: Identifier(Ok(SymbolId(8))), ty: Int(None, False) } }), ty: Int(None, False) })

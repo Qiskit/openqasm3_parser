@@ -1280,6 +1280,7 @@ pub enum ArithOp {
     Shl,
     Shr,
     BitXOr,
+    BitOr,
     BitAnd,
 }
 
@@ -1565,6 +1566,9 @@ pub fn implicit_cast_type(op: &ArithOp, ty1: &Type, ty2: &Type) -> Type {
     match op {
         Add | Sub | Mul => types::promote_types(ty1, ty2),
 
+        // TODO: the type promotion here is likely not correct.
+        Mod | Rem | Shl | Shr | BitXOr | BitOr | BitAnd => types::promote_types(ty1, ty2),
+
         Div => {
             if matches!(ty1, Type::Float(..)) || matches!(ty2, Type::Float(..)) {
                 types::promote_types(ty1, ty2)
@@ -1573,6 +1577,5 @@ pub fn implicit_cast_type(op: &ArithOp, ty1: &Type, ty2: &Type) -> Type {
             }
         }
 
-        Mod | Rem | Shl | Shr | BitXOr | BitAnd => todo!(),
     }
 }
