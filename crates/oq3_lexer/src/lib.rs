@@ -301,7 +301,7 @@ impl Cursor<'_> {
 
             // Identifier (this should be checked after other variant that can
             // start as identifier).
-            c if is_id_start(c) => self.ident_or_unknown_prefix(),
+            c if is_id_start(c) => self.ident_or_unknown_prefix(c),
 
             // Numeric literal.
             c @ '0'..='9' => {
@@ -502,10 +502,12 @@ impl Cursor<'_> {
         Whitespace
     }
 
-    fn ident_or_unknown_prefix(&mut self) -> TokenKind {
+    fn ident_or_unknown_prefix(&mut self, c: char) -> TokenKind {
         debug_assert!(is_id_start(self.prev()));
 
-        if self.prev() == 'p' && self.first() == 'r' {
+        // First see if we have "pragma". Everything till the end of the
+        // line is included in one token.
+        if c == 'p' && self.first() == 'r' {
             self.bump();
             if self.first() == 'a' {
                 self.bump();
