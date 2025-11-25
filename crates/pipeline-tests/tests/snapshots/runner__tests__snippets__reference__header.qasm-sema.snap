@@ -1,0 +1,16 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: sema_snap
+---
+id: tests/snippets/reference/header.qasm
+expect-sema: Ok
+--- sema ---
+ok: true
+panicked: false
+errors: 0
+--- asg ---
+InputDeclaration(InputDeclaration { name: Ok(SymbolId(39)) })
+
+InputDeclaration(InputDeclaration { name: Ok(SymbolId(40)) })
+
+OutputDeclaration(OutputDeclaration { name: Ok(SymbolId(41)) })
