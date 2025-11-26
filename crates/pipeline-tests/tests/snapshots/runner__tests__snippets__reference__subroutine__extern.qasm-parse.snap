@@ -9,33 +9,30 @@ ok: true
 panicked: false
 errors: 0
 --- ast ---
-SOURCE_FILE@0..118: // lex: ok
-// parse: ok
-// sema: todo
-
+SOURCE_FILE@0..80: 
 extern test_kern(bit[5], uint[10], float[16], complex[float[64]]) -> float[6];
 
-EXTERN_STMT@39..117: extern test_kern(bit[5], uint[10], float[16], complex[float[64]]) -> float[6];
-NAME@46..55: test_kern
-TYPE_LIST@55..104: (bit[5], uint[10], float[16], complex[float[64]])
-SCALAR_TYPE@56..62: bit[5]
-SCALAR_TYPE@56..62: bit[5]
-DESIGNATOR@59..62: [5]
-LITERAL@60..61: 5
-SCALAR_TYPE@64..72: uint[10]
-SCALAR_TYPE@64..72: uint[10]
-DESIGNATOR@68..72: [10]
-LITERAL@69..71: 10
-SCALAR_TYPE@74..83: float[16]
-SCALAR_TYPE@74..83: float[16]
-DESIGNATOR@79..83: [16]
-LITERAL@80..82: 16
-SCALAR_TYPE@85..103: complex[float[64]]
-SCALAR_TYPE@85..103: complex[float[64]]
-SCALAR_TYPE@93..102: float[64]
-DESIGNATOR@98..102: [64]
-LITERAL@99..101: 64
-RETURN_SIGNATURE@105..116: -> float[6]
-SCALAR_TYPE@108..116: float[6]
-DESIGNATOR@113..116: [6]
-LITERAL@114..115: 6
+EXTERN_STMT@1..79: extern test_kern(bit[5], uint[10], float[16], complex[float[64]]) -> float[6];
+NAME@8..17: test_kern
+TYPE_LIST@17..66: (bit[5], uint[10], float[16], complex[float[64]])
+SCALAR_TYPE@18..24: bit[5]
+SCALAR_TYPE@18..24: bit[5]
+DESIGNATOR@21..24: [5]
+LITERAL@22..23: 5
+SCALAR_TYPE@26..34: uint[10]
+SCALAR_TYPE@26..34: uint[10]
+DESIGNATOR@30..34: [10]
+LITERAL@31..33: 10
+SCALAR_TYPE@36..45: float[16]
+SCALAR_TYPE@36..45: float[16]
+DESIGNATOR@41..45: [16]
+LITERAL@42..44: 16
+SCALAR_TYPE@47..65: complex[float[64]]
+SCALAR_TYPE@47..65: complex[float[64]]
+SCALAR_TYPE@55..64: float[64]
+DESIGNATOR@60..64: [64]
+LITERAL@61..63: 64
+RETURN_SIGNATURE@67..78: -> float[6]
+SCALAR_TYPE@70..78: float[6]
+DESIGNATOR@75..78: [6]
+LITERAL@76..77: 6

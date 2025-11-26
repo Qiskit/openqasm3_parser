@@ -9,35 +9,32 @@ ok: true
 panicked: false
 errors: 0
 --- ast ---
-SOURCE_FILE@0..127: // lex: ok
-// parse: ok
-// sema: todo
-
+SOURCE_FILE@0..89: 
 complex[float[32]] a = 2.0;
 complex[float[32]] b = 1.0;
 
 complex[float[32]] c = a ** b;
 
-CLASSICAL_DECLARATION_STATEMENT@39..66: complex[float[32]] a = 2.0;
-SCALAR_TYPE@39..57: complex[float[32]]
-SCALAR_TYPE@47..56: float[32]
-DESIGNATOR@52..56: [32]
-LITERAL@53..55: 32
-NAME@58..59: a
-LITERAL@62..65: 2.0
-CLASSICAL_DECLARATION_STATEMENT@67..94: complex[float[32]] b = 1.0;
-SCALAR_TYPE@67..85: complex[float[32]]
-SCALAR_TYPE@75..84: float[32]
-DESIGNATOR@80..84: [32]
-LITERAL@81..83: 32
-NAME@86..87: b
-LITERAL@90..93: 1.0
-CLASSICAL_DECLARATION_STATEMENT@96..126: complex[float[32]] c = a ** b;
-SCALAR_TYPE@96..114: complex[float[32]]
-SCALAR_TYPE@104..113: float[32]
-DESIGNATOR@109..113: [32]
-LITERAL@110..112: 32
-NAME@115..116: c
-BIN_EXPR@119..125: a ** b
-IDENTIFIER@119..120: a
-IDENTIFIER@124..125: b
+CLASSICAL_DECLARATION_STATEMENT@1..28: complex[float[32]] a = 2.0;
+SCALAR_TYPE@1..19: complex[float[32]]
+SCALAR_TYPE@9..18: float[32]
+DESIGNATOR@14..18: [32]
+LITERAL@15..17: 32
+NAME@20..21: a
+LITERAL@24..27: 2.0
+CLASSICAL_DECLARATION_STATEMENT@29..56: complex[float[32]] b = 1.0;
+SCALAR_TYPE@29..47: complex[float[32]]
+SCALAR_TYPE@37..46: float[32]
+DESIGNATOR@42..46: [32]
+LITERAL@43..45: 32
+NAME@48..49: b
+LITERAL@52..55: 1.0
+CLASSICAL_DECLARATION_STATEMENT@58..88: complex[float[32]] c = a ** b;
+SCALAR_TYPE@58..76: complex[float[32]]
+SCALAR_TYPE@66..75: float[32]
+DESIGNATOR@71..75: [32]
+LITERAL@72..74: 32
+NAME@77..78: c
+BIN_EXPR@81..87: a ** b
+IDENTIFIER@81..82: a
+IDENTIFIER@86..87: b

@@ -9,10 +9,7 @@ ok: false
 panicked: false
 errors: 20
 --- ast ---
-SOURCE_FILE@0..187: // lex: ok
-// parse: diag
-// sema: skip
-
+SOURCE_FILE@0..147: 
 switch () {}
 switch (i) { x $0 }
 switch (i) { case {} }
@@ -20,36 +17,36 @@ switch (i) { case 1,, {} }
 switch (i) { default 0 {} }
 switch (i) { default, default {} }
 
-SWITCH_CASE_STMT@41..53: switch () {}
-SWITCH_CASE_STMT@54..66: switch (i) {
-IDENTIFIER@62..63: i
-GATE_CALL_EXPR@67..71: x $0
-IDENTIFIER@67..68: x
-QUBIT_LIST@69..71: $0
-HARDWARE_QUBIT@69..71: $0
-ERROR@72..73: }
-SWITCH_CASE_STMT@74..96: switch (i) { case {} }
-IDENTIFIER@82..83: i
-CASE_EXPR@87..94: case {}
-EXPRESSION_LIST@92..92: 
-BLOCK_EXPR@92..94: {}
-SWITCH_CASE_STMT@97..117: switch (i) { case 1,
-IDENTIFIER@105..106: i
-CASE_EXPR@110..117: case 1,
-EXPRESSION_LIST@115..117: 1,
-LITERAL@115..116: 1
-ERROR@117..118: ,
-BLOCK_EXPR@119..121: {}
-ERROR@122..123: }
-SWITCH_CASE_STMT@124..144: switch (i) { default
-IDENTIFIER@132..133: i
-EXPR_STMT@145..146: 0
-LITERAL@145..146: 0
-BLOCK_EXPR@147..149: {}
-ERROR@150..151: }
-SWITCH_CASE_STMT@152..172: switch (i) { default
-IDENTIFIER@160..161: i
-ERROR@172..173: ,
-ERROR@174..181: default
-BLOCK_EXPR@182..184: {}
-ERROR@185..186: }
+SWITCH_CASE_STMT@1..13: switch () {}
+SWITCH_CASE_STMT@14..26: switch (i) {
+IDENTIFIER@22..23: i
+GATE_CALL_EXPR@27..31: x $0
+IDENTIFIER@27..28: x
+QUBIT_LIST@29..31: $0
+HARDWARE_QUBIT@29..31: $0
+ERROR@32..33: }
+SWITCH_CASE_STMT@34..56: switch (i) { case {} }
+IDENTIFIER@42..43: i
+CASE_EXPR@47..54: case {}
+EXPRESSION_LIST@52..52: 
+BLOCK_EXPR@52..54: {}
+SWITCH_CASE_STMT@57..77: switch (i) { case 1,
+IDENTIFIER@65..66: i
+CASE_EXPR@70..77: case 1,
+EXPRESSION_LIST@75..77: 1,
+LITERAL@75..76: 1
+ERROR@77..78: ,
+BLOCK_EXPR@79..81: {}
+ERROR@82..83: }
+SWITCH_CASE_STMT@84..104: switch (i) { default
+IDENTIFIER@92..93: i
+EXPR_STMT@105..106: 0
+LITERAL@105..106: 0
+BLOCK_EXPR@107..109: {}
+ERROR@110..111: }
+SWITCH_CASE_STMT@112..132: switch (i) { default
+IDENTIFIER@120..121: i
+ERROR@132..133: ,
+ERROR@134..141: default
+BLOCK_EXPR@142..144: {}
+ERROR@145..146: }

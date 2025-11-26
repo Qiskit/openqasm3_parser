@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/gate/gate_modifiers.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: ok
-// sema: ok
 
 qubit q;
 gate g q {}
@@ -18,71 +15,66 @@ inv @ g q;
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: ok" @11..23
-[3] Whitespace "\n" @23..24
-[4] LineComment "// sema: ok" @24..35
-[5] Whitespace "\n\n" @35..37
-[6] Ident "qubit" @37..42
-[7] Whitespace " " @42..43
-[8] Ident "q" @43..44
-[9] Semi ";" @44..45
-[10] Whitespace "\n" @45..46
-[11] Ident "gate" @46..50
-[12] Whitespace " " @50..51
-[13] Ident "g" @51..52
-[14] Whitespace " " @52..53
-[15] Ident "q" @53..54
-[16] Whitespace " " @54..55
-[17] OpenBrace "{" @55..56
-[18] CloseBrace "}" @56..57
-[19] Whitespace "\n" @57..58
-[20] Ident "ctrl" @58..62
-[21] OpenParen "(" @62..63
-[22] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @63..64
-[23] CloseParen ")" @64..65
-[24] Whitespace " " @65..66
-[25] At "@" @66..67
-[26] Whitespace " " @67..68
-[27] Ident "g" @68..69
-[28] Whitespace " " @69..70
-[29] Ident "q" @70..71
-[30] Semi ";" @71..72
-[31] Whitespace "\n" @72..73
-[32] Ident "negctrl" @73..80
-[33] OpenParen "(" @80..81
-[34] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @81..82
-[35] CloseParen ")" @82..83
-[36] Whitespace " " @83..84
-[37] At "@" @84..85
-[38] Whitespace " " @85..86
-[39] Ident "g" @86..87
-[40] Whitespace " " @87..88
-[41] Ident "q" @88..89
-[42] Semi ";" @89..90
-[43] Whitespace "\n" @90..91
-[44] Ident "pow" @91..94
-[45] OpenParen "(" @94..95
-[46] Minus "-" @95..96
-[47] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 2 } "1." @96..98
-[48] Slash "/" @98..99
-[49] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 2 } "2." @99..101
-[50] CloseParen ")" @101..102
-[51] Whitespace " " @102..103
-[52] At "@" @103..104
-[53] Whitespace " " @104..105
-[54] Ident "g" @105..106
-[55] Whitespace " " @106..107
-[56] Ident "q" @107..108
-[57] Semi ";" @108..109
-[58] Whitespace "\n" @109..110
-[59] Ident "inv" @110..113
-[60] Whitespace " " @113..114
-[61] At "@" @114..115
-[62] Whitespace " " @115..116
-[63] Ident "g" @116..117
-[64] Whitespace " " @117..118
-[65] Ident "q" @118..119
-[66] Semi ";" @119..120
-[67] Whitespace "\n" @120..121
+[0] Whitespace "\n" @0..1
+[1] Ident "qubit" @1..6
+[2] Whitespace " " @6..7
+[3] Ident "q" @7..8
+[4] Semi ";" @8..9
+[5] Whitespace "\n" @9..10
+[6] Ident "gate" @10..14
+[7] Whitespace " " @14..15
+[8] Ident "g" @15..16
+[9] Whitespace " " @16..17
+[10] Ident "q" @17..18
+[11] Whitespace " " @18..19
+[12] OpenBrace "{" @19..20
+[13] CloseBrace "}" @20..21
+[14] Whitespace "\n" @21..22
+[15] Ident "ctrl" @22..26
+[16] OpenParen "(" @26..27
+[17] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @27..28
+[18] CloseParen ")" @28..29
+[19] Whitespace " " @29..30
+[20] At "@" @30..31
+[21] Whitespace " " @31..32
+[22] Ident "g" @32..33
+[23] Whitespace " " @33..34
+[24] Ident "q" @34..35
+[25] Semi ";" @35..36
+[26] Whitespace "\n" @36..37
+[27] Ident "negctrl" @37..44
+[28] OpenParen "(" @44..45
+[29] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @45..46
+[30] CloseParen ")" @46..47
+[31] Whitespace " " @47..48
+[32] At "@" @48..49
+[33] Whitespace " " @49..50
+[34] Ident "g" @50..51
+[35] Whitespace " " @51..52
+[36] Ident "q" @52..53
+[37] Semi ";" @53..54
+[38] Whitespace "\n" @54..55
+[39] Ident "pow" @55..58
+[40] OpenParen "(" @58..59
+[41] Minus "-" @59..60
+[42] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 2 } "1." @60..62
+[43] Slash "/" @62..63
+[44] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 2 } "2." @63..65
+[45] CloseParen ")" @65..66
+[46] Whitespace " " @66..67
+[47] At "@" @67..68
+[48] Whitespace " " @68..69
+[49] Ident "g" @69..70
+[50] Whitespace " " @70..71
+[51] Ident "q" @71..72
+[52] Semi ";" @72..73
+[53] Whitespace "\n" @73..74
+[54] Ident "inv" @74..77
+[55] Whitespace " " @77..78
+[56] At "@" @78..79
+[57] Whitespace " " @79..80
+[58] Ident "g" @80..81
+[59] Whitespace " " @81..82
+[60] Ident "q" @82..83
+[61] Semi ";" @83..84
+[62] Whitespace "\n" @84..85

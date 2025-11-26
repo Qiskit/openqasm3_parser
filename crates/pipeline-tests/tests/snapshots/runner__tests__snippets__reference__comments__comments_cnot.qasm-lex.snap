@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/comments/comments_cnot.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: ok
-// sema: diag
 
 OPENQASM 3.0;
 // Line comment before include
@@ -23,63 +20,58 @@ cnot q[0], q[1];
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: ok" @11..23
-[3] Whitespace "\n" @23..24
-[4] LineComment "// sema: diag" @24..37
-[5] Whitespace "\n\n" @37..39
-[6] Ident "OPENQASM" @39..47
-[7] Whitespace " " @47..48
-[8] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "3.0" @48..51
-[9] Semi ";" @51..52
-[10] Whitespace "\n" @52..53
-[11] LineComment "// Line comment before include" @53..83
-[12] Whitespace "\n" @83..84
-[13] Ident "include" @84..91
-[14] Whitespace " " @91..92
-[15] Literal { kind: Str { terminated: true }, suffix_start: 14 } ""stdgates.inc"" @92..106
-[16] Semi ";" @106..107
-[17] Whitespace " " @107..108
-[18] LineComment "// Inline comment" @108..125
-[19] Whitespace "\n" @125..126
-[20] BlockComment { terminated: true } "/* Block comment before declaration */" @126..164
-[21] Whitespace "\n" @164..165
-[22] Ident "qubit" @165..170
-[23] OpenBracket "[" @170..171
-[24] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @171..172
-[25] CloseBracket "]" @172..173
-[26] Whitespace " " @173..174
-[27] Ident "q" @174..175
-[28] Semi ";" @175..176
-[29] Whitespace " " @176..177
-[30] BlockComment { terminated: true } "/* Inline block comment */" @177..203
-[31] Whitespace "\n\n" @203..205
-[32] LineComment "// Comment before gate" @205..227
-[33] Whitespace "\n" @227..228
-[34] Ident "h" @228..229
-[35] Whitespace " " @229..230
-[36] Ident "q" @230..231
-[37] OpenBracket "[" @231..232
-[38] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @232..233
-[39] CloseBracket "]" @233..234
-[40] Semi ";" @234..235
-[41] Whitespace " " @235..236
-[42] LineComment "// Gate with comment" @236..256
-[43] Whitespace "\n" @256..257
-[44] BlockComment { terminated: true } "/* Multi-line block comment\n   spanning multiple lines */" @257..314
-[45] Whitespace "\n" @314..315
-[46] Ident "cnot" @315..319
-[47] Whitespace " " @319..320
-[48] Ident "q" @320..321
-[49] OpenBracket "[" @321..322
-[50] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @322..323
-[51] CloseBracket "]" @323..324
-[52] Comma "," @324..325
-[53] Whitespace " " @325..326
-[54] Ident "q" @326..327
-[55] OpenBracket "[" @327..328
-[56] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @328..329
-[57] CloseBracket "]" @329..330
-[58] Semi ";" @330..331
-[59] Whitespace "\n" @331..332
+[0] Whitespace "\n" @0..1
+[1] Ident "OPENQASM" @1..9
+[2] Whitespace " " @9..10
+[3] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "3.0" @10..13
+[4] Semi ";" @13..14
+[5] Whitespace "\n" @14..15
+[6] LineComment "// Line comment before include" @15..45
+[7] Whitespace "\n" @45..46
+[8] Ident "include" @46..53
+[9] Whitespace " " @53..54
+[10] Literal { kind: Str { terminated: true }, suffix_start: 14 } ""stdgates.inc"" @54..68
+[11] Semi ";" @68..69
+[12] Whitespace " " @69..70
+[13] LineComment "// Inline comment" @70..87
+[14] Whitespace "\n" @87..88
+[15] BlockComment { terminated: true } "/* Block comment before declaration */" @88..126
+[16] Whitespace "\n" @126..127
+[17] Ident "qubit" @127..132
+[18] OpenBracket "[" @132..133
+[19] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @133..134
+[20] CloseBracket "]" @134..135
+[21] Whitespace " " @135..136
+[22] Ident "q" @136..137
+[23] Semi ";" @137..138
+[24] Whitespace " " @138..139
+[25] BlockComment { terminated: true } "/* Inline block comment */" @139..165
+[26] Whitespace "\n\n" @165..167
+[27] LineComment "// Comment before gate" @167..189
+[28] Whitespace "\n" @189..190
+[29] Ident "h" @190..191
+[30] Whitespace " " @191..192
+[31] Ident "q" @192..193
+[32] OpenBracket "[" @193..194
+[33] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @194..195
+[34] CloseBracket "]" @195..196
+[35] Semi ";" @196..197
+[36] Whitespace " " @197..198
+[37] LineComment "// Gate with comment" @198..218
+[38] Whitespace "\n" @218..219
+[39] BlockComment { terminated: true } "/* Multi-line block comment\n   spanning multiple lines */" @219..276
+[40] Whitespace "\n" @276..277
+[41] Ident "cnot" @277..281
+[42] Whitespace " " @281..282
+[43] Ident "q" @282..283
+[44] OpenBracket "[" @283..284
+[45] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @284..285
+[46] CloseBracket "]" @285..286
+[47] Comma "," @286..287
+[48] Whitespace " " @287..288
+[49] Ident "q" @288..289
+[50] OpenBracket "[" @289..290
+[51] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @290..291
+[52] CloseBracket "]" @291..292
+[53] Semi ";" @292..293
+[54] Whitespace "\n" @293..294

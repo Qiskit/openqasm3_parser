@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/invalid/statements/gate_applications.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: diag
-// sema: skip
 
 U (1)(2) $0;
 notmodifier @ x $0;
@@ -22,130 +19,125 @@ gphase(pi) @ ctrl @ x $0, $1;
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: diag" @11..25
-[3] Whitespace "\n" @25..26
-[4] LineComment "// sema: skip" @26..39
-[5] Whitespace "\n\n" @39..41
-[6] Ident "U" @41..42
-[7] Whitespace " " @42..43
-[8] OpenParen "(" @43..44
-[9] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @44..45
-[10] CloseParen ")" @45..46
-[11] OpenParen "(" @46..47
-[12] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @47..48
-[13] CloseParen ")" @48..49
-[14] Whitespace " " @49..50
-[15] HardwareIdent "$0" @50..52
-[16] Semi ";" @52..53
-[17] Whitespace "\n" @53..54
-[18] Ident "notmodifier" @54..65
-[19] Whitespace " " @65..66
-[20] At "@" @66..67
-[21] Whitespace " " @67..68
-[22] Ident "x" @68..69
-[23] Whitespace " " @69..70
-[24] HardwareIdent "$0" @70..72
-[25] Semi ";" @72..73
-[26] Whitespace "\n" @73..74
-[27] Ident "pow" @74..77
-[28] Whitespace " " @77..78
-[29] At "@" @78..79
-[30] Whitespace " " @79..80
-[31] Ident "x" @80..81
-[32] Whitespace " " @81..82
-[33] HardwareIdent "$0" @82..84
-[34] Semi ";" @84..85
-[35] Whitespace "\n" @85..86
-[36] Ident "pow" @86..89
-[37] OpenParen "(" @89..90
-[38] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @90..91
-[39] Comma "," @91..92
-[40] Whitespace " " @92..93
-[41] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @93..94
-[42] CloseParen ")" @94..95
-[43] Whitespace " " @95..96
-[44] At "@" @96..97
-[45] Whitespace " " @97..98
-[46] Ident "x" @98..99
-[47] Whitespace " " @99..100
-[48] HardwareIdent "$0" @100..102
-[49] Semi ";" @102..103
-[50] Whitespace "\n" @103..104
-[51] Ident "ctrl" @104..108
-[52] OpenParen "(" @108..109
-[53] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @109..110
-[54] Comma "," @110..111
-[55] Whitespace " " @111..112
-[56] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @112..113
-[57] CloseParen ")" @113..114
-[58] Whitespace " " @114..115
-[59] At "@" @115..116
-[60] Whitespace " " @116..117
-[61] Ident "x" @117..118
-[62] Whitespace " " @118..119
-[63] HardwareIdent "$0" @119..121
-[64] Comma "," @121..122
-[65] Whitespace " " @122..123
-[66] HardwareIdent "$1" @123..125
-[67] Semi ";" @125..126
-[68] Whitespace "\n" @126..127
-[69] Ident "negctrl" @127..134
-[70] OpenParen "(" @134..135
-[71] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @135..136
-[72] Comma "," @136..137
-[73] Whitespace " " @137..138
-[74] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @138..139
-[75] CloseParen ")" @139..140
-[76] Whitespace " " @140..141
-[77] At "@" @141..142
-[78] Whitespace " " @142..143
-[79] Ident "x" @143..144
-[80] Whitespace " " @144..145
-[81] HardwareIdent "$0" @145..147
-[82] Comma "," @147..148
-[83] Whitespace " " @148..149
-[84] HardwareIdent "$1" @149..151
-[85] Semi ";" @151..152
-[86] Whitespace "\n" @152..153
-[87] Ident "inv" @153..156
-[88] OpenParen "(" @156..157
-[89] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @157..158
-[90] CloseParen ")" @158..159
-[91] Whitespace " " @159..160
-[92] At "@" @160..161
-[93] Whitespace " " @161..162
-[94] Ident "ctrl" @162..166
-[95] Whitespace " " @166..167
-[96] At "@" @167..168
-[97] Whitespace " " @168..169
-[98] Ident "x" @169..170
-[99] Whitespace " " @170..171
-[100] HardwareIdent "$0" @171..173
-[101] Comma "," @173..174
-[102] Whitespace " " @174..175
-[103] HardwareIdent "$1" @175..177
-[104] Semi ";" @177..178
-[105] Whitespace "\n\n" @178..180
-[106] LineComment "// Global phase is defined in the grammar to be the last modifier." @180..246
-[107] Whitespace "\n" @246..247
-[108] Ident "gphase" @247..253
-[109] OpenParen "(" @253..254
-[110] Ident "pi" @254..256
-[111] CloseParen ")" @256..257
-[112] Whitespace " " @257..258
-[113] At "@" @258..259
-[114] Whitespace " " @259..260
-[115] Ident "ctrl" @260..264
-[116] Whitespace " " @264..265
-[117] At "@" @265..266
-[118] Whitespace " " @266..267
-[119] Ident "x" @267..268
-[120] Whitespace " " @268..269
-[121] HardwareIdent "$0" @269..271
-[122] Comma "," @271..272
-[123] Whitespace " " @272..273
-[124] HardwareIdent "$1" @273..275
-[125] Semi ";" @275..276
-[126] Whitespace "\n" @276..277
+[0] Whitespace "\n" @0..1
+[1] Ident "U" @1..2
+[2] Whitespace " " @2..3
+[3] OpenParen "(" @3..4
+[4] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @4..5
+[5] CloseParen ")" @5..6
+[6] OpenParen "(" @6..7
+[7] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @7..8
+[8] CloseParen ")" @8..9
+[9] Whitespace " " @9..10
+[10] HardwareIdent "$0" @10..12
+[11] Semi ";" @12..13
+[12] Whitespace "\n" @13..14
+[13] Ident "notmodifier" @14..25
+[14] Whitespace " " @25..26
+[15] At "@" @26..27
+[16] Whitespace " " @27..28
+[17] Ident "x" @28..29
+[18] Whitespace " " @29..30
+[19] HardwareIdent "$0" @30..32
+[20] Semi ";" @32..33
+[21] Whitespace "\n" @33..34
+[22] Ident "pow" @34..37
+[23] Whitespace " " @37..38
+[24] At "@" @38..39
+[25] Whitespace " " @39..40
+[26] Ident "x" @40..41
+[27] Whitespace " " @41..42
+[28] HardwareIdent "$0" @42..44
+[29] Semi ";" @44..45
+[30] Whitespace "\n" @45..46
+[31] Ident "pow" @46..49
+[32] OpenParen "(" @49..50
+[33] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @50..51
+[34] Comma "," @51..52
+[35] Whitespace " " @52..53
+[36] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @53..54
+[37] CloseParen ")" @54..55
+[38] Whitespace " " @55..56
+[39] At "@" @56..57
+[40] Whitespace " " @57..58
+[41] Ident "x" @58..59
+[42] Whitespace " " @59..60
+[43] HardwareIdent "$0" @60..62
+[44] Semi ";" @62..63
+[45] Whitespace "\n" @63..64
+[46] Ident "ctrl" @64..68
+[47] OpenParen "(" @68..69
+[48] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @69..70
+[49] Comma "," @70..71
+[50] Whitespace " " @71..72
+[51] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @72..73
+[52] CloseParen ")" @73..74
+[53] Whitespace " " @74..75
+[54] At "@" @75..76
+[55] Whitespace " " @76..77
+[56] Ident "x" @77..78
+[57] Whitespace " " @78..79
+[58] HardwareIdent "$0" @79..81
+[59] Comma "," @81..82
+[60] Whitespace " " @82..83
+[61] HardwareIdent "$1" @83..85
+[62] Semi ";" @85..86
+[63] Whitespace "\n" @86..87
+[64] Ident "negctrl" @87..94
+[65] OpenParen "(" @94..95
+[66] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @95..96
+[67] Comma "," @96..97
+[68] Whitespace " " @97..98
+[69] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @98..99
+[70] CloseParen ")" @99..100
+[71] Whitespace " " @100..101
+[72] At "@" @101..102
+[73] Whitespace " " @102..103
+[74] Ident "x" @103..104
+[75] Whitespace " " @104..105
+[76] HardwareIdent "$0" @105..107
+[77] Comma "," @107..108
+[78] Whitespace " " @108..109
+[79] HardwareIdent "$1" @109..111
+[80] Semi ";" @111..112
+[81] Whitespace "\n" @112..113
+[82] Ident "inv" @113..116
+[83] OpenParen "(" @116..117
+[84] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @117..118
+[85] CloseParen ")" @118..119
+[86] Whitespace " " @119..120
+[87] At "@" @120..121
+[88] Whitespace " " @121..122
+[89] Ident "ctrl" @122..126
+[90] Whitespace " " @126..127
+[91] At "@" @127..128
+[92] Whitespace " " @128..129
+[93] Ident "x" @129..130
+[94] Whitespace " " @130..131
+[95] HardwareIdent "$0" @131..133
+[96] Comma "," @133..134
+[97] Whitespace " " @134..135
+[98] HardwareIdent "$1" @135..137
+[99] Semi ";" @137..138
+[100] Whitespace "\n\n" @138..140
+[101] LineComment "// Global phase is defined in the grammar to be the last modifier." @140..206
+[102] Whitespace "\n" @206..207
+[103] Ident "gphase" @207..213
+[104] OpenParen "(" @213..214
+[105] Ident "pi" @214..216
+[106] CloseParen ")" @216..217
+[107] Whitespace " " @217..218
+[108] At "@" @218..219
+[109] Whitespace " " @219..220
+[110] Ident "ctrl" @220..224
+[111] Whitespace " " @224..225
+[112] At "@" @225..226
+[113] Whitespace " " @226..227
+[114] Ident "x" @227..228
+[115] Whitespace " " @228..229
+[116] HardwareIdent "$0" @229..231
+[117] Comma "," @231..232
+[118] Whitespace " " @232..233
+[119] HardwareIdent "$1" @233..235
+[120] Semi ";" @235..236
+[121] Whitespace "\n" @236..237

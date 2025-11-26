@@ -9,21 +9,18 @@ ok: true
 panicked: false
 errors: 0
 --- ast ---
-SOURCE_FILE@0..59: // lex: ok
-// parse: ok
-// sema: panic
-
+SOURCE_FILE@0..20: 
 {
   int ii = 32;
 }
 
-EXPR_STMT@40..58: {
+EXPR_STMT@1..19: {
   int ii = 32;
 }
-BLOCK_EXPR@40..58: {
+BLOCK_EXPR@1..19: {
   int ii = 32;
 }
-CLASSICAL_DECLARATION_STATEMENT@44..56: int ii = 32;
-SCALAR_TYPE@44..47: int
-NAME@48..50: ii
-LITERAL@53..55: 32
+CLASSICAL_DECLARATION_STATEMENT@5..17: int ii = 32;
+SCALAR_TYPE@5..8: int
+NAME@9..11: ii
+LITERAL@14..16: 32

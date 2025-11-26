@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/declaration/complex.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: ok
-// sema: todo
 
 // beware the tab character in f = 1 im below
   complex[float] a;
@@ -20,91 +17,86 @@ expect-lex: Ok
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: ok" @11..23
-[3] Whitespace "\n" @23..24
-[4] LineComment "// sema: todo" @24..37
-[5] Whitespace "\n\n" @37..39
-[6] LineComment "// beware the tab character in f = 1 im below" @39..84
-[7] Whitespace "\n  " @84..87
-[8] Ident "complex" @87..94
-[9] OpenBracket "[" @94..95
-[10] Ident "float" @95..100
-[11] CloseBracket "]" @100..101
-[12] Whitespace " " @101..102
-[13] Ident "a" @102..103
-[14] Semi ";" @103..104
-[15] Whitespace "\n  " @104..107
-[16] Ident "complex" @107..114
-[17] OpenBracket "[" @114..115
-[18] Ident "float" @115..120
-[19] CloseBracket "]" @120..121
-[20] Whitespace " " @121..122
-[21] Ident "b" @122..123
-[22] Whitespace " " @123..124
-[23] Eq "=" @124..125
-[24] Whitespace " " @125..126
-[25] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @126..127
-[26] Whitespace " " @127..128
-[27] Minus "-" @128..129
-[28] Whitespace " " @129..130
-[29] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "5.5" @130..133
-[30] Ident "im" @133..135
-[31] Semi ";" @135..136
-[32] Whitespace "\n  " @136..139
-[33] Ident "complex" @139..146
-[34] OpenBracket "[" @146..147
-[35] Ident "float" @147..152
-[36] OpenBracket "[" @152..153
-[37] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "64" @153..155
-[38] CloseBracket "]" @155..156
-[39] CloseBracket "]" @156..157
-[40] Whitespace " " @157..158
-[41] Ident "d" @158..159
-[42] Whitespace " " @159..160
-[43] Eq "=" @160..161
-[44] Whitespace " " @161..162
-[45] Ident "a" @162..163
-[46] Whitespace " " @163..164
-[47] Plus "+" @164..165
-[48] Whitespace " " @165..166
-[49] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @166..167
-[50] Whitespace " " @167..168
-[51] Ident "im" @168..170
-[52] Semi ";" @170..171
-[53] Whitespace "\n" @171..172
-[54] LineComment "//  complex[float[32]] c = a ** b;" @172..206
-[55] Whitespace "\n  " @206..209
-[56] Ident "complex" @209..216
-[57] OpenBracket "[" @216..217
-[58] Ident "float" @217..222
-[59] CloseBracket "]" @222..223
-[60] Whitespace " " @223..224
-[61] Ident "e" @224..225
-[62] Whitespace " " @225..226
-[63] Eq "=" @226..227
-[64] Whitespace " " @227..228
-[65] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @228..229
-[66] Ident "im" @229..231
-[67] Semi ";" @231..232
-[68] Whitespace "\n  " @232..235
-[69] Ident "complex" @235..242
-[70] OpenBracket "[" @242..243
-[71] Ident "float" @243..248
-[72] CloseBracket "]" @248..249
-[73] Whitespace " " @249..250
-[74] Ident "f" @250..251
-[75] Whitespace " " @251..252
-[76] Eq "=" @252..253
-[77] Whitespace " " @253..254
-[78] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @254..255
-[79] Whitespace "\t" @255..256
-[80] Ident "im" @256..258
-[81] Semi ";" @258..259
-[82] Whitespace "\n  " @259..262
-[83] Ident "complex" @262..269
-[84] Whitespace " " @269..270
-[85] Ident "z" @270..271
-[86] Semi ";" @271..272
-[87] Whitespace "\n" @272..273
+[0] Whitespace "\n" @0..1
+[1] LineComment "// beware the tab character in f = 1 im below" @1..46
+[2] Whitespace "\n  " @46..49
+[3] Ident "complex" @49..56
+[4] OpenBracket "[" @56..57
+[5] Ident "float" @57..62
+[6] CloseBracket "]" @62..63
+[7] Whitespace " " @63..64
+[8] Ident "a" @64..65
+[9] Semi ";" @65..66
+[10] Whitespace "\n  " @66..69
+[11] Ident "complex" @69..76
+[12] OpenBracket "[" @76..77
+[13] Ident "float" @77..82
+[14] CloseBracket "]" @82..83
+[15] Whitespace " " @83..84
+[16] Ident "b" @84..85
+[17] Whitespace " " @85..86
+[18] Eq "=" @86..87
+[19] Whitespace " " @87..88
+[20] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @88..89
+[21] Whitespace " " @89..90
+[22] Minus "-" @90..91
+[23] Whitespace " " @91..92
+[24] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "5.5" @92..95
+[25] Ident "im" @95..97
+[26] Semi ";" @97..98
+[27] Whitespace "\n  " @98..101
+[28] Ident "complex" @101..108
+[29] OpenBracket "[" @108..109
+[30] Ident "float" @109..114
+[31] OpenBracket "[" @114..115
+[32] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "64" @115..117
+[33] CloseBracket "]" @117..118
+[34] CloseBracket "]" @118..119
+[35] Whitespace " " @119..120
+[36] Ident "d" @120..121
+[37] Whitespace " " @121..122
+[38] Eq "=" @122..123
+[39] Whitespace " " @123..124
+[40] Ident "a" @124..125
+[41] Whitespace " " @125..126
+[42] Plus "+" @126..127
+[43] Whitespace " " @127..128
+[44] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @128..129
+[45] Whitespace " " @129..130
+[46] Ident "im" @130..132
+[47] Semi ";" @132..133
+[48] Whitespace "\n" @133..134
+[49] LineComment "//  complex[float[32]] c = a ** b;" @134..168
+[50] Whitespace "\n  " @168..171
+[51] Ident "complex" @171..178
+[52] OpenBracket "[" @178..179
+[53] Ident "float" @179..184
+[54] CloseBracket "]" @184..185
+[55] Whitespace " " @185..186
+[56] Ident "e" @186..187
+[57] Whitespace " " @187..188
+[58] Eq "=" @188..189
+[59] Whitespace " " @189..190
+[60] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @190..191
+[61] Ident "im" @191..193
+[62] Semi ";" @193..194
+[63] Whitespace "\n  " @194..197
+[64] Ident "complex" @197..204
+[65] OpenBracket "[" @204..205
+[66] Ident "float" @205..210
+[67] CloseBracket "]" @210..211
+[68] Whitespace " " @211..212
+[69] Ident "f" @212..213
+[70] Whitespace " " @213..214
+[71] Eq "=" @214..215
+[72] Whitespace " " @215..216
+[73] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @216..217
+[74] Whitespace "\t" @217..218
+[75] Ident "im" @218..220
+[76] Semi ";" @220..221
+[77] Whitespace "\n  " @221..224
+[78] Ident "complex" @224..231
+[79] Whitespace " " @231..232
+[80] Ident "z" @232..233
+[81] Semi ";" @233..234
+[82] Whitespace "\n" @234..235

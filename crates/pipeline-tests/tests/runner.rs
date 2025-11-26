@@ -31,6 +31,59 @@ mod suite {
         pub(crate) sema: Option<Expect>,
     }
 
+    pub fn strip_header_body(src: &str) -> &str {
+        let mut offset = 0usize;
+        let mut seen = 0usize;
+
+        for line in src.split_inclusive('\n') {
+            if seen >= 16 {
+                break;
+            }
+            let l = line.trim_start();
+            if !l.starts_with("//") {
+                break;
+            }
+            let t = l.trim_start_matches("//").trim();
+            let mut parts = t.splitn(2, ':');
+            let stage = parts.next().unwrap_or_default().trim();
+            let tag = parts.next().unwrap_or_default().trim();
+
+            let is_stage = matches!(stage, "lex" | "parse" | "sema");
+            let is_tag = matches!(tag, "ok" | "diag" | "todo" | "panic" | "skip");
+
+            if is_stage && is_tag {
+                offset += line.len();
+                seen += 1;
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        &src[offset..]
+    }
+
+    use tempfile::{Builder, NamedTempFile};
+
+    use std::io::{self, Write};
+
+    pub struct TempQasm {
+        file: NamedTempFile, // auto-deletes on drop
+    }
+
+    impl TempQasm {
+        pub fn new(body: &str) -> io::Result<Self> {
+            let mut file = Builder::new().prefix("oq3-").suffix(".qasm").tempfile()?; // unique random name
+            file.write_all(body.as_bytes())?;
+            file.flush()?;
+            Ok(Self { file })
+        }
+
+        pub fn path(&self) -> &Path {
+            self.file.path()
+        }
+    }
+
     // Enforce: if parse tag != ok, sema tag must be skip (or absent).
     pub fn validate_expectations(exp: &Expectations) -> Result<(), String> {
         let parse_ok = matches!(exp.parse, Some(Expect::Ok));
@@ -369,38 +422,49 @@ pub fn check(path: &Path) -> datatest_stable::Result<()> {
 
     let id = suite::rel_id(path);
     let src = fs::read_to_string(path)?;
+
     let exp = suite::parse_expectations(&src);
 
-    let run_lex = suite::should_run(exp.lex);
-    let run_parse = suite::should_run(exp.parse);
-    let run_sema = suite::should_run(exp.sema);
-
-    // Enforce header rule up-front:
-    // if parse tag != ok, then sema tag must be skip (or absent).
+    // Validate: if parse != ok, sema must be skip (or absent)
     if let Err(msg) = suite::validate_expectations(&exp) {
         return Err(format!("{}: {}", id, msg).into());
     }
 
-    // Explicit gating from headers
+    // Headerless body
+    let body = suite::strip_header_body(&src);
+
+    // Gating
+    let run_lex = suite::should_run(exp.lex);
+    let run_parse = suite::should_run(exp.parse);
+    let run_sema = suite::should_run(exp.sema);
+
+    // Parser/sema temp file (only if needed)
+    let temp = if run_parse || run_sema {
+        Some(suite::TempQasm::new(body)?)
+    } else {
+        None
+    };
+
+    // Stages (lex from body string; parse/sema from temp file)
     let lex = if run_lex {
-        suite::run_lex(&src)
+        suite::run_lex(body)
     } else {
         (false, 0, String::new())
     };
     let parse = if run_parse {
-        suite::run_parser_from_path(path)
+        suite::run_parser_from_path(temp.as_ref().unwrap().path())
     } else {
         (false, 0, String::new(), false, String::new())
     };
     let sema = if run_sema {
-        suite::run_sema_from_path(path)
+        suite::run_sema_from_path(temp.as_ref().unwrap().path())
     } else {
         (false, 0, String::new(), false, String::new())
     };
 
-    // First: produce snapshots so =cargo insta review= has something to review
+    // Snapshots use the headerless body so header edits don't affect stage output
     let (lex_snap, parse_snap, sema_snap) =
-        suite::snapshot_for(&id, &src, &exp, &lex, &parse, &sema);
+        suite::snapshot_for(&id, body, &exp, &lex, &parse, &sema);
     if run_lex {
         insta::assert_snapshot!(format!("{id}-lex"), lex_snap);
     }
@@ -411,7 +475,7 @@ pub fn check(path: &Path) -> datatest_stable::Result<()> {
         insta::assert_snapshot!(format!("{id}-sema"), sema_snap);
     }
 
-    // Then: enforce expectations
+    // Expectations (unchanged)
     let mut errs = Vec::new();
     if let Err(msg) = suite::apply_expect(exp.lex, lex.1, false) {
         errs.push(format!("lex: {msg}"));

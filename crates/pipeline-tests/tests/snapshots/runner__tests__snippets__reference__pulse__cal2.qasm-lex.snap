@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/pulse/cal2.qasm
 expect-lex: Todo
 --- source ---
-// lex: todo
-// parse: todo
-// sema: skip
 
 cal {}
 cal {One long, otherwise invalid token.}
@@ -17,52 +14,47 @@ cal {£$&£*(")}
 --- lexer ---
 ok: false
 errors: 1
-[0] LineComment "// lex: todo" @0..12
-[1] Whitespace "\n" @12..13
-[2] LineComment "// parse: todo" @13..27
-[3] Whitespace "\n" @27..28
-[4] LineComment "// sema: skip" @28..41
-[5] Whitespace "\n\n" @41..43
-[6] Ident "cal" @43..46
-[7] Whitespace " " @46..47
-[8] OpenBrace "{" @47..48
-[9] CloseBrace "}" @48..49
-[10] Whitespace "\n" @49..50
-[11] Ident "cal" @50..53
-[12] Whitespace " " @53..54
-[13] OpenBrace "{" @54..55
-[14] Ident "One" @55..58
-[15] Whitespace " " @58..59
-[16] Ident "long" @59..63
-[17] Comma "," @63..64
-[18] Whitespace " " @64..65
-[19] Ident "otherwise" @65..74
-[20] Whitespace " " @74..75
-[21] Ident "invalid" @75..82
-[22] Whitespace " " @82..83
-[23] Ident "token" @83..88
-[24] Dot "." @88..89
-[25] CloseBrace "}" @89..90
-[26] Whitespace "\n" @90..91
-[27] Ident "cal" @91..94
-[28] Whitespace " " @94..95
-[29] OpenBrace "{" @95..96
-[30] Ident "Outer" @96..101
-[31] Whitespace " " @101..102
-[32] OpenBrace "{" @102..103
-[33] Ident "nested" @103..109
-[34] CloseBrace "}" @109..110
-[35] Whitespace " " @110..111
-[36] Ident "outer" @111..116
-[37] CloseBrace "}" @116..117
-[38] Whitespace "\n" @117..118
-[39] Ident "cal" @118..121
-[40] Whitespace " " @121..122
-[41] OpenBrace "{" @122..123
-[42] Unknown "£" @123..125
-[43] Dollar "$" @125..126
-[44] And "&" @126..127
-[45] Unknown "£" @127..129
-[46] Star "*" @129..130
-[47] OpenParen "(" @130..131
-[48] Literal { kind: Str { terminated: false }, suffix_start: 5 } "")}\n\n" @131..136
+[0] Whitespace "\n" @0..1
+[1] Ident "cal" @1..4
+[2] Whitespace " " @4..5
+[3] OpenBrace "{" @5..6
+[4] CloseBrace "}" @6..7
+[5] Whitespace "\n" @7..8
+[6] Ident "cal" @8..11
+[7] Whitespace " " @11..12
+[8] OpenBrace "{" @12..13
+[9] Ident "One" @13..16
+[10] Whitespace " " @16..17
+[11] Ident "long" @17..21
+[12] Comma "," @21..22
+[13] Whitespace " " @22..23
+[14] Ident "otherwise" @23..32
+[15] Whitespace " " @32..33
+[16] Ident "invalid" @33..40
+[17] Whitespace " " @40..41
+[18] Ident "token" @41..46
+[19] Dot "." @46..47
+[20] CloseBrace "}" @47..48
+[21] Whitespace "\n" @48..49
+[22] Ident "cal" @49..52
+[23] Whitespace " " @52..53
+[24] OpenBrace "{" @53..54
+[25] Ident "Outer" @54..59
+[26] Whitespace " " @59..60
+[27] OpenBrace "{" @60..61
+[28] Ident "nested" @61..67
+[29] CloseBrace "}" @67..68
+[30] Whitespace " " @68..69
+[31] Ident "outer" @69..74
+[32] CloseBrace "}" @74..75
+[33] Whitespace "\n" @75..76
+[34] Ident "cal" @76..79
+[35] Whitespace " " @79..80
+[36] OpenBrace "{" @80..81
+[37] Unknown "£" @81..83
+[38] Dollar "$" @83..84
+[39] And "&" @84..85
+[40] Unknown "£" @85..87
+[41] Star "*" @87..88
+[42] OpenParen "(" @88..89
+[43] Literal { kind: Str { terminated: false }, suffix_start: 5 } "")}\n\n" @89..94

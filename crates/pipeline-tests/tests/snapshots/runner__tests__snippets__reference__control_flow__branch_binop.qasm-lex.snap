@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/control_flow/branch_binop.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: ok
-// sema: panic
 
 if(spec[i] == 0 && spec[n+i] == 1) {
   x q[i];
@@ -15,49 +12,44 @@ if(spec[i] == 0 && spec[n+i] == 1) {
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: ok" @11..23
-[3] Whitespace "\n" @23..24
-[4] LineComment "// sema: panic" @24..38
-[5] Whitespace "\n\n" @38..40
-[6] Ident "if" @40..42
-[7] OpenParen "(" @42..43
-[8] Ident "spec" @43..47
-[9] OpenBracket "[" @47..48
-[10] Ident "i" @48..49
-[11] CloseBracket "]" @49..50
-[12] Whitespace " " @50..51
-[13] Eq "=" @51..52
-[14] Eq "=" @52..53
-[15] Whitespace " " @53..54
-[16] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @54..55
-[17] Whitespace " " @55..56
-[18] And "&" @56..57
-[19] And "&" @57..58
-[20] Whitespace " " @58..59
-[21] Ident "spec" @59..63
-[22] OpenBracket "[" @63..64
-[23] Ident "n" @64..65
-[24] Plus "+" @65..66
-[25] Ident "i" @66..67
-[26] CloseBracket "]" @67..68
-[27] Whitespace " " @68..69
-[28] Eq "=" @69..70
-[29] Eq "=" @70..71
-[30] Whitespace " " @71..72
-[31] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @72..73
-[32] CloseParen ")" @73..74
-[33] Whitespace " " @74..75
-[34] OpenBrace "{" @75..76
-[35] Whitespace "\n  " @76..79
-[36] Ident "x" @79..80
-[37] Whitespace " " @80..81
-[38] Ident "q" @81..82
-[39] OpenBracket "[" @82..83
-[40] Ident "i" @83..84
-[41] CloseBracket "]" @84..85
-[42] Semi ";" @85..86
-[43] Whitespace "\n" @86..87
-[44] CloseBrace "}" @87..88
-[45] Whitespace "\n" @88..89
+[0] Whitespace "\n" @0..1
+[1] Ident "if" @1..3
+[2] OpenParen "(" @3..4
+[3] Ident "spec" @4..8
+[4] OpenBracket "[" @8..9
+[5] Ident "i" @9..10
+[6] CloseBracket "]" @10..11
+[7] Whitespace " " @11..12
+[8] Eq "=" @12..13
+[9] Eq "=" @13..14
+[10] Whitespace " " @14..15
+[11] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @15..16
+[12] Whitespace " " @16..17
+[13] And "&" @17..18
+[14] And "&" @18..19
+[15] Whitespace " " @19..20
+[16] Ident "spec" @20..24
+[17] OpenBracket "[" @24..25
+[18] Ident "n" @25..26
+[19] Plus "+" @26..27
+[20] Ident "i" @27..28
+[21] CloseBracket "]" @28..29
+[22] Whitespace " " @29..30
+[23] Eq "=" @30..31
+[24] Eq "=" @31..32
+[25] Whitespace " " @32..33
+[26] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @33..34
+[27] CloseParen ")" @34..35
+[28] Whitespace " " @35..36
+[29] OpenBrace "{" @36..37
+[30] Whitespace "\n  " @37..40
+[31] Ident "x" @40..41
+[32] Whitespace " " @41..42
+[33] Ident "q" @42..43
+[34] OpenBracket "[" @43..44
+[35] Ident "i" @44..45
+[36] CloseBracket "]" @45..46
+[37] Semi ";" @46..47
+[38] Whitespace "\n" @47..48
+[39] CloseBrace "}" @48..49
+[40] Whitespace "\n" @49..50

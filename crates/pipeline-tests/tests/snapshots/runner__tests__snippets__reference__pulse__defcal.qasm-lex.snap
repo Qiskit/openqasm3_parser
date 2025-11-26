@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/pulse/defcal.qasm
 expect-lex: Todo
 --- source ---
-// lex: todo
-// parse: todo
-// sema: skip
 
 defcal x $0 {}
 defcal measure $0 -> bit {Outer {nested} outer}
@@ -16,61 +13,56 @@ defcal rz(pi / 2) q {Symbolic expression.}
 --- lexer ---
 ok: false
 errors: 1
-[0] LineComment "// lex: todo" @0..12
-[1] Whitespace "\n" @12..13
-[2] LineComment "// parse: todo" @13..27
-[3] Whitespace "\n" @27..28
-[4] LineComment "// sema: skip" @28..41
-[5] Whitespace "\n\n" @41..43
-[6] Ident "defcal" @43..49
-[7] Whitespace " " @49..50
-[8] Ident "x" @50..51
-[9] Whitespace " " @51..52
-[10] HardwareIdent "$0" @52..54
-[11] Whitespace " " @54..55
-[12] OpenBrace "{" @55..56
-[13] CloseBrace "}" @56..57
-[14] Whitespace "\n" @57..58
-[15] Ident "defcal" @58..64
-[16] Whitespace " " @64..65
-[17] Ident "measure" @65..72
-[18] Whitespace " " @72..73
-[19] HardwareIdent "$0" @73..75
-[20] Whitespace " " @75..76
-[21] Minus "-" @76..77
-[22] Gt ">" @77..78
-[23] Whitespace " " @78..79
-[24] Ident "bit" @79..82
-[25] Whitespace " " @82..83
-[26] OpenBrace "{" @83..84
-[27] Ident "Outer" @84..89
-[28] Whitespace " " @89..90
-[29] OpenBrace "{" @90..91
-[30] Ident "nested" @91..97
-[31] CloseBrace "}" @97..98
-[32] Whitespace " " @98..99
-[33] Ident "outer" @99..104
-[34] CloseBrace "}" @104..105
-[35] Whitespace "\n" @105..106
-[36] Ident "defcal" @106..112
-[37] Whitespace " " @112..113
-[38] Ident "rz" @113..115
-[39] OpenParen "(" @115..116
-[40] Ident "angle" @116..121
-[41] OpenBracket "[" @121..122
-[42] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "20" @122..124
-[43] CloseBracket "]" @124..125
-[44] Whitespace " " @125..126
-[45] Ident "theta" @126..131
-[46] CloseParen ")" @131..132
-[47] Whitespace " " @132..133
-[48] Ident "q" @133..134
-[49] Whitespace " " @134..135
-[50] OpenBrace "{" @135..136
-[51] Unknown "£" @136..138
-[52] Dollar "$" @138..139
-[53] And "&" @139..140
-[54] Unknown "£" @140..142
-[55] Star "*" @142..143
-[56] OpenParen "(" @143..144
-[57] Literal { kind: Str { terminated: false }, suffix_start: 47 } "")}\ndefcal rz(pi / 2) q {Symbolic expression.}\n" @144..191
+[0] Whitespace "\n" @0..1
+[1] Ident "defcal" @1..7
+[2] Whitespace " " @7..8
+[3] Ident "x" @8..9
+[4] Whitespace " " @9..10
+[5] HardwareIdent "$0" @10..12
+[6] Whitespace " " @12..13
+[7] OpenBrace "{" @13..14
+[8] CloseBrace "}" @14..15
+[9] Whitespace "\n" @15..16
+[10] Ident "defcal" @16..22
+[11] Whitespace " " @22..23
+[12] Ident "measure" @23..30
+[13] Whitespace " " @30..31
+[14] HardwareIdent "$0" @31..33
+[15] Whitespace " " @33..34
+[16] Minus "-" @34..35
+[17] Gt ">" @35..36
+[18] Whitespace " " @36..37
+[19] Ident "bit" @37..40
+[20] Whitespace " " @40..41
+[21] OpenBrace "{" @41..42
+[22] Ident "Outer" @42..47
+[23] Whitespace " " @47..48
+[24] OpenBrace "{" @48..49
+[25] Ident "nested" @49..55
+[26] CloseBrace "}" @55..56
+[27] Whitespace " " @56..57
+[28] Ident "outer" @57..62
+[29] CloseBrace "}" @62..63
+[30] Whitespace "\n" @63..64
+[31] Ident "defcal" @64..70
+[32] Whitespace " " @70..71
+[33] Ident "rz" @71..73
+[34] OpenParen "(" @73..74
+[35] Ident "angle" @74..79
+[36] OpenBracket "[" @79..80
+[37] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "20" @80..82
+[38] CloseBracket "]" @82..83
+[39] Whitespace " " @83..84
+[40] Ident "theta" @84..89
+[41] CloseParen ")" @89..90
+[42] Whitespace " " @90..91
+[43] Ident "q" @91..92
+[44] Whitespace " " @92..93
+[45] OpenBrace "{" @93..94
+[46] Unknown "£" @94..96
+[47] Dollar "$" @96..97
+[48] And "&" @97..98
+[49] Unknown "£" @98..100
+[50] Star "*" @100..101
+[51] OpenParen "(" @101..102
+[52] Literal { kind: Str { terminated: false }, suffix_start: 47 } "")}\ndefcal rz(pi / 2) q {Symbolic expression.}\n" @102..149

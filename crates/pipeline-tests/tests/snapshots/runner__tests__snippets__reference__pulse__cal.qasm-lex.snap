@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/pulse/cal.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: todo
-// sema: skip
 
 cal {}
 cal {One long, otherwise invalid token.}
@@ -15,42 +12,37 @@ cal {Outer {nested} outer}
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: todo" @11..25
-[3] Whitespace "\n" @25..26
-[4] LineComment "// sema: skip" @26..39
-[5] Whitespace "\n\n" @39..41
-[6] Ident "cal" @41..44
-[7] Whitespace " " @44..45
-[8] OpenBrace "{" @45..46
-[9] CloseBrace "}" @46..47
-[10] Whitespace "\n" @47..48
-[11] Ident "cal" @48..51
-[12] Whitespace " " @51..52
-[13] OpenBrace "{" @52..53
-[14] Ident "One" @53..56
-[15] Whitespace " " @56..57
-[16] Ident "long" @57..61
-[17] Comma "," @61..62
-[18] Whitespace " " @62..63
-[19] Ident "otherwise" @63..72
-[20] Whitespace " " @72..73
-[21] Ident "invalid" @73..80
-[22] Whitespace " " @80..81
-[23] Ident "token" @81..86
-[24] Dot "." @86..87
-[25] CloseBrace "}" @87..88
-[26] Whitespace "\n" @88..89
-[27] Ident "cal" @89..92
-[28] Whitespace " " @92..93
-[29] OpenBrace "{" @93..94
-[30] Ident "Outer" @94..99
-[31] Whitespace " " @99..100
-[32] OpenBrace "{" @100..101
-[33] Ident "nested" @101..107
-[34] CloseBrace "}" @107..108
-[35] Whitespace " " @108..109
-[36] Ident "outer" @109..114
-[37] CloseBrace "}" @114..115
-[38] Whitespace "\n" @115..116
+[0] Whitespace "\n" @0..1
+[1] Ident "cal" @1..4
+[2] Whitespace " " @4..5
+[3] OpenBrace "{" @5..6
+[4] CloseBrace "}" @6..7
+[5] Whitespace "\n" @7..8
+[6] Ident "cal" @8..11
+[7] Whitespace " " @11..12
+[8] OpenBrace "{" @12..13
+[9] Ident "One" @13..16
+[10] Whitespace " " @16..17
+[11] Ident "long" @17..21
+[12] Comma "," @21..22
+[13] Whitespace " " @22..23
+[14] Ident "otherwise" @23..32
+[15] Whitespace " " @32..33
+[16] Ident "invalid" @33..40
+[17] Whitespace " " @40..41
+[18] Ident "token" @41..46
+[19] Dot "." @46..47
+[20] CloseBrace "}" @47..48
+[21] Whitespace "\n" @48..49
+[22] Ident "cal" @49..52
+[23] Whitespace " " @52..53
+[24] OpenBrace "{" @53..54
+[25] Ident "Outer" @54..59
+[26] Whitespace " " @59..60
+[27] OpenBrace "{" @60..61
+[28] Ident "nested" @61..67
+[29] CloseBrace "}" @67..68
+[30] Whitespace " " @68..69
+[31] Ident "outer" @69..74
+[32] CloseBrace "}" @74..75
+[33] Whitespace "\n" @75..76

@@ -5,21 +5,13 @@ expression: lex_snap
 id: tests/snippets/reference/expression/unary_expr.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: ok
-// sema: panic
 
 !my_var;
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: ok" @11..23
-[3] Whitespace "\n" @23..24
-[4] LineComment "// sema: panic" @24..38
-[5] Whitespace "\n\n" @38..40
-[6] Bang "!" @40..41
-[7] Ident "my_var" @41..47
-[8] Semi ";" @47..48
-[9] Whitespace "\n" @48..49
+[0] Whitespace "\n" @0..1
+[1] Bang "!" @1..2
+[2] Ident "my_var" @2..8
+[3] Semi ";" @8..9
+[4] Whitespace "\n" @9..10

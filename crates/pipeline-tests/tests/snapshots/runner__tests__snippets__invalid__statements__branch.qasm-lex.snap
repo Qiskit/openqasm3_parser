@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/invalid/statements/branch.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: diag
-// sema: skip
 
 if true x $0;
 if false { x $0; }
@@ -20,129 +17,124 @@ if (reset $0) { x $1; }
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: diag" @11..25
-[3] Whitespace "\n" @25..26
-[4] LineComment "// sema: skip" @26..39
-[5] Whitespace "\n\n" @39..41
-[6] Ident "if" @41..43
-[7] Whitespace " " @43..44
-[8] Ident "true" @44..48
-[9] Whitespace " " @48..49
-[10] Ident "x" @49..50
-[11] Whitespace " " @50..51
-[12] HardwareIdent "$0" @51..53
-[13] Semi ";" @53..54
-[14] Whitespace "\n" @54..55
-[15] Ident "if" @55..57
-[16] Whitespace " " @57..58
-[17] Ident "false" @58..63
-[18] Whitespace " " @63..64
-[19] OpenBrace "{" @64..65
-[20] Whitespace " " @65..66
-[21] Ident "x" @66..67
-[22] Whitespace " " @67..68
-[23] HardwareIdent "$0" @68..70
-[24] Semi ";" @70..71
-[25] Whitespace " " @71..72
-[26] CloseBrace "}" @72..73
-[27] Whitespace "\n" @73..74
-[28] Ident "if" @74..76
-[29] Whitespace " " @76..77
-[30] OpenParen "(" @77..78
-[31] Ident "myvar" @78..83
-[32] Whitespace " " @83..84
-[33] Plus "+" @84..85
-[34] Eq "=" @85..86
-[35] Whitespace " " @86..87
-[36] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @87..88
-[37] CloseParen ")" @88..89
-[38] Whitespace " " @89..90
-[39] OpenBrace "{" @90..91
-[40] Whitespace " " @91..92
-[41] Ident "x" @92..93
-[42] Whitespace " " @93..94
-[43] HardwareIdent "$0" @94..96
-[44] Semi ";" @96..97
-[45] Whitespace " " @97..98
-[46] CloseBrace "}" @98..99
-[47] Whitespace "\n" @99..100
-[48] Ident "if" @100..102
-[49] Whitespace " " @102..103
-[50] OpenParen "(" @103..104
-[51] Ident "int" @104..107
-[52] OpenBracket "[" @107..108
-[53] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @108..109
-[54] CloseBracket "]" @109..110
-[55] Whitespace " " @110..111
-[56] Ident "myvar" @111..116
-[57] Whitespace " " @116..117
-[58] Eq "=" @117..118
-[59] Whitespace " " @118..119
-[60] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @119..120
-[61] CloseParen ")" @120..121
-[62] Whitespace " " @121..122
-[63] OpenBrace "{" @122..123
-[64] Whitespace " " @123..124
-[65] Ident "x" @124..125
-[66] Whitespace " " @125..126
-[67] HardwareIdent "$0" @126..128
-[68] Semi ";" @128..129
-[69] Whitespace " " @129..130
-[70] CloseBrace "}" @130..131
-[71] Whitespace "\n" @131..132
-[72] Ident "if" @132..134
-[73] Whitespace " " @134..135
-[74] OpenParen "(" @135..136
-[75] Ident "true" @136..140
-[76] CloseParen ")" @140..141
-[77] Semi ";" @141..142
-[78] Whitespace "\n" @142..143
-[79] Ident "if" @143..145
-[80] Whitespace " " @145..146
-[81] OpenParen "(" @146..147
-[82] Ident "true" @147..151
-[83] CloseParen ")" @151..152
-[84] Whitespace " " @152..153
-[85] Ident "else" @153..157
-[86] Whitespace " " @157..158
-[87] Ident "x" @158..159
-[88] Whitespace " " @159..160
-[89] HardwareIdent "$0" @160..162
-[90] Semi ";" @162..163
-[91] Whitespace "\n" @163..164
-[92] Ident "if" @164..166
-[93] Whitespace " " @166..167
-[94] OpenParen "(" @167..168
-[95] Ident "true" @168..172
-[96] CloseParen ")" @172..173
-[97] Whitespace " " @173..174
-[98] Ident "else" @174..178
-[99] Whitespace " " @178..179
-[100] OpenParen "(" @179..180
-[101] Ident "false" @180..185
-[102] CloseParen ")" @185..186
-[103] Whitespace " " @186..187
-[104] Ident "x" @187..188
-[105] Whitespace " " @188..189
-[106] HardwareIdent "$0" @189..191
-[107] Semi ";" @191..192
-[108] Whitespace "\n" @192..193
-[109] Ident "if" @193..195
-[110] Whitespace " " @195..196
-[111] OpenParen "(" @196..197
-[112] Ident "reset" @197..202
-[113] Whitespace " " @202..203
-[114] HardwareIdent "$0" @203..205
-[115] CloseParen ")" @205..206
-[116] Whitespace " " @206..207
-[117] OpenBrace "{" @207..208
-[118] Whitespace " " @208..209
-[119] Ident "x" @209..210
-[120] Whitespace " " @210..211
-[121] HardwareIdent "$1" @211..213
-[122] Semi ";" @213..214
-[123] Whitespace " " @214..215
-[124] CloseBrace "}" @215..216
-[125] Whitespace "\n" @216..217
+[0] Whitespace "\n" @0..1
+[1] Ident "if" @1..3
+[2] Whitespace " " @3..4
+[3] Ident "true" @4..8
+[4] Whitespace " " @8..9
+[5] Ident "x" @9..10
+[6] Whitespace " " @10..11
+[7] HardwareIdent "$0" @11..13
+[8] Semi ";" @13..14
+[9] Whitespace "\n" @14..15
+[10] Ident "if" @15..17
+[11] Whitespace " " @17..18
+[12] Ident "false" @18..23
+[13] Whitespace " " @23..24
+[14] OpenBrace "{" @24..25
+[15] Whitespace " " @25..26
+[16] Ident "x" @26..27
+[17] Whitespace " " @27..28
+[18] HardwareIdent "$0" @28..30
+[19] Semi ";" @30..31
+[20] Whitespace " " @31..32
+[21] CloseBrace "}" @32..33
+[22] Whitespace "\n" @33..34
+[23] Ident "if" @34..36
+[24] Whitespace " " @36..37
+[25] OpenParen "(" @37..38
+[26] Ident "myvar" @38..43
+[27] Whitespace " " @43..44
+[28] Plus "+" @44..45
+[29] Eq "=" @45..46
+[30] Whitespace " " @46..47
+[31] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @47..48
+[32] CloseParen ")" @48..49
+[33] Whitespace " " @49..50
+[34] OpenBrace "{" @50..51
+[35] Whitespace " " @51..52
+[36] Ident "x" @52..53
+[37] Whitespace " " @53..54
+[38] HardwareIdent "$0" @54..56
+[39] Semi ";" @56..57
+[40] Whitespace " " @57..58
+[41] CloseBrace "}" @58..59
+[42] Whitespace "\n" @59..60
+[43] Ident "if" @60..62
+[44] Whitespace " " @62..63
+[45] OpenParen "(" @63..64
+[46] Ident "int" @64..67
+[47] OpenBracket "[" @67..68
+[48] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @68..69
+[49] CloseBracket "]" @69..70
+[50] Whitespace " " @70..71
+[51] Ident "myvar" @71..76
+[52] Whitespace " " @76..77
+[53] Eq "=" @77..78
+[54] Whitespace " " @78..79
+[55] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @79..80
+[56] CloseParen ")" @80..81
+[57] Whitespace " " @81..82
+[58] OpenBrace "{" @82..83
+[59] Whitespace " " @83..84
+[60] Ident "x" @84..85
+[61] Whitespace " " @85..86
+[62] HardwareIdent "$0" @86..88
+[63] Semi ";" @88..89
+[64] Whitespace " " @89..90
+[65] CloseBrace "}" @90..91
+[66] Whitespace "\n" @91..92
+[67] Ident "if" @92..94
+[68] Whitespace " " @94..95
+[69] OpenParen "(" @95..96
+[70] Ident "true" @96..100
+[71] CloseParen ")" @100..101
+[72] Semi ";" @101..102
+[73] Whitespace "\n" @102..103
+[74] Ident "if" @103..105
+[75] Whitespace " " @105..106
+[76] OpenParen "(" @106..107
+[77] Ident "true" @107..111
+[78] CloseParen ")" @111..112
+[79] Whitespace " " @112..113
+[80] Ident "else" @113..117
+[81] Whitespace " " @117..118
+[82] Ident "x" @118..119
+[83] Whitespace " " @119..120
+[84] HardwareIdent "$0" @120..122
+[85] Semi ";" @122..123
+[86] Whitespace "\n" @123..124
+[87] Ident "if" @124..126
+[88] Whitespace " " @126..127
+[89] OpenParen "(" @127..128
+[90] Ident "true" @128..132
+[91] CloseParen ")" @132..133
+[92] Whitespace " " @133..134
+[93] Ident "else" @134..138
+[94] Whitespace " " @138..139
+[95] OpenParen "(" @139..140
+[96] Ident "false" @140..145
+[97] CloseParen ")" @145..146
+[98] Whitespace " " @146..147
+[99] Ident "x" @147..148
+[100] Whitespace " " @148..149
+[101] HardwareIdent "$0" @149..151
+[102] Semi ";" @151..152
+[103] Whitespace "\n" @152..153
+[104] Ident "if" @153..155
+[105] Whitespace " " @155..156
+[106] OpenParen "(" @156..157
+[107] Ident "reset" @157..162
+[108] Whitespace " " @162..163
+[109] HardwareIdent "$0" @163..165
+[110] CloseParen ")" @165..166
+[111] Whitespace " " @166..167
+[112] OpenBrace "{" @167..168
+[113] Whitespace " " @168..169
+[114] Ident "x" @169..170
+[115] Whitespace " " @170..171
+[116] HardwareIdent "$1" @171..173
+[117] Semi ";" @173..174
+[118] Whitespace " " @174..175
+[119] CloseBrace "}" @175..176
+[120] Whitespace "\n" @176..177

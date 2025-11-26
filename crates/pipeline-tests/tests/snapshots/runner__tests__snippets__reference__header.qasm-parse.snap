@@ -9,30 +9,27 @@ ok: true
 panicked: false
 errors: 0
 --- ast ---
-SOURCE_FILE@0..142: // lex: ok
-// parse: ok
-// sema: ok
-
+SOURCE_FILE@0..106: 
 OPENQASM 3.0;
 include "stdgates.inc";
 input angle[32] param1;
 input angle[32] param2;
 output bit result;
 
-VERSION_STRING@37..50: OPENQASM 3.0;
-VERSION@46..50: 3.0;
-INCLUDE@51..74: include "stdgates.inc";
-FILE_PATH@59..73: "stdgates.inc"
-I_O_DECLARATION_STATEMENT@75..98: input angle[32] param1;
-SCALAR_TYPE@81..90: angle[32]
-DESIGNATOR@86..90: [32]
-LITERAL@87..89: 32
-NAME@91..97: param1
-I_O_DECLARATION_STATEMENT@99..122: input angle[32] param2;
-SCALAR_TYPE@105..114: angle[32]
-DESIGNATOR@110..114: [32]
-LITERAL@111..113: 32
-NAME@115..121: param2
-I_O_DECLARATION_STATEMENT@123..141: output bit result;
-SCALAR_TYPE@130..133: bit
-NAME@134..140: result
+VERSION_STRING@1..14: OPENQASM 3.0;
+VERSION@10..14: 3.0;
+INCLUDE@15..38: include "stdgates.inc";
+FILE_PATH@23..37: "stdgates.inc"
+I_O_DECLARATION_STATEMENT@39..62: input angle[32] param1;
+SCALAR_TYPE@45..54: angle[32]
+DESIGNATOR@50..54: [32]
+LITERAL@51..53: 32
+NAME@55..61: param1
+I_O_DECLARATION_STATEMENT@63..86: input angle[32] param2;
+SCALAR_TYPE@69..78: angle[32]
+DESIGNATOR@74..78: [32]
+LITERAL@75..77: 32
+NAME@79..85: param2
+I_O_DECLARATION_STATEMENT@87..105: output bit result;
+SCALAR_TYPE@94..97: bit
+NAME@98..104: result
