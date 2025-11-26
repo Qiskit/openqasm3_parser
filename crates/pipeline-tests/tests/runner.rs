@@ -31,6 +31,19 @@ mod suite {
         pub(crate) sema: Option<Expect>,
     }
 
+    // Enforce: if parse tag != ok, sema tag must be skip (or absent).
+    pub fn validate_expectations(exp: &Expectations) -> Result<(), String> {
+        let parse_ok = matches!(exp.parse, Some(Expect::Ok));
+        let sema_is_skip = matches!(exp.sema, Some(Expect::Skip) | None);
+        if !parse_ok && !sema_is_skip {
+            return Err(format!(
+                "invalid expectations: parse={:?}, sema={:?}. When parse is not \"ok\", sema must be \"skip\".",
+                exp.parse, exp.sema
+            ));
+        }
+        Ok(())
+    }
+
     pub(crate) fn parse_expectations(src: &str) -> Expectations {
         let mut e = Expectations::default();
         for line in src.lines().take(16) {
@@ -190,7 +203,7 @@ mod suite {
 
         let res = catch_unwind(AssertUnwindSafe(|| {
             let pr = oq3_semantics::syntax_to_semantics::parse_source_file(path);
-            let any = pr.any_semantic_errors();
+            let any = pr.any_errors();
             ok = !any;
             // This is wrong. should be the number of semantic errors
             diag_count = if any { 1 } else { 0 };
@@ -362,7 +375,13 @@ pub fn check(path: &Path) -> datatest_stable::Result<()> {
     let run_parse = suite::should_run(exp.parse);
     let run_sema = suite::should_run(exp.sema);
 
-    // Run only the requested stages
+    // Enforce header rule up-front:
+    // if parse tag != ok, then sema tag must be skip (or absent).
+    if let Err(msg) = suite::validate_expectations(&exp) {
+        return Err(format!("{}: {}", id, msg).into());
+    }
+
+    // Explicit gating from headers
     let lex = if run_lex {
         suite::run_lex(&src)
     } else {
@@ -379,21 +398,9 @@ pub fn check(path: &Path) -> datatest_stable::Result<()> {
         (false, 0, String::new(), false, String::new())
     };
 
-    // Expectations (Skip/None are no-ops)
-    if let Err(msg) = suite::apply_expect(exp.lex, lex.1, false) {
-        return Err(format!("lex: {}", msg).into());
-    }
-    if let Err(msg) = suite::apply_expect(exp.parse, parse.1, parse.3) {
-        return Err(format!("parse: {}", msg).into());
-    }
-    if let Err(msg) = suite::apply_expect(exp.sema, sema.1, sema.3) {
-        return Err(format!("sema: {}", msg).into());
-    }
-
-    // Snapshots: only assert for stages we actually ran
+    // First: produce snapshots so =cargo insta review= has something to review
     let (lex_snap, parse_snap, sema_snap) =
         suite::snapshot_for(&id, &src, &exp, &lex, &parse, &sema);
-
     if run_lex {
         insta::assert_snapshot!(format!("{id}-lex"), lex_snap);
     }
@@ -404,39 +411,20 @@ pub fn check(path: &Path) -> datatest_stable::Result<()> {
         insta::assert_snapshot!(format!("{id}-sema"), sema_snap);
     }
 
-    Ok(())
-}
-
-#[cfg(not(target_os = "windows"))]
-pub fn oldcheck(path: &Path) -> datatest_stable::Result<()> {
-    use std::fs;
-
-    let id = suite::rel_id(path);
-    let src = fs::read_to_string(path)?;
-    let exp = suite::parse_expectations(&src);
-
-    // Stages
-    let lex = suite::run_lex(&src);
-    let parse = suite::run_parser_from_path(path);
-    let sema = suite::run_sema_from_path(path);
-
-    // Expectations
+    // Then: enforce expectations
+    let mut errs = Vec::new();
     if let Err(msg) = suite::apply_expect(exp.lex, lex.1, false) {
-        return Err(format!("lex: {}", msg).into());
+        errs.push(format!("lex: {msg}"));
     }
     if let Err(msg) = suite::apply_expect(exp.parse, parse.1, parse.3) {
-        return Err(format!("parse: {}", msg).into());
+        errs.push(format!("parse: {msg}"));
     }
     if let Err(msg) = suite::apply_expect(exp.sema, sema.1, sema.3) {
-        return Err(format!("sema: {}", msg).into());
+        errs.push(format!("sema: {msg}"));
     }
-
-    let (lex_snap, parse_snap, sema_snap) =
-        suite::snapshot_for(&id, &src, &exp, &lex, &parse, &sema);
-
-    insta::assert_snapshot!(format!("{id}-lex"), lex_snap);
-    insta::assert_snapshot!(format!("{id}-parse"), parse_snap);
-    insta::assert_snapshot!(format!("{id}-sema"), sema_snap);
+    if !errs.is_empty() {
+        return Err(errs.join("; ").into());
+    }
 
     Ok(())
 }

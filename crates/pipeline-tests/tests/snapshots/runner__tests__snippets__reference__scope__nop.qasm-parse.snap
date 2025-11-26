@@ -11,7 +11,7 @@ errors: 1
 --- ast ---
 SOURCE_FILE@0..120: // lex: ok
 // parse: todo
-// sema: todo
+// sema: skip
 
 nop;
 nop $0;

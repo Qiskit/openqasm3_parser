@@ -5,8 +5,8 @@ expression: sema_snap
 id: tests/snippets/reference/directives/defcalgrammar.qasm
 expect-sema: Todo
 --- sema ---
-ok: true
+ok: false
 panicked: false
-errors: 0
+errors: 1
 --- asg ---
 (no asg)

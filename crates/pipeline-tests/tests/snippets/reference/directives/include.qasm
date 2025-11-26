@@ -1,6 +1,6 @@
 // lex: ok
 // parse: panic
-// sema: panic
+// sema: skip
 
 include 'foo2';
 include "foo";

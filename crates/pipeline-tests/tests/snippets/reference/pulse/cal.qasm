@@ -1,6 +1,6 @@
 // lex: ok
 // parse: todo
-// sema: todo
+// sema: skip
 
 cal {}
 cal {One long, otherwise invalid token.}

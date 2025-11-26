@@ -1,6 +1,6 @@
 // lex: ok
 // parse: todo
-// sema: todo
+// sema: skip
 
 def test_array_1(mutable array[uint[16], 4, 2] a) {}
 def test_array_2(readonly array[uint[16], 4, 2] a) {}
