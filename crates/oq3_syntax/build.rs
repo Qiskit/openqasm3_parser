@@ -396,6 +396,7 @@ mod sourcegen {
             "DEF_CAL",
             "DEF_CAL_GRAMMAR",
             "DELAY_STMT",
+            "EXTERN_STMT",
             "GATE",
             "MEASURE",
             "PRAGMA_STATEMENT",
@@ -445,6 +446,7 @@ mod sourcegen {
             "TYPE",
             "TYPED_PARAM",
             "TYPED_PARAM_LIST",
+            "TYPE_LIST",
             "VERSION",
             "VERSION_STRING",
             // From ANTLR grammar

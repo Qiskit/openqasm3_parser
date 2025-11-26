@@ -106,7 +106,7 @@ impl BlockLike {
 
 /// Parse the optional return signature of a `defcal` or `def` definition.
 /// Return `true` if the return type was found, else `false.
-fn opt_ret_type(p: &mut Parser<'_>) -> bool {
+fn opt_return_signature(p: &mut Parser<'_>) -> bool {
     if p.at(T![->]) {
         let m = p.start();
         p.bump(T![->]);

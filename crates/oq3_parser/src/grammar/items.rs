@@ -90,6 +90,7 @@ pub(super) fn opt_item(p: &mut Parser<'_>, m: Marker) -> Result<(), Marker> {
         T![defcal] => defcal_(p, m),
         T![cal] => cal_(p, m),
         T![defcalgrammar] => defcalgrammar_(p, m),
+        T![extern] => extern_stmt(p, m),
         T![reset] => reset_stmt(p, m),
         T![barrier] => barrier_(p, m),
         T![OPENQASM] => version_string(p, m),
@@ -279,7 +280,7 @@ fn defcal_(p: &mut Parser<'_>, m: Marker) {
     // Read the list of qubit parameters
     params::param_list_defcal_qubits(p);
 
-    opt_ret_type(p);
+    opt_return_signature(p);
     // Read the code block.
     expressions::try_block_expr(p);
     // Mark this attempt at reading an item as complete.
@@ -358,11 +359,26 @@ fn def_stmt(p: &mut Parser<'_>, m: Marker) {
     } else {
         p.error("expected parameters list in subroutine signature");
     }
-    opt_ret_type(p);
+    opt_return_signature(p);
     // Read the code block.
     expressions::try_block_expr(p);
     // Mark this attempt at reading an item as complete.
     m.complete(p, DEF);
+}
+
+fn extern_stmt(p: &mut Parser<'_>, m: Marker) {
+    assert!(p.at(T![extern]));
+    p.bump_any();
+    // Read the name of the extern routine. (This records an error message on failure.)
+    name_r(p, ITEM_RECOVERY_SET);
+    if p.at(T!['(']) {
+        params::scalar_type_list(p);
+    }
+    if !opt_return_signature(p) {
+        p.error("expected return signature in extern statement");
+    }
+    p.expect(T![;]);
+    m.complete(p, EXTERN_STMT);
 }
 
 fn filepath_r(p: &mut Parser<'_>, recovery: TokenSet) {

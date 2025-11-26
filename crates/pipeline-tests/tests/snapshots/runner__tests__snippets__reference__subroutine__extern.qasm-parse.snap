@@ -3,50 +3,39 @@ source: crates/pipeline-tests/tests/runner.rs
 expression: parse_snap
 ---
 id: tests/snippets/reference/subroutine/extern.qasm
-expect-parse: Todo
+expect-parse: Ok
 --- parser ---
-ok: false
+ok: true
 panicked: false
-errors: 18
+errors: 0
 --- ast ---
-SOURCE_FILE@0..120: // lex: ok
-// parse: todo
+SOURCE_FILE@0..118: // lex: ok
+// parse: ok
 // sema: todo
 
 extern test_kern(bit[5], uint[10], float[16], complex[float[64]]) -> float[6];
 
-ERROR@41..47: extern
-EXPR_STMT@48..65: test_kern(bit[5],
-CALL_EXPR@48..65: test_kern(bit[5],
-IDENTIFIER@48..57: test_kern
-ARG_LIST@57..65: (bit[5],
-EXPRESSION_LIST@57..65: (bit[5],
-CAST_EXPRESSION@58..65: bit[5],
-SCALAR_TYPE@58..64: bit[5]
-DESIGNATOR@61..64: [5]
-LITERAL@62..63: 5
-ERROR@64..65: ,
-SCALAR_TYPE@66..74: uint[10]
-DESIGNATOR@70..74: [10]
-LITERAL@71..73: 10
-NAME@74..74: 
-ERROR@74..75: ,
-SCALAR_TYPE@76..85: float[16]
-DESIGNATOR@81..85: [16]
-LITERAL@82..84: 16
-NAME@85..85: 
-ERROR@85..86: ,
-SCALAR_TYPE@87..105: complex[float[64]]
-SCALAR_TYPE@95..104: float[64]
-DESIGNATOR@100..104: [64]
-LITERAL@101..103: 64
-NAME@105..105: 
-ERROR@105..106: )
-EXPR_STMT@107..109: ->
-PREFIX_EXPR@107..109: ->
-ERROR@108..109: >
-CLASSICAL_DECLARATION_STATEMENT@110..119: float[6];
-SCALAR_TYPE@110..118: float[6]
-DESIGNATOR@115..118: [6]
-LITERAL@116..117: 6
-NAME@118..118:
+EXTERN_STMT@39..117: extern test_kern(bit[5], uint[10], float[16], complex[float[64]]) -> float[6];
+NAME@46..55: test_kern
+TYPE_LIST@55..104: (bit[5], uint[10], float[16], complex[float[64]])
+SCALAR_TYPE@56..62: bit[5]
+SCALAR_TYPE@56..62: bit[5]
+DESIGNATOR@59..62: [5]
+LITERAL@60..61: 5
+SCALAR_TYPE@64..72: uint[10]
+SCALAR_TYPE@64..72: uint[10]
+DESIGNATOR@68..72: [10]
+LITERAL@69..71: 10
+SCALAR_TYPE@74..83: float[16]
+SCALAR_TYPE@74..83: float[16]
+DESIGNATOR@79..83: [16]
+LITERAL@80..82: 16
+SCALAR_TYPE@85..103: complex[float[64]]
+SCALAR_TYPE@85..103: complex[float[64]]
+SCALAR_TYPE@93..102: float[64]
+DESIGNATOR@98..102: [64]
+LITERAL@99..101: 64
+RETURN_SIGNATURE@105..116: -> float[6]
+SCALAR_TYPE@108..116: float[6]
+DESIGNATOR@113..116: [6]
+LITERAL@114..115: 6

@@ -77,6 +77,7 @@ Stmt =
 | DelayStmt
 | EndStmt
 | ExprStmt
+| ExternStmt
 | ForStmt
 | Gate
 | IfStmt
@@ -168,6 +169,9 @@ DefCal =
  'defcal' Name ParamList QubitList ReturnSignature?
  (body:BlockExpr | ';')
 
+ExternStmt =
+  'extern' Name TypeList? ReturnSignature ';'
+
 // Gate definition
 // sourceget_ast.rs is not smart enough to handle two ParamList's here.
 // It would return the same thing for angle_params and qubit_args.
@@ -190,6 +194,10 @@ TypedParamList =
 
 TypedParam =
   ScalarType Name
+
+// For 'extern'
+TypeList =
+  '(' (ScalarType (',' ScalarType)* ','?)? ')'
 
 // List with no delimeters
 QubitList =
