@@ -1,0 +1,25 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/invalid_oq3p/directives/pragma1.qasm
+expect-lex: Diag
+--- source ---
+
+// Invalid identifier token
+#pragmaa 1 2 3
+--- lexer ---
+ok: false
+errors: 1
+[0] Whitespace "\n" @0..1
+[1] LineComment "// Invalid identifier token" @1..28
+[2] Whitespace "\n" @28..29
+[3] InvalidIdent "#pragma" @29..36
+[4] Ident "a" @36..37
+[5] Whitespace " " @37..38
+[6] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @38..39
+[7] Whitespace " " @39..40
+[8] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @40..41
+[9] Whitespace " " @41..42
+[10] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @42..43
+[11] Whitespace "\n" @43..44

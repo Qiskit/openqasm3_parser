@@ -1,0 +1,18 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/invalid_oq3p/directives/pragma3.qasm
+expect-parse: Diag
+--- parser ---
+ok: false
+panicked: false
+errors: 2
+--- ast ---
+SOURCE_FILE@0..55: 
+// "pragam" is an invalid identifier.
+int pragma = 1;
+
+SCALAR_TYPE@39..42: int
+NAME@43..43: 
+PRAGMA_STATEMENT@43..54: pragma = 1;

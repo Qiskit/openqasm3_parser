@@ -548,7 +548,8 @@ pub(crate) fn var_name(p: &mut Parser<'_>) {
         // The declared identifier, ie variable name
         p.bump_any();
     } else {
-        p.error("Expecting parameter name.");
+        let kind = p.current();
+        p.error(format!("Expecting parameter name. Found {kind:?}"));
     }
     m.complete(p, NAME);
 }

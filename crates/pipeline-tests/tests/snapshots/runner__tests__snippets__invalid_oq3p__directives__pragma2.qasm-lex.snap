@@ -1,0 +1,24 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/invalid_oq3p/directives/pragma2.qasm
+expect-lex: Ok
+--- source ---
+
+// pragmaa is an ordinary identifier
+pragmaa 1 2 3
+--- lexer ---
+ok: true
+errors: 0
+[0] Whitespace "\n" @0..1
+[1] LineComment "// pragmaa is an ordinary identifier" @1..37
+[2] Whitespace "\n" @37..38
+[3] Ident "pragmaa" @38..45
+[4] Whitespace " " @45..46
+[5] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @46..47
+[6] Whitespace " " @47..48
+[7] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @48..49
+[8] Whitespace " " @49..50
+[9] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @50..51
+[10] Whitespace "\n" @51..52

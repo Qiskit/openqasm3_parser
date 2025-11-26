@@ -1,0 +1,17 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/valid_oq3p/directives/pragma.qasm
+expect-parse: Ok
+--- parser ---
+ok: true
+panicked: false
+errors: 0
+--- ast ---
+SOURCE_FILE@0..46: 
+pragma (((9217#@%^^^*!@#$%^
+#pragma ))!~==}{
+
+PRAGMA_STATEMENT@1..28: pragma (((9217#@%^^^*!@#$%^
+PRAGMA_STATEMENT@29..45: #pragma ))!~==}{

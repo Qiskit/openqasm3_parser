@@ -1,0 +1,18 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/valid_oq3p/directives/pragma.qasm
+expect-lex: Ok
+--- source ---
+
+pragma (((9217#@%^^^*!@#$%^
+#pragma ))!~==}{
+--- lexer ---
+ok: true
+errors: 0
+[0] Whitespace "\n" @0..1
+[1] Pragma "pragma (((9217#@%^^^*!@#$%^" @1..28
+[2] Whitespace "\n" @28..29
+[3] Pragma "#pragma ))!~==}{" @29..45
+[4] Whitespace "\n" @45..46
