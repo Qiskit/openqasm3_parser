@@ -7,7 +7,7 @@ expect-lex: Ok
 --- source ---
 // lex: ok
 // parse: todo
-// sema: todo
+// sema: skip
 
 def test_array_1(mutable array[uint[16], 4, 2] a) {}
 def test_array_2(readonly array[uint[16], 4, 2] a) {}
@@ -21,7 +21,7 @@ errors: 0
 [1] Whitespace "\n" @10..11
 [2] LineComment "// parse: todo" @11..25
 [3] Whitespace "\n" @25..26
-[4] LineComment "// sema: todo" @26..39
+[4] LineComment "// sema: skip" @26..39
 [5] Whitespace "\n\n" @39..41
 [6] Ident "def" @41..44
 [7] Whitespace " " @44..45

@@ -7,7 +7,7 @@ expect-lex: Todo
 --- source ---
 // lex: todo
 // parse: todo
-// sema: todo
+// sema: skip
 
 cal {}
 cal {One long, otherwise invalid token.}
@@ -21,7 +21,7 @@ errors: 1
 [1] Whitespace "\n" @12..13
 [2] LineComment "// parse: todo" @13..27
 [3] Whitespace "\n" @27..28
-[4] LineComment "// sema: todo" @28..41
+[4] LineComment "// sema: skip" @28..41
 [5] Whitespace "\n\n" @41..43
 [6] Ident "cal" @43..46
 [7] Whitespace " " @46..47

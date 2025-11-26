@@ -1,6 +1,6 @@
 // lex: ok
 // parse: todo
-// sema: todo
+// sema: skip
 
 array[uint[16], 1] x;
 array[int[8], 4] x;

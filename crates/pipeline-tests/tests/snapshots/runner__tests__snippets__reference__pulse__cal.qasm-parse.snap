@@ -11,7 +11,7 @@ errors: 7
 --- ast ---
 SOURCE_FILE@0..116: // lex: ok
 // parse: todo
-// sema: todo
+// sema: skip
 
 cal {}
 cal {One long, otherwise invalid token.}

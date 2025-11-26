@@ -1,5 +1,5 @@
 // lex: ok
-// parse: panic
+// parse: diag
 // sema: skip
 
 for myvar in { 1, 2, 3 };

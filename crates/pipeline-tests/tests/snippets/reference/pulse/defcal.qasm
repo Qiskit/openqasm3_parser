@@ -1,6 +1,6 @@
 // lex: todo
 // parse: todo
-// sema: todo
+// sema: skip
 
 defcal x $0 {}
 defcal measure $0 -> bit {Outer {nested} outer}

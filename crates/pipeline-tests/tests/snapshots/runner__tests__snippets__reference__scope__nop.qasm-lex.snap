@@ -7,7 +7,7 @@ expect-lex: Ok
 --- source ---
 // lex: ok
 // parse: todo
-// sema: todo
+// sema: skip
 
 nop;
 nop $0;
@@ -26,7 +26,7 @@ errors: 0
 [1] Whitespace "\n" @10..11
 [2] LineComment "// parse: todo" @11..25
 [3] Whitespace "\n" @25..26
-[4] LineComment "// sema: todo" @26..39
+[4] LineComment "// sema: skip" @26..39
 [5] Whitespace "\n\n" @39..41
 [6] Ident "nop" @41..44
 [7] Semi ";" @44..45

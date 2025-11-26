@@ -562,7 +562,7 @@ pub(crate) fn set_expression(p: &mut Parser<'_>) {
     let m = p.start();
     p.bump(T!['{']);
     params::expression_list(p);
-    p.bump(T!['}']);
+    p.expect(T!['}']);
     m.complete(p, SET_EXPRESSION);
 }
 

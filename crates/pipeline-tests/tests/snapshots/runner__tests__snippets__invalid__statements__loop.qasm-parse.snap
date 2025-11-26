@@ -3,11 +3,194 @@ source: crates/pipeline-tests/tests/runner.rs
 expression: parse_snap
 ---
 id: tests/snippets/invalid/statements/loop.qasm
-expect-parse: Panic
+expect-parse: Diag
 --- parser ---
 ok: false
-panicked: true
-panic: assertion failed: self.eat(kind)
-errors: 0
+panicked: false
+errors: 43
 --- ast ---
-(no ast)
+SOURCE_FILE@0..386: // lex: ok
+// parse: diag
+// sema: skip
+
+for myvar in { 1, 2, 3 };
+for myvar1, myvar2 in { 1, 2, 3 } { x $0; }
+for myvar in { x $0; } { x $0; }
+for myvar in for { x $0; }
+for myvar { x $0; }
+for (true) { x $0; }
+for { x $0; }
+for for in { 1, 2, 3 } { x $0; }
+for in { 1, 2, 3 } { x $0; }
+while true { x $0; }
+while (true) (true) { x $0; }
+while x in { 1, 2, 3 } { x $0; }
+while (true);
+
+FOR_STMT@41..66: for myvar in { 1, 2, 3 };
+SCALAR_TYPE@45..45: 
+NAME@45..50: myvar
+FOR_ITERABLE@54..65: { 1, 2, 3 }
+SET_EXPRESSION@54..65: { 1, 2, 3 }
+EXPRESSION_LIST@56..63: 1, 2, 3
+LITERAL@56..57: 1
+LITERAL@59..60: 2
+LITERAL@62..63: 3
+FOR_STMT@67..85: for myvar1, myvar2
+SCALAR_TYPE@71..71: 
+NAME@71..77: myvar1
+FOR_ITERABLE@77..78: ,
+ERROR@77..78: ,
+EXPR_STMT@79..85: myvar2
+IDENTIFIER@79..85: myvar2
+ERROR@86..88: in
+EXPR_STMT@89..100: { 1, 2, 3 }
+BLOCK_EXPR@89..100: { 1, 2, 3 }
+EXPR_STMT@91..92: 1
+LITERAL@91..92: 1
+ERROR@92..93: ,
+EXPR_STMT@94..95: 2
+LITERAL@94..95: 2
+ERROR@95..96: ,
+LITERAL@97..98: 3
+EXPR_STMT@101..110: { x $0; }
+BLOCK_EXPR@101..110: { x $0; }
+EXPR_STMT@103..108: x $0;
+GATE_CALL_EXPR@103..107: x $0
+IDENTIFIER@103..104: x
+QUBIT_LIST@105..107: $0
+HARDWARE_QUBIT@105..107: $0
+FOR_STMT@111..131: for myvar in { x $0;
+SCALAR_TYPE@115..115: 
+NAME@115..120: myvar
+FOR_ITERABLE@124..130: { x $0
+SET_EXPRESSION@124..130: { x $0
+EXPRESSION_LIST@126..130: x $0
+GATE_CALL_EXPR@126..130: x $0
+IDENTIFIER@126..127: x
+QUBIT_LIST@128..130: $0
+HARDWARE_QUBIT@128..130: $0
+ERROR@132..133: }
+EXPR_STMT@134..143: { x $0; }
+BLOCK_EXPR@134..143: { x $0; }
+EXPR_STMT@136..141: x $0;
+GATE_CALL_EXPR@136..140: x $0
+IDENTIFIER@136..137: x
+QUBIT_LIST@138..140: $0
+HARDWARE_QUBIT@138..140: $0
+FOR_STMT@144..170: for myvar in for { x $0; }
+SCALAR_TYPE@148..148: 
+NAME@148..153: myvar
+FOR_ITERABLE@157..160: for
+ERROR@157..160: for
+BLOCK_EXPR@161..170: { x $0; }
+EXPR_STMT@163..168: x $0;
+GATE_CALL_EXPR@163..167: x $0
+IDENTIFIER@163..164: x
+QUBIT_LIST@165..167: $0
+HARDWARE_QUBIT@165..167: $0
+FOR_STMT@171..188: for myvar { x $0;
+SCALAR_TYPE@175..175: 
+NAME@175..180: myvar
+FOR_ITERABLE@181..187: { x $0
+SET_EXPRESSION@181..187: { x $0
+EXPRESSION_LIST@183..187: x $0
+GATE_CALL_EXPR@183..187: x $0
+IDENTIFIER@183..184: x
+QUBIT_LIST@185..187: $0
+HARDWARE_QUBIT@185..187: $0
+ERROR@189..190: }
+FOR_STMT@191..201: for (true)
+SCALAR_TYPE@195..195: 
+ERROR@195..196: (
+FOR_ITERABLE@196..200: true
+LITERAL@196..200: true
+ERROR@200..201: )
+EXPR_STMT@202..211: { x $0; }
+BLOCK_EXPR@202..211: { x $0; }
+EXPR_STMT@204..209: x $0;
+GATE_CALL_EXPR@204..208: x $0
+IDENTIFIER@204..205: x
+QUBIT_LIST@206..208: $0
+HARDWARE_QUBIT@206..208: $0
+FOR_STMT@212..223: for { x $0;
+SCALAR_TYPE@216..216: 
+FOR_ITERABLE@216..222: { x $0
+SET_EXPRESSION@216..222: { x $0
+EXPRESSION_LIST@218..222: x $0
+GATE_CALL_EXPR@218..222: x $0
+IDENTIFIER@218..219: x
+QUBIT_LIST@220..222: $0
+HARDWARE_QUBIT@220..222: $0
+ERROR@224..225: }
+FOR_STMT@226..258: for for in { 1, 2, 3 } { x $0; }
+SCALAR_TYPE@230..230: 
+ERROR@230..233: for
+FOR_ITERABLE@237..248: { 1, 2, 3 }
+SET_EXPRESSION@237..248: { 1, 2, 3 }
+EXPRESSION_LIST@239..246: 1, 2, 3
+LITERAL@239..240: 1
+LITERAL@242..243: 2
+LITERAL@245..246: 3
+BLOCK_EXPR@249..258: { x $0; }
+EXPR_STMT@251..256: x $0;
+GATE_CALL_EXPR@251..255: x $0
+IDENTIFIER@251..252: x
+QUBIT_LIST@253..255: $0
+HARDWARE_QUBIT@253..255: $0
+FOR_STMT@259..287: for in { 1, 2, 3 } { x $0; }
+SCALAR_TYPE@263..263: 
+ERROR@263..265: in
+FOR_ITERABLE@266..277: { 1, 2, 3 }
+SET_EXPRESSION@266..277: { 1, 2, 3 }
+EXPRESSION_LIST@268..275: 1, 2, 3
+LITERAL@268..269: 1
+LITERAL@271..272: 2
+LITERAL@274..275: 3
+BLOCK_EXPR@278..287: { x $0; }
+EXPR_STMT@280..285: x $0;
+GATE_CALL_EXPR@280..284: x $0
+IDENTIFIER@280..281: x
+QUBIT_LIST@282..284: $0
+HARDWARE_QUBIT@282..284: $0
+WHILE_STMT@288..308: while true { x $0; }
+LITERAL@294..298: true
+BLOCK_EXPR@299..308: { x $0; }
+EXPR_STMT@301..306: x $0;
+GATE_CALL_EXPR@301..305: x $0
+IDENTIFIER@301..302: x
+QUBIT_LIST@303..305: $0
+HARDWARE_QUBIT@303..305: $0
+WHILE_STMT@309..328: while (true) (true)
+LITERAL@316..320: true
+EXPR_STMT@322..328: (true)
+PAREN_EXPR@322..328: (true)
+LITERAL@323..327: true
+EXPR_STMT@329..338: { x $0; }
+BLOCK_EXPR@329..338: { x $0; }
+EXPR_STMT@331..336: x $0;
+GATE_CALL_EXPR@331..335: x $0
+IDENTIFIER@331..332: x
+QUBIT_LIST@333..335: $0
+HARDWARE_QUBIT@333..335: $0
+WHILE_STMT@339..349: while x in
+IDENTIFIER@345..346: x
+ERROR@347..349: in
+EXPR_STMT@350..361: { 1, 2, 3 }
+BLOCK_EXPR@350..361: { 1, 2, 3 }
+EXPR_STMT@352..353: 1
+LITERAL@352..353: 1
+ERROR@353..354: ,
+EXPR_STMT@355..356: 2
+LITERAL@355..356: 2
+ERROR@356..357: ,
+LITERAL@358..359: 3
+EXPR_STMT@362..371: { x $0; }
+BLOCK_EXPR@362..371: { x $0; }
+EXPR_STMT@364..369: x $0;
+GATE_CALL_EXPR@364..368: x $0
+IDENTIFIER@364..365: x
+QUBIT_LIST@366..368: $0
+HARDWARE_QUBIT@366..368: $0
+WHILE_STMT@372..385: while (true);
+LITERAL@379..383: true
