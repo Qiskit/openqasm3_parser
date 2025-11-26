@@ -2,8 +2,8 @@
 source: crates/pipeline-tests/tests/runner.rs
 expression: sema_snap
 ---
-id: tests/snippets/reference/assignment/assignment.qasm
-expect-sema: Skip
+id: tests/snippets/reference/pulse/cal2.qasm
+expect-sema: Todo
 --- sema ---
 ok: true
 panicked: false

@@ -1,0 +1,95 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/invalid/statements/branch.qasm
+expect-parse: Diag
+--- parser ---
+ok: false
+panicked: false
+errors: 16
+--- ast ---
+SOURCE_FILE@0..217: // lex: ok
+// parse: diag
+// sema: skip
+
+if true x $0;
+if false { x $0; }
+if (myvar += 1) { x $0; }
+if (int[8] myvar = 1) { x $0; }
+if (true);
+if (true) else x $0;
+if (true) else (false) x $0;
+if (reset $0) { x $1; }
+
+IF_STMT@41..54: if true x $0;
+TIMING_LITERAL@44..50: true x
+LITERAL@44..48: true
+IDENTIFIER@49..50: x
+EXPR_STMT@51..54: $0;
+HARDWARE_QUBIT@51..53: $0
+IF_STMT@55..73: if false { x $0; }
+LITERAL@58..63: false
+BLOCK_EXPR@64..73: { x $0; }
+EXPR_STMT@66..71: x $0;
+GATE_CALL_EXPR@66..70: x $0
+IDENTIFIER@66..67: x
+QUBIT_LIST@68..70: $0
+HARDWARE_QUBIT@68..70: $0
+IF_STMT@74..99: if (myvar += 1) { x $0; }
+BIN_EXPR@78..88: myvar += 1
+IDENTIFIER@78..83: myvar
+LITERAL@87..88: 1
+BLOCK_EXPR@90..99: { x $0; }
+EXPR_STMT@92..97: x $0;
+GATE_CALL_EXPR@92..96: x $0
+IDENTIFIER@92..93: x
+QUBIT_LIST@94..96: $0
+HARDWARE_QUBIT@94..96: $0
+IF_STMT@100..131: if (int[8] myvar = 1) { x $0; }
+CAST_EXPRESSION@104..121: int[8] myvar = 1)
+SCALAR_TYPE@104..110: int[8]
+DESIGNATOR@107..110: [8]
+LITERAL@108..109: 8
+ASSIGNMENT_STMT@111..120: myvar = 1
+IDENTIFIER@111..116: myvar
+LITERAL@119..120: 1
+BLOCK_EXPR@122..131: { x $0; }
+EXPR_STMT@124..129: x $0;
+GATE_CALL_EXPR@124..128: x $0
+IDENTIFIER@124..125: x
+QUBIT_LIST@126..128: $0
+HARDWARE_QUBIT@126..128: $0
+IF_STMT@132..142: if (true);
+LITERAL@136..140: true
+IF_STMT@143..157: if (true) else
+LITERAL@147..151: true
+ERROR@153..157: else
+EXPR_STMT@158..163: x $0;
+GATE_CALL_EXPR@158..162: x $0
+IDENTIFIER@158..159: x
+QUBIT_LIST@160..162: $0
+HARDWARE_QUBIT@160..162: $0
+IF_STMT@164..178: if (true) else
+LITERAL@168..172: true
+ERROR@174..178: else
+EXPR_STMT@179..186: (false)
+PAREN_EXPR@179..186: (false)
+LITERAL@180..185: false
+EXPR_STMT@187..192: x $0;
+GATE_CALL_EXPR@187..191: x $0
+IDENTIFIER@187..188: x
+QUBIT_LIST@189..191: $0
+HARDWARE_QUBIT@189..191: $0
+IF_STMT@193..205: if (reset $0
+ERROR@197..202: reset
+EXPR_STMT@203..205: $0
+HARDWARE_QUBIT@203..205: $0
+ERROR@205..206: )
+EXPR_STMT@207..216: { x $1; }
+BLOCK_EXPR@207..216: { x $1; }
+EXPR_STMT@209..214: x $1;
+GATE_CALL_EXPR@209..213: x $1
+IDENTIFIER@209..210: x
+QUBIT_LIST@211..213: $1
+HARDWARE_QUBIT@211..213: $1

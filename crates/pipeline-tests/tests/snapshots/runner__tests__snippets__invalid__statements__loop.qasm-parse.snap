@@ -1,0 +1,13 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/invalid/statements/loop.qasm
+expect-parse: Panic
+--- parser ---
+ok: false
+panicked: true
+panic: assertion failed: self.eat(kind)
+errors: 0
+--- ast ---
+(no ast)

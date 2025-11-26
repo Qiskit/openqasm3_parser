@@ -1,0 +1,12 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/invalid/statements/tokens.qasm
+expect-parse: Diag
+--- parser ---
+ok: false
+panicked: false
+errors: 1
+--- ast ---
+(no ast)

@@ -1,0 +1,62 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/invalid/statements/calibration.qasm
+expect-lex: Ok
+--- source ---
+// lex: ok
+// parse: diag
+// sema: skip
+
+defcalgrammar "openpulse" defcalgrammar "openpulse";
+defcalgrammar 3;
+defcal x $0 -> int[8] -> int[8] {}
+--- lexer ---
+ok: true
+errors: 0
+[0] LineComment "// lex: ok" @0..10
+[1] Whitespace "\n" @10..11
+[2] LineComment "// parse: diag" @11..25
+[3] Whitespace "\n" @25..26
+[4] LineComment "// sema: skip" @26..39
+[5] Whitespace "\n\n" @39..41
+[6] Ident "defcalgrammar" @41..54
+[7] Whitespace " " @54..55
+[8] Literal { kind: Str { terminated: true }, suffix_start: 11 } ""openpulse"" @55..66
+[9] Whitespace " " @66..67
+[10] Ident "defcalgrammar" @67..80
+[11] Whitespace " " @80..81
+[12] Literal { kind: Str { terminated: true }, suffix_start: 11 } ""openpulse"" @81..92
+[13] Semi ";" @92..93
+[14] Whitespace "\n" @93..94
+[15] Ident "defcalgrammar" @94..107
+[16] Whitespace " " @107..108
+[17] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @108..109
+[18] Semi ";" @109..110
+[19] Whitespace "\n" @110..111
+[20] Ident "defcal" @111..117
+[21] Whitespace " " @117..118
+[22] Ident "x" @118..119
+[23] Whitespace " " @119..120
+[24] HardwareIdent "$0" @120..122
+[25] Whitespace " " @122..123
+[26] Minus "-" @123..124
+[27] Gt ">" @124..125
+[28] Whitespace " " @125..126
+[29] Ident "int" @126..129
+[30] OpenBracket "[" @129..130
+[31] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @130..131
+[32] CloseBracket "]" @131..132
+[33] Whitespace " " @132..133
+[34] Minus "-" @133..134
+[35] Gt ">" @134..135
+[36] Whitespace " " @135..136
+[37] Ident "int" @136..139
+[38] OpenBracket "[" @139..140
+[39] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @140..141
+[40] CloseBracket "]" @141..142
+[41] Whitespace " " @142..143
+[42] OpenBrace "{" @143..144
+[43] CloseBrace "}" @144..145
+[44] Whitespace "\n" @145..146

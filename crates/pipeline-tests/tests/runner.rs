@@ -211,6 +211,10 @@ mod suite {
         (ok, diag_count, asg_dump, panicked, panic_msg)
     }
 
+    pub fn should_run(stage: Option<Expect>) -> bool {
+        !matches!(stage, Some(Expect::Skip) | None)
+    }
+
     pub(crate) fn snapshot_for(
         id: &str,
         src: &str,
@@ -276,7 +280,7 @@ mod suite {
         writeln!(&mut sema_snap, "ok: {}", sema.0).ok();
         writeln!(&mut sema_snap, "panicked: {}", sema.3).ok();
         if sema.3 && !sema.4.is_empty() {
-            writeln!(&mut sema_snap, "panic: {}", sema.3).ok();
+            writeln!(&mut sema_snap, "panic: {}", sema.4).ok();
         }
         writeln!(&mut sema_snap, "errors: {}", sema.1).ok();
         let _ = writeln!(&mut sema_snap, "--- asg ---");
@@ -288,53 +292,6 @@ mod suite {
 
         (lex_snap, parse_snap, sema_snap)
     }
-
-    // fn snapshot_forold(
-    //     id: &str,
-    //     src: &str,
-    //     exp: &Expectations,
-    //     lex: &(bool, usize, String),
-    //     parse: &(bool, usize, String, bool, String),
-    //     sema: &(bool, usize, bool, String),
-    // ) -> (String, String, String) {
-    //     use std::fmt::Write as _;
-    //     let mut s = String::new();
-    //     writeln!(&mut s, "id: {}", id).ok();
-
-    //     writeln!(&mut s, "--- expectations ---").ok();
-    //     writeln!(&mut s, "lex:   {:?}", exp.lex.unwrap_or(Expect::Skip)).ok();
-    //     writeln!(&mut s, "parse: {:?}", exp.parse.unwrap_or(Expect::Skip)).ok();
-    //     writeln!(&mut s, "sema:  {:?}", exp.sema.unwrap_or(Expect::Skip)).ok();
-
-    //     let mut lex_snap = String::new();
-    //     let _ = writeln!(&mut lex_snap, "id: {}", id);
-    //     let _ = writeln!(&mut lex_snap, "--- lexer ---");
-    //     let _ = writeln!(&mut lex_snap, "ok: {}", lex.0);
-    //     let _ = writeln!(&mut lex_snap, "errors: {}", lex.1);
-    //     lex_snap.push_str(&lex.2);
-
-    //     let mut parse_snap = String::new();
-    //     let _ = writeln!(&mut parse_snap, "id: {}", id);
-    //     let _ = writeln!(&mut parse_snap, "--- parser ---");
-    //     let _ = writeln!(&mut parse_snap, "ok: {}", parse.0);
-    //     let _ = writeln!(&mut parse_snap, "panicked: {}", parse.3);
-    //     if parse.3 && !parse.4.is_empty() { let _ = writeln!(&mut parse_snap, "panic: {}", parse.4); }
-    //     let _ = writeln!(&mut parse_snap, "errors: {}", parse.1);
-    //     let _ = writeln!(&mut parse_snap, "--- ast ---");
-    //     if parse.2.is_empty() { let _ = writeln!(&mut parse_snap, "(no ast)"); } else { parse_snap.push_str(&parse.2); }
-
-    //     let mut sema_snap = String::new();
-    //     let _ = writeln!(&mut sema_snap, "id: {}", id);
-    //     let _ = writeln!(&mut sema_snap, "--- sema ---");
-    //     let _ = writeln!(&mut sema_snap, "ok: {}", sema.0);
-    //     let _ = writeln!(&mut sema_snap, "panicked: {}", sema.2);
-    //     if sema.2 && !sema.3.is_empty() { let _ = writeln!(&mut sema_snap, "panic: {}", sema.3); }
-    //     let _ = writeln!(&mut sema_snap, "errors: {}", sema.1);
-    //     let _ = writeln!(&mut sema_snap, "--- asg ---");
-    //     if sema.3.is_empty() { let _ = writeln!(&mut sema_snap, "(no asg)"); } else { sema_snap.push_str(&sema.3); }
-
-    //     (lex_snap, parse_snap, sema_snap)
-    // }
 
     // Ok: no diags and no panic; Diag: diags >= 1 and no panic; Panic: stage panicked; Todo/Skip as defined
     pub(crate) fn apply_expect(
@@ -395,6 +352,63 @@ use std::path::Path;
 
 #[cfg(not(target_os = "windows"))]
 pub fn check(path: &Path) -> datatest_stable::Result<()> {
+    use std::fs;
+
+    let id = suite::rel_id(path);
+    let src = fs::read_to_string(path)?;
+    let exp = suite::parse_expectations(&src);
+
+    let run_lex = suite::should_run(exp.lex);
+    let run_parse = suite::should_run(exp.parse);
+    let run_sema = suite::should_run(exp.sema);
+
+    // Run only the requested stages
+    let lex = if run_lex {
+        suite::run_lex(&src)
+    } else {
+        (false, 0, String::new())
+    };
+    let parse = if run_parse {
+        suite::run_parser_from_path(path)
+    } else {
+        (false, 0, String::new(), false, String::new())
+    };
+    let sema = if run_sema {
+        suite::run_sema_from_path(path)
+    } else {
+        (false, 0, String::new(), false, String::new())
+    };
+
+    // Expectations (Skip/None are no-ops)
+    if let Err(msg) = suite::apply_expect(exp.lex, lex.1, false) {
+        return Err(format!("lex: {}", msg).into());
+    }
+    if let Err(msg) = suite::apply_expect(exp.parse, parse.1, parse.3) {
+        return Err(format!("parse: {}", msg).into());
+    }
+    if let Err(msg) = suite::apply_expect(exp.sema, sema.1, sema.3) {
+        return Err(format!("sema: {}", msg).into());
+    }
+
+    // Snapshots: only assert for stages we actually ran
+    let (lex_snap, parse_snap, sema_snap) =
+        suite::snapshot_for(&id, &src, &exp, &lex, &parse, &sema);
+
+    if run_lex {
+        insta::assert_snapshot!(format!("{id}-lex"), lex_snap);
+    }
+    if run_parse {
+        insta::assert_snapshot!(format!("{id}-parse"), parse_snap);
+    }
+    if run_sema {
+        insta::assert_snapshot!(format!("{id}-sema"), sema_snap);
+    }
+
+    Ok(())
+}
+
+#[cfg(not(target_os = "windows"))]
+pub fn oldcheck(path: &Path) -> datatest_stable::Result<()> {
     use std::fs;
 
     let id = suite::rel_id(path);

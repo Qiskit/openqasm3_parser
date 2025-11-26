@@ -1,0 +1,62 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/reference/header.qasm
+expect-lex: Ok
+--- source ---
+// lex: ok
+// parse: ok
+// sema: ok
+
+OPENQASM 3.0;
+include "stdgates.inc";
+input angle[32] param1;
+input angle[32] param2;
+output bit result;
+--- lexer ---
+ok: true
+errors: 0
+[0] LineComment "// lex: ok" @0..10
+[1] Whitespace "\n" @10..11
+[2] LineComment "// parse: ok" @11..23
+[3] Whitespace "\n" @23..24
+[4] LineComment "// sema: ok" @24..35
+[5] Whitespace "\n\n" @35..37
+[6] Ident "OPENQASM" @37..45
+[7] Whitespace " " @45..46
+[8] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "3.0" @46..49
+[9] Semi ";" @49..50
+[10] Whitespace "\n" @50..51
+[11] Ident "include" @51..58
+[12] Whitespace " " @58..59
+[13] Literal { kind: Str { terminated: true }, suffix_start: 14 } ""stdgates.inc"" @59..73
+[14] Semi ";" @73..74
+[15] Whitespace "\n" @74..75
+[16] Ident "input" @75..80
+[17] Whitespace " " @80..81
+[18] Ident "angle" @81..86
+[19] OpenBracket "[" @86..87
+[20] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @87..89
+[21] CloseBracket "]" @89..90
+[22] Whitespace " " @90..91
+[23] Ident "param1" @91..97
+[24] Semi ";" @97..98
+[25] Whitespace "\n" @98..99
+[26] Ident "input" @99..104
+[27] Whitespace " " @104..105
+[28] Ident "angle" @105..110
+[29] OpenBracket "[" @110..111
+[30] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @111..113
+[31] CloseBracket "]" @113..114
+[32] Whitespace " " @114..115
+[33] Ident "param2" @115..121
+[34] Semi ";" @121..122
+[35] Whitespace "\n" @122..123
+[36] Ident "output" @123..129
+[37] Whitespace " " @129..130
+[38] Ident "bit" @130..133
+[39] Whitespace " " @133..134
+[40] Ident "result" @134..140
+[41] Semi ";" @140..141
+[42] Whitespace "\n" @141..142

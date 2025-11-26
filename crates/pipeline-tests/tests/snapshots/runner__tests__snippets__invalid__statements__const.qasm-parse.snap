@@ -1,0 +1,64 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/invalid/statements/const.qasm
+expect-parse: Diag
+--- parser ---
+ok: false
+panicked: false
+errors: 29
+--- ast ---
+SOURCE_FILE@0..183: // lex: ok
+// parse: diag
+// sema: skip
+
+const myvar;
+const myvar = ;
+const myvar = 8.0;
+input const myvar = 8;
+output const myvar = 8;
+const input myvar = 8;
+const output myvar = 8;
+
+CLASSICAL_DECLARATION_STATEMENT@41..53: const myvar;
+SCALAR_TYPE@47..47: 
+NAME@47..52: myvar
+CLASSICAL_DECLARATION_STATEMENT@54..69: const myvar = ;
+SCALAR_TYPE@60..60: 
+NAME@60..65: myvar
+ERROR@68..69: ;
+CLASSICAL_DECLARATION_STATEMENT@70..88: const myvar = 8.0;
+SCALAR_TYPE@76..76: 
+NAME@76..81: myvar
+LITERAL@84..87: 8.0
+I_O_DECLARATION_STATEMENT@89..95: input 
+SCALAR_TYPE@95..95: 
+NAME@95..95: 
+CLASSICAL_DECLARATION_STATEMENT@95..111: const myvar = 8;
+SCALAR_TYPE@101..101: 
+NAME@101..106: myvar
+LITERAL@109..110: 8
+I_O_DECLARATION_STATEMENT@112..119: output 
+SCALAR_TYPE@119..119: 
+NAME@119..119: 
+CLASSICAL_DECLARATION_STATEMENT@119..135: const myvar = 8;
+SCALAR_TYPE@125..125: 
+NAME@125..130: myvar
+LITERAL@133..134: 8
+SCALAR_TYPE@142..142: 
+NAME@142..142: 
+I_O_DECLARATION_STATEMENT@142..153: input myvar
+SCALAR_TYPE@148..148: 
+NAME@148..153: myvar
+ERROR@154..155: =
+EXPR_STMT@156..158: 8;
+LITERAL@156..157: 8
+SCALAR_TYPE@165..165: 
+NAME@165..165: 
+I_O_DECLARATION_STATEMENT@165..177: output myvar
+SCALAR_TYPE@172..172: 
+NAME@172..177: myvar
+ERROR@178..179: =
+EXPR_STMT@180..182: 8;
+LITERAL@180..181: 8

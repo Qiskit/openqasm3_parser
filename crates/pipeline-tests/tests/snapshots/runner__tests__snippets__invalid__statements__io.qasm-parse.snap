@@ -1,0 +1,72 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/invalid/statements/io.qasm
+expect-parse: Diag
+--- parser ---
+ok: false
+panicked: false
+errors: 18
+--- ast ---
+SOURCE_FILE@0..191: // lex: ok
+// parse: diag
+// sema: skip
+
+input int[8];
+output int[8];
+input qreg myvar[4];
+output qreg myvar[4];
+input int[8] myvar = 32;
+output int[8] myvar = 32;
+input myvar;
+output myvar;
+
+I_O_DECLARATION_STATEMENT@41..54: input int[8];
+SCALAR_TYPE@47..53: int[8]
+DESIGNATOR@50..53: [8]
+LITERAL@51..52: 8
+NAME@53..53: 
+I_O_DECLARATION_STATEMENT@55..69: output int[8];
+SCALAR_TYPE@62..68: int[8]
+DESIGNATOR@65..68: [8]
+LITERAL@66..67: 8
+NAME@68..68: 
+I_O_DECLARATION_STATEMENT@70..76: input 
+SCALAR_TYPE@76..76: 
+NAME@76..76: 
+OLD_STYLE_DECLARATION_STATEMENT@76..90: qreg myvar[4];
+INDEXED_IDENTIFIER@81..89: myvar[4]
+INDEX_OPERATOR@86..89: [4]
+EXPRESSION_LIST@87..88: 4
+LITERAL@87..88: 4
+I_O_DECLARATION_STATEMENT@91..98: output 
+SCALAR_TYPE@98..98: 
+NAME@98..98: 
+OLD_STYLE_DECLARATION_STATEMENT@98..112: qreg myvar[4];
+INDEXED_IDENTIFIER@103..111: myvar[4]
+INDEX_OPERATOR@108..111: [4]
+EXPRESSION_LIST@109..110: 4
+LITERAL@109..110: 4
+I_O_DECLARATION_STATEMENT@113..131: input int[8] myvar
+SCALAR_TYPE@119..125: int[8]
+DESIGNATOR@122..125: [8]
+LITERAL@123..124: 8
+NAME@126..131: myvar
+ERROR@132..133: =
+EXPR_STMT@134..137: 32;
+LITERAL@134..136: 32
+I_O_DECLARATION_STATEMENT@138..157: output int[8] myvar
+SCALAR_TYPE@145..151: int[8]
+DESIGNATOR@148..151: [8]
+LITERAL@149..150: 8
+NAME@152..157: myvar
+ERROR@158..159: =
+EXPR_STMT@160..163: 32;
+LITERAL@160..162: 32
+I_O_DECLARATION_STATEMENT@164..176: input myvar;
+SCALAR_TYPE@170..170: 
+NAME@170..175: myvar
+I_O_DECLARATION_STATEMENT@177..190: output myvar;
+SCALAR_TYPE@184..184: 
+NAME@184..189: myvar
