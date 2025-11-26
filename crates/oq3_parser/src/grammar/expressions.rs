@@ -444,12 +444,14 @@ pub(crate) fn array_type_spec(p: &mut Parser<'_>) -> bool {
         m.complete(p, DIM_EXPR);
     } else {
         loop {
-            expr(p);
+            let _ = expr(p);
             if p.at(T![']']) {
                 p.bump_any();
                 break;
             }
-            p.expect(COMMA);
+            if !p.expect(COMMA) {
+                break;
+            }
         }
     }
     m.complete(p, ARRAY_TYPE);
