@@ -536,8 +536,10 @@ fn stmt_to_asg_stmt(stmt: synast::Stmt, context: &mut Context) -> Option<asg::St
         synast::Stmt::ExprStmt(expr_stmt) => expr_stmt_to_asg_stmt(expr_stmt, context),
 
         synast::Stmt::VersionString(version_string) => {
-            let version = version_string.version().unwrap().version().unwrap();
-            let _ = version.split_into_parts();
+            // let version = version_string.version().unwrap().version().unwrap();
+            //            not_impl!(context, version_string)
+            context.insert_error(NotImplementedError, &version_string);
+            // Better None than NullStmt.
             None
         }
 

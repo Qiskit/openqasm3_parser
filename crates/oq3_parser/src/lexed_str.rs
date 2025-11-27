@@ -225,6 +225,19 @@ fn inner_extend_token<'a>(
                 COMMENT
             }
 
+            oq3_lexer::TokenKind::OpenQasmVersionStmt { major, minor } => {
+                if *major {
+                    if *minor {
+                        // All good
+                    } else {
+                        err = "Invalid minor version in OpenQASM version statement";
+                    }
+                } else {
+                    err = "Invalid version number in OpenQASM version statement";
+                }
+                VERSION_STRING
+            }
+
             oq3_lexer::TokenKind::Whitespace => WHITESPACE,
             oq3_lexer::TokenKind::Ident if token_text == "_" => UNDERSCORE,
 

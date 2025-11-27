@@ -1,6 +1,6 @@
 // lex: ok
 // parse: ok
-// sema: ok
+// sema: todo
 
 OPENQASM 3.0;
 // Line comment before include

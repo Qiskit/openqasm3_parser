@@ -3,11 +3,11 @@ source: crates/pipeline-tests/tests/runner.rs
 expression: sema_snap
 ---
 id: tests/snippets/reference/comments/comments.qasm
-expect-sema: Ok
+expect-sema: Todo
 --- sema ---
-ok: true
+ok: false
 panicked: false
-errors: 0
+errors: 1
 --- asg ---
 DeclareQuantum(DeclareQuantum { name: Ok(SymbolId(39)) })
 

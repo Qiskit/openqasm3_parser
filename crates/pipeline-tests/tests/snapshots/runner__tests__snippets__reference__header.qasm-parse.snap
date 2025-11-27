@@ -17,7 +17,6 @@ input angle[32] param2;
 output bit result;
 
 VERSION_STRING@1..14: OPENQASM 3.0;
-VERSION@10..14: 3.0;
 INCLUDE@15..38: include "stdgates.inc";
 FILE_PATH@23..37: "stdgates.inc"
 I_O_DECLARATION_STATEMENT@39..62: input angle[32] param1;

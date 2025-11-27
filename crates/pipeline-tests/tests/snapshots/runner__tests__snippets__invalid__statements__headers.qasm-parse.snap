@@ -7,6 +7,6 @@ expect-parse: Diag
 --- parser ---
 ok: false
 panicked: false
-errors: 1
+errors: 4
 --- ast ---
 (no ast)

@@ -15,40 +15,38 @@ output bit result;
 ok: true
 errors: 0
 [0] Whitespace "\n" @0..1
-[1] Ident "OPENQASM" @1..9
-[2] Whitespace " " @9..10
-[3] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "3.0" @10..13
-[4] Semi ";" @13..14
-[5] Whitespace "\n" @14..15
-[6] Ident "include" @15..22
-[7] Whitespace " " @22..23
-[8] Literal { kind: Str { terminated: true }, suffix_start: 14 } ""stdgates.inc"" @23..37
-[9] Semi ";" @37..38
-[10] Whitespace "\n" @38..39
-[11] Ident "input" @39..44
-[12] Whitespace " " @44..45
-[13] Ident "angle" @45..50
-[14] OpenBracket "[" @50..51
-[15] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @51..53
-[16] CloseBracket "]" @53..54
-[17] Whitespace " " @54..55
-[18] Ident "param1" @55..61
-[19] Semi ";" @61..62
-[20] Whitespace "\n" @62..63
-[21] Ident "input" @63..68
-[22] Whitespace " " @68..69
-[23] Ident "angle" @69..74
-[24] OpenBracket "[" @74..75
-[25] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @75..77
-[26] CloseBracket "]" @77..78
-[27] Whitespace " " @78..79
-[28] Ident "param2" @79..85
-[29] Semi ";" @85..86
-[30] Whitespace "\n" @86..87
-[31] Ident "output" @87..93
-[32] Whitespace " " @93..94
-[33] Ident "bit" @94..97
-[34] Whitespace " " @97..98
-[35] Ident "result" @98..104
-[36] Semi ";" @104..105
-[37] Whitespace "\n" @105..106
+[1] OpenQasmVersionStmt { major: true, minor: true } "OPENQASM 3.0" @1..13
+[2] Semi ";" @13..14
+[3] Whitespace "\n" @14..15
+[4] Ident "include" @15..22
+[5] Whitespace " " @22..23
+[6] Literal { kind: Str { terminated: true }, suffix_start: 14 } ""stdgates.inc"" @23..37
+[7] Semi ";" @37..38
+[8] Whitespace "\n" @38..39
+[9] Ident "input" @39..44
+[10] Whitespace " " @44..45
+[11] Ident "angle" @45..50
+[12] OpenBracket "[" @50..51
+[13] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @51..53
+[14] CloseBracket "]" @53..54
+[15] Whitespace " " @54..55
+[16] Ident "param1" @55..61
+[17] Semi ";" @61..62
+[18] Whitespace "\n" @62..63
+[19] Ident "input" @63..68
+[20] Whitespace " " @68..69
+[21] Ident "angle" @69..74
+[22] OpenBracket "[" @74..75
+[23] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @75..77
+[24] CloseBracket "]" @77..78
+[25] Whitespace " " @78..79
+[26] Ident "param2" @79..85
+[27] Semi ";" @85..86
+[28] Whitespace "\n" @86..87
+[29] Ident "output" @87..93
+[30] Whitespace " " @93..94
+[31] Ident "bit" @94..97
+[32] Whitespace " " @97..98
+[33] Ident "result" @98..104
+[34] Semi ";" @104..105
+[35] Whitespace "\n" @105..106

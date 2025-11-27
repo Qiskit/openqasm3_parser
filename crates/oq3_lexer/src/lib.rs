@@ -76,6 +76,11 @@ pub enum TokenKind {
     /// Like the above, but containing invalid unicode codepoints.
     InvalidIdent,
 
+    OpenQasmVersionStmt {
+        major: bool,
+        minor: bool,
+    },
+
     Pragma,
 
     Dim,
@@ -301,6 +306,22 @@ impl Cursor<'_> {
 
             'p' => self.pragma_or_ident_or_unknown_prefix(),
 
+            // This implementation stores the entire "OPENQASM x.y" string as a single token.
+            // There are several options, but others seem to come with a cost.
+            // At present the tokenizer has in a sense no context, very little state.
+            // There are no "modes". It might be possible to do this in a way that does not
+            // affect performance. But I don't want to take the time to experiment. Breaking
+            // an abstraction for one small feature seems unwise.
+            'O' => {
+                if self.have_openqasm() {
+                    self.eat_while(is_whitespace);
+                    let (major, minor) = self.openqasm_version();
+                    OpenQasmVersionStmt { major, minor }
+                } else {
+                    self.ident_or_unknown_prefix()
+                }
+            }
+
             // Identifier (this should be checked after other variant that can
             // start as identifier).
             c if is_id_start(c) => self.ident_or_unknown_prefix(),
@@ -483,6 +504,7 @@ impl Cursor<'_> {
         }
     }
 
+    /// Yikes!! assumes the *previous* token was also whitespace.
     fn whitespace(&mut self) -> TokenKind {
         debug_assert!(is_whitespace(self.prev()));
         self.eat_while(is_whitespace);
@@ -526,6 +548,55 @@ impl Cursor<'_> {
             }
         }
         false
+    }
+
+    /// This is called if we just consumed 'O'
+    /// If we consume "OPENQASM" + whitespace, then is is a version statement.
+    /// Otherwise, an identifier, valid or not.
+    fn have_openqasm(&mut self) -> bool {
+        if self.first() == 'P' {
+            self.bump();
+            if self.first() == 'E' {
+                self.bump();
+                if self.first() == 'N' {
+                    self.bump();
+                    if self.first() == 'Q' {
+                        self.bump();
+                        if self.first() == 'A' {
+                            self.bump();
+                            if self.first() == 'S' {
+                                self.bump();
+                                if self.first() == 'M' {
+                                    self.bump();
+                                    return is_whitespace(self.first());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        false
+    }
+
+    fn openqasm_version(&mut self) -> (bool, bool) {
+        if !self.eat_decimal_digits() {
+            return (false, false);
+        }
+        let c = self.first();
+        if c == '.' {
+            self.bump();
+
+            if !self.eat_decimal_digits() {
+                // Do not allow "3."
+                return (true, false);
+            }
+        }
+        let c = self.first();
+        if c != ';' && !is_whitespace(c) {
+            return (false, false);
+        }
+        (true, true)
     }
 
     fn pragma_or_ident_or_unknown_prefix(&mut self) -> TokenKind {
@@ -856,6 +927,7 @@ impl Cursor<'_> {
     }
 
     fn eat_decimal_digits(&mut self) -> bool {
+        //
         let mut has_digits = false;
         loop {
             match self.first() {
