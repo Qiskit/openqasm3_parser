@@ -28,12 +28,14 @@ pub enum StrStep<'a> {
 }
 
 impl LexedStr<'_> {
+    // `was_joint` is used to fix index into text when omitting whitespace/comments
     pub fn to_input(&self) -> crate::Input {
         let mut res = crate::Input::default();
         let mut was_joint = false;
         for i in 0..self.len() {
             let kind = self.kind(i);
             if kind.is_trivia() {
+                // whitespace or comment
                 was_joint = false
             } else {
                 if kind == SyntaxKind::IDENT {

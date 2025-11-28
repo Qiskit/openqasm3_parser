@@ -38,6 +38,8 @@ use unicode_properties::UnicodeEmoji;
 #[derive(Debug)]
 pub struct Token {
     pub kind: TokenKind,
+
+    /// The length in bytes of text associated with `kind`.
     pub len: u32,
 }
 
