@@ -900,14 +900,7 @@ mod sourcegen {
         let full_keywords_values = grammar.keywords;
         let full_keywords = full_keywords_values.iter().map(upper_snake);
 
-        // let contextual_keywords_values = &grammar.contextual_keywords;
-        // let contextual_keywords = contextual_keywords_values.iter().map(upper_snake);
-
         let all_keywords_values = grammar.keywords.to_vec();
-        // .iter()
-        // //        .chain(grammar.contextual_keywords.iter())
-        // .copied()
-        // .collect::<Vec<_>>();
         let all_keywords_idents = all_keywords_values.iter().map(|kw| format_ident!("{}", kw));
         let all_keywords = all_keywords_values
             .iter()

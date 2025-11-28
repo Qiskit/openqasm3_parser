@@ -38,22 +38,18 @@ impl LexedStr<'_> {
                 // whitespace or comment
                 was_joint = false
             } else {
-                if kind == SyntaxKind::IDENT {
-                    let contextual_kw = SyntaxKind::IDENT;
-                    res.push_ident(contextual_kw);
-                } else {
-                    if was_joint {
-                        res.was_joint();
-                    }
-                    res.push(kind);
-                    // Tag the token as joint if it is float with a fractional part.
-                    // We use this jointness to inform the parser about what token split
-                    // event to emit when we encounter a float literal in a field access
-                    if kind == SyntaxKind::FLOAT_NUMBER && !self.text(i).ends_with('.') {
-                        res.was_joint();
-                    }
+                if was_joint {
+                    res.was_joint();
                 }
-
+                res.push(kind);
+                // Tag the token as joint if it is float with a fractional part.
+                // We use this jointness to inform the parser about what token split
+                // event to emit when we encounter a float literal in a field access
+                // TODO: At d0146087 test suite passes with following conditional
+                // deleted. Is it only that we are not testing for it?
+                if kind == SyntaxKind::FLOAT_NUMBER && !self.text(i).ends_with('.') {
+                    res.was_joint();
+                }
                 was_joint = true;
             }
         }
