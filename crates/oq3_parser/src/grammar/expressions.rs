@@ -394,19 +394,11 @@ fn call_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     m.complete(p, CALL_EXPR)
 }
 
-
 // TODO: check that this is complete
 fn type_can_have_designator(typ: &SyntaxKind) -> bool {
     matches!(
         typ,
-        ANGLE_TY
-            | BIT_TY
-            | FLOAT_TY
-            | INT_TY
-            | UINT_TY
-            | BOX_KW
-            | DELAY_KW
-            | QUBIT_KW
+        ANGLE_TY | BIT_TY | FLOAT_TY | INT_TY | UINT_TY | BOX_KW | DELAY_KW | QUBIT_KW
     )
 }
 
