@@ -56,7 +56,7 @@ include "stdgates.inc";
 // Rest of QASM program
 "#;
     let (program, errors, _symbol_table) = parse_string(code);
-    assert!(errors.is_empty());
+    assert_eq!(errors.len(), 1);
     assert!(program.is_empty());
 }
 

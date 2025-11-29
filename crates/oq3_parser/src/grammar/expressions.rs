@@ -101,6 +101,14 @@ pub(crate) fn stmt(p: &mut Parser<'_>) {
         return q_or_c_reg_declaration(p, m);
     }
 
+    if p.at(VERSION_STRING) {
+        p.bump_any();
+        if !p.eat(T![;]) {
+            p.error("Expecting semicolon terminating statement");
+        }
+        m.complete(p, VERSION_STRING);
+        return;
+    }
     // FIXME: straighten out logic
     if !(p.current().is_classical_type() && (p.nth(1) == T!['('] || p.nth(1) == T!['[']))
         && !p.at_ts(EXPR_FIRST)

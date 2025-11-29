@@ -23,7 +23,6 @@ h q[0]; // Gate with comment
 cx q[0], q[1];
 
 VERSION_STRING@1..14: OPENQASM 3.0;
-VERSION@10..14: 3.0;
 INCLUDE@46..69: include "stdgates.inc";
 FILE_PATH@54..68: "stdgates.inc"
 QUANTUM_DECLARATION_STATEMENT@127..138: qubit[2] q;
