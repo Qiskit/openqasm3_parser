@@ -9,43 +9,40 @@ ok: true
 panicked: false
 errors: 0
 --- ast ---
-SOURCE_FILE@0..89: // lex: ok
-// parse: ok
-// sema: panic
-
+SOURCE_FILE@0..50: 
 if(spec[i] == 0 && spec[n+i] == 1) {
   x q[i];
 }
 
-IF_STMT@40..88: if(spec[i] == 0 && spec[n+i] == 1) {
+IF_STMT@1..49: if(spec[i] == 0 && spec[n+i] == 1) {
   x q[i];
 }
-BIN_EXPR@43..73: spec[i] == 0 && spec[n+i] == 1
-BIN_EXPR@43..55: spec[i] == 0
-INDEXED_IDENTIFIER@43..50: spec[i]
-IDENTIFIER@43..47: spec
-INDEX_OPERATOR@47..50: [i]
-EXPRESSION_LIST@48..49: i
-IDENTIFIER@48..49: i
-LITERAL@54..55: 0
-BIN_EXPR@59..73: spec[n+i] == 1
-INDEXED_IDENTIFIER@59..68: spec[n+i]
-IDENTIFIER@59..63: spec
-INDEX_OPERATOR@63..68: [n+i]
-EXPRESSION_LIST@64..67: n+i
-BIN_EXPR@64..67: n+i
-IDENTIFIER@64..65: n
-IDENTIFIER@66..67: i
-LITERAL@72..73: 1
-BLOCK_EXPR@75..88: {
+BIN_EXPR@4..34: spec[i] == 0 && spec[n+i] == 1
+BIN_EXPR@4..16: spec[i] == 0
+INDEXED_IDENTIFIER@4..11: spec[i]
+IDENTIFIER@4..8: spec
+INDEX_OPERATOR@8..11: [i]
+EXPRESSION_LIST@9..10: i
+IDENTIFIER@9..10: i
+LITERAL@15..16: 0
+BIN_EXPR@20..34: spec[n+i] == 1
+INDEXED_IDENTIFIER@20..29: spec[n+i]
+IDENTIFIER@20..24: spec
+INDEX_OPERATOR@24..29: [n+i]
+EXPRESSION_LIST@25..28: n+i
+BIN_EXPR@25..28: n+i
+IDENTIFIER@25..26: n
+IDENTIFIER@27..28: i
+LITERAL@33..34: 1
+BLOCK_EXPR@36..49: {
   x q[i];
 }
-EXPR_STMT@79..86: x q[i];
-GATE_CALL_EXPR@79..85: x q[i]
-IDENTIFIER@79..80: x
-QUBIT_LIST@81..85: q[i]
-INDEXED_IDENTIFIER@81..85: q[i]
-IDENTIFIER@81..82: q
-INDEX_OPERATOR@82..85: [i]
-EXPRESSION_LIST@83..84: i
-IDENTIFIER@83..84: i
+EXPR_STMT@40..47: x q[i];
+GATE_CALL_EXPR@40..46: x q[i]
+IDENTIFIER@40..41: x
+QUBIT_LIST@42..46: q[i]
+INDEXED_IDENTIFIER@42..46: q[i]
+IDENTIFIER@42..43: q
+INDEX_OPERATOR@43..46: [i]
+EXPRESSION_LIST@44..45: i
+IDENTIFIER@44..45: i

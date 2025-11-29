@@ -5,57 +5,49 @@ expression: lex_snap
 id: tests/snippets/reference/subroutine/extern.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: ok
-// sema: todo
 
 extern test_kern(bit[5], uint[10], float[16], complex[float[64]]) -> float[6];
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: ok" @11..23
-[3] Whitespace "\n" @23..24
-[4] LineComment "// sema: todo" @24..37
-[5] Whitespace "\n\n" @37..39
-[6] Ident "extern" @39..45
-[7] Whitespace " " @45..46
-[8] Ident "test_kern" @46..55
-[9] OpenParen "(" @55..56
-[10] Ident "bit" @56..59
-[11] OpenBracket "[" @59..60
-[12] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "5" @60..61
-[13] CloseBracket "]" @61..62
-[14] Comma "," @62..63
-[15] Whitespace " " @63..64
-[16] Ident "uint" @64..68
-[17] OpenBracket "[" @68..69
-[18] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "10" @69..71
-[19] CloseBracket "]" @71..72
-[20] Comma "," @72..73
-[21] Whitespace " " @73..74
-[22] Ident "float" @74..79
-[23] OpenBracket "[" @79..80
-[24] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @80..82
-[25] CloseBracket "]" @82..83
-[26] Comma "," @83..84
-[27] Whitespace " " @84..85
-[28] Ident "complex" @85..92
-[29] OpenBracket "[" @92..93
-[30] Ident "float" @93..98
-[31] OpenBracket "[" @98..99
-[32] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "64" @99..101
-[33] CloseBracket "]" @101..102
-[34] CloseBracket "]" @102..103
-[35] CloseParen ")" @103..104
-[36] Whitespace " " @104..105
-[37] Minus "-" @105..106
-[38] Gt ">" @106..107
-[39] Whitespace " " @107..108
-[40] Ident "float" @108..113
-[41] OpenBracket "[" @113..114
-[42] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "6" @114..115
-[43] CloseBracket "]" @115..116
-[44] Semi ";" @116..117
-[45] Whitespace "\n" @117..118
+[0] Whitespace "\n" @0..1
+[1] Ident "extern" @1..7
+[2] Whitespace " " @7..8
+[3] Ident "test_kern" @8..17
+[4] OpenParen "(" @17..18
+[5] Ident "bit" @18..21
+[6] OpenBracket "[" @21..22
+[7] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "5" @22..23
+[8] CloseBracket "]" @23..24
+[9] Comma "," @24..25
+[10] Whitespace " " @25..26
+[11] Ident "uint" @26..30
+[12] OpenBracket "[" @30..31
+[13] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "10" @31..33
+[14] CloseBracket "]" @33..34
+[15] Comma "," @34..35
+[16] Whitespace " " @35..36
+[17] Ident "float" @36..41
+[18] OpenBracket "[" @41..42
+[19] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "16" @42..44
+[20] CloseBracket "]" @44..45
+[21] Comma "," @45..46
+[22] Whitespace " " @46..47
+[23] Ident "complex" @47..54
+[24] OpenBracket "[" @54..55
+[25] Ident "float" @55..60
+[26] OpenBracket "[" @60..61
+[27] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "64" @61..63
+[28] CloseBracket "]" @63..64
+[29] CloseBracket "]" @64..65
+[30] CloseParen ")" @65..66
+[31] Whitespace " " @66..67
+[32] Minus "-" @67..68
+[33] Gt ">" @68..69
+[34] Whitespace " " @69..70
+[35] Ident "float" @70..75
+[36] OpenBracket "[" @75..76
+[37] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "6" @76..77
+[38] CloseBracket "]" @77..78
+[39] Semi ";" @78..79
+[40] Whitespace "\n" @79..80

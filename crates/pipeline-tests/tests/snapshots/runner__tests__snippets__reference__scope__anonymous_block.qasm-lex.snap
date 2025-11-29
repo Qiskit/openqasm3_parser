@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/scope/anonymous_block.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: ok
-// sema: panic
 
 {
   int ii = 32;
@@ -15,22 +12,17 @@ expect-lex: Ok
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: ok" @11..23
-[3] Whitespace "\n" @23..24
-[4] LineComment "// sema: panic" @24..38
-[5] Whitespace "\n\n" @38..40
-[6] OpenBrace "{" @40..41
-[7] Whitespace "\n  " @41..44
-[8] Ident "int" @44..47
-[9] Whitespace " " @47..48
-[10] Ident "ii" @48..50
-[11] Whitespace " " @50..51
-[12] Eq "=" @51..52
-[13] Whitespace " " @52..53
-[14] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @53..55
-[15] Semi ";" @55..56
-[16] Whitespace "\n" @56..57
-[17] CloseBrace "}" @57..58
-[18] Whitespace "\n" @58..59
+[0] Whitespace "\n" @0..1
+[1] OpenBrace "{" @1..2
+[2] Whitespace "\n  " @2..5
+[3] Ident "int" @5..8
+[4] Whitespace " " @8..9
+[5] Ident "ii" @9..11
+[6] Whitespace " " @11..12
+[7] Eq "=" @12..13
+[8] Whitespace " " @13..14
+[9] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "32" @14..16
+[10] Semi ";" @16..17
+[11] Whitespace "\n" @17..18
+[12] CloseBrace "}" @18..19
+[13] Whitespace "\n" @19..20

@@ -9,45 +9,42 @@ ok: true
 panicked: false
 errors: 0
 --- ast ---
-SOURCE_FILE@0..134: // lex: ok
-// parse: ok
-// sema: panic
-
+SOURCE_FILE@0..95: 
 bit x = sub_call(10, "01", q1[0], q2);
 int[2] y = extern_call(0.5, 10dt);
 ambiguous_call(pi);
 
-CLASSICAL_DECLARATION_STATEMENT@40..78: bit x = sub_call(10, "01", q1[0], q2);
-SCALAR_TYPE@40..43: bit
-NAME@44..45: x
-CALL_EXPR@48..77: sub_call(10, "01", q1[0], q2)
-IDENTIFIER@48..56: sub_call
-ARG_LIST@56..77: (10, "01", q1[0], q2)
-EXPRESSION_LIST@56..77: (10, "01", q1[0], q2)
-LITERAL@57..59: 10
-LITERAL@61..65: "01"
-INDEXED_IDENTIFIER@67..72: q1[0]
-IDENTIFIER@67..69: q1
-INDEX_OPERATOR@69..72: [0]
-EXPRESSION_LIST@70..71: 0
-LITERAL@70..71: 0
-IDENTIFIER@74..76: q2
-CLASSICAL_DECLARATION_STATEMENT@79..113: int[2] y = extern_call(0.5, 10dt);
-SCALAR_TYPE@79..85: int[2]
-DESIGNATOR@82..85: [2]
-LITERAL@83..84: 2
-NAME@86..87: y
-CALL_EXPR@90..112: extern_call(0.5, 10dt)
-IDENTIFIER@90..101: extern_call
-ARG_LIST@101..112: (0.5, 10dt)
-EXPRESSION_LIST@101..112: (0.5, 10dt)
-LITERAL@102..105: 0.5
-TIMING_LITERAL@107..111: 10dt
-LITERAL@107..109: 10
-IDENTIFIER@109..111: dt
-EXPR_STMT@114..133: ambiguous_call(pi);
-CALL_EXPR@114..132: ambiguous_call(pi)
-IDENTIFIER@114..128: ambiguous_call
-ARG_LIST@128..132: (pi)
-EXPRESSION_LIST@128..132: (pi)
-IDENTIFIER@129..131: pi
+CLASSICAL_DECLARATION_STATEMENT@1..39: bit x = sub_call(10, "01", q1[0], q2);
+SCALAR_TYPE@1..4: bit
+NAME@5..6: x
+CALL_EXPR@9..38: sub_call(10, "01", q1[0], q2)
+IDENTIFIER@9..17: sub_call
+ARG_LIST@17..38: (10, "01", q1[0], q2)
+EXPRESSION_LIST@17..38: (10, "01", q1[0], q2)
+LITERAL@18..20: 10
+LITERAL@22..26: "01"
+INDEXED_IDENTIFIER@28..33: q1[0]
+IDENTIFIER@28..30: q1
+INDEX_OPERATOR@30..33: [0]
+EXPRESSION_LIST@31..32: 0
+LITERAL@31..32: 0
+IDENTIFIER@35..37: q2
+CLASSICAL_DECLARATION_STATEMENT@40..74: int[2] y = extern_call(0.5, 10dt);
+SCALAR_TYPE@40..46: int[2]
+DESIGNATOR@43..46: [2]
+LITERAL@44..45: 2
+NAME@47..48: y
+CALL_EXPR@51..73: extern_call(0.5, 10dt)
+IDENTIFIER@51..62: extern_call
+ARG_LIST@62..73: (0.5, 10dt)
+EXPRESSION_LIST@62..73: (0.5, 10dt)
+LITERAL@63..66: 0.5
+TIMING_LITERAL@68..72: 10dt
+LITERAL@68..70: 10
+IDENTIFIER@70..72: dt
+EXPR_STMT@75..94: ambiguous_call(pi);
+CALL_EXPR@75..93: ambiguous_call(pi)
+IDENTIFIER@75..89: ambiguous_call
+ARG_LIST@89..93: (pi)
+EXPRESSION_LIST@89..93: (pi)
+IDENTIFIER@90..92: pi

@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/invalid/statements/measure.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: diag
-// sema: skip
 
 measure $0, $1;
 a[0:1] = measure $0, $1;
@@ -21,126 +18,121 @@ a = (measure $0) + (measure $1);
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: diag" @11..25
-[3] Whitespace "\n" @25..26
-[4] LineComment "// sema: skip" @26..39
-[5] Whitespace "\n\n" @39..41
-[6] Ident "measure" @41..48
-[7] Whitespace " " @48..49
-[8] HardwareIdent "$0" @49..51
-[9] Comma "," @51..52
-[10] Whitespace " " @52..53
-[11] HardwareIdent "$1" @53..55
-[12] Semi ";" @55..56
-[13] Whitespace "\n" @56..57
-[14] Ident "a" @57..58
-[15] OpenBracket "[" @58..59
-[16] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @59..60
-[17] Colon ":" @60..61
-[18] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @61..62
-[19] CloseBracket "]" @62..63
-[20] Whitespace " " @63..64
-[21] Eq "=" @64..65
-[22] Whitespace " " @65..66
-[23] Ident "measure" @66..73
-[24] Whitespace " " @73..74
-[25] HardwareIdent "$0" @74..76
-[26] Comma "," @76..77
-[27] Whitespace " " @77..78
-[28] HardwareIdent "$1" @78..80
-[29] Semi ";" @80..81
-[30] Whitespace "\n" @81..82
-[31] Ident "a" @82..83
-[32] Whitespace " " @83..84
-[33] Eq "=" @84..85
-[34] Whitespace " " @85..86
-[35] Ident "measure" @86..93
-[36] Whitespace " " @93..94
-[37] HardwareIdent "$0" @94..96
-[38] Whitespace " " @96..97
-[39] Minus "-" @97..98
-[40] Gt ">" @98..99
-[41] Whitespace " " @99..100
-[42] Ident "b" @100..101
-[43] Semi ";" @101..102
-[44] Whitespace "\n" @102..103
-[45] Ident "creg" @103..107
-[46] Whitespace " " @107..108
-[47] Ident "a" @108..109
-[48] OpenBracket "[" @109..110
-[49] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @110..111
-[50] CloseBracket "]" @111..112
-[51] Whitespace " " @112..113
-[52] Eq "=" @113..114
-[53] Whitespace " " @114..115
-[54] Ident "measure" @115..122
-[55] Whitespace " " @122..123
-[56] HardwareIdent "$0" @123..125
-[57] Semi ";" @125..126
-[58] Whitespace "\n" @126..127
-[59] Ident "measure" @127..134
-[60] Whitespace " " @134..135
-[61] HardwareIdent "$0" @135..137
-[62] Whitespace " " @137..138
-[63] Minus "-" @138..139
-[64] Gt ">" @139..140
-[65] Whitespace " " @140..141
-[66] Ident "creg" @141..145
-[67] Whitespace " " @145..146
-[68] Ident "a" @146..147
-[69] OpenBracket "[" @147..148
-[70] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @148..149
-[71] CloseBracket "]" @149..150
-[72] Semi ";" @150..151
-[73] Whitespace "\n" @151..152
-[74] Ident "measure" @152..159
-[75] Whitespace " " @159..160
-[76] HardwareIdent "$0" @160..162
-[77] Whitespace " " @162..163
-[78] Minus "-" @163..164
-[79] Gt ">" @164..165
-[80] Whitespace " " @165..166
-[81] Ident "bit" @166..169
-[82] OpenBracket "[" @169..170
-[83] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @170..171
-[84] CloseBracket "]" @171..172
-[85] Whitespace " " @172..173
-[86] Ident "a" @173..174
-[87] Semi ";" @174..175
-[88] Whitespace "\n" @175..176
-[89] LineComment "// Measure can't be used in sub-expressions." @176..220
-[90] Whitespace "\n" @220..221
-[91] Ident "a" @221..222
-[92] Whitespace " " @222..223
-[93] Eq "=" @223..224
-[94] Whitespace " " @224..225
-[95] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @225..226
-[96] Whitespace " " @226..227
-[97] Star "*" @227..228
-[98] Whitespace " " @228..229
-[99] Ident "measure" @229..236
-[100] Whitespace " " @236..237
-[101] HardwareIdent "$0" @237..239
-[102] Semi ";" @239..240
-[103] Whitespace "\n" @240..241
-[104] Ident "a" @241..242
-[105] Whitespace " " @242..243
-[106] Eq "=" @243..244
-[107] Whitespace " " @244..245
-[108] OpenParen "(" @245..246
-[109] Ident "measure" @246..253
-[110] Whitespace " " @253..254
-[111] HardwareIdent "$0" @254..256
-[112] CloseParen ")" @256..257
-[113] Whitespace " " @257..258
-[114] Plus "+" @258..259
-[115] Whitespace " " @259..260
-[116] OpenParen "(" @260..261
-[117] Ident "measure" @261..268
-[118] Whitespace " " @268..269
-[119] HardwareIdent "$1" @269..271
-[120] CloseParen ")" @271..272
-[121] Semi ";" @272..273
-[122] Whitespace "\n" @273..274
+[0] Whitespace "\n" @0..1
+[1] Ident "measure" @1..8
+[2] Whitespace " " @8..9
+[3] HardwareIdent "$0" @9..11
+[4] Comma "," @11..12
+[5] Whitespace " " @12..13
+[6] HardwareIdent "$1" @13..15
+[7] Semi ";" @15..16
+[8] Whitespace "\n" @16..17
+[9] Ident "a" @17..18
+[10] OpenBracket "[" @18..19
+[11] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @19..20
+[12] Colon ":" @20..21
+[13] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @21..22
+[14] CloseBracket "]" @22..23
+[15] Whitespace " " @23..24
+[16] Eq "=" @24..25
+[17] Whitespace " " @25..26
+[18] Ident "measure" @26..33
+[19] Whitespace " " @33..34
+[20] HardwareIdent "$0" @34..36
+[21] Comma "," @36..37
+[22] Whitespace " " @37..38
+[23] HardwareIdent "$1" @38..40
+[24] Semi ";" @40..41
+[25] Whitespace "\n" @41..42
+[26] Ident "a" @42..43
+[27] Whitespace " " @43..44
+[28] Eq "=" @44..45
+[29] Whitespace " " @45..46
+[30] Ident "measure" @46..53
+[31] Whitespace " " @53..54
+[32] HardwareIdent "$0" @54..56
+[33] Whitespace " " @56..57
+[34] Minus "-" @57..58
+[35] Gt ">" @58..59
+[36] Whitespace " " @59..60
+[37] Ident "b" @60..61
+[38] Semi ";" @61..62
+[39] Whitespace "\n" @62..63
+[40] Ident "creg" @63..67
+[41] Whitespace " " @67..68
+[42] Ident "a" @68..69
+[43] OpenBracket "[" @69..70
+[44] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @70..71
+[45] CloseBracket "]" @71..72
+[46] Whitespace " " @72..73
+[47] Eq "=" @73..74
+[48] Whitespace " " @74..75
+[49] Ident "measure" @75..82
+[50] Whitespace " " @82..83
+[51] HardwareIdent "$0" @83..85
+[52] Semi ";" @85..86
+[53] Whitespace "\n" @86..87
+[54] Ident "measure" @87..94
+[55] Whitespace " " @94..95
+[56] HardwareIdent "$0" @95..97
+[57] Whitespace " " @97..98
+[58] Minus "-" @98..99
+[59] Gt ">" @99..100
+[60] Whitespace " " @100..101
+[61] Ident "creg" @101..105
+[62] Whitespace " " @105..106
+[63] Ident "a" @106..107
+[64] OpenBracket "[" @107..108
+[65] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @108..109
+[66] CloseBracket "]" @109..110
+[67] Semi ";" @110..111
+[68] Whitespace "\n" @111..112
+[69] Ident "measure" @112..119
+[70] Whitespace " " @119..120
+[71] HardwareIdent "$0" @120..122
+[72] Whitespace " " @122..123
+[73] Minus "-" @123..124
+[74] Gt ">" @124..125
+[75] Whitespace " " @125..126
+[76] Ident "bit" @126..129
+[77] OpenBracket "[" @129..130
+[78] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @130..131
+[79] CloseBracket "]" @131..132
+[80] Whitespace " " @132..133
+[81] Ident "a" @133..134
+[82] Semi ";" @134..135
+[83] Whitespace "\n" @135..136
+[84] LineComment "// Measure can't be used in sub-expressions." @136..180
+[85] Whitespace "\n" @180..181
+[86] Ident "a" @181..182
+[87] Whitespace " " @182..183
+[88] Eq "=" @183..184
+[89] Whitespace " " @184..185
+[90] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @185..186
+[91] Whitespace " " @186..187
+[92] Star "*" @187..188
+[93] Whitespace " " @188..189
+[94] Ident "measure" @189..196
+[95] Whitespace " " @196..197
+[96] HardwareIdent "$0" @197..199
+[97] Semi ";" @199..200
+[98] Whitespace "\n" @200..201
+[99] Ident "a" @201..202
+[100] Whitespace " " @202..203
+[101] Eq "=" @203..204
+[102] Whitespace " " @204..205
+[103] OpenParen "(" @205..206
+[104] Ident "measure" @206..213
+[105] Whitespace " " @213..214
+[106] HardwareIdent "$0" @214..216
+[107] CloseParen ")" @216..217
+[108] Whitespace " " @217..218
+[109] Plus "+" @218..219
+[110] Whitespace " " @219..220
+[111] OpenParen "(" @220..221
+[112] Ident "measure" @221..228
+[113] Whitespace " " @228..229
+[114] HardwareIdent "$1" @229..231
+[115] CloseParen ")" @231..232
+[116] Semi ";" @232..233
+[117] Whitespace "\n" @233..234

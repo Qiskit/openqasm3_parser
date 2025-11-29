@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/expression/binary_expr.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: ok
-// sema: ok
 
 int x = 0;
 int y = 1;
@@ -18,46 +15,41 @@ x << y;
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: ok" @11..23
-[3] Whitespace "\n" @23..24
-[4] LineComment "// sema: ok" @24..35
-[5] Whitespace "\n\n" @35..37
-[6] Ident "int" @37..40
-[7] Whitespace " " @40..41
-[8] Ident "x" @41..42
-[9] Whitespace " " @42..43
-[10] Eq "=" @43..44
-[11] Whitespace " " @44..45
-[12] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @45..46
-[13] Semi ";" @46..47
-[14] Whitespace "\n" @47..48
-[15] Ident "int" @48..51
-[16] Whitespace " " @51..52
-[17] Ident "y" @52..53
-[18] Whitespace " " @53..54
-[19] Eq "=" @54..55
-[20] Whitespace " " @55..56
-[21] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @56..57
-[22] Semi ";" @57..58
-[23] Whitespace "\n\n" @58..60
-[24] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @60..61
-[25] Plus "+" @61..62
-[26] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @62..63
-[27] Semi ";" @63..64
-[28] Whitespace "\n" @64..65
-[29] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @65..66
-[30] Star "*" @66..67
-[31] Star "*" @67..68
-[32] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @68..69
-[33] Semi ";" @69..70
-[34] Whitespace "\n" @70..71
-[35] Ident "x" @71..72
-[36] Whitespace " " @72..73
-[37] Lt "<" @73..74
-[38] Lt "<" @74..75
-[39] Whitespace " " @75..76
-[40] Ident "y" @76..77
-[41] Semi ";" @77..78
-[42] Whitespace "\n" @78..79
+[0] Whitespace "\n" @0..1
+[1] Ident "int" @1..4
+[2] Whitespace " " @4..5
+[3] Ident "x" @5..6
+[4] Whitespace " " @6..7
+[5] Eq "=" @7..8
+[6] Whitespace " " @8..9
+[7] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @9..10
+[8] Semi ";" @10..11
+[9] Whitespace "\n" @11..12
+[10] Ident "int" @12..15
+[11] Whitespace " " @15..16
+[12] Ident "y" @16..17
+[13] Whitespace " " @17..18
+[14] Eq "=" @18..19
+[15] Whitespace " " @19..20
+[16] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @20..21
+[17] Semi ";" @21..22
+[18] Whitespace "\n\n" @22..24
+[19] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @24..25
+[20] Plus "+" @25..26
+[21] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @26..27
+[22] Semi ";" @27..28
+[23] Whitespace "\n" @28..29
+[24] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @29..30
+[25] Star "*" @30..31
+[26] Star "*" @31..32
+[27] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @32..33
+[28] Semi ";" @33..34
+[29] Whitespace "\n" @34..35
+[30] Ident "x" @35..36
+[31] Whitespace " " @36..37
+[32] Lt "<" @37..38
+[33] Lt "<" @38..39
+[34] Whitespace " " @39..40
+[35] Ident "y" @40..41
+[36] Semi ";" @41..42
+[37] Whitespace "\n" @42..43

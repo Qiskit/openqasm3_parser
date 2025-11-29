@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/gate/quantum_gate.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: ok
-// sema: panic
 
 include "stdlib.qasm";
 
@@ -21,60 +18,55 @@ gate test_gate(theta) a, b {
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: ok" @11..23
-[3] Whitespace "\n" @23..24
-[4] LineComment "// sema: panic" @24..38
-[5] Whitespace "\n\n" @38..40
-[6] Ident "include" @40..47
-[7] Whitespace " " @47..48
-[8] Literal { kind: Str { terminated: true }, suffix_start: 13 } ""stdlib.qasm"" @48..61
-[9] Semi ";" @61..62
-[10] Whitespace "\n\n" @62..64
-[11] Ident "gate" @64..68
-[12] Whitespace " " @68..69
-[13] Ident "test_gate" @69..78
-[14] OpenParen "(" @78..79
-[15] Ident "theta" @79..84
-[16] CloseParen ")" @84..85
-[17] Whitespace " " @85..86
-[18] Ident "a" @86..87
-[19] Comma "," @87..88
-[20] Whitespace " " @88..89
-[21] Ident "b" @89..90
-[22] Whitespace " " @90..91
-[23] OpenBrace "{" @91..92
-[24] Whitespace "\n  " @92..95
-[25] Ident "reset" @95..100
-[26] Whitespace " " @100..101
-[27] Ident "a" @101..102
-[28] Semi ";" @102..103
-[29] Whitespace "\n  " @103..106
-[30] Ident "barrier" @106..113
-[31] Whitespace " " @113..114
-[32] Ident "b" @114..115
-[33] Semi ";" @115..116
-[34] Whitespace "\n  " @116..119
-[35] Ident "gphase" @119..125
-[36] OpenParen "(" @125..126
-[37] Minus "-" @126..127
-[38] Ident "theta" @127..132
-[39] Slash "/" @132..133
-[40] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @133..134
-[41] CloseParen ")" @134..135
-[42] Semi ";" @135..136
-[43] Whitespace "\n  " @136..139
-[44] Ident "CX" @139..141
-[45] Whitespace " " @141..142
-[46] Ident "a" @142..143
-[47] Comma "," @143..144
-[48] Whitespace " " @144..145
-[49] Ident "b" @145..146
-[50] Semi ";" @146..147
-[51] Whitespace "\n  " @147..150
-[52] Ident "barrier" @150..157
-[53] Semi ";" @157..158
-[54] Whitespace "\n" @158..159
-[55] CloseBrace "}" @159..160
-[56] Whitespace "\n" @160..161
+[0] Whitespace "\n" @0..1
+[1] Ident "include" @1..8
+[2] Whitespace " " @8..9
+[3] Literal { kind: Str { terminated: true }, suffix_start: 13 } ""stdlib.qasm"" @9..22
+[4] Semi ";" @22..23
+[5] Whitespace "\n\n" @23..25
+[6] Ident "gate" @25..29
+[7] Whitespace " " @29..30
+[8] Ident "test_gate" @30..39
+[9] OpenParen "(" @39..40
+[10] Ident "theta" @40..45
+[11] CloseParen ")" @45..46
+[12] Whitespace " " @46..47
+[13] Ident "a" @47..48
+[14] Comma "," @48..49
+[15] Whitespace " " @49..50
+[16] Ident "b" @50..51
+[17] Whitespace " " @51..52
+[18] OpenBrace "{" @52..53
+[19] Whitespace "\n  " @53..56
+[20] Ident "reset" @56..61
+[21] Whitespace " " @61..62
+[22] Ident "a" @62..63
+[23] Semi ";" @63..64
+[24] Whitespace "\n  " @64..67
+[25] Ident "barrier" @67..74
+[26] Whitespace " " @74..75
+[27] Ident "b" @75..76
+[28] Semi ";" @76..77
+[29] Whitespace "\n  " @77..80
+[30] Ident "gphase" @80..86
+[31] OpenParen "(" @86..87
+[32] Minus "-" @87..88
+[33] Ident "theta" @88..93
+[34] Slash "/" @93..94
+[35] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @94..95
+[36] CloseParen ")" @95..96
+[37] Semi ";" @96..97
+[38] Whitespace "\n  " @97..100
+[39] Ident "CX" @100..102
+[40] Whitespace " " @102..103
+[41] Ident "a" @103..104
+[42] Comma "," @104..105
+[43] Whitespace " " @105..106
+[44] Ident "b" @106..107
+[45] Semi ";" @107..108
+[46] Whitespace "\n  " @108..111
+[47] Ident "barrier" @111..118
+[48] Semi ";" @118..119
+[49] Whitespace "\n" @119..120
+[50] CloseBrace "}" @120..121
+[51] Whitespace "\n" @121..122

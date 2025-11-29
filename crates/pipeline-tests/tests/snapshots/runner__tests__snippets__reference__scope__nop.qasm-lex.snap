@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/scope/nop.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: todo
-// sema: skip
 
 nop;
 nop $0;
@@ -22,63 +19,58 @@ gate x q {
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: todo" @11..25
-[3] Whitespace "\n" @25..26
-[4] LineComment "// sema: skip" @26..39
-[5] Whitespace "\n\n" @39..41
-[6] Ident "nop" @41..44
-[7] Semi ";" @44..45
-[8] Whitespace "\n" @45..46
-[9] Ident "nop" @46..49
-[10] Whitespace " " @49..50
-[11] HardwareIdent "$0" @50..52
-[12] Semi ";" @52..53
-[13] Whitespace "\n" @53..54
-[14] Ident "nop" @54..57
-[15] Whitespace " " @57..58
-[16] HardwareIdent "$1" @58..60
-[17] Comma "," @60..61
-[18] Whitespace " " @61..62
-[19] HardwareIdent "$2" @62..64
-[20] Semi ";" @64..65
-[21] Whitespace "\n" @65..66
-[22] Ident "nop" @66..69
-[23] Whitespace " " @69..70
-[24] Ident "q" @70..71
-[25] Comma "," @71..72
-[26] Whitespace " " @72..73
-[27] Ident "q" @73..74
-[28] OpenBracket "[" @74..75
-[29] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @75..76
-[30] CloseBracket "]" @76..77
-[31] Comma "," @77..78
-[32] Semi ";" @78..79
-[33] Whitespace "\n" @79..80
-[34] Ident "box" @80..83
-[35] Whitespace " " @83..84
-[36] OpenBrace "{" @84..85
-[37] Whitespace "\n  " @85..88
-[38] Ident "nop" @88..91
-[39] Whitespace " " @91..92
-[40] HardwareIdent "$0" @92..94
-[41] Semi ";" @94..95
-[42] Whitespace "\n" @95..96
-[43] CloseBrace "}" @96..97
-[44] Whitespace "\n" @97..98
-[45] Ident "gate" @98..102
-[46] Whitespace " " @102..103
-[47] Ident "x" @103..104
-[48] Whitespace " " @104..105
-[49] Ident "q" @105..106
-[50] Whitespace " " @106..107
-[51] OpenBrace "{" @107..108
-[52] Whitespace "\n  " @108..111
-[53] Ident "nop" @111..114
-[54] Whitespace " " @114..115
-[55] Ident "q" @115..116
-[56] Semi ";" @116..117
-[57] Whitespace "\n" @117..118
-[58] CloseBrace "}" @118..119
-[59] Whitespace "\n" @119..120
+[0] Whitespace "\n" @0..1
+[1] Ident "nop" @1..4
+[2] Semi ";" @4..5
+[3] Whitespace "\n" @5..6
+[4] Ident "nop" @6..9
+[5] Whitespace " " @9..10
+[6] HardwareIdent "$0" @10..12
+[7] Semi ";" @12..13
+[8] Whitespace "\n" @13..14
+[9] Ident "nop" @14..17
+[10] Whitespace " " @17..18
+[11] HardwareIdent "$1" @18..20
+[12] Comma "," @20..21
+[13] Whitespace " " @21..22
+[14] HardwareIdent "$2" @22..24
+[15] Semi ";" @24..25
+[16] Whitespace "\n" @25..26
+[17] Ident "nop" @26..29
+[18] Whitespace " " @29..30
+[19] Ident "q" @30..31
+[20] Comma "," @31..32
+[21] Whitespace " " @32..33
+[22] Ident "q" @33..34
+[23] OpenBracket "[" @34..35
+[24] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @35..36
+[25] CloseBracket "]" @36..37
+[26] Comma "," @37..38
+[27] Semi ";" @38..39
+[28] Whitespace "\n" @39..40
+[29] Ident "box" @40..43
+[30] Whitespace " " @43..44
+[31] OpenBrace "{" @44..45
+[32] Whitespace "\n  " @45..48
+[33] Ident "nop" @48..51
+[34] Whitespace " " @51..52
+[35] HardwareIdent "$0" @52..54
+[36] Semi ";" @54..55
+[37] Whitespace "\n" @55..56
+[38] CloseBrace "}" @56..57
+[39] Whitespace "\n" @57..58
+[40] Ident "gate" @58..62
+[41] Whitespace " " @62..63
+[42] Ident "x" @63..64
+[43] Whitespace " " @64..65
+[44] Ident "q" @65..66
+[45] Whitespace " " @66..67
+[46] OpenBrace "{" @67..68
+[47] Whitespace "\n  " @68..71
+[48] Ident "nop" @71..74
+[49] Whitespace " " @74..75
+[50] Ident "q" @75..76
+[51] Semi ";" @76..77
+[52] Whitespace "\n" @77..78
+[53] CloseBrace "}" @78..79
+[54] Whitespace "\n" @79..80

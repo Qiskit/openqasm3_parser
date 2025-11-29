@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/assignment/alias.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: ok
-// sema: todo
 
 bit[2] a;
 creg b[2];
@@ -22,141 +19,136 @@ let e = d[1];
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: ok" @11..23
-[3] Whitespace "\n" @23..24
-[4] LineComment "// sema: todo" @24..37
-[5] Whitespace "\n\n" @37..39
-[6] Ident "bit" @39..42
-[7] OpenBracket "[" @42..43
-[8] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @43..44
-[9] CloseBracket "]" @44..45
-[10] Whitespace " " @45..46
-[11] Ident "a" @46..47
-[12] Semi ";" @47..48
-[13] Whitespace "\n" @48..49
-[14] Ident "creg" @49..53
-[15] Whitespace " " @53..54
-[16] Ident "b" @54..55
-[17] OpenBracket "[" @55..56
-[18] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @56..57
-[19] CloseBracket "]" @57..58
-[20] Semi ";" @58..59
-[21] Whitespace "\n" @59..60
-[22] Ident "qubit" @60..65
-[23] OpenBracket "[" @65..66
-[24] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "5" @66..67
-[25] CloseBracket "]" @67..68
-[26] Whitespace " " @68..69
-[27] Ident "q1" @69..71
-[28] Semi ";" @71..72
-[29] Whitespace "\n" @72..73
-[30] Ident "qreg" @73..77
-[31] Whitespace " " @77..78
-[32] Ident "q2" @78..80
-[33] OpenBracket "[" @80..81
-[34] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "7" @81..82
-[35] CloseBracket "]" @82..83
-[36] Semi ";" @83..84
-[37] Whitespace "\n" @84..85
-[38] Ident "let" @85..88
-[39] Whitespace " " @88..89
-[40] Ident "q" @89..90
-[41] Whitespace " " @90..91
-[42] Eq "=" @91..92
-[43] Whitespace " " @92..93
-[44] Ident "q1" @93..95
-[45] Whitespace " " @95..96
-[46] Plus "+" @96..97
-[47] Plus "+" @97..98
-[48] Whitespace " " @98..99
-[49] Ident "q2" @99..101
-[50] Semi ";" @101..102
-[51] Whitespace "\n" @102..103
-[52] Ident "let" @103..106
-[53] Whitespace " " @106..107
-[54] Ident "c" @107..108
-[55] Whitespace " " @108..109
-[56] Eq "=" @109..110
-[57] Whitespace " " @110..111
-[58] Ident "a" @111..112
-[59] OpenBracket "[" @112..113
-[60] OpenBrace "{" @113..114
-[61] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @114..115
-[62] Comma "," @115..116
-[63] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @116..117
-[64] CloseBrace "}" @117..118
-[65] CloseBracket "]" @118..119
-[66] Whitespace " " @119..120
-[67] Plus "+" @120..121
-[68] Plus "+" @121..122
-[69] Whitespace " " @122..123
-[70] Ident "b" @123..124
-[71] OpenBracket "[" @124..125
-[72] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @125..126
-[73] Colon ":" @126..127
-[74] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @127..128
-[75] CloseBracket "]" @128..129
-[76] Semi ";" @129..130
-[77] Whitespace "\n" @130..131
-[78] Ident "let" @131..134
-[79] Whitespace " " @134..135
-[80] Ident "qq" @135..137
-[81] Whitespace " " @137..138
-[82] Eq "=" @138..139
-[83] Whitespace " " @139..140
-[84] Ident "q1" @140..142
-[85] OpenBracket "[" @142..143
-[86] OpenBrace "{" @143..144
-[87] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @144..145
-[88] Comma "," @145..146
-[89] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @146..147
-[90] Comma "," @147..148
-[91] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @148..149
-[92] CloseBrace "}" @149..150
-[93] CloseBracket "]" @150..151
-[94] Semi ";" @151..152
-[95] Whitespace "\n" @152..153
-[96] Ident "let" @153..156
-[97] Whitespace " " @156..157
-[98] Ident "qqq" @157..160
-[99] Whitespace " " @160..161
-[100] Eq "=" @161..162
-[101] Whitespace " " @162..163
-[102] Ident "qq" @163..165
-[103] Whitespace " " @165..166
-[104] Plus "+" @166..167
-[105] Plus "+" @167..168
-[106] Whitespace " " @168..169
-[107] Ident "q2" @169..171
-[108] OpenBracket "[" @171..172
-[109] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @172..173
-[110] Colon ":" @173..174
-[111] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @174..175
-[112] Colon ":" @175..176
-[113] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "6" @176..177
-[114] CloseBracket "]" @177..178
-[115] Semi ";" @178..179
-[116] Whitespace "\n" @179..180
-[117] Ident "let" @180..183
-[118] Whitespace " " @183..184
-[119] Ident "d" @184..185
-[120] Whitespace " " @185..186
-[121] Eq "=" @186..187
-[122] Whitespace " " @187..188
-[123] Ident "c" @188..189
-[124] Semi ";" @189..190
-[125] Whitespace "\n" @190..191
-[126] Ident "let" @191..194
-[127] Whitespace " " @194..195
-[128] Ident "e" @195..196
-[129] Whitespace " " @196..197
-[130] Eq "=" @197..198
-[131] Whitespace " " @198..199
-[132] Ident "d" @199..200
-[133] OpenBracket "[" @200..201
-[134] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @201..202
-[135] CloseBracket "]" @202..203
-[136] Semi ";" @203..204
-[137] Whitespace "\n" @204..205
+[0] Whitespace "\n" @0..1
+[1] Ident "bit" @1..4
+[2] OpenBracket "[" @4..5
+[3] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @5..6
+[4] CloseBracket "]" @6..7
+[5] Whitespace " " @7..8
+[6] Ident "a" @8..9
+[7] Semi ";" @9..10
+[8] Whitespace "\n" @10..11
+[9] Ident "creg" @11..15
+[10] Whitespace " " @15..16
+[11] Ident "b" @16..17
+[12] OpenBracket "[" @17..18
+[13] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @18..19
+[14] CloseBracket "]" @19..20
+[15] Semi ";" @20..21
+[16] Whitespace "\n" @21..22
+[17] Ident "qubit" @22..27
+[18] OpenBracket "[" @27..28
+[19] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "5" @28..29
+[20] CloseBracket "]" @29..30
+[21] Whitespace " " @30..31
+[22] Ident "q1" @31..33
+[23] Semi ";" @33..34
+[24] Whitespace "\n" @34..35
+[25] Ident "qreg" @35..39
+[26] Whitespace " " @39..40
+[27] Ident "q2" @40..42
+[28] OpenBracket "[" @42..43
+[29] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "7" @43..44
+[30] CloseBracket "]" @44..45
+[31] Semi ";" @45..46
+[32] Whitespace "\n" @46..47
+[33] Ident "let" @47..50
+[34] Whitespace " " @50..51
+[35] Ident "q" @51..52
+[36] Whitespace " " @52..53
+[37] Eq "=" @53..54
+[38] Whitespace " " @54..55
+[39] Ident "q1" @55..57
+[40] Whitespace " " @57..58
+[41] Plus "+" @58..59
+[42] Plus "+" @59..60
+[43] Whitespace " " @60..61
+[44] Ident "q2" @61..63
+[45] Semi ";" @63..64
+[46] Whitespace "\n" @64..65
+[47] Ident "let" @65..68
+[48] Whitespace " " @68..69
+[49] Ident "c" @69..70
+[50] Whitespace " " @70..71
+[51] Eq "=" @71..72
+[52] Whitespace " " @72..73
+[53] Ident "a" @73..74
+[54] OpenBracket "[" @74..75
+[55] OpenBrace "{" @75..76
+[56] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @76..77
+[57] Comma "," @77..78
+[58] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @78..79
+[59] CloseBrace "}" @79..80
+[60] CloseBracket "]" @80..81
+[61] Whitespace " " @81..82
+[62] Plus "+" @82..83
+[63] Plus "+" @83..84
+[64] Whitespace " " @84..85
+[65] Ident "b" @85..86
+[66] OpenBracket "[" @86..87
+[67] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @87..88
+[68] Colon ":" @88..89
+[69] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @89..90
+[70] CloseBracket "]" @90..91
+[71] Semi ";" @91..92
+[72] Whitespace "\n" @92..93
+[73] Ident "let" @93..96
+[74] Whitespace " " @96..97
+[75] Ident "qq" @97..99
+[76] Whitespace " " @99..100
+[77] Eq "=" @100..101
+[78] Whitespace " " @101..102
+[79] Ident "q1" @102..104
+[80] OpenBracket "[" @104..105
+[81] OpenBrace "{" @105..106
+[82] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @106..107
+[83] Comma "," @107..108
+[84] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @108..109
+[85] Comma "," @109..110
+[86] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "4" @110..111
+[87] CloseBrace "}" @111..112
+[88] CloseBracket "]" @112..113
+[89] Semi ";" @113..114
+[90] Whitespace "\n" @114..115
+[91] Ident "let" @115..118
+[92] Whitespace " " @118..119
+[93] Ident "qqq" @119..122
+[94] Whitespace " " @122..123
+[95] Eq "=" @123..124
+[96] Whitespace " " @124..125
+[97] Ident "qq" @125..127
+[98] Whitespace " " @127..128
+[99] Plus "+" @128..129
+[100] Plus "+" @129..130
+[101] Whitespace " " @130..131
+[102] Ident "q2" @131..133
+[103] OpenBracket "[" @133..134
+[104] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @134..135
+[105] Colon ":" @135..136
+[106] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @136..137
+[107] Colon ":" @137..138
+[108] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "6" @138..139
+[109] CloseBracket "]" @139..140
+[110] Semi ";" @140..141
+[111] Whitespace "\n" @141..142
+[112] Ident "let" @142..145
+[113] Whitespace " " @145..146
+[114] Ident "d" @146..147
+[115] Whitespace " " @147..148
+[116] Eq "=" @148..149
+[117] Whitespace " " @149..150
+[118] Ident "c" @150..151
+[119] Semi ";" @151..152
+[120] Whitespace "\n" @152..153
+[121] Ident "let" @153..156
+[122] Whitespace " " @156..157
+[123] Ident "e" @157..158
+[124] Whitespace " " @158..159
+[125] Eq "=" @159..160
+[126] Whitespace " " @160..161
+[127] Ident "d" @161..162
+[128] OpenBracket "[" @162..163
+[129] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @163..164
+[130] CloseBracket "]" @164..165
+[131] Semi ";" @165..166
+[132] Whitespace "\n" @166..167

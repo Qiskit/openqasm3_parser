@@ -9,12 +9,9 @@ ok: true
 panicked: false
 errors: 0
 --- ast ---
-SOURCE_FILE@0..87: // lex: ok
-// parse: ok
-// sema: ok
-
+SOURCE_FILE@0..51: 
 pragma IO_BIND[2:3]
 #pragma  __directive_info__ 0
 
-PRAGMA_STATEMENT@37..56: pragma IO_BIND[2:3]
-PRAGMA_STATEMENT@57..86: #pragma  __directive_info__ 0
+PRAGMA_STATEMENT@1..20: pragma IO_BIND[2:3]
+PRAGMA_STATEMENT@21..50: #pragma  __directive_info__ 0

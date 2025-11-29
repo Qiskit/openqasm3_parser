@@ -9,34 +9,31 @@ ok: false
 panicked: false
 errors: 7
 --- ast ---
-SOURCE_FILE@0..146: // lex: ok
-// parse: diag
-// sema: skip
-
+SOURCE_FILE@0..106: 
 defcalgrammar "openpulse" defcalgrammar "openpulse";
 defcalgrammar 3;
 defcal x $0 -> int[8] -> int[8] {}
 
-DEF_CAL_GRAMMAR@41..66: defcalgrammar "openpulse"
-FILE_PATH@55..66: "openpulse"
-DEF_CAL_GRAMMAR@67..93: defcalgrammar "openpulse";
-FILE_PATH@81..92: "openpulse"
-DEF_CAL_GRAMMAR@94..110: defcalgrammar 3;
-ERROR@108..109: 3
-DEF_CAL@111..132: defcal x $0 -> int[8]
-NAME@118..119: x
-QUBIT_LIST@120..122: $0
-HARDWARE_QUBIT@120..122: $0
-RETURN_SIGNATURE@123..132: -> int[8]
-SCALAR_TYPE@126..132: int[8]
-DESIGNATOR@129..132: [8]
-LITERAL@130..131: 8
-EXPR_STMT@133..135: ->
-PREFIX_EXPR@133..135: ->
-ERROR@134..135: >
-SCALAR_TYPE@136..142: int[8]
-DESIGNATOR@139..142: [8]
-LITERAL@140..141: 8
-NAME@143..143: 
-EXPR_STMT@143..145: {}
-BLOCK_EXPR@143..145: {}
+DEF_CAL_GRAMMAR@1..26: defcalgrammar "openpulse"
+FILE_PATH@15..26: "openpulse"
+DEF_CAL_GRAMMAR@27..53: defcalgrammar "openpulse";
+FILE_PATH@41..52: "openpulse"
+DEF_CAL_GRAMMAR@54..70: defcalgrammar 3;
+ERROR@68..69: 3
+DEF_CAL@71..92: defcal x $0 -> int[8]
+NAME@78..79: x
+QUBIT_LIST@80..82: $0
+HARDWARE_QUBIT@80..82: $0
+RETURN_SIGNATURE@83..92: -> int[8]
+SCALAR_TYPE@86..92: int[8]
+DESIGNATOR@89..92: [8]
+LITERAL@90..91: 8
+EXPR_STMT@93..95: ->
+PREFIX_EXPR@93..95: ->
+ERROR@94..95: >
+SCALAR_TYPE@96..102: int[8]
+DESIGNATOR@99..102: [8]
+LITERAL@100..101: 8
+NAME@103..103: 
+EXPR_STMT@103..105: {}
+BLOCK_EXPR@103..105: {}

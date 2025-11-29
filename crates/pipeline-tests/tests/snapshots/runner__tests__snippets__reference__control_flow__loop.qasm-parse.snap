@@ -9,48 +9,45 @@ ok: true
 panicked: false
 errors: 0
 --- ast ---
-SOURCE_FILE@0..135: // lex: ok
-// parse: ok
-// sema: panic
-
+SOURCE_FILE@0..96: 
 while (i < 10) {
   for uint j in {1, 4, 6} reset q[j];
   if (i == 8) break;
   else continue;
 }
 
-WHILE_STMT@40..134: while (i < 10) {
+WHILE_STMT@1..95: while (i < 10) {
   for uint j in {1, 4, 6} reset q[j];
   if (i == 8) break;
   else continue;
 }
-BIN_EXPR@47..53: i < 10
-IDENTIFIER@47..48: i
-LITERAL@51..53: 10
-BLOCK_EXPR@55..134: {
+BIN_EXPR@8..14: i < 10
+IDENTIFIER@8..9: i
+LITERAL@12..14: 10
+BLOCK_EXPR@16..95: {
   for uint j in {1, 4, 6} reset q[j];
   if (i == 8) break;
   else continue;
 }
-FOR_STMT@59..94: for uint j in {1, 4, 6} reset q[j];
-SCALAR_TYPE@63..67: uint
-NAME@68..69: j
-FOR_ITERABLE@73..82: {1, 4, 6}
-SET_EXPRESSION@73..82: {1, 4, 6}
-EXPRESSION_LIST@74..81: 1, 4, 6
-LITERAL@74..75: 1
-LITERAL@77..78: 4
-LITERAL@80..81: 6
-RESET@83..94: reset q[j];
-INDEXED_IDENTIFIER@89..93: q[j]
-IDENTIFIER@89..90: q
-INDEX_OPERATOR@90..93: [j]
-EXPRESSION_LIST@91..92: j
-IDENTIFIER@91..92: j
-IF_STMT@97..132: if (i == 8) break;
+FOR_STMT@20..55: for uint j in {1, 4, 6} reset q[j];
+SCALAR_TYPE@24..28: uint
+NAME@29..30: j
+FOR_ITERABLE@34..43: {1, 4, 6}
+SET_EXPRESSION@34..43: {1, 4, 6}
+EXPRESSION_LIST@35..42: 1, 4, 6
+LITERAL@35..36: 1
+LITERAL@38..39: 4
+LITERAL@41..42: 6
+RESET@44..55: reset q[j];
+INDEXED_IDENTIFIER@50..54: q[j]
+IDENTIFIER@50..51: q
+INDEX_OPERATOR@51..54: [j]
+EXPRESSION_LIST@52..53: j
+IDENTIFIER@52..53: j
+IF_STMT@58..93: if (i == 8) break;
   else continue;
-BIN_EXPR@101..107: i == 8
-IDENTIFIER@101..102: i
-LITERAL@106..107: 8
-BREAK_STMT@109..115: break;
-CONTINUE_STMT@123..132: continue;
+BIN_EXPR@62..68: i == 8
+IDENTIFIER@62..63: i
+LITERAL@67..68: 8
+BREAK_STMT@70..76: break;
+CONTINUE_STMT@84..93: continue;

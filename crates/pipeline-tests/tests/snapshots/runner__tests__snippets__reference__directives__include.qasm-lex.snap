@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/directives/include.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: panic
-// sema: skip
 
 include 'foo2';
 include "foo";
@@ -15,24 +12,19 @@ include "001";
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: panic" @11..26
-[3] Whitespace "\n" @26..27
-[4] LineComment "// sema: skip" @27..40
-[5] Whitespace "\n\n" @40..42
-[6] Ident "include" @42..49
-[7] Whitespace " " @49..50
-[8] Literal { kind: Str { terminated: true }, suffix_start: 6 } "'foo2'" @50..56
-[9] Semi ";" @56..57
-[10] Whitespace "\n" @57..58
-[11] Ident "include" @58..65
-[12] Whitespace " " @65..66
-[13] Literal { kind: Str { terminated: true }, suffix_start: 5 } ""foo"" @66..71
-[14] Semi ";" @71..72
-[15] Whitespace "\n" @72..73
-[16] Ident "include" @73..80
-[17] Whitespace " " @80..81
-[18] Literal { kind: BitStr { terminated: true, consecutive_underscores: false }, suffix_start: 5 } ""001"" @81..86
-[19] Semi ";" @86..87
-[20] Whitespace "\n" @87..88
+[0] Whitespace "\n" @0..1
+[1] Ident "include" @1..8
+[2] Whitespace " " @8..9
+[3] Literal { kind: Str { terminated: true }, suffix_start: 6 } "'foo2'" @9..15
+[4] Semi ";" @15..16
+[5] Whitespace "\n" @16..17
+[6] Ident "include" @17..24
+[7] Whitespace " " @24..25
+[8] Literal { kind: Str { terminated: true }, suffix_start: 5 } ""foo"" @25..30
+[9] Semi ";" @30..31
+[10] Whitespace "\n" @31..32
+[11] Ident "include" @32..39
+[12] Whitespace " " @39..40
+[13] Literal { kind: BitStr { terminated: true, consecutive_underscores: false }, suffix_start: 5 } ""001"" @40..45
+[14] Semi ";" @45..46
+[15] Whitespace "\n" @46..47

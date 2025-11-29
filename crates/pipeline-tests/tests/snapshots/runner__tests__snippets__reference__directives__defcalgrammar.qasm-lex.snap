@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/directives/defcalgrammar.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: todo
-// sema: skip
 
 defcalgrammar 'openpulse';
 defcalgrammar "openpulse";
@@ -15,24 +12,19 @@ defcalgrammar "001";
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: todo" @11..25
-[3] Whitespace "\n" @25..26
-[4] LineComment "// sema: skip" @26..39
-[5] Whitespace "\n\n" @39..41
-[6] Ident "defcalgrammar" @41..54
-[7] Whitespace " " @54..55
-[8] Literal { kind: Str { terminated: true }, suffix_start: 11 } "'openpulse'" @55..66
-[9] Semi ";" @66..67
-[10] Whitespace "\n" @67..68
-[11] Ident "defcalgrammar" @68..81
-[12] Whitespace " " @81..82
-[13] Literal { kind: Str { terminated: true }, suffix_start: 11 } ""openpulse"" @82..93
-[14] Semi ";" @93..94
-[15] Whitespace "\n" @94..95
-[16] Ident "defcalgrammar" @95..108
-[17] Whitespace " " @108..109
-[18] Literal { kind: BitStr { terminated: true, consecutive_underscores: false }, suffix_start: 5 } ""001"" @109..114
-[19] Semi ";" @114..115
-[20] Whitespace "\n" @115..116
+[0] Whitespace "\n" @0..1
+[1] Ident "defcalgrammar" @1..14
+[2] Whitespace " " @14..15
+[3] Literal { kind: Str { terminated: true }, suffix_start: 11 } "'openpulse'" @15..26
+[4] Semi ";" @26..27
+[5] Whitespace "\n" @27..28
+[6] Ident "defcalgrammar" @28..41
+[7] Whitespace " " @41..42
+[8] Literal { kind: Str { terminated: true }, suffix_start: 11 } ""openpulse"" @42..53
+[9] Semi ";" @53..54
+[10] Whitespace "\n" @54..55
+[11] Ident "defcalgrammar" @55..68
+[12] Whitespace " " @68..69
+[13] Literal { kind: BitStr { terminated: true, consecutive_underscores: false }, suffix_start: 5 } ""001"" @69..74
+[14] Semi ";" @74..75
+[15] Whitespace "\n" @75..76

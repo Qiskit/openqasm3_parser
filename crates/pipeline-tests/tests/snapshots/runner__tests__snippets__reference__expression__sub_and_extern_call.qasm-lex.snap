@@ -5,9 +5,6 @@ expression: lex_snap
 id: tests/snippets/reference/expression/sub_and_extern_call.qasm
 expect-lex: Ok
 --- source ---
-// lex: ok
-// parse: ok
-// sema: panic
 
 bit x = sub_call(10, "01", q1[0], q2);
 int[2] y = extern_call(0.5, 10dt);
@@ -15,58 +12,53 @@ ambiguous_call(pi);
 --- lexer ---
 ok: true
 errors: 0
-[0] LineComment "// lex: ok" @0..10
-[1] Whitespace "\n" @10..11
-[2] LineComment "// parse: ok" @11..23
-[3] Whitespace "\n" @23..24
-[4] LineComment "// sema: panic" @24..38
-[5] Whitespace "\n\n" @38..40
-[6] Ident "bit" @40..43
-[7] Whitespace " " @43..44
-[8] Ident "x" @44..45
-[9] Whitespace " " @45..46
-[10] Eq "=" @46..47
-[11] Whitespace " " @47..48
-[12] Ident "sub_call" @48..56
-[13] OpenParen "(" @56..57
-[14] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "10" @57..59
-[15] Comma "," @59..60
-[16] Whitespace " " @60..61
-[17] Literal { kind: BitStr { terminated: true, consecutive_underscores: false }, suffix_start: 4 } ""01"" @61..65
-[18] Comma "," @65..66
-[19] Whitespace " " @66..67
-[20] Ident "q1" @67..69
-[21] OpenBracket "[" @69..70
-[22] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @70..71
-[23] CloseBracket "]" @71..72
-[24] Comma "," @72..73
-[25] Whitespace " " @73..74
-[26] Ident "q2" @74..76
-[27] CloseParen ")" @76..77
-[28] Semi ";" @77..78
-[29] Whitespace "\n" @78..79
-[30] Ident "int" @79..82
-[31] OpenBracket "[" @82..83
-[32] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @83..84
-[33] CloseBracket "]" @84..85
-[34] Whitespace " " @85..86
-[35] Ident "y" @86..87
-[36] Whitespace " " @87..88
-[37] Eq "=" @88..89
-[38] Whitespace " " @89..90
-[39] Ident "extern_call" @90..101
-[40] OpenParen "(" @101..102
-[41] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "0.5" @102..105
-[42] Comma "," @105..106
-[43] Whitespace " " @106..107
-[44] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "10" @107..109
-[45] Ident "dt" @109..111
-[46] CloseParen ")" @111..112
-[47] Semi ";" @112..113
-[48] Whitespace "\n" @113..114
-[49] Ident "ambiguous_call" @114..128
-[50] OpenParen "(" @128..129
-[51] Ident "pi" @129..131
-[52] CloseParen ")" @131..132
-[53] Semi ";" @132..133
-[54] Whitespace "\n" @133..134
+[0] Whitespace "\n" @0..1
+[1] Ident "bit" @1..4
+[2] Whitespace " " @4..5
+[3] Ident "x" @5..6
+[4] Whitespace " " @6..7
+[5] Eq "=" @7..8
+[6] Whitespace " " @8..9
+[7] Ident "sub_call" @9..17
+[8] OpenParen "(" @17..18
+[9] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "10" @18..20
+[10] Comma "," @20..21
+[11] Whitespace " " @21..22
+[12] Literal { kind: BitStr { terminated: true, consecutive_underscores: false }, suffix_start: 4 } ""01"" @22..26
+[13] Comma "," @26..27
+[14] Whitespace " " @27..28
+[15] Ident "q1" @28..30
+[16] OpenBracket "[" @30..31
+[17] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "0" @31..32
+[18] CloseBracket "]" @32..33
+[19] Comma "," @33..34
+[20] Whitespace " " @34..35
+[21] Ident "q2" @35..37
+[22] CloseParen ")" @37..38
+[23] Semi ";" @38..39
+[24] Whitespace "\n" @39..40
+[25] Ident "int" @40..43
+[26] OpenBracket "[" @43..44
+[27] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @44..45
+[28] CloseBracket "]" @45..46
+[29] Whitespace " " @46..47
+[30] Ident "y" @47..48
+[31] Whitespace " " @48..49
+[32] Eq "=" @49..50
+[33] Whitespace " " @50..51
+[34] Ident "extern_call" @51..62
+[35] OpenParen "(" @62..63
+[36] Literal { kind: Float { base: Decimal, empty_exponent: false }, suffix_start: 3 } "0.5" @63..66
+[37] Comma "," @66..67
+[38] Whitespace " " @67..68
+[39] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 2 } "10" @68..70
+[40] Ident "dt" @70..72
+[41] CloseParen ")" @72..73
+[42] Semi ";" @73..74
+[43] Whitespace "\n" @74..75
+[44] Ident "ambiguous_call" @75..89
+[45] OpenParen "(" @89..90
+[46] Ident "pi" @90..92
+[47] CloseParen ")" @92..93
+[48] Semi ";" @93..94
+[49] Whitespace "\n" @94..95

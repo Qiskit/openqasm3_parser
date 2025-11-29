@@ -9,10 +9,7 @@ ok: false
 panicked: false
 errors: 14
 --- ast ---
-SOURCE_FILE@0..333: // lex: ok
-// parse: todo
-// sema: skip
-
+SOURCE_FILE@0..293: 
 def test_sub1(int[5] i, qubit[2] q1, qreg q2[5]) -> int[10] {
   int[10] result;
   if (result == 2) return 1 + result;
@@ -27,120 +24,120 @@ def returns_a_measure(qubit q) {
   return measure q;
 }
 
-DEF@41..77: def test_sub1(int[5] i, qubit[2] q1,
-NAME@45..54: test_sub1
-TYPED_PARAM_LIST@54..77: (int[5] i, qubit[2] q1,
-TYPED_PARAM@55..63: int[5] i
-SCALAR_TYPE@55..61: int[5]
-DESIGNATOR@58..61: [5]
-LITERAL@59..60: 5
-NAME@62..63: i
-TYPED_PARAM@65..76: qubit[2] q1
-SCALAR_TYPE@65..73: qubit[2]
-DESIGNATOR@70..73: [2]
-LITERAL@71..72: 2
-NAME@74..76: q1
-OLD_STYLE_DECLARATION_STATEMENT@78..88: qreg q2[5]
-INDEXED_IDENTIFIER@83..88: q2[5]
-INDEX_OPERATOR@85..88: [5]
-EXPRESSION_LIST@86..87: 5
-LITERAL@86..87: 5
-ERROR@88..89: )
-EXPR_STMT@90..92: ->
-PREFIX_EXPR@90..92: ->
-ERROR@91..92: >
-SCALAR_TYPE@93..100: int[10]
-DESIGNATOR@96..100: [10]
-LITERAL@97..99: 10
-NAME@101..101: 
-EXPR_STMT@101..177: {
+DEF@1..37: def test_sub1(int[5] i, qubit[2] q1,
+NAME@5..14: test_sub1
+TYPED_PARAM_LIST@14..37: (int[5] i, qubit[2] q1,
+TYPED_PARAM@15..23: int[5] i
+SCALAR_TYPE@15..21: int[5]
+DESIGNATOR@18..21: [5]
+LITERAL@19..20: 5
+NAME@22..23: i
+TYPED_PARAM@25..36: qubit[2] q1
+SCALAR_TYPE@25..33: qubit[2]
+DESIGNATOR@30..33: [2]
+LITERAL@31..32: 2
+NAME@34..36: q1
+OLD_STYLE_DECLARATION_STATEMENT@38..48: qreg q2[5]
+INDEXED_IDENTIFIER@43..48: q2[5]
+INDEX_OPERATOR@45..48: [5]
+EXPRESSION_LIST@46..47: 5
+LITERAL@46..47: 5
+ERROR@48..49: )
+EXPR_STMT@50..52: ->
+PREFIX_EXPR@50..52: ->
+ERROR@51..52: >
+SCALAR_TYPE@53..60: int[10]
+DESIGNATOR@56..60: [10]
+LITERAL@57..59: 10
+NAME@61..61: 
+EXPR_STMT@61..137: {
   int[10] result;
   if (result == 2) return 1 + result;
   return result;
 }
-BLOCK_EXPR@101..177: {
+BLOCK_EXPR@61..137: {
   int[10] result;
   if (result == 2) return 1 + result;
   return result;
 }
-CLASSICAL_DECLARATION_STATEMENT@105..120: int[10] result;
-SCALAR_TYPE@105..112: int[10]
-DESIGNATOR@108..112: [10]
-LITERAL@109..111: 10
-NAME@113..119: result
-IF_STMT@123..158: if (result == 2) return 1 + result;
-BIN_EXPR@127..138: result == 2
-IDENTIFIER@127..133: result
-LITERAL@137..138: 2
-EXPR_STMT@140..158: return 1 + result;
-RETURN_EXPR@140..157: return 1 + result
-BIN_EXPR@147..157: 1 + result
-LITERAL@147..148: 1
-IDENTIFIER@151..157: result
-EXPR_STMT@161..175: return result;
-RETURN_EXPR@161..174: return result
-IDENTIFIER@168..174: result
-DEF@178..211: def test_sub2(int[5] i, bit[2] b,
-NAME@182..191: test_sub2
-TYPED_PARAM_LIST@191..211: (int[5] i, bit[2] b,
-TYPED_PARAM@192..200: int[5] i
-SCALAR_TYPE@192..198: int[5]
-DESIGNATOR@195..198: [5]
-LITERAL@196..197: 5
-NAME@199..200: i
-TYPED_PARAM@202..210: bit[2] b
-SCALAR_TYPE@202..208: bit[2]
-DESIGNATOR@205..208: [2]
-LITERAL@206..207: 2
-NAME@209..210: b
-OLD_STYLE_DECLARATION_STATEMENT@212..221: creg c[3]
-INDEXED_IDENTIFIER@217..221: c[3]
-INDEX_OPERATOR@218..221: [3]
-EXPRESSION_LIST@219..220: 3
-LITERAL@219..220: 3
-ERROR@221..222: )
-EXPR_STMT@223..277: {
+CLASSICAL_DECLARATION_STATEMENT@65..80: int[10] result;
+SCALAR_TYPE@65..72: int[10]
+DESIGNATOR@68..72: [10]
+LITERAL@69..71: 10
+NAME@73..79: result
+IF_STMT@83..118: if (result == 2) return 1 + result;
+BIN_EXPR@87..98: result == 2
+IDENTIFIER@87..93: result
+LITERAL@97..98: 2
+EXPR_STMT@100..118: return 1 + result;
+RETURN_EXPR@100..117: return 1 + result
+BIN_EXPR@107..117: 1 + result
+LITERAL@107..108: 1
+IDENTIFIER@111..117: result
+EXPR_STMT@121..135: return result;
+RETURN_EXPR@121..134: return result
+IDENTIFIER@128..134: result
+DEF@138..171: def test_sub2(int[5] i, bit[2] b,
+NAME@142..151: test_sub2
+TYPED_PARAM_LIST@151..171: (int[5] i, bit[2] b,
+TYPED_PARAM@152..160: int[5] i
+SCALAR_TYPE@152..158: int[5]
+DESIGNATOR@155..158: [5]
+LITERAL@156..157: 5
+NAME@159..160: i
+TYPED_PARAM@162..170: bit[2] b
+SCALAR_TYPE@162..168: bit[2]
+DESIGNATOR@165..168: [2]
+LITERAL@166..167: 2
+NAME@169..170: b
+OLD_STYLE_DECLARATION_STATEMENT@172..181: creg c[3]
+INDEXED_IDENTIFIER@177..181: c[3]
+INDEX_OPERATOR@178..181: [3]
+EXPRESSION_LIST@179..180: 3
+LITERAL@179..180: 3
+ERROR@181..182: )
+EXPR_STMT@183..237: {
   for int[5] j in {2, 3}
     i += j;
   return i+1;
 }
-BLOCK_EXPR@223..277: {
+BLOCK_EXPR@183..237: {
   for int[5] j in {2, 3}
     i += j;
   return i+1;
 }
-FOR_STMT@227..261: for int[5] j in {2, 3}
+FOR_STMT@187..221: for int[5] j in {2, 3}
     i += j;
-SCALAR_TYPE@231..237: int[5]
-DESIGNATOR@234..237: [5]
-LITERAL@235..236: 5
-NAME@238..239: j
-FOR_ITERABLE@243..249: {2, 3}
-SET_EXPRESSION@243..249: {2, 3}
-EXPRESSION_LIST@244..248: 2, 3
-LITERAL@244..245: 2
-LITERAL@247..248: 3
-EXPR_STMT@254..261: i += j;
-BIN_EXPR@254..260: i += j
-IDENTIFIER@254..255: i
-IDENTIFIER@259..260: j
-EXPR_STMT@264..275: return i+1;
-RETURN_EXPR@264..274: return i+1
-BIN_EXPR@271..274: i+1
-IDENTIFIER@271..272: i
-LITERAL@273..274: 1
-DEF@278..332: def returns_a_measure(qubit q) {
+SCALAR_TYPE@191..197: int[5]
+DESIGNATOR@194..197: [5]
+LITERAL@195..196: 5
+NAME@198..199: j
+FOR_ITERABLE@203..209: {2, 3}
+SET_EXPRESSION@203..209: {2, 3}
+EXPRESSION_LIST@204..208: 2, 3
+LITERAL@204..205: 2
+LITERAL@207..208: 3
+EXPR_STMT@214..221: i += j;
+BIN_EXPR@214..220: i += j
+IDENTIFIER@214..215: i
+IDENTIFIER@219..220: j
+EXPR_STMT@224..235: return i+1;
+RETURN_EXPR@224..234: return i+1
+BIN_EXPR@231..234: i+1
+IDENTIFIER@231..232: i
+LITERAL@233..234: 1
+DEF@238..292: def returns_a_measure(qubit q) {
   return measure q;
 }
-NAME@282..299: returns_a_measure
-TYPED_PARAM_LIST@299..308: (qubit q)
-TYPED_PARAM@300..307: qubit q
-SCALAR_TYPE@300..305: qubit
-NAME@306..307: q
-BLOCK_EXPR@309..332: {
+NAME@242..259: returns_a_measure
+TYPED_PARAM_LIST@259..268: (qubit q)
+TYPED_PARAM@260..267: qubit q
+SCALAR_TYPE@260..265: qubit
+NAME@266..267: q
+BLOCK_EXPR@269..292: {
   return measure q;
 }
-EXPR_STMT@313..330: return measure q;
-RETURN_EXPR@313..329: return measure q
-MEASURE_EXPRESSION@320..329: measure q
-IDENTIFIER@328..329: q
+EXPR_STMT@273..290: return measure q;
+RETURN_EXPR@273..289: return measure q
+MEASURE_EXPRESSION@280..289: measure q
+IDENTIFIER@288..289: q

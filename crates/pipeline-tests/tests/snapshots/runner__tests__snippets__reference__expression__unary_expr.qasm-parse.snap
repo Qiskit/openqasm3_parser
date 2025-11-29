@@ -9,12 +9,9 @@ ok: true
 panicked: false
 errors: 0
 --- ast ---
-SOURCE_FILE@0..49: // lex: ok
-// parse: ok
-// sema: panic
-
+SOURCE_FILE@0..10: 
 !my_var;
 
-EXPR_STMT@40..48: !my_var;
-PREFIX_EXPR@40..47: !my_var
-IDENTIFIER@41..47: my_var
+EXPR_STMT@1..9: !my_var;
+PREFIX_EXPR@1..8: !my_var
+IDENTIFIER@2..8: my_var
