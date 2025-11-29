@@ -394,6 +394,14 @@ fn call_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     m.complete(p, CALL_EXPR)
 }
 
+// TODO: check that this is complete
+fn type_can_have_designator(typ: &SyntaxKind) -> bool {
+    matches!(
+        typ,
+        ANGLE_TY | BIT_TY | FLOAT_TY | INT_TY | UINT_TY | BOX_KW | DELAY_KW | QUBIT_KW
+    )
+}
+
 // A classical
 fn type_name(p: &mut Parser<'_>) {
     if !p.current().is_type() {
@@ -466,8 +474,12 @@ fn non_array_type_spec(p: &mut Parser<'_>) -> bool {
         return true;
     }
     let m = p.start();
+    let the_type_name = p.current();
     type_name(p);
     if p.at(T!['[']) {
+        if !type_can_have_designator(&the_type_name) {
+            p.error("Type cannot take designator");
+        }
         designator(p);
     }
     m.complete(p, SCALAR_TYPE);
