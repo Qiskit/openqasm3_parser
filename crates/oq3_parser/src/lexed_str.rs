@@ -20,14 +20,26 @@ use crate::{
 };
 
 pub struct LexedStr<'a> {
+    /// The input source text
     text: &'a str,
+
+    /// Stores translation of stream of `Token`s
     kind: Vec<SyntaxKind>,
+
+    /// Byte offset for start of each text span tagged in `kind`.
+    /// `start.len() == kind.len()`.
     start: Vec<u32>,
+
+    /// `Token` flagged as invalid produce a `LexError` as well as a `SyntaxKind`.
     error: Vec<LexError>,
 }
 
+// TODO: Might be good to replace `msg` with a small `enum`.
 struct LexError {
+    /// One of a small set of error messages.
     msg: String,
+
+    /// Index into `LexedStr.kind`
     token: u32,
 }
 

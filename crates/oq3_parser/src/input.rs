@@ -9,6 +9,8 @@ use crate::SyntaxKind;
 type bits = u64;
 
 // FIXME GJL `LexerToken` does not appear anywhere in the r-a project.
+// `LexerToken` seems to refer to output of `oq3_lexer::tokenize` and `LexedStr`
+// (also present in r-a). These *do* preserve whitespace and comments.
 /// Input for the parser -- a sequence of tokens.
 ///
 /// As of now, parser doesn't have access to the *text* of the tokens, and makes
@@ -18,7 +20,10 @@ type bits = u64;
 /// Struct of arrays internally, but this shouldn't really matter.
 #[derive(Default)]
 pub struct Input {
+    /// SyntaxKind has u16 variants
     kind: Vec<SyntaxKind>,
+
+    /// Account for whitespace/comments dropped on construction
     joint: Vec<bits>,
     contextual_kind: Vec<SyntaxKind>,
 }

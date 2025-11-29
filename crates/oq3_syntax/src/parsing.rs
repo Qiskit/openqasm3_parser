@@ -20,6 +20,10 @@ pub fn parse_text(openqasm_code_text: &str) -> (GreenNode, Vec<SyntaxError>) {
 /// Lex `openqasm_code_text`. If there are no lexing errors, parse the result
 /// returning the AST as `Option<GreenNode>`, as well as errors.
 /// If lexing errors do occur, do no parsing, but rather, return the lexing errors.
+///
+/// `LexedStr::new` calls `oq3_parser::tokenize(..)` to produce a stream of `Token`s.
+/// `LexedStr::new` translates this stream into `Vec<SyntaxKind>` plus offset and error information.
+/// Data from previous step is converted to `Input`.
 pub fn parse_text_check_lex(openqasm_code_text: &str) -> (Option<GreenNode>, Vec<SyntaxError>) {
     let lexed = oq3_parser::LexedStr::new(openqasm_code_text);
     if !lexed.errors_is_empty() {
