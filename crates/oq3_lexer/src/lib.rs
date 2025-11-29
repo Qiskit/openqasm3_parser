@@ -299,9 +299,11 @@ impl Cursor<'_> {
             // Whitespace sequence.
             c if is_whitespace(c) => self.whitespace(),
 
+            'p' => self.pragma_or_ident_or_unknown_prefix(),
+
             // Identifier (this should be checked after other variant that can
             // start as identifier).
-            c if is_id_start(c) => self.ident_or_unknown_prefix(c),
+            c if is_id_start(c) => self.ident_or_unknown_prefix(),
 
             // Numeric literal.
             c @ '0'..='9' => {
@@ -320,40 +322,25 @@ impl Cursor<'_> {
             }
 
             '#' => {
+                // only "pragma" and "dim" may begin with '#'
                 if self.first() == 'p' {
-                    self.bump();
-                    if self.first() == 'r' {
-                        self.bump();
-                        if self.first() == 'a' {
-                            self.bump();
-                            if self.first() == 'g' {
-                                self.bump();
-                                if self.first() == 'm' {
-                                    self.bump();
-                                    if self.first() == 'a' {
-                                        self.eat_while(|c| c != '\n');
-                                        let res = Token::new(Pragma, self.pos_within_token());
-                                        self.reset_pos_within_token();
-                                        return res;
-                                    }
-                                }
-                            }
-                        }
+                    self.bump(); // have_pragma looks for 'r'
+                    if self.have_pragma() {
+                        // consumes pragma and returns true
+                        Pragma
+                    } else {
+                        InvalidIdent
                     }
                 } else if self.first() == 'd' {
-                    self.bump();
-                    if self.first() == 'i' {
-                        self.bump();
-                        if self.first() == 'm' {
-                            self.bump();
-                            let res = Token::new(Dim, self.pos_within_token());
-                            self.reset_pos_within_token();
-                            return res;
-                        }
+                    if self.have_dim() {
+                        // have_dim looks for 'd'
+                        Dim
+                    } else {
+                        InvalidIdent
                     }
+                } else {
+                    InvalidIdent
                 }
-                // Only `#pragma` and `#dim` may begin with a pound character
-                InvalidIdent
             }
 
             '@' => {
@@ -502,12 +489,24 @@ impl Cursor<'_> {
         Whitespace
     }
 
-    fn ident_or_unknown_prefix(&mut self, c: char) -> TokenKind {
-        debug_assert!(is_id_start(self.prev()));
+    /// This is called if we just bumped '#' and then see 'd'.
+    fn have_dim(&mut self) -> bool {
+        if self.first() == 'd' {
+            self.bump();
+            if self.first() == 'i' {
+                self.bump();
+                if self.first() == 'm' {
+                    self.bump();
+                    return true;
+                }
+            }
+        }
+        false
+    }
 
-        // First see if we have "pragma". Everything till the end of the
-        // line is included in one token.
-        if c == 'p' && self.first() == 'r' {
+    /// Syntax for pragma is anything is allowed between #?pragma and the next newline.
+    fn have_pragma(&mut self) -> bool {
+        if self.first() == 'r' {
             self.bump();
             if self.first() == 'a' {
                 self.bump();
@@ -516,13 +515,29 @@ impl Cursor<'_> {
                     if self.first() == 'm' {
                         self.bump();
                         if self.first() == 'a' {
-                            self.eat_while(|c| c != '\n');
-                            return Pragma;
+                            self.bump();
+                            if is_whitespace(self.first()) {
+                                self.eat_while(|c| c != '\n');
+                                return true;
+                            }
                         }
                     }
                 }
             }
         }
+        false
+    }
+
+    fn pragma_or_ident_or_unknown_prefix(&mut self) -> TokenKind {
+        if self.have_pragma() {
+            Pragma
+        } else {
+            self.ident_or_unknown_prefix()
+        }
+    }
+
+    fn ident_or_unknown_prefix(&mut self) -> TokenKind {
+        debug_assert!(is_id_start(self.prev()));
 
         // Start is already eaten, eat the rest of identifier.
         self.eat_while(is_id_continue);

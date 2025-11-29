@@ -170,6 +170,7 @@ pub fn analyze_source<T: SourceTrait>(parsed_source: T) -> ParseResult<T> {
             have_syntax_errors: true,
         };
     }
+    //    get_version_string(&parsed_source);
     let errors = SemanticErrorList::new(file_path.to_path_buf());
     let (mut context, errors) = syntax_to_semantic(&parsed_source, context, errors);
     let _ = replace(&mut context.semantic_errors, errors);
@@ -179,6 +180,23 @@ pub fn analyze_source<T: SourceTrait>(parsed_source: T) -> ParseResult<T> {
         have_syntax_errors: false,
     }
 }
+
+// fn get_version_string<T: SourceTrait>(parsed_source: &T) -> Option<asg::OpenQASMVersion> {
+//     let mut statements = parsed_source.syntax_ast().unwrap().tree().statements();
+//     let first_statement = statements.next();
+//     dbg!(&first_statement);
+//     match first_statement {
+//         Some(synast::Stmt::VersionString(version_string)) => {
+//             let version = version_string.version().unwrap().version().unwrap();
+//             let vparts = version.split_into_parts();
+//             dbg!(version.is_simple());
+//             dbg!(version.text());
+//             dbg!(version);
+//             None
+//         }
+//         _ => None
+//     }
+// }
 
 pub fn syntax_to_semantic<T: SourceTrait>(
     parsed_source: &T,

@@ -1,0 +1,22 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/invalid_oq3p/directives/pragma.qasm
+expect-lex: Diag
+--- source ---
+
+#pragmaa 1 2 3
+--- lexer ---
+ok: false
+errors: 1
+[0] Whitespace "\n" @0..1
+[1] InvalidIdent "#pragma" @1..8
+[2] Ident "a" @8..9
+[3] Whitespace " " @9..10
+[4] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "1" @10..11
+[5] Whitespace " " @11..12
+[6] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @12..13
+[7] Whitespace " " @13..14
+[8] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "3" @14..15
+[9] Whitespace "\n" @15..16

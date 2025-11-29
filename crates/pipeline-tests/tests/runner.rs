@@ -154,6 +154,8 @@ mod suite {
     }
 
     // Lexer stage: token stream + oq3_parser::LexedStr diagnostics summary
+    // We must not call `tokenize` directly. Diagnostic errors are hidden in struct fields.
+    // `LexedStr` converts them to stored errors that can be retrieved.
     pub(crate) fn run_lex(src: &str) -> (bool, usize, String) {
         let lexed = oq3_parser::LexedStr::new(src);
         let diag_count = if lexed.errors_is_empty() { 0 } else { 1 };

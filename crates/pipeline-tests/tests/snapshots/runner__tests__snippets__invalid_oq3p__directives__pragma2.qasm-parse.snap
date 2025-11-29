@@ -1,0 +1,23 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/invalid_oq3p/directives/pragma2.qasm
+expect-parse: Diag
+--- parser ---
+ok: false
+panicked: false
+errors: 4
+--- ast ---
+SOURCE_FILE@0..52: 
+// pragmaa is an ordinary identifier
+pragmaa 1 2 3
+
+EXPR_STMT@38..45: pragmaa
+IDENTIFIER@38..45: pragmaa
+EXPR_STMT@46..47: 1
+LITERAL@46..47: 1
+EXPR_STMT@48..49: 2
+LITERAL@48..49: 2
+EXPR_STMT@50..51: 3
+LITERAL@50..51: 3

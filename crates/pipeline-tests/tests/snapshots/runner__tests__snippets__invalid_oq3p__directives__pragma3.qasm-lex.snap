@@ -1,0 +1,20 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/invalid_oq3p/directives/pragma3.qasm
+expect-lex: Ok
+--- source ---
+
+// "pragam" is an invalid identifier.
+int pragma = 1;
+--- lexer ---
+ok: true
+errors: 0
+[0] Whitespace "\n" @0..1
+[1] LineComment "// "pragam" is an invalid identifier." @1..38
+[2] Whitespace "\n" @38..39
+[3] Ident "int" @39..42
+[4] Whitespace " " @42..43
+[5] Pragma "pragma = 1;" @43..54
+[6] Whitespace "\n" @54..55
