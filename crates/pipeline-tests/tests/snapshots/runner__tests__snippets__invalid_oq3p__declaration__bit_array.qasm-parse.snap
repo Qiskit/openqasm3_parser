@@ -1,0 +1,21 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: parse_snap
+---
+id: tests/snippets/invalid_oq3p/declaration/bit_array.qasm
+expect-parse: Diag
+--- parser ---
+ok: false
+panicked: false
+errors: 1
+--- ast ---
+SOURCE_FILE@0..21: 
+array[bit[8], 2] x;
+
+CLASSICAL_DECLARATION_STATEMENT@1..20: array[bit[8], 2] x;
+ARRAY_TYPE@1..17: array[bit[8], 2]
+SCALAR_TYPE@7..13: bit[8]
+DESIGNATOR@10..13: [8]
+LITERAL@11..12: 8
+LITERAL@15..16: 2
+NAME@18..19: x

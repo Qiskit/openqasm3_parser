@@ -1,5 +1,5 @@
 // lex: ok
-// parse: todo
+// parse: ok
 // sema: skip
 
 array[uint[16], 2, 2] a = {{1, 2}, {3, 4}};

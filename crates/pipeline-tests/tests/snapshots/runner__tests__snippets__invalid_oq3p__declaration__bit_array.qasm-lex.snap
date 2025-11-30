@@ -1,0 +1,27 @@
+---
+source: crates/pipeline-tests/tests/runner.rs
+expression: lex_snap
+---
+id: tests/snippets/invalid_oq3p/declaration/bit_array.qasm
+expect-lex: Ok
+--- source ---
+
+array[bit[8], 2] x;
+--- lexer ---
+ok: true
+errors: 0
+[0] Whitespace "\n" @0..1
+[1] Ident "array" @1..6
+[2] OpenBracket "[" @6..7
+[3] Ident "bit" @7..10
+[4] OpenBracket "[" @10..11
+[5] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "8" @11..12
+[6] CloseBracket "]" @12..13
+[7] Comma "," @13..14
+[8] Whitespace " " @14..15
+[9] Literal { kind: Int { base: Decimal, empty_int: false }, suffix_start: 1 } "2" @15..16
+[10] CloseBracket "]" @16..17
+[11] Whitespace " " @17..18
+[12] Ident "x" @18..19
+[13] Semi ";" @19..20
+[14] Whitespace "\n" @20..21
