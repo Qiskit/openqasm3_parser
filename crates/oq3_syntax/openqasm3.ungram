@@ -1,6 +1,6 @@
 // This grammar specifies the structure of the OpenQASM 3 concrete syntax tree.
 // It does not specify parsing rules (ambiguities, precedence, etc are out of scope).
-// Tokens are processed -- contextual keywords are recognised, compound operators glued.
+// Tokens are processed -- compound operators glued.
 //
 // Legend:
 //
