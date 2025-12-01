@@ -81,9 +81,10 @@ def main():
     for st in STAGES:
         c = counts[st]
         # Print in a fixed order; include unset if present
-        parts = [f"{k}={c[k]}" for k in order if c[k] > 0]
+#        parts = [f"{k}={c[k]}" for k in order if c[k] > 0]
+        parts = [f"{k}={c[k]:<3}" for k in order if c[k] > 0]
         total = sum(c.values())
-        print(f"- {st:<{STAGE_W}}: total={total}; " + ", ".join(parts))
+        print(f"- {st:<{STAGE_W}}: total={total:<3}; " + ", ".join(parts))
 
     return 0
 
