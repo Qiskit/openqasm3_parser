@@ -9,7 +9,7 @@ use oq3_lexer::{tokenize, Token};
 use oq3_parser::SyntaxKind;
 use oq3_semantics::syntax_to_semantics;
 use oq3_source_file::SourceTrait;
-use oq3_syntax::{GreenNode, SourceFile};
+use oq3_syntax::{GreenNode, SourceFile, SyntaxNode};
 use rowan::NodeOrToken; // TODO: this can be accessed from a higher level
 
 #[derive(Parser)]
@@ -127,11 +127,14 @@ fn main() {
             };
             println!("Found {num_stmts} stmts");
             let syntax_errors = ast.errors();
-            println!(
-                "Found {} parse errors:\n{:?}\n",
-                syntax_errors.len(),
-                syntax_errors
-            );
+
+            let nerr = syntax_errors.len();
+            if nerr == 0 {
+                println!("\nFound no parse errors\n");
+            } else {
+                println!("\nFound {} parse errors:\n{:?}\n", nerr, syntax_errors);
+            }
+
             if ast.have_parse() {
                 print_tree(ast.tree());
             }
@@ -147,11 +150,12 @@ fn main() {
             } else {
                 println!("Lexing errors found. No parsing was done.");
             }
-            println!(
-                "\nFound {} parse errors:\n{:?}",
-                syntax_errors.len(),
-                syntax_errors
-            );
+            let nerr = syntax_errors.len();
+            if nerr == 0 {
+                println!("\nFound no parse errors");
+            } else {
+                println!("\nFound {} parse errors:\n{:?}", nerr, syntax_errors);
+            }
         }
 
         Some(Commands::Lex { file_name }) => {
@@ -173,10 +177,19 @@ fn read_example_source(file_path: &PathBuf) -> String {
         .unwrap_or_else(|_| panic!("Unable to read file {file_path:?}"))
 }
 
-fn print_tree(file: SourceFile) {
+fn print_syntax_tree_compact(node: &SyntaxNode, depth: usize) {
+    // Left: KIND@range via Debug; right: subtree source via Display.
+    println!("{:indent$}{:?}: {}", "", node, node, indent = depth * 2);
+    for child in node.children() {
+        print_syntax_tree_compact(&child, depth + 1);
+    }
+}
+
+pub fn print_tree(file: SourceFile) {
     use oq3_syntax::ast::AstNode;
-    for item in file.syntax().descendants() {
-        println!("{item:?}: {item:}");
+    let root = file.syntax();
+    for child in root.children() {
+        print_syntax_tree_compact(&child, 0);
     }
 }
 
