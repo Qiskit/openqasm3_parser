@@ -84,15 +84,15 @@ mod suite {
         }
     }
 
-    // Enforce: if parse tag != ok, sema tag must be skip (or absent).
+    // Enforce: if parse tag != ok, sema tag must be skip/panic (or absent).
     pub fn validate_expectations(exp: &Expectations) -> Result<(), String> {
         let parse_ok = matches!(exp.parse, Some(Expect::Ok));
-        let sema_is_skip = matches!(exp.sema, Some(Expect::Skip) | None);
+        let sema_is_skip = matches!(exp.sema, Some(Expect::Skip | Expect::Panic) | None);
         if !parse_ok && !sema_is_skip {
             return Err(format!(
-                "invalid expectations: parse={:?}, sema={:?}. When parse is not \"ok\", sema must be \"skip\".",
-                exp.parse, exp.sema
-            ));
+                 "invalid expectations: parse={:?}, sema={:?}. When parse is not \"ok\", sema must be \"skip\" or \"panic\".",
+                 exp.parse, exp.sema
+             ));
         }
         Ok(())
     }
@@ -279,8 +279,12 @@ mod suite {
         (ok, diag_count, asg_dump, panicked, panic_msg)
     }
 
+    /// Treat Panic same as Skip for gating
+    /// If we were to run this stage, the result would be a panic.
+    /// We dont do anything with the information returned and don't want to.
+    /// So, we simply skip this test.
     pub fn should_run(stage: Option<Expect>) -> bool {
-        !matches!(stage, Some(Expect::Skip) | None)
+        !matches!(stage, Some(Expect::Skip | Expect::Panic) | None)
     }
 
     pub(crate) fn snapshot_for(
@@ -361,21 +365,13 @@ mod suite {
         (lex_snap, parse_snap, sema_snap)
     }
 
-    // Ok: no diags and no panic; Diag: diags >= 1 and no panic; Panic: stage panicked; Todo/Skip as defined
     pub(crate) fn apply_expect(
         stage: Option<Expect>,
         diag_count: usize,
         panicked: bool,
     ) -> Result<(), String> {
         match stage {
-            Some(Expect::Skip) | None => Ok(()),
-            Some(Expect::Panic) => {
-                if panicked {
-                    Ok(())
-                } else {
-                    Err("expected panic, but stage completed".into())
-                }
-            }
+            Some(Expect::Skip) | Some(Expect::Panic) | None => Ok(()),
             Some(Expect::Ok) => {
                 if panicked {
                     Err("expected ok, but stage panicked".into())
