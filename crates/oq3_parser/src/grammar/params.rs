@@ -28,7 +28,7 @@ pub(super) fn arg_list_gate_call_qubits(p: &mut Parser<'_>) {
 }
 
 pub(super) fn param_list_def_params(p: &mut Parser<'_>) {
-    // Function definition parameter list: (t0 p0, t1 p1, ...)
+    // Subroutine definition parameter list: (t0 p0, t1 p1, ...)
     // - parens: yes
     // - typed: yes
     // - terminator: ')'

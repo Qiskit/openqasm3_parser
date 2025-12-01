@@ -387,14 +387,14 @@ fn postfix_expr(
     (lhs, block_like)
 }
 
-// Consumes either a function (def) call, or a gate call.
+// Consumes either a subroutine (def) call, or a gate call.
 fn call_expr(p: &mut Parser<'_>, lhs: CompletedMarker) -> CompletedMarker {
     assert!(p.at(T!['(']));
     let m = lhs.precede(p);
     call_arg_list(p);
     // If after consuming `(x,y,..)` we find an identifier, it must be
     // a gate call statement. `expr_stmt` has already begun but will be abandoned.
-    // If there is no identifier, it is a function call.
+    // If there is no identifier, it is a subroutine call.
     if matches!(p.current(), IDENT | HARDWAREIDENT) {
         params::arg_list_gate_call_qubits(p);
         return m.complete(p, GATE_CALL_EXPR);
@@ -535,7 +535,7 @@ pub(crate) fn designator(p: &mut Parser<'_>) -> bool {
     // syntax errors here.
     //
     // We assume here that it is not allowed to cast types to integer, even
-    // those that would be allowed in, say, arguments to function calls. I don't
+    // those that would be allowed in, say, arguments to subroutine calls. I don't
     // see this addressed in the spec.
     if matches!(
         p.current(),
@@ -602,7 +602,7 @@ pub(crate) fn index_operator(p: &mut Parser<'_>) {
     m.complete(p, INDEX_OPERATOR);
 }
 
-// For function call and gate call
+// For subroutine call and gate call
 // Cannot enforce no empty parens in gate call here.
 pub(crate) fn call_arg_list(p: &mut Parser<'_>) {
     let bra = T!['('];
