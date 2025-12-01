@@ -98,6 +98,28 @@ enum DefFlavor {
     TypeListFlavor,
 }
 
+/// Each flavor has a token (or two) signifying no items remain to be
+/// parsed. This returns `true` if we are at such a token.
+fn at_list_end_token(p: &mut Parser<'_>, flavor: DefFlavor) -> bool {
+    use DefFlavor::*;
+    if matches!(&flavor, DefCalQubits) {
+        return p.at(T!['{']) || p.at(T![->]);
+    }
+
+    let list_end_token = match &flavor {
+        ExpressionList => T![']'],
+        CaseValues => T!['{'],
+        GateParams | DefParams | DefCalParams | TypeListFlavor => T![')'],
+        // When no parens are present '{' terminates the gate param list.
+        GateQubits => T!['{'],
+        GateCallQubits => SEMICOLON,
+        ArrayLiteral => T!['}'],
+        DefCalQubits => unreachable!(),
+    };
+
+    p.at(list_end_token)
+}
+
 // Parse a list of comma-separated items according to the chosen flavor.
 // Notes:
 // - Trailing commas are allowed: after consuming a comma, if the next token
@@ -107,18 +129,6 @@ enum DefFlavor {
 fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
     use DefFlavor::*;
     let list_marker = p.start();
-
-    // End tokens for each flavor.
-    let list_end_tokens = match flavor {
-        ExpressionList => [T![']'], T![']']],
-        CaseValues => [T!['{'], T!['{']],
-        GateParams | DefParams | DefCalParams | TypeListFlavor => [T![')'], T![')']],
-        // When no parens are present '{' terminates the gate param list.
-        GateQubits => [T!['{'], T!['{']],
-        GateCallQubits => [SEMICOLON, SEMICOLON],
-        DefCalQubits => [T!['{'], T![->]],
-        ArrayLiteral => [T!['}'], T!['}']],
-    };
 
     let mut num_params: usize = 0;
 
@@ -135,7 +145,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
     }
 
     // Parse items until EOF or an end token is seen.
-    while !p.at(EOF) && !list_end_tokens.iter().any(|x| p.at(*x)) {
+    while !p.at(EOF) && !at_list_end_token(p, flavor) {
         let m = p.start();
 
         let inner_array_literal = p.at(T!['{']);
@@ -179,7 +189,7 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
         num_params += 1;
 
         // If the very next token is an end token, stop
-        if list_end_tokens.iter().any(|x| p.at(*x)) {
+        if at_list_end_token(p, flavor) {
             break;
         }
 
