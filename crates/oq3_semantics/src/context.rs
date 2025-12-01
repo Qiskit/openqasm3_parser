@@ -25,8 +25,8 @@ pub struct Context {
     pub const_values: HashMap<SymbolId, asg::TExpr>,
 
     /// Temporary storage for annoations. Annotations are pushed here as they are
-    /// parsed. When the annotated function definition is parsed, the annotations are attached
-    /// to the representation of the function definition.
+    /// parsed. When the annotated subroutine definition is parsed, the annotations are attached
+    /// to the representation of the subroutine definition.
     pub annotations: Vec<asg::Annotation>,
 }
 
