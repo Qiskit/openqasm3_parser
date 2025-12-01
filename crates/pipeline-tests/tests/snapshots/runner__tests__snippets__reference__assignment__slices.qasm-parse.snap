@@ -3,11 +3,11 @@ source: crates/pipeline-tests/tests/runner.rs
 expression: parse_snap
 ---
 id: tests/snippets/reference/assignment/slices.qasm
-expect-parse: Todo
+expect-parse: Ok
 --- parser ---
-ok: false
+ok: true
 panicked: false
-errors: 18
+errors: 0
 --- ast ---
 SOURCE_FILE@0..366: 
 array[uint[16], 2, 2] a = {{1, 2}, {3, 4}};
@@ -30,18 +30,12 @@ LITERAL@12..14: 16
 LITERAL@17..18: 2
 LITERAL@20..21: 2
 NAME@23..24: a
-BLOCK_EXPR@27..43: {{1, 2}, {3, 4}}
-EXPR_STMT@28..34: {1, 2}
-BLOCK_EXPR@28..34: {1, 2}
-EXPR_STMT@29..30: 1
+ARRAY_LITERAL@27..43: {{1, 2}, {3, 4}}
+ARRAY_LITERAL@28..34: {1, 2}
 LITERAL@29..30: 1
-ERROR@30..31: ,
 LITERAL@32..33: 2
-ERROR@34..35: ,
-BLOCK_EXPR@36..42: {3, 4}
-EXPR_STMT@37..38: 3
+ARRAY_LITERAL@36..42: {3, 4}
 LITERAL@37..38: 3
-ERROR@38..39: ,
 LITERAL@40..41: 4
 CLASSICAL_DECLARATION_STATEMENT@45..100: array[uint[16], 2, 4] b = {{1, 2, 3, 4}, {5, 6, 7, 8}};
 ARRAY_TYPE@45..66: array[uint[16], 2, 4]
@@ -51,30 +45,16 @@ LITERAL@56..58: 16
 LITERAL@61..62: 2
 LITERAL@64..65: 4
 NAME@67..68: b
-BLOCK_EXPR@71..99: {{1, 2, 3, 4}, {5, 6, 7, 8}}
-EXPR_STMT@72..84: {1, 2, 3, 4}
-BLOCK_EXPR@72..84: {1, 2, 3, 4}
-EXPR_STMT@73..74: 1
+ARRAY_LITERAL@71..99: {{1, 2, 3, 4}, {5, 6, 7, 8}}
+ARRAY_LITERAL@72..84: {1, 2, 3, 4}
 LITERAL@73..74: 1
-ERROR@74..75: ,
-EXPR_STMT@76..77: 2
 LITERAL@76..77: 2
-ERROR@77..78: ,
-EXPR_STMT@79..80: 3
 LITERAL@79..80: 3
-ERROR@80..81: ,
 LITERAL@82..83: 4
-ERROR@84..85: ,
-BLOCK_EXPR@86..98: {5, 6, 7, 8}
-EXPR_STMT@87..88: 5
+ARRAY_LITERAL@86..98: {5, 6, 7, 8}
 LITERAL@87..88: 5
-ERROR@88..89: ,
-EXPR_STMT@90..91: 6
 LITERAL@90..91: 6
-ERROR@91..92: ,
-EXPR_STMT@93..94: 7
 LITERAL@93..94: 7
-ERROR@94..95: ,
 LITERAL@96..97: 8
 ASSIGNMENT_STMT@215..231: a = b[0:1][0:1];
 IDENTIFIER@215..216: a

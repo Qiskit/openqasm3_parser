@@ -296,6 +296,7 @@ pub(crate) fn _returns_bool_classical_declaration_stmt(p: &mut Parser<'_>, m: Ma
     // type spec is still contained in the surrounding marker `m`.
     let mexpr = p.start();
     // parse type
+    let have_array_decl = p.at(T![array]);
     expressions::type_spec(p);
     // An opening paren means this is actually a cast
     if p.current() == T!['('] {
@@ -323,7 +324,12 @@ pub(crate) fn _returns_bool_classical_declaration_stmt(p: &mut Parser<'_>, m: Ma
         m.abandon(p);
         return false;
     }
-    expressions::expr(p);
+    // RHS of declaration, that is, the initializer
+    if have_array_decl && p.at(T!['{']) {
+        params::array_literal(p);
+    } else {
+        expressions::expr(p);
+    }
     p.expect(T![;]);
     m.complete(p, CLASSICAL_DECLARATION_STATEMENT);
     true

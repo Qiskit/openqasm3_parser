@@ -104,7 +104,7 @@ pub(crate) fn stmt(p: &mut Parser<'_>) {
     if p.at(VERSION_STRING) {
         p.bump_any();
         if !p.eat(T![;]) {
-            p.error("Expecting semicolon terminating statement");
+            p.error("Expecting semicolon terminating version declaration statement");
         }
         m.complete(p, VERSION_STRING);
         return;

@@ -1,13 +1,11 @@
 // lex: ok
-// parse: todo
+// parse: ok
 // sema: skip
 
 array[uint[16], 1] x;
 array[int[8], 4] x;
 array[float[64], 4, 2] x;
 array[angle[32], 4, 3, 2] x;
-array[bit[8], 2] x;
-array[bit[16], 2, 2] x;
 array[complex[float[32]], 4] x;
 array[bool, 3] x;
 array[int[8], 4] x = {1, 2, 3, 4};

@@ -76,57 +76,25 @@ pub(super) fn case_value_list(p: &mut Parser<'_>) {
     _param_list_openqasm(p, DefFlavor::CaseValues);
 }
 
+pub(super) fn array_literal(p: &mut Parser<'_>) {
+    // - curlies: yes
+    // - typed: no
+    // - terminator: '}'
+    _param_list_openqasm(p, DefFlavor::ArrayLiteral);
+}
+
 // Here and elsewhere "Gate" means gate def, and "GateCall" means gate call.
 #[derive(Debug, Clone, Copy)]
 enum DefFlavor {
-    // Gate definition parameter list: (p0, p1, ...)
-    // - parens: yes
-    // - typed: no
-    // - terminator: ')'
     GateParams,
-
-    // Gate definition qubit list: q0, q1, ... {
-    // - parens: no
-    // - typed: no
-    // - terminator: '{'
     GateQubits,
-
-    // Gate call qubit list: q0, q1, ...;
-    // - parens: no
-    // - typed: no
-    // - terminator: ';'
     GateCallQubits,
-
-    // Function definition parameter list: (t0 p0, t1 p1, ...)
-    // - parens: yes
-    // - typed: yes
-    // - terminator: ')'
     DefParams,
-
-    // DefCal parameter list: (p0, t1 p1, ...)
-    // - parens: yes
-    // - typed: optional
-    // - terminator: ')'
     DefCalParams,
-
-    // DefCal qubit list: q0, q1, ... {   or   q0, q1, ... -> ...
-    // - parens: no
-    // - typed: no
-    // - terminators: '{' or '->'
     DefCalQubits,
-
-    // General expression list (e.g., in index operators): [e0, e1, ...]
-    // - parens: no
-    // - typed: no
-    // - terminator: ']'
     ExpressionList,
-
-    // Switch case control values: case e0, e1, ... {
-    // - parens: no
-    // - typed: no
-    // - terminator: '{'
+    ArrayLiteral,
     CaseValues,
-
     TypeListFlavor,
 }
 
@@ -140,16 +108,6 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
     use DefFlavor::*;
     let list_marker = p.start();
 
-    // Only GateParams, DefParams, and DefCalParams open with '(' ... ')'.
-    let want_parens = matches!(
-        flavor,
-        GateParams | DefParams | DefCalParams | TypeListFlavor
-    );
-    match flavor {
-        GateParams | DefParams | DefCalParams | TypeListFlavor => p.bump(T!['(']),
-        GateQubits | GateCallQubits | DefCalQubits | ExpressionList | CaseValues => (),
-    }
-
     // End tokens for each flavor.
     let list_end_tokens = match flavor {
         ExpressionList => [T![']'], T![']']],
@@ -159,16 +117,31 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
         GateQubits => [T!['{'], T!['{']],
         GateCallQubits => [SEMICOLON, SEMICOLON],
         DefCalQubits => [T!['{'], T![->]],
+        ArrayLiteral => [T!['}'], T!['}']],
     };
 
     let mut num_params: usize = 0;
+
+    let need_parens = matches!(
+        flavor,
+        GateParams | DefParams | DefCalParams | TypeListFlavor
+    );
+    let need_curlies = matches!(flavor, ArrayLiteral);
+
+    if need_parens {
+        p.expect(T!['(']);
+    } else if need_curlies {
+        p.expect(T!['{']);
+    }
 
     // Parse items until EOF or an end token is seen.
     while !p.at(EOF) && !list_end_tokens.iter().any(|x| p.at(*x)) {
         let m = p.start();
 
-        // Allowed starts for an item: either a type or a first-token of a param/expression.
-        if !(p.current().is_type() || p.at_ts(PARAM_FIRST)) {
+        let inner_array_literal = p.at(T!['{']);
+        // Allowed starts for an item: either a type or a first-token of a param/expression,
+        // or first token of array literal.
+        if !(p.current().is_type() || p.at_ts(PARAM_FIRST) || inner_array_literal) {
             p.error("expected value parameter");
             m.abandon(p);
             break;
@@ -188,6 +161,17 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
             // Untyped parameters/qubits.
             GateParams | GateQubits => param_untyped(p, m),
             DefCalQubits => param_untyped_or_hardware_qubit(p, m),
+            ArrayLiteral => {
+                if inner_array_literal {
+                    m.abandon(p);
+                    array_literal(p);
+                    true
+                } else {
+                    m.abandon(p);
+                    expressions::expr(p);
+                    true
+                }
+            }
         };
         if !found_param {
             break;
@@ -212,17 +196,15 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
         }
     }
 
-    match flavor {
-        GateParams | ExpressionList | CaseValues if num_params < 1 => {
-            p.error("expected one or more parameters");
-        }
-        GateParams | ExpressionList | CaseValues => {}
-        GateQubits | GateCallQubits | DefParams | DefCalParams | DefCalQubits | TypeListFlavor => {}
-    };
+    if num_params < 1 && matches!(flavor, GateParams | ExpressionList | CaseValues) {
+        p.error("expected one or more parameters");
+    }
 
-    // Close parens for the paren-using flavors.
-    if want_parens {
+    // Some flavors expect closing paren.
+    if need_parens {
         p.expect(T![')']);
+    } else if matches!(flavor, ArrayLiteral) {
+        p.expect(T!['}']);
     }
 
     // Complete with the correct node kind for this flavor.
@@ -234,103 +216,10 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
         DefParams | DefCalParams => TYPED_PARAM_LIST,
         GateParams => PARAM_LIST,
         TypeListFlavor => TYPE_LIST,
+        ArrayLiteral => ARRAY_LITERAL,
     };
     list_marker.complete(p, kind);
 }
-
-// // Parse a list of parameters.
-// fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
-//     use DefFlavor::*;
-//     let list_marker = p.start();
-//     let want_parens = matches!(flavor, GateParams | DefParams | DefCalParams);
-//     match flavor {
-//         GateParams | DefParams | DefCalParams => p.bump(T!['(']),
-//         GateQubits | GateCallQubits | DefCalQubits | ExpressionList | CaseValues => (),
-//     }
-//     // FIXME: find implementation that does not require [T![')'], T![')']]
-//     // I tried using TokenSet, which should give exactly the same result.
-//     // But it does not. May be because -> is a compound token.
-//     let list_end_tokens = match flavor {
-//         // GateParams | DefParams | DefCalParams => {TokenSet::new(&[T![')']])},
-//         // GateQubits => {TokenSet::new(&[T!['{']])},
-//         // DefCalQubits => {TokenSet::new(&[T!['{'], T![->]])},
-//         ExpressionList => [T![']'], T![']']],
-//         CaseValues => [T!['{'], T!['{']],
-//         GateParams | DefParams | DefCalParams => [T![')'], T![')']],
-//         // When no parens are present `{` terminates the list of parameters.
-//         GateQubits => [T!['{'], T!['{']],
-//         GateCallQubits => [SEMICOLON, SEMICOLON],
-//         DefCalQubits => [T!['{'], T![->]],
-//     };
-//     let mut num_params: usize = 0;
-//     // Would be nice if we could used the following line instead of hacked roll your own two lines down.
-//     //  while !p.at(EOF) && !p.at_ts(list_end_tokens) {
-//     while !p.at(EOF) && !list_end_tokens.iter().any(|x| p.at(*x)) {
-//         let m = p.start();
-//         if !(p.current().is_type() || p.at_ts(PARAM_FIRST)) {
-//             p.error("expected value parameter");
-//             m.abandon(p);
-//             break;
-//         }
-//         let found_param = match flavor {
-//             ExpressionList | CaseValues => {
-//                 m.abandon(p);
-//                 expressions::expr_or_range_expr(p);
-//                 true
-//             }
-//             GateCallQubits => arg_gate_call_qubit(p, m),
-//             // FIXME: this can't work. These two variants have different reqs on params
-//             DefParams | DefCalParams => param_typed(p, m),
-//             // The following is pretty ugly. Probably inefficient as well
-//             GateParams | GateQubits | DefCalQubits => param_untyped(p, m),
-//         };
-//         if !found_param {
-//             break;
-//         }
-//         num_params += 1;
-//         // FIXME: This is only needed to support `->` as terminating tokens.
-//         // Not for `{`. But I don't know why. prbly because `->` is compound.
-//         // FIXME: use at_ts()
-//         if list_end_tokens.iter().any(|x| p.at(*x)) {
-//             //        if p.at_ts(list_end_tokens) {
-//             break;
-//         }
-//         // Params must be separated by commas.
-//         if !p.at(T![,]) {
-//             if p.at_ts(PARAM_FIRST) {
-//                 p.error("Expected `,`");
-//             } else {
-//                 break;
-//             }
-//         } else {
-//             // We found the expected comma, so consume it.
-//             p.bump(T![,]);
-//         }
-//     }
-//     match flavor {
-//         GateParams | ExpressionList | CaseValues if num_params < 1 => {
-//             p.error("expected one or more parameters");
-//         }
-//         GateParams | ExpressionList | CaseValues => {}
-//         GateQubits | GateCallQubits | DefParams | DefCalParams | DefCalQubits => {}
-//     };
-//     // if let Some(m) = param_marker {
-//     //     m.abandon(p);
-//     // }
-//     // Error if we don't find closing paren.
-//     if want_parens {
-//         p.expect(T![')']);
-//     }
-//     let kind = match flavor {
-//         GateQubits => PARAM_LIST,
-//         DefCalQubits => QUBIT_LIST,
-//         GateCallQubits => QUBIT_LIST,
-//         ExpressionList | CaseValues => EXPRESSION_LIST,
-//         DefParams | DefCalParams => TYPED_PARAM_LIST,
-//         GateParams => PARAM_LIST,
-//     };
-//     list_marker.complete(p, kind);
-// }
 
 const PATTERN_FIRST: TokenSet = expressions::LITERAL_FIRST
     .union(expressions::atom::PATH_FIRST)
