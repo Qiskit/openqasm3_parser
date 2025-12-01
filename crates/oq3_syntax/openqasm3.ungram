@@ -189,11 +189,16 @@ Gate =
 ParamList =
   '(' (Param (',' Param)* ','?)? ')'
 
-TypedParamList =
-  '(' (TypedParam (',' TypedParam)* ','?)? ')'
+ArrayRefType = ('readonly' | 'mutable') 'array' '[' ScalarType ',' (ExpressionList | DimExpr) ']'
+
+ParamType =
+   (ScalarType | ArrayRefType)
 
 TypedParam =
-  ScalarType Name
+  ParamType Name
+
+TypedParamList =
+  '(' (TypedParam (',' TypedParam)* ','?)? ')'
 
 // For 'extern'
 TypeList =

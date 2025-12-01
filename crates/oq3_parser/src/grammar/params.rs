@@ -27,6 +27,7 @@ pub(super) fn arg_list_gate_call_qubits(p: &mut Parser<'_>) {
     _param_list_openqasm(p, DefFlavor::GateCallQubits);
 }
 
+// Used only in subroutine (`def`) definitions.
 pub(super) fn param_list_def_params(p: &mut Parser<'_>) {
     // Subroutine definition parameter list: (t0 p0, t1 p1, ...)
     // - parens: yes
@@ -149,9 +150,11 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
         let m = p.start();
 
         let inner_array_literal = p.at(T!['{']);
+
         // Allowed starts for an item: either a type or a first-token of a param/expression,
         // or first token of array literal.
-        if !(p.current().is_type() || p.at_ts(PARAM_FIRST) || inner_array_literal) {
+        if matches!(flavor, DefParams) && (p.at(T![mutable]) || p.at(T![readonly])) {
+        } else if !(p.current().is_type() || p.at_ts(PARAM_FIRST) || inner_array_literal) {
             p.error("expected value parameter");
             m.abandon(p);
             break;
@@ -165,9 +168,10 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
                 true
             }
             GateCallQubits => arg_gate_call_qubit(p, m),
-            // These two have different requirements but share this entry point.
-            DefParams | DefCalParams => param_typed(p, m),
             TypeListFlavor => scalar_type(p, m),
+            // TODO: possibly fix after clarifying what the spec says
+            DefCalParams => param_typed(p, m),
+            DefParams => param_typed(p, m),
             // Untyped parameters/qubits.
             GateParams | GateQubits => param_untyped(p, m),
             DefCalQubits => param_untyped_or_hardware_qubit(p, m),
@@ -287,12 +291,23 @@ fn param_untyped_or_hardware_qubit(p: &mut Parser<'_>, m: Marker) -> bool {
     }
 }
 
+/// Parse one parameter in the list of parameters in the signature
+/// of a subroutine defintion (that is, a `def` statement)
 fn param_typed(p: &mut Parser<'_>, m: Marker) -> bool {
-    expressions::type_spec(p);
+    expressions::param_type_spec(p);
     expressions::var_name(p);
     m.complete(p, TYPED_PARAM);
     true
 }
+
+// TODO: Get clarification on the spec vis a vis defcal and def,
+// then revisit this.
+// fn scalar_typed(p: &mut Parser<'_>, m: Marker) -> bool {
+//     expressions::type_spec(p);
+//     expressions::var_name(p);
+//     m.complete(p, TYPED_PARAM);
+//     true
+// }
 
 fn scalar_type(p: &mut Parser<'_>, m: Marker) -> bool {
     expressions::type_spec(p);
