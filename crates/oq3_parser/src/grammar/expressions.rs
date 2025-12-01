@@ -589,15 +589,6 @@ pub(crate) fn set_expression(p: &mut Parser<'_>) {
     m.complete(p, SET_EXPRESSION);
 }
 
-// pub(crate) fn array_literal(p: &mut Parser<'_>) {
-//     assert!(p.at(T!['{']));
-//     let m = p.start();
-//     p.bump(T!['{']);
-//     params::expression_list(p);
-//     p.expect(T!['}']);
-//     m.complete(p, SET_EXPRESSION);
-// }
-
 pub(crate) fn index_operator(p: &mut Parser<'_>) {
     assert!(p.at(T!['[']));
     let m = p.start();
