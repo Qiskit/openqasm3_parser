@@ -675,13 +675,36 @@ pub struct Param {
 impl ast::HasName for Param {}
 impl Param {}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct TypedParam {
+pub struct ArrayRefType {
     pub(crate) syntax: SyntaxNode,
 }
-impl ast::HasName for TypedParam {}
-impl TypedParam {
+impl ArrayRefType {
+    pub fn readonly_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![readonly])
+    }
+    pub fn mutable_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![mutable])
+    }
+    pub fn array_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![array])
+    }
+    pub fn l_brack_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T!['['])
+    }
     pub fn scalar_type(&self) -> Option<ScalarType> {
         support::child(&self.syntax)
+    }
+    pub fn comma_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![,])
+    }
+    pub fn expression_list(&self) -> Option<ExpressionList> {
+        support::child(&self.syntax)
+    }
+    pub fn dim_expr(&self) -> Option<DimExpr> {
+        support::child(&self.syntax)
+    }
+    pub fn r_brack_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![']'])
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -727,6 +750,16 @@ impl ScalarType {
     }
     pub fn r_brack_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, T![']'])
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct TypedParam {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ast::HasName for TypedParam {}
+impl TypedParam {
+    pub fn param_type(&self) -> Option<ParamType> {
+        support::child(&self.syntax)
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -1189,6 +1222,11 @@ pub enum GateOperand {
     Identifier(Identifier),
     IndexedIdentifier(IndexedIdentifier),
     HardwareQubit(HardwareQubit),
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum ParamType {
+    ScalarType(ScalarType),
+    ArrayRefType(ArrayRefType),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Modifier {
@@ -1872,9 +1910,9 @@ impl AstNode for Param {
         &self.syntax
     }
 }
-impl AstNode for TypedParam {
+impl AstNode for ArrayRefType {
     fn can_cast(kind: SyntaxKind) -> bool {
-        kind == TYPED_PARAM
+        kind == ARRAY_REF_TYPE
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -1890,6 +1928,21 @@ impl AstNode for TypedParam {
 impl AstNode for ScalarType {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == SCALAR_TYPE
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl AstNode for TypedParam {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == TYPED_PARAM
     }
     fn cast(syntax: SyntaxNode) -> Option<Self> {
         if Self::can_cast(syntax.kind()) {
@@ -2840,6 +2893,35 @@ impl AstNode for GateOperand {
         }
     }
 }
+impl From<ScalarType> for ParamType {
+    fn from(node: ScalarType) -> ParamType {
+        ParamType::ScalarType(node)
+    }
+}
+impl From<ArrayRefType> for ParamType {
+    fn from(node: ArrayRefType) -> ParamType {
+        ParamType::ArrayRefType(node)
+    }
+}
+impl AstNode for ParamType {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        matches!(kind, SCALAR_TYPE | ARRAY_REF_TYPE)
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        let res = match syntax.kind() {
+            SCALAR_TYPE => ParamType::ScalarType(ScalarType { syntax }),
+            ARRAY_REF_TYPE => ParamType::ArrayRefType(ArrayRefType { syntax }),
+            _ => return None,
+        };
+        Some(res)
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        match self {
+            ParamType::ScalarType(it) => &it.syntax,
+            ParamType::ArrayRefType(it) => &it.syntax,
+        }
+    }
+}
 impl From<InvModifier> for Modifier {
     fn from(node: InvModifier) -> Modifier {
         Modifier::InvModifier(node)
@@ -2982,6 +3064,11 @@ impl std::fmt::Display for Expr {
     }
 }
 impl std::fmt::Display for GateOperand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for ParamType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
@@ -3216,12 +3303,17 @@ impl std::fmt::Display for Param {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
-impl std::fmt::Display for TypedParam {
+impl std::fmt::Display for ArrayRefType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }
 }
 impl std::fmt::Display for ScalarType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for TypedParam {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

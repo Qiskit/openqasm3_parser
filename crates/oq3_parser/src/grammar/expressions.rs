@@ -422,17 +422,39 @@ fn type_name(p: &mut Parser<'_>) {
     p.bump(p.current());
 }
 
+/// Parse a type specification appearing in
+/// the signature of a subroutine definition (`def`) statement.
+pub(crate) fn param_type_spec(p: &mut Parser<'_>) -> bool {
+    if p.at(T![array]) || p.at(T![mutable]) || p.at(T![readonly]) {
+        let want_array_ref_type = true;
+        return array_type_spec(p, want_array_ref_type);
+    }
+    non_array_type_spec(p)
+}
+
+/// Parse a type specification in contexts other than the
+/// the signature of a subroutine definition (`def`) statement.
 pub(crate) fn type_spec(p: &mut Parser<'_>) -> bool {
     if p.at(T![array]) {
-        return array_type_spec(p);
+        let want_array_ref_type = false;
+        return array_type_spec(p, want_array_ref_type);
     }
     non_array_type_spec(p)
 }
 
 // Parse an array type spec
-pub(crate) fn array_type_spec(p: &mut Parser<'_>) -> bool {
-    assert!(p.at(T![array]));
+pub(crate) fn array_type_spec(p: &mut Parser<'_>, want_array_ref_type: bool) -> bool {
     let m = p.start();
+    if want_array_ref_type {
+        if p.at(T![array]) {
+            p.error("Expecting modifier `mutable` or `immutable`");
+        } else {
+            p.eat(T![mutable]);
+            p.eat(T![readonly]);
+        }
+    } else {
+        assert!(p.at(T![array]));
+    }
     p.bump_any();
     p.expect(T!['[']);
     if !matches!(
@@ -445,6 +467,9 @@ pub(crate) fn array_type_spec(p: &mut Parser<'_>) -> bool {
     p.expect(COMMA);
     // Parse the dimensions.
     if p.at(T![dim]) {
+        if !want_array_ref_type {
+            p.error("Unexpected dim expression outside of subroutine declaration");
+        }
         let m = p.start();
         p.bump_any();
         if p.eat(T![=]) {

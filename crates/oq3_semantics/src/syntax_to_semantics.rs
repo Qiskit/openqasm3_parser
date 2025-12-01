@@ -1126,6 +1126,19 @@ fn block_or_stmt_to_asg_type(val: oq3_syntax::BlockOrStmt, context: &mut Context
 }
 
 // Convert AST scalar type to a `types::Type`
+fn param_type_to_type(
+    param_type: &synast::ParamType,
+    //    scalar_type: &synast::ScalarType,
+    isconst: bool,
+    context: &mut Context,
+) -> Type {
+    let scalar_type = match param_type {
+        synast::ParamType::ScalarType(scalar_type) => scalar_type,
+        synast::ParamType::ArrayRefType(_) => return Type::ToDo,
+    };
+    scalar_type_to_type(scalar_type, isconst, context)
+}
+
 fn scalar_type_to_type(
     scalar_type: &synast::ScalarType,
     isconst: bool,
@@ -1140,6 +1153,7 @@ fn scalar_type_to_type(
     // Eg, we write `int[32]`, but we don't write `complex[32]`, but rather `complex[float[32]]`.
     // However `Type::Complex` has exactly the same form as other scalar types. In this case
     // `width` is understood to be the width of each of real and imaginary components.
+
     let designator = if let Some(float_type) = scalar_type.scalar_type() {
         // complex
         float_type.designator()
@@ -1457,7 +1471,7 @@ fn bind_typed_parameter_list(
         param_list
             .typed_params()
             .map(|param| {
-                let typ = scalar_type_to_type(&param.scalar_type().unwrap(), false, context);
+                let typ = param_type_to_type(&param.param_type().unwrap(), false, context);
                 let namestr = param.name().unwrap().string();
                 context.new_binding(namestr.as_ref(), &typ, &param)
             })
