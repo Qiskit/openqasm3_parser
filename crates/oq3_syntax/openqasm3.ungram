@@ -195,7 +195,10 @@ ParamType =
    (ScalarType | ArrayRefType)
 
 TypedParam =
-  ParamType Name
+  (ParamType Name) | OldTypedParam
+
+OldTypedParam =
+  ('creg' | 'qreg') Name Designator?
 
 TypedParamList =
   '(' (TypedParam (',' TypedParam)* ','?)? ')'
@@ -446,7 +449,7 @@ IODeclarationStatement =
     ('input' | 'output') (ScalarType | ArrayType) Name ';'
 
 OldStyleDeclarationStatement =
-    ('creg' | 'qreg') Name Designator? ';'
+    OldTypedParam ';'
 
 QuantumDeclarationStatement =
    QubitType (Name | HardwareQubit) ';'

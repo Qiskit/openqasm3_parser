@@ -148,24 +148,30 @@ pub(crate) fn stmt(p: &mut Parser<'_>) {
     }
 }
 
-fn q_or_c_reg_declaration(p: &mut Parser<'_>, m: Marker) {
-    p.bump_any();
+/// The designator is on the identifier, rather than the type
+/// in OQ2. So we don't parse the identifier and type separately
+/// as we do for OQ3 constructions.
+pub fn q_or_c_reg_param(p: &mut Parser<'_>) {
+    let m = p.start();
+    p.bump_any(); // creg or qreg
     if !p.at(IDENT) {
         p.error("Expected qubit register name");
         m.abandon(p);
         return;
     }
-    let m1 = p.start();
     p.bump_any();
     if p.at(T!['[']) && !p.at(EOF) {
         index_operator(p);
     } else {
         p.error("Expected index operator");
-        m1.abandon(p);
         m.abandon(p);
         return;
     }
-    m1.complete(p, INDEXED_IDENTIFIER);
+    m.complete(p, OLD_TYPED_PARAM);
+}
+
+fn q_or_c_reg_declaration(p: &mut Parser<'_>, m: Marker) {
+    q_or_c_reg_param(p);
     p.expect(T![;]);
     m.complete(p, OLD_STYLE_DECLARATION_STATEMENT);
 }

@@ -154,7 +154,11 @@ fn _param_list_openqasm(p: &mut Parser<'_>, flavor: DefFlavor) {
         // Allowed starts for an item: either a type or a first-token of a param/expression,
         // or first token of array literal.
         if matches!(flavor, DefParams) && (p.at(T![mutable]) || p.at(T![readonly])) {
-        } else if !(p.current().is_type() || p.at_ts(PARAM_FIRST) || inner_array_literal) {
+        } else if !(p.current().is_type()
+            || p.at_ts(PARAM_FIRST)
+            || inner_array_literal
+            || p.current().is_creg_or_qreg())
+        {
             p.error("expected value parameter");
             m.abandon(p);
             break;
@@ -294,6 +298,11 @@ fn param_untyped_or_hardware_qubit(p: &mut Parser<'_>, m: Marker) -> bool {
 /// Parse one parameter in the list of parameters in the signature
 /// of a subroutine defintion (that is, a `def` statement)
 fn param_typed(p: &mut Parser<'_>, m: Marker) -> bool {
+    if p.at(T![creg]) || p.at(T![qreg]) {
+        m.abandon(p);
+        expressions::q_or_c_reg_param(p);
+        return true;
+    }
     expressions::param_type_spec(p);
     expressions::var_name(p);
     m.complete(p, TYPED_PARAM);

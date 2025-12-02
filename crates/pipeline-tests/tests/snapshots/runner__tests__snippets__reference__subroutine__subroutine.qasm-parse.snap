@@ -3,11 +3,11 @@ source: crates/pipeline-tests/tests/runner.rs
 expression: parse_snap
 ---
 id: tests/snippets/reference/subroutine/subroutine.qasm
-expect-parse: Todo
+expect-parse: Ok
 --- parser ---
-ok: false
+ok: true
 panicked: false
-errors: 14
+errors: 0
 --- ast ---
 SOURCE_FILE@0..293: 
 def test_sub1(int[5] i, qubit[2] q1, qreg q2[5]) -> int[10] {
@@ -24,9 +24,13 @@ def returns_a_measure(qubit q) {
   return measure q;
 }
 
-DEF@1..37: def test_sub1(int[5] i, qubit[2] q1,
+DEF@1..137: def test_sub1(int[5] i, qubit[2] q1, qreg q2[5]) -> int[10] {
+  int[10] result;
+  if (result == 2) return 1 + result;
+  return result;
+}
 NAME@5..14: test_sub1
-TYPED_PARAM_LIST@14..37: (int[5] i, qubit[2] q1,
+TYPED_PARAM_LIST@14..49: (int[5] i, qubit[2] q1, qreg q2[5])
 TYPED_PARAM@15..23: int[5] i
 SCALAR_TYPE@15..21: int[5]
 DESIGNATOR@18..21: [5]
@@ -37,24 +41,14 @@ SCALAR_TYPE@25..33: qubit[2]
 DESIGNATOR@30..33: [2]
 LITERAL@31..32: 2
 NAME@34..36: q1
-OLD_STYLE_DECLARATION_STATEMENT@38..48: qreg q2[5]
-INDEXED_IDENTIFIER@43..48: q2[5]
+OLD_TYPED_PARAM@38..48: qreg q2[5]
 INDEX_OPERATOR@45..48: [5]
 EXPRESSION_LIST@46..47: 5
 LITERAL@46..47: 5
-ERROR@48..49: )
-EXPR_STMT@50..52: ->
-PREFIX_EXPR@50..52: ->
-ERROR@51..52: >
+RETURN_SIGNATURE@50..60: -> int[10]
 SCALAR_TYPE@53..60: int[10]
 DESIGNATOR@56..60: [10]
 LITERAL@57..59: 10
-NAME@61..61: 
-EXPR_STMT@61..137: {
-  int[10] result;
-  if (result == 2) return 1 + result;
-  return result;
-}
 BLOCK_EXPR@61..137: {
   int[10] result;
   if (result == 2) return 1 + result;
@@ -77,9 +71,13 @@ IDENTIFIER@111..117: result
 EXPR_STMT@121..135: return result;
 RETURN_EXPR@121..134: return result
 IDENTIFIER@128..134: result
-DEF@138..171: def test_sub2(int[5] i, bit[2] b,
+DEF@138..237: def test_sub2(int[5] i, bit[2] b, creg c[3]) {
+  for int[5] j in {2, 3}
+    i += j;
+  return i+1;
+}
 NAME@142..151: test_sub2
-TYPED_PARAM_LIST@151..171: (int[5] i, bit[2] b,
+TYPED_PARAM_LIST@151..182: (int[5] i, bit[2] b, creg c[3])
 TYPED_PARAM@152..160: int[5] i
 SCALAR_TYPE@152..158: int[5]
 DESIGNATOR@155..158: [5]
@@ -90,17 +88,10 @@ SCALAR_TYPE@162..168: bit[2]
 DESIGNATOR@165..168: [2]
 LITERAL@166..167: 2
 NAME@169..170: b
-OLD_STYLE_DECLARATION_STATEMENT@172..181: creg c[3]
-INDEXED_IDENTIFIER@177..181: c[3]
+OLD_TYPED_PARAM@172..181: creg c[3]
 INDEX_OPERATOR@178..181: [3]
 EXPRESSION_LIST@179..180: 3
 LITERAL@179..180: 3
-ERROR@181..182: )
-EXPR_STMT@183..237: {
-  for int[5] j in {2, 3}
-    i += j;
-  return i+1;
-}
 BLOCK_EXPR@183..237: {
   for int[5] j in {2, 3}
     i += j;

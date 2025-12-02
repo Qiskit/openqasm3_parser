@@ -405,15 +405,8 @@ impl Measure {
 pub struct OldStyleDeclarationStatement {
     pub(crate) syntax: SyntaxNode,
 }
-impl ast::HasName for OldStyleDeclarationStatement {}
 impl OldStyleDeclarationStatement {
-    pub fn creg_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![creg])
-    }
-    pub fn qreg_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, T![qreg])
-    }
-    pub fn designator(&self) -> Option<Designator> {
+    pub fn old_typed_param(&self) -> Option<OldTypedParam> {
         support::child(&self.syntax)
     }
     pub fn semicolon_token(&self) -> Option<SyntaxToken> {
@@ -759,6 +752,25 @@ pub struct TypedParam {
 impl ast::HasName for TypedParam {}
 impl TypedParam {
     pub fn param_type(&self) -> Option<ParamType> {
+        support::child(&self.syntax)
+    }
+    pub fn old_typed_param(&self) -> Option<OldTypedParam> {
+        support::child(&self.syntax)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct OldTypedParam {
+    pub(crate) syntax: SyntaxNode,
+}
+impl ast::HasName for OldTypedParam {}
+impl OldTypedParam {
+    pub fn creg_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![creg])
+    }
+    pub fn qreg_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, T![qreg])
+    }
+    pub fn designator(&self) -> Option<Designator> {
         support::child(&self.syntax)
     }
 }
@@ -1955,6 +1967,21 @@ impl AstNode for TypedParam {
         &self.syntax
     }
 }
+impl AstNode for OldTypedParam {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        kind == OLD_TYPED_PARAM
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(Self { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
 impl AstNode for ArrayExpr {
     fn can_cast(kind: SyntaxKind) -> bool {
         kind == ARRAY_EXPR
@@ -3037,10 +3064,10 @@ impl AstNode for AnyHasName {
                 | GATE
                 | I_O_DECLARATION_STATEMENT
                 | LET_STMT
-                | OLD_STYLE_DECLARATION_STATEMENT
                 | QUANTUM_DECLARATION_STATEMENT
                 | PARAM
                 | TYPED_PARAM
+                | OLD_TYPED_PARAM
                 | GATE_CALL_EXPR
                 | HARDWARE_QUBIT
                 | INDEXED_IDENTIFIER
@@ -3314,6 +3341,11 @@ impl std::fmt::Display for ScalarType {
     }
 }
 impl std::fmt::Display for TypedParam {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(self.syntax(), f)
+    }
+}
+impl std::fmt::Display for OldTypedParam {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.syntax(), f)
     }

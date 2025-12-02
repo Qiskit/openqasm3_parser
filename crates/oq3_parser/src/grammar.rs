@@ -201,4 +201,8 @@ impl SyntaxKind {
     pub fn is_type(&self) -> bool {
         self.is_classical_type() || self.is_quantum_type()
     }
+
+    pub fn is_creg_or_qreg(&self) -> bool {
+        matches!(self, T![qreg] | T![creg])
+    }
 }
