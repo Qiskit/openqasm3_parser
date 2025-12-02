@@ -1,5 +1,5 @@
 // lex: ok
-// parse: todo
+// parse: ok
 // sema: skip
 
 def test_sub1(int[5] i, qubit[2] q1, qreg q2[5]) -> int[10] {

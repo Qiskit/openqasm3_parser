@@ -446,6 +446,7 @@ mod sourcegen {
             "RANGE_EXPR",
             "TYPE",
             "TYPED_PARAM",
+            "OLD_TYPED_PARAM",
             "TYPED_PARAM_LIST",
             "TYPE_LIST",
             "VERSION",

@@ -1471,7 +1471,13 @@ fn bind_typed_parameter_list(
         param_list
             .typed_params()
             .map(|param| {
-                let typ = param_type_to_type(&param.param_type().unwrap(), false, context);
+                let typ = if let Some(pt) = param.param_type() {
+                    param_type_to_type(&pt, false, context)
+                } else if param.old_typed_param().is_some() {
+                    Type::ToDo
+                } else {
+                    panic!("You have found a bug in oq3_parser")
+                };
                 let namestr = param.name().unwrap().string();
                 context.new_binding(namestr.as_ref(), &typ, &param)
             })
