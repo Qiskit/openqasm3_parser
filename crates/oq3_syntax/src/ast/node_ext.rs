@@ -185,6 +185,14 @@ impl ForStmt {
 // }
 
 impl ast::IfStmt {
+    fn branches(&self) -> impl Iterator<Item = BlockOrStmt> + '_ {
+        self.syntax().children().filter_map(|node| {
+            ast::BlockExpr::cast(node.clone())
+                .map(BlockOrStmt::BlockExpr)
+                .or_else(|| ast::Stmt::cast(node).map(BlockOrStmt::Stmt))
+        })
+    }
+
     pub fn condition(&self) -> Option<ast::Expr> {
         // If the condition is a BlockExpr, check if the then body is missing.
         // If it is, assume the condition is the expression that is missing instead.
@@ -196,16 +204,20 @@ impl ast::IfStmt {
         }
     }
 
+    // Return `Some` if the then branch is a curly-delimited block.
     pub fn then_branch_block(&self) -> Option<ast::BlockExpr> {
-        match support::children(self.syntax()).nth(1)? {
-            ast::Expr::BlockExpr(block) => Some(block),
+        match self.branches().next()? {
+            BlockOrStmt::BlockExpr(block) => Some(block),
             _ => None,
         }
     }
 
-    // Hmm. Not sure why this is not `nth(1)`. (It is equivalent to `nth(0)`.)
+    // Return `Some` if the then branch is a single statement.
     pub fn then_branch_stmt(&self) -> Option<ast::Stmt> {
-        support::child(&self.syntax)
+        match self.branches().next()? {
+            BlockOrStmt::Stmt(stmt) => Some(stmt),
+            _ => None,
+        }
     }
 
     // This is the `if` body, corresponding to the condition evaluating true.
@@ -221,15 +233,18 @@ impl ast::IfStmt {
 
     // Return `Some` if the else branch is present and is a curly-delimited block.
     pub fn else_branch_block(&self) -> Option<ast::BlockExpr> {
-        match support::children(self.syntax()).nth(2)? {
-            ast::Expr::BlockExpr(block) => Some(block),
+        match self.branches().nth(1)? {
+            BlockOrStmt::BlockExpr(block) => Some(block),
             _ => None,
         }
     }
 
     // Return `Some` if the else branch is present and is a single statement.
     pub fn else_branch_stmt(&self) -> Option<ast::Stmt> {
-        support::child(&self.syntax)
+        match self.branches().nth(1)? {
+            BlockOrStmt::Stmt(stmt) => Some(stmt),
+            _ => None,
+        }
     }
 
     // This is the `else` body, corresponding to the condition evaluating false.
