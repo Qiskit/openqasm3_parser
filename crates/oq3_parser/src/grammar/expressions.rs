@@ -223,13 +223,11 @@ fn current_op(p: &Parser<'_>) -> (u8, SyntaxKind, Associativity) {
         T![>]                  => (5,  T![>],   Left),
         T![=] if p.at(T![=>])  => NOT_AN_OP,
         T![=] if p.at(T![==])  => (5,  T![==],  Left),
-        // r-a had 1 as the bp here. But this attempts to parse
-        // `x + y = 3`; as `(x + y) = 3;` which is probably not what the user meant.
-        // Putting 12 as the bp instead of 1 parses this as
-        // `x + (y = 3)`. In OQ3, this is still illegal, but the user will get a more
-        // informative error message. That an assignment statement is not allowed here.
-        // This may have unintended consequences and we will need to replace the 12 with 1.
-        T![=]                  => (12,  T![=],   Right),
+        // Assignment has lower precedence than every value-producing binary
+        // operator, so `x = y ^ z` keeps the complete expression on the RHS.
+        // `expr_bp` separately checks that the completed LHS is an identifier
+        // or indexed identifier, rejecting forms such as `(x + y) = z`.
+        T![=]                  => (1,   T![=],   Right),
         T![<] if p.at(T![<=])  => (5,  T![<=],  Left),
         T![<] if p.at(T![<<=]) => (1,  T![<<=], Right),
         T![<] if p.at(T![<<])  => (9,  T![<<],  Left),

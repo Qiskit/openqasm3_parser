@@ -325,3 +325,22 @@ z + int[32](x);
     let parse = SourceFile::parse(code);
     assert_eq!(parse.errors.len(), 0);
 }
+
+#[test]
+fn parse_assignment_rhs_test() {
+    let code = r##"
+bit a;
+bit b;
+bit c;
+a = b ^ c;
+    "##;
+    let parse = SourceFile::parse(code);
+    assert!(parse.ok().is_ok());
+}
+
+#[test]
+fn parse_assignment_invalid_lhs_test() {
+    let parse = SourceFile::parse("x + y = 3;");
+    assert_eq!(parse.errors.len(), 1);
+    assert_eq!(parse.errors[0].message(), "Illegal LHS in assignment");
+}
