@@ -3,8 +3,11 @@
 [![Minimum rustc 1.79](https://img.shields.io/badge/rustc-1.79+-blue.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
 [![oq3_semantics crate](https://img.shields.io/crates/v/oq3_semantics.svg)](https://crates.io/crates/oq3_semantics)
 
-
 This project provides a compiler front end for OpenQASM 3 language (OQ3).
+
+| :exclamation:  **Reduced Maintenance Mode**  |
+|----------------------------------------------|
+| This project is currently operating under **reduced maintenance**. The maintainers are only able to address **critical bug fixes**. Feature requests and non-critical enhancements have been placed in the backlog and will be revisited as capacity allows. |
 
 In this document, this parser is referred to as `openqasm3_parser`.
 
