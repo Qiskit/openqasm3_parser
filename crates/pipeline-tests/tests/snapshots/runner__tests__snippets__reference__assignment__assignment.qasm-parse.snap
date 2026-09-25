@@ -7,7 +7,7 @@ expect-parse: Todo
 --- parser ---
 ok: false
 panicked: false
-errors: 3
+errors: 2
 --- ast ---
 SOURCE_FILE@0..161: 
 bit[2] a;
@@ -103,9 +103,8 @@ IDENTIFIER@143..144: q
 INDEX_OPERATOR@144..147: [0]
 EXPRESSION_LIST@145..146: 0
 LITERAL@145..146: 0
-EXPR_STMT@149..160: b = a == 0;
-BIN_EXPR@149..159: b = a == 0
-ASSIGNMENT_STMT@149..154: b = a
+ASSIGNMENT_STMT@149..160: b = a == 0;
 IDENTIFIER@149..150: b
+BIN_EXPR@153..159: a == 0
 IDENTIFIER@153..154: a
 LITERAL@158..159: 0
